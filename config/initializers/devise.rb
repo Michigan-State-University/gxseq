@@ -5,21 +5,28 @@
 # Trusts the upstream server to authenticate and set REMOTE_USER env var for login
 Warden::Strategies.add(:remote_user_auth) do 
   def valid? 
-    APP_CONFIG[:use_remote_user] ==  true && !request.env["HTTP_REMOTE_USER"].blank? 
+    APP_CONFIG[:use_remote_user] ==  true && !request.headers["HTTP_REMOTE_USER"].blank? 
   end 
   
   def authenticate!
     # find or create a user with login == REMOTE_USER
     if(APP_CONFIG[:create_from_remote_user] == true)
-      remote_email = request.headers["AUTHENTICATE_email"] || ''
+      remote_email = request.headers["REMOTE_EMAIL"] || ''
+      remote_user = request.headers["HTTP_REMOTE_USER"]
       begin
-        resource = User.find_or_create_by_login_and_email(request.env["HTTP_REMOTE_USER"],remote_email)
+        resource = User.find_by_login(remote_user) || begin
+	  User.create(
+	    :login=>remote_user,
+	    :email=>remote_email,
+	    :password=>'s!G5ds@O8n9d'
+	  )
+	end
       rescue
-        ::Rails.logger.info("\n:remote_user_auth Could not create new user: '#{request.env["HTTP_REMOTE_USER"]}', '#{remote_email}'\n#{$!}")
+        ::Rails.logger.info("\n:remote_user_auth Could not create new user: '#{remote_user}', '#{remote_email}'\n#{$!}")
         fail(:invalid)
       end
     else
-      resource = User.find_by_login_and_email(request.env["HTTP_REMOTE_USER"],request.headers["AUTHENTICATE_email"])
+      resource = User.find_by_login(remote_user)
     end
     # if we were not able to create or find a user then pass on to another strategy
     if(resource)
