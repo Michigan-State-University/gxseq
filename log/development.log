@@ -1,0 +1,1234 @@
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from <top (required)> at /Users/nicholasthrower/Sites/genome_suite/app/controllers/application_controller.rb:1)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from service at /Users/nicholasthrower/.rvm/rubies/ruby-1.9.2-p290/lib/ruby/1.9.1/webrick/httpserver.rb:111)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from service at /Users/nicholasthrower/.rvm/rubies/ruby-1.9.2-p290/lib/ruby/1.9.1/webrick/httpserver.rb:111)
+
+
+Started GET "/" for 127.0.0.1 at 2011-07-20 10:23:15 -0400
+
+Mysql2::Error (Access denied for user 'root'@'localhost' (using password: NO)):
+  
+
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/actionpack-3.0.9/lib/action_dispatch/middleware/templates/rescues/_trace.erb (1.0ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/actionpack-3.0.9/lib/action_dispatch/middleware/templates/rescues/_request_and_response.erb (5.8ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/actionpack-3.0.9/lib/action_dispatch/middleware/templates/rescues/diagnostics.erb within rescues/layout (11.9ms)
+
+
+Started GET "/" for 127.0.0.1 at 2011-07-20 10:23:38 -0400
+
+Mysql2::Error (Access denied for user 'root'@'localhost' (using password: NO)):
+  
+
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/actionpack-3.0.9/lib/action_dispatch/middleware/templates/rescues/_trace.erb (1.0ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/actionpack-3.0.9/lib/action_dispatch/middleware/templates/rescues/_request_and_response.erb (1.1ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/actionpack-3.0.9/lib/action_dispatch/middleware/templates/rescues/diagnostics.erb within rescues/layout (5.5ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from service at /Users/nicholasthrower/.rvm/rubies/ruby-1.9.2-p290/lib/ruby/1.9.1/webrick/httpserver.rb:111)
+
+
+Started GET "/" for 127.0.0.1 at 2011-07-20 10:23:46 -0400
+  Processing by HomeController#index as HTML
+Rendered home/index.html.erb within layouts/application (2.5ms)
+Completed 200 OK in 29ms (Views: 28.3ms | ActiveRecord: 0.0ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from service at /Users/nicholasthrower/.rvm/rubies/ruby-1.9.2-p290/lib/ruby/1.9.1/webrick/httpserver.rb:111)
+
+
+Started GET "/" for 127.0.0.1 at 2011-07-20 10:30:53 -0400
+  Processing by HomeController#index as HTML
+Completed   in 0ms
+
+
+Started GET "/users/sign_in" for 127.0.0.1 at 2011-07-20 10:30:53 -0400
+  Processing by Devise::SessionsController#new as HTML
+Completed 500 Internal Server Error in 82ms
+
+Mysql2::Error (Table 'genome_suite_development.users' doesn't exist):
+  
+
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/actionpack-3.0.9/lib/action_dispatch/middleware/templates/rescues/_trace.erb (1.0ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/actionpack-3.0.9/lib/action_dispatch/middleware/templates/rescues/_request_and_response.erb (3.1ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/actionpack-3.0.9/lib/action_dispatch/middleware/templates/rescues/diagnostics.erb within rescues/layout (7.5ms)
+  [1m[36mSQL (0.4ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mSQL (36.5ms)[0m  CREATE TABLE `schema_migrations` (`version` varchar(255) NOT NULL) ENGINE=InnoDB
+  [1m[36mSQL (0.5ms)[0m  [1mSHOW KEYS FROM `schema_migrations`[0m
+  [1m[35mSQL (23.8ms)[0m  CREATE UNIQUE INDEX `unique_schema_migrations` ON `schema_migrations` (`version`)
+  [1m[36mSQL (0.2ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mSQL (0.1ms)[0m  SHOW TABLES
+  [1m[36mSQL (0.1ms)[0m  [1mSELECT `schema_migrations`.`version` FROM `schema_migrations`[0m
+Migrating to DeviseCreateUsers (20110720140946)
+  [1m[36mSQL (0.3ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mSQL (0.1ms)[0m  SHOW TABLES
+  [1m[36mSQL (0.7ms)[0m  [1mSELECT `schema_migrations`.`version` FROM `schema_migrations`[0m
+Migrating to DeviseCreateUsers (20110720140946)
+  [1m[35mSQL (1.5ms)[0m  CREATE TABLE `users` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `email` varchar(255) DEFAULT '' NOT NULL, `encrypted_password` varchar(128) DEFAULT '' NOT NULL, `login` varchar(255) NOT NULL, `remember_created_at` datetime, `sign_in_count` int(11) DEFAULT 0, `current_sign_in_at` datetime, `last_sign_in_at` datetime, `current_sign_in_ip` varchar(255), `last_sign_in_ip` varchar(255), `created_at` datetime, `updated_at` datetime) ENGINE=InnoDB
+  [1m[36mSQL (0.5ms)[0m  [1mSHOW KEYS FROM `users`[0m
+  [1m[35mSQL (57.8ms)[0m  CREATE UNIQUE INDEX `index_users_on_login` ON `users` (`login`)
+  [1m[36mSQL (0.4ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20110720140946')[0m
+  [1m[35mSQL (0.6ms)[0m  SHOW TABLES
+  [1m[36mSQL (0.3ms)[0m  [1mSELECT `schema_migrations`.`version` FROM `schema_migrations`[0m
+  [1m[35mSQL (0.2ms)[0m  SHOW TABLES
+  [1m[36mSQL (0.9ms)[0m  [1mdescribe `users`[0m
+  [1m[35mSQL (0.3ms)[0m  SHOW KEYS FROM `users`
+  [1m[36mSQL (0.3ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mSQL (0.2ms)[0m  SHOW TABLES
+  [1m[36mSQL (0.8ms)[0m  [1mSELECT `schema_migrations`.`version` FROM `schema_migrations`[0m
+Migrating to DeviseCreateUsers (20110720140946)
+  [1m[35mSQL (0.4ms)[0m  SHOW TABLES
+  [1m[36mSQL (0.2ms)[0m  [1mSELECT `schema_migrations`.`version` FROM `schema_migrations`[0m
+  [1m[35mSQL (0.2ms)[0m  SHOW TABLES
+  [1m[36mSQL (1.0ms)[0m  [1mdescribe `users`[0m
+  [1m[35mSQL (0.6ms)[0m  SHOW KEYS FROM `users`
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from service at /Users/nicholasthrower/.rvm/rubies/ruby-1.9.2-p290/lib/ruby/1.9.1/webrick/httpserver.rb:111)
+
+
+Started GET "/users/sign_in" for 127.0.0.1 at 2011-07-20 10:31:41 -0400
+  Processing by Devise::SessionsController#new as HTML
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/shared/_links.erb (1.1ms)
+Rendered devise/sessions/new.html.erb within layouts/application (104.9ms)
+Completed 200 OK in 122ms (Views: 109.2ms | ActiveRecord: 0.0ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from service at /Users/nicholasthrower/.rvm/rubies/ruby-1.9.2-p290/lib/ruby/1.9.1/webrick/httpserver.rb:111)
+
+
+Started GET "/" for 127.0.0.1 at 2011-07-20 10:36:37 -0400
+  Processing by HomeController#index as HTML
+Completed   in 0ms
+
+
+Started GET "/users/sign_in" for 127.0.0.1 at 2011-07-20 10:36:38 -0400
+  Processing by Devise::SessionsController#new as HTML
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/shared/_links.erb (1.1ms)
+Rendered devise/sessions/new.html.erb within layouts/application (8.0ms)
+Completed 200 OK in 34ms (Views: 12.1ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/users/sign_in" for 127.0.0.1 at 2011-07-20 10:37:42 -0400
+  Processing by Devise::SessionsController#new as HTML
+Rendered devise/sessions/new.html.erb within layouts/application (5.6ms)
+Completed 200 OK in 31ms (Views: 10.6ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/users/sign_in" for 127.0.0.1 at 2011-07-20 10:37:55 -0400
+  Processing by Devise::SessionsController#new as HTML
+Rendered devise/sessions/new.html.erb within layouts/application (39.8ms)
+Completed 500 Internal Server Error in 60ms
+
+ActionView::Template::Error (undefined method `login_field' for #<ActionView::Helpers::FormBuilder:0x000001023d7630>):
+    2: 
+    3: <%= form_for(resource, :as => resource_name, :url => session_path(resource_name)) do |f| %>
+    4:   <p><%= f.label :login %><br />
+    5:   <%= f.login_field :login %></p>
+    6: 
+    7:   <p><%= f.label :password %><br />
+    8:   <%= f.password_field :password %></p>
+  app/views/devise/sessions/new.html.erb:5:in `block in _app_views_devise_sessions_new_html_erb__4550132952174248576_2166382720__4441355502090373444'
+  app/views/devise/sessions/new.html.erb:3:in `_app_views_devise_sessions_new_html_erb__4550132952174248576_2166382720__4441355502090373444'
+
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/actionpack-3.0.9/lib/action_dispatch/middleware/templates/rescues/_trace.erb (1.1ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/actionpack-3.0.9/lib/action_dispatch/middleware/templates/rescues/_request_and_response.erb (3.4ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/actionpack-3.0.9/lib/action_dispatch/middleware/templates/rescues/template_error.erb within rescues/layout (8.3ms)
+
+
+Started GET "/users/sign_in" for 127.0.0.1 at 2011-07-20 10:38:09 -0400
+  Processing by Devise::SessionsController#new as HTML
+Rendered devise/sessions/new.html.erb within layouts/application (4.8ms)
+Completed 200 OK in 27ms (Views: 9.2ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/users/sign_in" for 127.0.0.1 at 2011-07-20 10:38:34 -0400
+  Processing by Devise::SessionsController#create as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"PDhmai/SdKmAUDB8y2PquHDHJRE2KD42rQ+qWKgiAI4=", "user"=>{"login"=>"test123", "password"=>"[FILTERED]", "remember_me"=>"0"}, "commit"=>"Sign in"}
+  [1m[36mSQL (0.4ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.3ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`login` = 'test123' LIMIT 1
+Completed 500 Internal Server Error in 285ms
+
+Psych::SyntaxError (couldn't parse YAML at line 29 column 18):
+  
+
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/actionpack-3.0.9/lib/action_dispatch/middleware/templates/rescues/_trace.erb (1.0ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/actionpack-3.0.9/lib/action_dispatch/middleware/templates/rescues/_request_and_response.erb (4.2ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/actionpack-3.0.9/lib/action_dispatch/middleware/templates/rescues/diagnostics.erb within rescues/layout (8.8ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from service at /Users/nicholasthrower/.rvm/rubies/ruby-1.9.2-p290/lib/ruby/1.9.1/webrick/httpserver.rb:111)
+
+
+Started GET "/users/sign_in" for 127.0.0.1 at 2011-07-20 10:39:12 -0400
+  Processing by Devise::SessionsController#new as HTML
+Rendered devise/sessions/new.html.erb within layouts/application (99.8ms)
+Completed 200 OK in 142ms (Views: 104.0ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/users/sign_in" for 127.0.0.1 at 2011-07-20 10:39:19 -0400
+  Processing by Devise::SessionsController#create as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"PDhmai/SdKmAUDB8y2PquHDHJRE2KD42rQ+qWKgiAI4=", "user"=>{"login"=>"test123", "password"=>"[FILTERED]", "remember_me"=>"0"}, "commit"=>"Sign in"}
+  [1m[36mSQL (0.4ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.3ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`login` = 'test123' LIMIT 1
+  [36mLDAP:[0m LDAP search: sAMAccountName=test123
+  [36mLDAP:[0m Authorizing user sAMAccountName=test123,dc=glbrc,dc=org
+  [36mLDAP:[0m LDAP search: sAMAccountName=test123
+Completed   in 1356ms
+  Processing by Devise::SessionsController#new as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"PDhmai/SdKmAUDB8y2PquHDHJRE2KD42rQ+qWKgiAI4=", "user"=>{"login"=>"test123", "password"=>"[FILTERED]", "remember_me"=>"0"}, "commit"=>"Sign in"}
+Rendered devise/sessions/new.html.erb within layouts/application (5.9ms)
+Completed 200 OK in 12ms (Views: 11.1ms | ActiveRecord: 0.7ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from service at /Users/nicholasthrower/.rvm/rubies/ruby-1.9.2-p290/lib/ruby/1.9.1/webrick/httpserver.rb:111)
+
+
+Started GET "/home" for 127.0.0.1 at 2011-07-20 10:41:13 -0400
+
+ActionController::RoutingError (No route matches "/home"):
+  
+
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/actionpack-3.0.9/lib/action_dispatch/middleware/templates/rescues/routing_error.erb within rescues/layout (1.1ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from service at /Users/nicholasthrower/.rvm/rubies/ruby-1.9.2-p290/lib/ruby/1.9.1/webrick/httpserver.rb:111)
+
+
+Started GET "/" for 127.0.0.1 at 2011-07-20 10:42:14 -0400
+  Processing by HomeController#index as HTML
+Completed   in 1ms
+
+
+Started GET "/users/sign_in" for 127.0.0.1 at 2011-07-20 10:42:14 -0400
+  Processing by Devise::SessionsController#new as HTML
+Rendered devise/sessions/new.html.erb within layouts/application (5.0ms)
+Completed 200 OK in 27ms (Views: 9.2ms | ActiveRecord: 0.0ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from service at /Users/nicholasthrower/.rvm/rubies/ruby-1.9.2-p290/lib/ruby/1.9.1/webrick/httpserver.rb:111)
+
+
+Started GET "/users/sign_in" for 127.0.0.1 at 2011-07-20 10:43:36 -0400
+  Processing by Devise::SessionsController#new as HTML
+Rendered devise/sessions/new.html.erb within layouts/application (103.1ms)
+Completed 200 OK in 122ms (Views: 107.5ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/users/sign_in" for 127.0.0.1 at 2011-07-20 10:44:11 -0400
+  Processing by Devise::SessionsController#create as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"PDhmai/SdKmAUDB8y2PquHDHJRE2KD42rQ+qWKgiAI4=", "user"=>{"login"=>"test123", "password"=>"[FILTERED]", "remember_me"=>"0"}, "commit"=>"Sign in"}
+  [1m[36mSQL (0.4ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.3ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`login` = 'test123' LIMIT 1
+  [36mLDAP:[0m LDAP search: sAMAccountName=test123
+  [36mLDAP:[0m Authorizing user sAMAccountName=test123,dc=glbrc,dc=org
+  [36mLDAP:[0m LDAP search: sAMAccountName=test123
+Completed   in 319ms
+  Processing by Devise::SessionsController#new as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"PDhmai/SdKmAUDB8y2PquHDHJRE2KD42rQ+qWKgiAI4=", "user"=>{"login"=>"test123", "password"=>"[FILTERED]", "remember_me"=>"0"}, "commit"=>"Sign in"}
+Rendered devise/sessions/new.html.erb within layouts/application (6.2ms)
+Completed 200 OK in 12ms (Views: 10.4ms | ActiveRecord: 0.7ms)
+
+
+Started GET "/" for 127.0.0.1 at 2011-07-20 10:44:54 -0400
+  Processing by HomeController#index as HTML
+Completed   in 0ms
+
+
+Started GET "/users/sign_in" for 127.0.0.1 at 2011-07-20 10:44:54 -0400
+  Processing by Devise::SessionsController#new as HTML
+Rendered devise/sessions/new.html.erb within layouts/application (6.2ms)
+Completed 200 OK in 37ms (Views: 13.4ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/users/sign_in" for 127.0.0.1 at 2011-07-20 10:46:32 -0400
+  Processing by Devise::SessionsController#create as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"PDhmai/SdKmAUDB8y2PquHDHJRE2KD42rQ+qWKgiAI4=", "user"=>{"login"=>"Apache LDAP", "password"=>"[FILTERED]", "remember_me"=>"0"}, "commit"=>"Sign in"}
+  [1m[36mUser Load (0.4ms)[0m  [1mSELECT `users`.* FROM `users` WHERE `users`.`login` = 'Apache LDAP' LIMIT 1[0m
+  [36mLDAP:[0m LDAP search: sAMAccountName=Apache LDAP
+  [36mLDAP:[0m Authorizing user sAMAccountName=Apache LDAP,dc=glbrc,dc=org
+  [36mLDAP:[0m LDAP search: sAMAccountName=Apache LDAP
+Completed   in 273ms
+  Processing by Devise::SessionsController#new as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"PDhmai/SdKmAUDB8y2PquHDHJRE2KD42rQ+qWKgiAI4=", "user"=>{"login"=>"Apache LDAP", "password"=>"[FILTERED]", "remember_me"=>"0"}, "commit"=>"Sign in"}
+Rendered devise/sessions/new.html.erb within layouts/application (5.2ms)
+Completed 200 OK in 11ms (Views: 10.1ms | ActiveRecord: 0.4ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from service at /Users/nicholasthrower/.rvm/rubies/ruby-1.9.2-p290/lib/ruby/1.9.1/webrick/httpserver.rb:111)
+
+
+Started GET "/users/sign_in" for 127.0.0.1 at 2011-07-20 10:53:16 -0400
+  Processing by Devise::SessionsController#new as HTML
+Rendered devise/sessions/new.html.erb within layouts/application (100.0ms)
+Completed 200 OK in 117ms (Views: 104.1ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/users/sign_in" for 127.0.0.1 at 2011-07-20 10:53:22 -0400
+  Processing by Devise::SessionsController#create as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"PDhmai/SdKmAUDB8y2PquHDHJRE2KD42rQ+qWKgiAI4=", "user"=>{"login"=>"fo", "password"=>"[FILTERED]", "remember_me"=>"0"}, "commit"=>"Sign in"}
+  [1m[36mSQL (0.4ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.4ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`login` = 'fo' LIMIT 1
+  [36mLDAP:[0m LDAP search: sAMAccountName=fo
+  [36mLDAP:[0m Authorizing user sAMAccountName=fo,dc=glbrc,dc=org
+  [36mLDAP:[0m LDAP search: sAMAccountName=fo
+Completed   in 310ms
+  Processing by Devise::SessionsController#new as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"PDhmai/SdKmAUDB8y2PquHDHJRE2KD42rQ+qWKgiAI4=", "user"=>{"login"=>"fo", "password"=>"[FILTERED]", "remember_me"=>"0"}, "commit"=>"Sign in"}
+Rendered devise/sessions/new.html.erb within layouts/application (5.0ms)
+Completed 200 OK in 10ms (Views: 9.3ms | ActiveRecord: 0.8ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 14:03:12 -0400
+
+ActionController::RoutingError (uninitialized constant ApplicationController::DeviseLdapAuthenticatable):
+  app/controllers/application_controller.rb:2:in `<class:ApplicationController>'
+  app/controllers/application_controller.rb:1:in `<top (required)>'
+  app/controllers/home_controller.rb:1:in `<top (required)>'
+
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/actionpack-3.0.9/lib/action_dispatch/middleware/templates/rescues/routing_error.erb within rescues/layout (1.1ms)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 14:03:47 -0400
+  Processing by HomeController#index as HTML
+Completed   in 8ms
+
+
+Started GET "/gs/users/sign_in" for 127.0.0.1 at 2011-07-20 14:03:47 -0400
+  Processing by Devise::SessionsController#new as HTML
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/shared/_links.erb (1.2ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/sessions/new.html.erb within layouts/application (8.7ms)
+Completed 200 OK in 83ms (Views: 14.1ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/gs/" for 127.0.0.1 at 2011-07-20 14:04:59 -0400
+  Processing by HomeController#index as HTML
+Completed   in 8ms
+
+
+Started GET "/gs/users/sign_in" for 127.0.0.1 at 2011-07-20 14:04:59 -0400
+  Processing by Devise::SessionsController#new as HTML
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/shared/_links.erb (1.0ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/sessions/new.html.erb within layouts/application (7.5ms)
+Completed 200 OK in 30ms (Views: 12.8ms | ActiveRecord: 0.0ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 14:05:10 -0400
+  Processing by HomeController#index as HTML
+Completed   in 1ms
+
+
+Started GET "/gs/users/sign_in" for 127.0.0.1 at 2011-07-20 14:05:10 -0400
+  Processing by Devise::SessionsController#new as HTML
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/shared/_links.erb (1.7ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/sessions/new.html.erb within layouts/application (10.0ms)
+Completed 200 OK in 62ms (Views: 14.8ms | ActiveRecord: 0.0ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 14:05:43 -0400
+  Processing by HomeController#index as HTML
+Completed   in 1ms
+
+
+Started GET "/gs/users/sign_in" for 127.0.0.1 at 2011-07-20 14:05:44 -0400
+  Processing by Devise::SessionsController#new as HTML
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/shared/_links.erb (1.3ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/sessions/new.html.erb within layouts/application (8.4ms)
+Completed 200 OK in 64ms (Views: 13.0ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/gs/" for 127.0.0.1 at 2011-07-20 14:05:59 -0400
+  Processing by HomeController#index as HTML
+Completed   in 6ms
+
+
+Started GET "/gs/users/sign_in" for 127.0.0.1 at 2011-07-20 14:05:59 -0400
+  Processing by Devise::SessionsController#new as HTML
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/shared/_links.erb (1.2ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/sessions/new.html.erb within layouts/application (37.6ms)
+Completed 200 OK in 61ms (Views: 42.2ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/gs/" for 127.0.0.1 at 2011-07-20 14:06:22 -0400
+  Processing by HomeController#index as HTML
+Completed   in 6ms
+
+
+Started GET "/gs/users/sign_in" for 127.0.0.1 at 2011-07-20 14:06:22 -0400
+  Processing by Devise::SessionsController#new as HTML
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/shared/_links.erb (1.1ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/sessions/new.html.erb within layouts/application (7.9ms)
+Completed 200 OK in 30ms (Views: 12.8ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/gs/users/sign_in" for 127.0.0.1 at 2011-07-20 14:06:53 -0400
+  Processing by Devise::SessionsController#create as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"r7Kl+jCS+s+2IS02skr0r819rX422lD4TFn3QI1FkHM=", "user"=>{"email"=>"foo@1", "password"=>"[FILTERED]", "remember_me"=>"0"}, "commit"=>"Sign in"}
+  [1m[36mSQL (0.4ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.4ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`email` = 'foo@1' LIMIT 1
+Completed   in 150ms
+  Processing by Devise::SessionsController#new as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"r7Kl+jCS+s+2IS02skr0r819rX422lD4TFn3QI1FkHM=", "user"=>{"email"=>"foo@1", "password"=>"[FILTERED]", "remember_me"=>"0"}, "commit"=>"Sign in"}
+WARNING: Can't mass-assign protected attributes: email
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/shared/_links.erb (1.1ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/sessions/new.html.erb within layouts/application (7.6ms)
+Completed 200 OK in 105ms (Views: 12.5ms | ActiveRecord: 0.8ms)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 14:07:42 -0400
+  Processing by HomeController#index as HTML
+Completed   in 11ms
+
+
+Started GET "/gs/users/sign_in" for 127.0.0.1 at 2011-07-20 14:07:43 -0400
+  Processing by Devise::SessionsController#new as HTML
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/shared/_links.erb (1.1ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/sessions/new.html.erb within layouts/application (8.1ms)
+Completed 200 OK in 62ms (Views: 12.8ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/gs/users/sign_in" for 127.0.0.1 at 2011-07-20 14:07:50 -0400
+  Processing by Devise::SessionsController#create as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"r7Kl+jCS+s+2IS02skr0r819rX422lD4TFn3QI1FkHM=", "user"=>{"email"=>"test@1", "password"=>"[FILTERED]", "remember_me"=>"0"}, "commit"=>"Sign in"}
+  [1m[36mUser Load (0.2ms)[0m  [1mSELECT `users`.* FROM `users` WHERE `users`.`email` = 'test@1' LIMIT 1[0m
+Completed   in 13ms
+  Processing by Devise::SessionsController#new as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"r7Kl+jCS+s+2IS02skr0r819rX422lD4TFn3QI1FkHM=", "user"=>{"email"=>"test@1", "password"=>"[FILTERED]", "remember_me"=>"0"}, "commit"=>"Sign in"}
+WARNING: Can't mass-assign protected attributes: email
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/shared/_links.erb (1.1ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/sessions/new.html.erb within layouts/application (8.3ms)
+Completed 200 OK in 106ms (Views: 13.0ms | ActiveRecord: 0.2ms)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 14:08:35 -0400
+  Processing by HomeController#index as HTML
+Completed   in 7ms
+
+
+Started GET "/gs/users/sign_in" for 127.0.0.1 at 2011-07-20 14:08:35 -0400
+  Processing by Devise::SessionsController#new as HTML
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/shared/_links.erb (1.0ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/sessions/new.html.erb within layouts/application (7.4ms)
+Completed 200 OK in 29ms (Views: 12.3ms | ActiveRecord: 0.0ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+
+
+Started GET "/gs/users/sign_in" for 127.0.0.1 at 2011-07-20 14:08:46 -0400
+  Processing by Devise::SessionsController#new as HTML
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/shared/_links.erb (1.2ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/sessions/new.html.erb within layouts/application (121.6ms)
+Completed 200 OK in 143ms (Views: 126.8ms | ActiveRecord: 0.0ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 14:09:13 -0400
+  Processing by HomeController#index as HTML
+Completed   in 1ms
+
+
+Started GET "/gs/users/sign_in" for 127.0.0.1 at 2011-07-20 14:09:13 -0400
+  Processing by Devise::SessionsController#new as HTML
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/shared/_links.erb (1.2ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/sessions/new.html.erb within layouts/application (8.7ms)
+Completed 200 OK in 63ms (Views: 13.8ms | ActiveRecord: 0.0ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 14:09:35 -0400
+  Processing by HomeController#index as HTML
+Completed   in 1ms
+
+
+Started GET "/gs/users/sign_in" for 127.0.0.1 at 2011-07-20 14:09:35 -0400
+  Processing by Devise::SessionsController#new as HTML
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/shared/_links.erb (1.2ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/sessions/new.html.erb within layouts/application (8.6ms)
+Completed 200 OK in 62ms (Views: 13.5ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/gs/" for 127.0.0.1 at 2011-07-20 14:10:15 -0400
+  Processing by HomeController#index as HTML
+Completed   in 7ms
+
+
+Started GET "/gs/users/sign_in" for 127.0.0.1 at 2011-07-20 14:10:15 -0400
+  Processing by Devise::SessionsController#new as HTML
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/shared/_links.erb (1.2ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/sessions/new.html.erb within layouts/application (38.4ms)
+Completed 200 OK in 61ms (Views: 43.5ms | ActiveRecord: 0.0ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 14:11:59 -0400
+  Processing by HomeController#index as HTML
+Completed   in 1ms
+
+
+Started GET "/gs/users/sign_in" for 127.0.0.1 at 2011-07-20 14:11:59 -0400
+  Processing by Devise::SessionsController#new as HTML
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/shared/_links.erb (1.2ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/sessions/new.html.erb within layouts/application (9.5ms)
+Completed 200 OK in 139ms (Views: 32.7ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/gs/" for 127.0.0.1 at 2011-07-20 14:14:35 -0400
+  Processing by HomeController#index as HTML
+Rendered home/index.html.erb within layouts/application (76.8ms)
+Completed 500 Internal Server Error in 167ms
+
+ActionView::Template::Error (undefined method `login' for nil:NilClass):
+    9: <hr>
+    10: <div>
+    11: 	<%#= render :partial => 'newest_features' %>
+    12: 	Logged in as: <%= current_user.login %>
+    13: 	Session: <%= user_session %>
+    14: </div>
+  app/views/home/index.html.erb:12:in `_app_views_home_index_html_erb___3001425432742804717_2167695160_954598750025175287'
+
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/actionpack-3.0.9/lib/action_dispatch/middleware/templates/rescues/_trace.erb (1.5ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/actionpack-3.0.9/lib/action_dispatch/middleware/templates/rescues/_request_and_response.erb (4.7ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/actionpack-3.0.9/lib/action_dispatch/middleware/templates/rescues/template_error.erb within rescues/layout (26.4ms)
+
+
+Started GET "/gs/" for 127.0.0.1 at 2011-07-20 14:14:58 -0400
+  Processing by HomeController#index as HTML
+Rendered home/index.html.erb within layouts/application (55.5ms)
+Completed 200 OK in 61ms (Views: 60.8ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/gs/" for 127.0.0.1 at 2011-07-20 14:15:05 -0400
+  Processing by HomeController#index as HTML
+Rendered home/index.html.erb within layouts/application (11.1ms)
+Completed 200 OK in 17ms (Views: 16.0ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/gs/" for 127.0.0.1 at 2011-07-20 14:15:19 -0400
+  Processing by HomeController#index as HTML
+Rendered home/index.html.erb within layouts/application (11.4ms)
+Completed 200 OK in 16ms (Views: 16.1ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/gs/" for 127.0.0.1 at 2011-07-20 14:15:24 -0400
+  Processing by HomeController#index as HTML
+Completed   in 8ms
+
+
+Started GET "/gs/users/sign_in" for 127.0.0.1 at 2011-07-20 14:15:24 -0400
+  Processing by Devise::SessionsController#new as HTML
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/shared/_links.erb (1.6ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/sessions/new.html.erb within layouts/application (11.9ms)
+Completed 200 OK in 104ms (Views: 17.7ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/gs/users/sign_in" for 127.0.0.1 at 2011-07-20 14:15:34 -0400
+  Processing by Devise::SessionsController#create as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"kQou2/ACxuGsLbb0d54jHxxSe5WayTBNNrLL18OUKxk=", "user"=>{"email"=>"foo@1", "password"=>"[FILTERED]", "remember_me"=>"0"}, "commit"=>"Sign in"}
+  [1m[36mSQL (0.4ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.5ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`email` = 'foo@1' LIMIT 1
+Completed   in 217ms
+  Processing by Devise::SessionsController#new as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"kQou2/ACxuGsLbb0d54jHxxSe5WayTBNNrLL18OUKxk=", "user"=>{"email"=>"foo@1", "password"=>"[FILTERED]", "remember_me"=>"0"}, "commit"=>"Sign in"}
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/shared/_links.erb (1.2ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/sessions/new.html.erb within layouts/application (8.6ms)
+Completed 200 OK in 110ms (Views: 13.6ms | ActiveRecord: 0.8ms)
+
+
+Started POST "/gs/users/sign_in" for 127.0.0.1 at 2011-07-20 14:15:51 -0400
+  Processing by Devise::SessionsController#create as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"kQou2/ACxuGsLbb0d54jHxxSe5WayTBNNrLL18OUKxk=", "user"=>{"email"=>"test@1", "password"=>"[FILTERED]", "remember_me"=>"0"}, "commit"=>"Sign in"}
+  [1m[36mUser Load (0.3ms)[0m  [1mSELECT `users`.* FROM `users` WHERE `users`.`email` = 'test@1' LIMIT 1[0m
+Completed   in 23ms
+  Processing by Devise::SessionsController#new as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"kQou2/ACxuGsLbb0d54jHxxSe5WayTBNNrLL18OUKxk=", "user"=>{"email"=>"test@1", "password"=>"[FILTERED]", "remember_me"=>"0"}, "commit"=>"Sign in"}
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/shared/_links.erb (1.7ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/sessions/new.html.erb within layouts/application (9.0ms)
+Completed 200 OK in 118ms (Views: 14.6ms | ActiveRecord: 0.3ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+
+
+Started GET "/gs/" for 127.0.0.1 at 2011-07-20 14:26:17 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mSQL (42.8ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.4ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1
+Completed   in 230ms
+
+
+Started GET "/gs/users/sign_in" for 127.0.0.1 at 2011-07-20 14:26:17 -0400
+  Processing by Devise::SessionsController#new as HTML
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/shared/_links.erb (1.2ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/sessions/new.html.erb within layouts/application (37.5ms)
+Completed 200 OK in 91ms (Views: 69.3ms | ActiveRecord: 43.2ms)
+
+
+Started POST "/gs/users/sign_in" for 127.0.0.1 at 2011-07-20 14:26:46 -0400
+  Processing by Devise::SessionsController#create as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"YDt98zJu3t3T28zNLMn6OayfIO2mt6tVADF6I8CfkoA=", "user"=>{"email"=>"test@1", "password"=>"[FILTERED]", "remember_me"=>"0"}, "commit"=>"Sign in"}
+  [1m[36mUser Load (0.3ms)[0m  [1mSELECT `users`.* FROM `users` WHERE `users`.`email` = 'test@1' LIMIT 1[0m
+Completed   in 12ms
+  Processing by Devise::SessionsController#new as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"YDt98zJu3t3T28zNLMn6OayfIO2mt6tVADF6I8CfkoA=", "user"=>{"email"=>"test@1", "password"=>"[FILTERED]", "remember_me"=>"0"}, "commit"=>"Sign in"}
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/shared/_links.erb (1.1ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/sessions/new.html.erb within layouts/application (7.7ms)
+Completed 200 OK in 103ms (Views: 12.2ms | ActiveRecord: 0.3ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+
+
+Started POST "/gs/users/sign_in" for 127.0.0.1 at 2011-07-20 14:27:27 -0400
+  Processing by Devise::SessionsController#create as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"kQou2/ACxuGsLbb0d54jHxxSe5WayTBNNrLL18OUKxk=", "user"=>{"email"=>"test@1", "password"=>"[FILTERED]", "remember_me"=>"0"}, "commit"=>"Sign in"}
+  [1m[36mSQL (25.4ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.4ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`email` = 'test@1' LIMIT 1
+Completed   in 131ms
+  Processing by Devise::SessionsController#new as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"kQou2/ACxuGsLbb0d54jHxxSe5WayTBNNrLL18OUKxk=", "user"=>{"email"=>"test@1", "password"=>"[FILTERED]", "remember_me"=>"0"}, "commit"=>"Sign in"}
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/shared/_links.erb (1.2ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/sessions/new.html.erb within layouts/application (9.5ms)
+Completed 200 OK in 130ms (Views: 35.9ms | ActiveRecord: 25.8ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 14:28:27 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mSQL (0.6ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.4ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1
+Completed   in 109ms
+
+
+Started GET "/gs/users/sign_in" for 127.0.0.1 at 2011-07-20 14:28:28 -0400
+  Processing by Devise::SessionsController#new as HTML
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/shared/_links.erb (1.3ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/sessions/new.html.erb within layouts/application (38.3ms)
+Completed 200 OK in 65ms (Views: 43.1ms | ActiveRecord: 1.0ms)
+
+
+Started POST "/gs/users/sign_in" for 127.0.0.1 at 2011-07-20 14:28:47 -0400
+  Processing by Devise::SessionsController#create as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"/vCWwCu+bkov2EDQ/WNQAtkDLEjymiNfLdWwKIoWLJs=", "user"=>{"email"=>"test@1", "password"=>"[FILTERED]", "remember_me"=>"0"}, "commit"=>"Sign in"}
+  [1m[36mUser Load (0.2ms)[0m  [1mSELECT `users`.* FROM `users` WHERE `users`.`email` = 'test@1' LIMIT 1[0m
+Completed   in 14ms
+  Processing by Devise::SessionsController#new as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"/vCWwCu+bkov2EDQ/WNQAtkDLEjymiNfLdWwKIoWLJs=", "user"=>{"email"=>"test@1", "password"=>"[FILTERED]", "remember_me"=>"0"}, "commit"=>"Sign in"}
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/shared/_links.erb (1.2ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/sessions/new.html.erb within layouts/application (8.1ms)
+Completed 200 OK in 104ms (Views: 12.8ms | ActiveRecord: 0.2ms)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 14:52:24 -0400
+
+ActionController::RoutingError (undefined local variable or method `request' for ApplicationController:Class):
+  app/controllers/application_controller.rb:4:in `<class:ApplicationController>'
+  app/controllers/application_controller.rb:1:in `<top (required)>'
+  app/controllers/home_controller.rb:1:in `<top (required)>'
+
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/actionpack-3.0.9/lib/action_dispatch/middleware/templates/rescues/routing_error.erb within rescues/layout (1.6ms)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 14:54:53 -0400
+  Processing by HomeController#index as HTML
+  [1m[35mUser Load (0.4ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1
+Rendered home/index.html.erb within layouts/application (61.7ms)
+Completed 200 OK in 95ms (Views: 93.6ms | ActiveRecord: 0.4ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 14:55:19 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mSQL (21.6ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.4ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1
+Rendered home/index.html.erb within layouts/application (170.1ms)
+Completed 200 OK in 175ms (Views: 152.6ms | ActiveRecord: 22.0ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 14:58:53 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mSQL (0.5ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.3ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1
+Rendered home/index.html.erb within layouts/application (109.7ms)
+Completed 200 OK in 115ms (Views: 113.2ms | ActiveRecord: 0.9ms)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 14:59:11 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mUser Load (0.4ms)[0m  [1mSELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1[0m
+Rendered home/index.html.erb within layouts/application (15.7ms)
+Completed 200 OK in 21ms (Views: 20.4ms | ActiveRecord: 0.4ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 15:00:50 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mSQL (0.6ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.3ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1
+Rendered home/index.html.erb within layouts/application (144.2ms)
+Completed 200 OK in 152ms (Views: 150.0ms | ActiveRecord: 0.9ms)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 15:01:44 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mUser Load (0.7ms)[0m  [1mSELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1[0m
+Rendered home/index.html.erb within layouts/application (15.4ms)
+Completed 200 OK in 21ms (Views: 19.4ms | ActiveRecord: 0.7ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 15:02:43 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mSQL (0.5ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.4ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1
+Rendered home/index.html.erb within layouts/application (111.2ms)
+Completed 200 OK in 116ms (Views: 114.8ms | ActiveRecord: 0.9ms)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 15:04:04 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mUser Load (0.3ms)[0m  [1mSELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1[0m
+Rendered home/index.html.erb within layouts/application (15.0ms)
+Completed 200 OK in 21ms (Views: 19.9ms | ActiveRecord: 0.3ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 15:04:29 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mSQL (0.5ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.4ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1
+Rendered home/index.html.erb within layouts/application (110.4ms)
+Completed 200 OK in 116ms (Views: 114.0ms | ActiveRecord: 0.8ms)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 15:05:17 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mUser Load (0.3ms)[0m  [1mSELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1[0m
+Rendered home/index.html.erb within layouts/application (17.3ms)
+Completed 200 OK in 23ms (Views: 21.6ms | ActiveRecord: 0.3ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 15:06:21 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mSQL (0.5ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.4ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1
+Rendered home/index.html.erb within layouts/application (114.1ms)
+Completed 200 OK in 121ms (Views: 118.6ms | ActiveRecord: 0.9ms)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 15:06:46 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mUser Load (0.4ms)[0m  [1mSELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1[0m
+Rendered home/index.html.erb within layouts/application (13.7ms)
+Completed 200 OK in 19ms (Views: 17.8ms | ActiveRecord: 0.4ms)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 15:15:08 -0400
+  Processing by HomeController#index as HTML
+  [1m[35mUser Load (0.5ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1
+Rendered home/index.html.erb within layouts/application (15.9ms)
+Completed 200 OK in 21ms (Views: 20.1ms | ActiveRecord: 0.5ms)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 15:15:15 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mUser Load (0.4ms)[0m  [1mSELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1[0m
+Rendered home/index.html.erb within layouts/application (17.9ms)
+Completed 200 OK in 24ms (Views: 22.8ms | ActiveRecord: 0.4ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 15:15:28 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mSQL (0.4ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.4ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1
+Rendered home/index.html.erb within layouts/application (120.2ms)
+Completed 200 OK in 126ms (Views: 124.2ms | ActiveRecord: 0.8ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 15:18:54 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mSQL (0.6ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.4ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1
+Rendered home/index.html.erb within layouts/application (144.3ms)
+Completed 200 OK in 177ms (Views: 175.3ms | ActiveRecord: 1.0ms)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 15:20:19 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mUser Load (0.5ms)[0m  [1mSELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1[0m
+Rendered home/index.html.erb within layouts/application (16.0ms)
+Completed 200 OK in 21ms (Views: 20.3ms | ActiveRecord: 0.5ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 15:20:51 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mSQL (76.5ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.4ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1
+Rendered home/index.html.erb within layouts/application (195.3ms)
+Completed 200 OK in 201ms (Views: 122.9ms | ActiveRecord: 76.9ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 15:21:13 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mSQL (0.5ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.4ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1
+Rendered home/index.html.erb within layouts/application (111.9ms)
+Completed 200 OK in 117ms (Views: 115.8ms | ActiveRecord: 0.9ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 15:33:17 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mSQL (23.2ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.4ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1
+Rendered home/index.html.erb within layouts/application (188.5ms)
+Completed 200 OK in 274ms (Views: 249.3ms | ActiveRecord: 23.6ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 15:34:09 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mSQL (0.6ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.4ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1
+Rendered home/index.html.erb within layouts/application (109.8ms)
+Completed 200 OK in 115ms (Views: 113.1ms | ActiveRecord: 0.9ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 15:51:39 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mSQL (16.4ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.6ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1
+Rendered home/index.html.erb within layouts/application (172.6ms)
+Completed 200 OK in 191ms (Views: 173.7ms | ActiveRecord: 17.0ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 15:53:11 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mSQL (0.5ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.4ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1
+Rendered home/index.html.erb within layouts/application (113.7ms)
+Completed 200 OK in 119ms (Views: 117.2ms | ActiveRecord: 0.9ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 15:55:02 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mSQL (0.5ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.4ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1
+Rendered home/index.html.erb within layouts/application (113.9ms)
+Completed 200 OK in 120ms (Views: 117.7ms | ActiveRecord: 0.9ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 15:55:39 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mSQL (0.5ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.5ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1
+Rendered home/index.html.erb within layouts/application (110.8ms)
+Completed 200 OK in 116ms (Views: 114.4ms | ActiveRecord: 1.0ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 15:56:38 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mSQL (0.6ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.4ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1
+Rendered home/index.html.erb within layouts/application (105.3ms)
+Completed 200 OK in 111ms (Views: 108.8ms | ActiveRecord: 0.9ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 15:58:32 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mSQL (0.6ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.4ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1
+Rendered home/index.html.erb within layouts/application (105.5ms)
+Completed 200 OK in 111ms (Views: 109.2ms | ActiveRecord: 0.9ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 15:59:07 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mSQL (0.6ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.4ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1
+Rendered home/index.html.erb within layouts/application (114.4ms)
+Completed 200 OK in 120ms (Views: 118.1ms | ActiveRecord: 1.0ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 15:59:30 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mSQL (0.5ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.4ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1
+Rendered home/index.html.erb within layouts/application (107.3ms)
+Completed 200 OK in 114ms (Views: 111.8ms | ActiveRecord: 0.9ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 16:00:16 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mSQL (0.5ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.4ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1
+Rendered home/index.html.erb within layouts/application (111.0ms)
+Completed 200 OK in 117ms (Views: 115.2ms | ActiveRecord: 0.9ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 16:02:21 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mSQL (0.6ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.4ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1
+Rendered home/index.html.erb within layouts/application (110.0ms)
+Completed 200 OK in 115ms (Views: 113.5ms | ActiveRecord: 0.9ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 16:03:03 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mSQL (0.6ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.4ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1
+Rendered home/index.html.erb within layouts/application (111.1ms)
+Completed 200 OK in 116ms (Views: 114.4ms | ActiveRecord: 1.0ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 16:06:49 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mSQL (0.4ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.3ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1
+Rendered home/index.html.erb within layouts/application (107.0ms)
+Completed 200 OK in 112ms (Views: 110.8ms | ActiveRecord: 0.8ms)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 16:06:58 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mUser Load (236.1ms)[0m  [1mSELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1[0m
+Rendered home/index.html.erb within layouts/application (251.7ms)
+Completed 200 OK in 257ms (Views: 20.0ms | ActiveRecord: 236.1ms)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 16:07:07 -0400
+  Processing by HomeController#index as HTML
+  [1m[35mUser Load (0.4ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1
+Rendered home/index.html.erb within layouts/application (16.1ms)
+Completed 200 OK in 22ms (Views: 20.8ms | ActiveRecord: 0.4ms)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 17:08:38 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mUser Load (1.8ms)[0m  [1mSELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1[0m
+Rendered home/index.html.erb within layouts/application (105.2ms)
+Completed 200 OK in 150ms (Views: 148.2ms | ActiveRecord: 1.8ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+DEPRECATION WARNING: RAILS_DEFAULT_LOGGER is deprecated. Please use ::Rails.logger. (called from block (2 levels) in <top (required)> at /Users/nicholasthrower/Sites/genome_suite/config/initializers/devise.rb:227)
+
+Inside Warden
+
+[:remote_user_auth, :rememberable, :database_authenticatable]
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 17:08:57 -0400
+  Processing by HomeController#index as HTML
+
+Inside the new strategy
+
+Request
+
+#<ActionDispatch::Request:0x00000103a48b80 @env={"SERVER_SOFTWARE"=>"Apache/2.2.17 (Unix) mod_ssl/2.2.17 OpenSSL/0.9.8r DAV/2 Phusion_Passenger/3.0.7", "SERVER_PROTOCOL"=>"HTTP/1.1", "SERVER_NAME"=>"dev", "SERVER_ADMIN"=>"you@example.com", "SERVER_ADDR"=>"127.0.0.1", "SERVER_PORT"=>"80", "REMOTE_ADDR"=>"127.0.0.1", "REMOTE_PORT"=>"56967", "REMOTE_USER"=>"test1", "REQUEST_METHOD"=>"GET", "QUERY_STRING"=>"", "DOCUMENT_ROOT"=>"/Library/WebServer/www/", "REQUEST_URI"=>"/gs", "SCRIPT_NAME"=>"/gs", "PATH_INFO"=>"/", "HTTP_HOST"=>"dev", "HTTP_CONNECTION"=>"keep-alive", "HTTP_CACHE_CONTROL"=>"max-age=0", "HTTP_AUTHORIZATION"=>"Basic dGVzdDE6dGVzdDE=", "HTTP_USER_AGENT"=>"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_8) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/13.0.782.55 Safari/535.1", "HTTP_ACCEPT"=>"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "HTTP_ACCEPT_ENCODING"=>"gzip,deflate,sdch", "HTTP_ACCEPT_LANGUAGE"=>"en-US,en;q=0.8", "HTTP_ACCEPT_CHARSET"=>"ISO-8859-1,utf-8;q=0.7,*;q=0.3", "HTTP_COOKIE"=>"_genome_suite_session=BAh7B0kiD3Nlc3Npb25faWQGOgZFRiIlODQyZjY3NTQ0YzIzY2QzZDc5YTFjOThhMTJiOWNiZTRJIhBfY3NyZl90b2tlbgY7AEZJIjFLL1d6Z0xDbDNndXF5UzBuVTZWcXVjMHJpVUJEUjg1eFdkWkNTYnMycVVvPQY7AEY%3D--75f956778693932dee5ee2a939a03ceea5a26963", "HTTP_IF_NONE_MATCH"=>"\"fc71551db12bf591c85e598c98d3add1\"", "HTTP_REMOTE_USER"=>"test1", "SCRIPT_URL"=>"/gs", "SCRIPT_URI"=>"http://dev/gs", "RU"=>"test1", "PASSENGER_CONNECT_PASSWORD"=>"2mtDhzUJVIoQtsZyWm91r3FfJfNHPc1SB2GuN5L2bui", "_"=>"_", "rack.version"=>[1, 0], "rack.input"=>#<PhusionPassenger::Utils::RewindableInput:0x000001012983b0 @io=#<PhusionPassenger::Utils::UnseekableSocket:0x0000010129c3c0 @socket=#<UNIXSocket:fd 11>>, @rewindable_io=nil, @unlinked=false>, "rack.errors"=>#<IO:<STDERR>>, "rack.multithread"=>false, "rack.multiprocess"=>true, "rack.run_once"=>false, "rack.url_scheme"=>"http", "action_dispatch.parameter_filter"=>[:password], "action_dispatch.secret_token"=>"6792df39b5999b0fdf88f17a57a0c1bc04d411d16d60105c3c2b3a38091ed51b0bd23ee185a116b5fe034f150a9970afabc136b8fd370603a81f6d748df1e499", "action_dispatch.show_exceptions"=>true, "action_dispatch.remote_ip"=>127.0.0.1, "rack.session"=>{"session_id"=>"842f67544c23cd3d79a1c98a12b9cbe4", "_csrf_token"=>"K/WzgLCl3guqyS0nU6Vquc0riUBDR85xWdZCSbs2qUo="}, "rack.session.options"=>{:path=>"/", :domain=>nil, :expire_after=>nil, :secure=>false, :httponly=>true, :id=>"842f67544c23cd3d79a1c98a12b9cbe4"}, "rack.request.cookie_string"=>"_genome_suite_session=BAh7B0kiD3Nlc3Npb25faWQGOgZFRiIlODQyZjY3NTQ0YzIzY2QzZDc5YTFjOThhMTJiOWNiZTRJIhBfY3NyZl90b2tlbgY7AEZJIjFLL1d6Z0xDbDNndXF5UzBuVTZWcXVjMHJpVUJEUjg1eFdkWkNTYnMycVVvPQY7AEY%3D--75f956778693932dee5ee2a939a03ceea5a26963", "rack.request.cookie_hash"=>{"_genome_suite_session"=>"BAh7B0kiD3Nlc3Npb25faWQGOgZFRiIlODQyZjY3NTQ0YzIzY2QzZDc5YTFjOThhMTJiOWNiZTRJIhBfY3NyZl90b2tlbgY7AEZJIjFLL1d6Z0xDbDNndXF5UzBuVTZWcXVjMHJpVUJEUjg1eFdkWkNTYnMycVVvPQY7AEY=--75f956778693932dee5ee2a939a03ceea5a26963"}, "action_dispatch.cookies"=>{"_genome_suite_session"=>"BAh7B0kiD3Nlc3Npb25faWQGOgZFRiIlODQyZjY3NTQ0YzIzY2QzZDc5YTFjOThhMTJiOWNiZTRJIhBfY3NyZl90b2tlbgY7AEZJIjFLL1d6Z0xDbDNndXF5UzBuVTZWcXVjMHJpVUJEUjg1eFdkWkNTYnMycVVvPQY7AEY=--75f956778693932dee5ee2a939a03ceea5a26963"}, "action_dispatch.request.unsigned_session_cookie"=>{"session_id"=>"842f67544c23cd3d79a1c98a12b9cbe4", "_csrf_token"=>"K/WzgLCl3guqyS0nU6Vquc0riUBDR85xWdZCSbs2qUo="}, "warden"=>Warden::Proxy:2157755000 @config={:default_scope=>:user, :scope_defaults=>{}, :default_strategies=>{:user=>[:remote_user_auth, :rememberable, :database_authenticatable]}, :intercept_401=>false, :failure_app=>Devise::FailureApp}, "action_dispatch.request.path_parameters"=>{:controller=>"home", :action=>"index"}, "action_controller.instance"=>#<HomeController:0x00000103dbbda8 @action_has_layout=true, @view_context_class=nil, @_headers={"Content-Type"=>"text/html"}, @_status=200, @_response=#<ActionDispatch::Response:0x00000103dbbab0 @writer=#<Proc:0x00000103da73d0@/Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/actionpack-3.0.9/lib/action_dispatch/http/response.rb:43 (lambda)>, @block=nil, @length=0, @header={}, @status=200, @body=[], @cookie=[], @sending_file=false, @blank=false, @cache_control={}, @etag=nil, @request=#<ActionDispatch::Request:0x00000103dbbad8 @env={...}, @request_method="GET", @filtered_parameters={"controller"=>"home", "action"=>"index"}, @method="GET", @fullpath="/gs/">>, @_request=#<ActionDispatch::Request:0x00000103dbbad8 @env={...}, @request_method="GET", @filtered_parameters={"controller"=>"home", "action"=>"index"}, @method="GET", @fullpath="/gs/">, @_env={...}, @lookup_context=#<ActionView::LookupContext:0x00000103ae07a0 @details_key=#<ActionView::LookupContext::DetailsKey:0x00000103a7c3b8 @hash=-514265034623537202>, @details={:handlers=>[:erb, :rjs, :builder, :rhtml, :rxml], :formats=>[:html], :locale=>[:en, :en]}, @skip_default_locale=false, @frozen_formats=true, @view_paths=[/Users/nicholasthrower/Sites/genome_suite/app/views, /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views]>, @_action_name="index", @_response_body=nil, @_config={}, @remote_user="test1">, "action_dispatch.request.content_type"=>nil, "action_dispatch.request.request_parameters"=>{}, "rack.request.query_string"=>"", "rack.request.query_hash"=>{}, "action_dispatch.request.query_parameters"=>{}, "action_dispatch.request.parameters"=>{"controller"=>"home", "action"=>"index"}, "action_dispatch.request.formats"=>[text/html]}>
+Rendered home/index.html.erb within layouts/application (4.7ms)
+Completed 200 OK in 10ms (Views: 9.2ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 17:21:13 -0400
+  Processing by HomeController#index as HTML
+
+Inside the new strategy
+
+Request
+
+#<ActionDispatch::Request:0x0000010212b850 @env={"SERVER_SOFTWARE"=>"Apache/2.2.17 (Unix) mod_ssl/2.2.17 OpenSSL/0.9.8r DAV/2 Phusion_Passenger/3.0.7", "SERVER_PROTOCOL"=>"HTTP/1.1", "SERVER_NAME"=>"dev", "SERVER_ADMIN"=>"you@example.com", "SERVER_ADDR"=>"127.0.0.1", "SERVER_PORT"=>"80", "REMOTE_ADDR"=>"127.0.0.1", "REMOTE_PORT"=>"56986", "REMOTE_USER"=>"test1", "REQUEST_METHOD"=>"GET", "QUERY_STRING"=>"", "DOCUMENT_ROOT"=>"/Library/WebServer/www/", "REQUEST_URI"=>"/gs", "SCRIPT_NAME"=>"/gs", "PATH_INFO"=>"/", "HTTP_HOST"=>"dev", "HTTP_CONNECTION"=>"keep-alive", "HTTP_CACHE_CONTROL"=>"max-age=0", "HTTP_AUTHORIZATION"=>"Basic dGVzdDE6dGVzdDE=", "HTTP_USER_AGENT"=>"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_8) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/13.0.782.55 Safari/535.1", "HTTP_ACCEPT"=>"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "HTTP_ACCEPT_ENCODING"=>"gzip,deflate,sdch", "HTTP_ACCEPT_LANGUAGE"=>"en-US,en;q=0.8", "HTTP_ACCEPT_CHARSET"=>"ISO-8859-1,utf-8;q=0.7,*;q=0.3", "HTTP_COOKIE"=>"_genome_suite_session=BAh7B0kiD3Nlc3Npb25faWQGOgZFRiIlODQyZjY3NTQ0YzIzY2QzZDc5YTFjOThhMTJiOWNiZTRJIhBfY3NyZl90b2tlbgY7AEZJIjFLL1d6Z0xDbDNndXF5UzBuVTZWcXVjMHJpVUJEUjg1eFdkWkNTYnMycVVvPQY7AEY%3D--75f956778693932dee5ee2a939a03ceea5a26963", "HTTP_IF_NONE_MATCH"=>"\"fc71551db12bf591c85e598c98d3add1\"", "HTTP_REMOTE_USER"=>"test1", "SCRIPT_URL"=>"/gs", "SCRIPT_URI"=>"http://dev/gs", "RU"=>"test1", "PASSENGER_CONNECT_PASSWORD"=>"2mtDhzUJVIoQtsZyWm91r3FfJfNHPc1SB2GuN5L2bui", "_"=>"_", "rack.version"=>[1, 0], "rack.input"=>#<PhusionPassenger::Utils::RewindableInput:0x0000010399fda0 @io=#<PhusionPassenger::Utils::UnseekableSocket:0x0000010129c3c0 @socket=#<UNIXSocket:fd 11>>, @rewindable_io=nil, @unlinked=false>, "rack.errors"=>#<IO:<STDERR>>, "rack.multithread"=>false, "rack.multiprocess"=>true, "rack.run_once"=>false, "rack.url_scheme"=>"http", "action_dispatch.parameter_filter"=>[:password], "action_dispatch.secret_token"=>"6792df39b5999b0fdf88f17a57a0c1bc04d411d16d60105c3c2b3a38091ed51b0bd23ee185a116b5fe034f150a9970afabc136b8fd370603a81f6d748df1e499", "action_dispatch.show_exceptions"=>true, "action_dispatch.remote_ip"=>127.0.0.1, "rack.session"=>{"session_id"=>"842f67544c23cd3d79a1c98a12b9cbe4", "_csrf_token"=>"K/WzgLCl3guqyS0nU6Vquc0riUBDR85xWdZCSbs2qUo="}, "rack.session.options"=>{:path=>"/", :domain=>nil, :expire_after=>nil, :secure=>false, :httponly=>true, :id=>"842f67544c23cd3d79a1c98a12b9cbe4"}, "rack.request.cookie_string"=>"_genome_suite_session=BAh7B0kiD3Nlc3Npb25faWQGOgZFRiIlODQyZjY3NTQ0YzIzY2QzZDc5YTFjOThhMTJiOWNiZTRJIhBfY3NyZl90b2tlbgY7AEZJIjFLL1d6Z0xDbDNndXF5UzBuVTZWcXVjMHJpVUJEUjg1eFdkWkNTYnMycVVvPQY7AEY%3D--75f956778693932dee5ee2a939a03ceea5a26963", "rack.request.cookie_hash"=>{"_genome_suite_session"=>"BAh7B0kiD3Nlc3Npb25faWQGOgZFRiIlODQyZjY3NTQ0YzIzY2QzZDc5YTFjOThhMTJiOWNiZTRJIhBfY3NyZl90b2tlbgY7AEZJIjFLL1d6Z0xDbDNndXF5UzBuVTZWcXVjMHJpVUJEUjg1eFdkWkNTYnMycVVvPQY7AEY=--75f956778693932dee5ee2a939a03ceea5a26963"}, "action_dispatch.cookies"=>{"_genome_suite_session"=>"BAh7B0kiD3Nlc3Npb25faWQGOgZFRiIlODQyZjY3NTQ0YzIzY2QzZDc5YTFjOThhMTJiOWNiZTRJIhBfY3NyZl90b2tlbgY7AEZJIjFLL1d6Z0xDbDNndXF5UzBuVTZWcXVjMHJpVUJEUjg1eFdkWkNTYnMycVVvPQY7AEY=--75f956778693932dee5ee2a939a03ceea5a26963"}, "action_dispatch.request.unsigned_session_cookie"=>{"session_id"=>"842f67544c23cd3d79a1c98a12b9cbe4", "_csrf_token"=>"K/WzgLCl3guqyS0nU6Vquc0riUBDR85xWdZCSbs2qUo="}, "warden"=>Warden::Proxy:2177645020 @config={:default_scope=>:user, :scope_defaults=>{}, :default_strategies=>{:user=>[:remote_user_auth, :rememberable, :database_authenticatable]}, :intercept_401=>false, :failure_app=>Devise::FailureApp}, "action_dispatch.request.path_parameters"=>{:controller=>"home", :action=>"index"}, "action_controller.instance"=>#<HomeController:0x00000102161fb8 @action_has_layout=true, @view_context_class=nil, @_headers={"Content-Type"=>"text/html"}, @_status=200, @_response=#<ActionDispatch::Response:0x00000102161e28 @writer=#<Proc:0x00000102161d60@/Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/actionpack-3.0.9/lib/action_dispatch/http/response.rb:43 (lambda)>, @block=nil, @length=0, @header={}, @status=200, @body=[], @cookie=[], @sending_file=false, @blank=false, @cache_control={}, @etag=nil, @request=#<ActionDispatch::Request:0x00000102161e50 @env={...}, @request_method="GET", @filtered_parameters={"controller"=>"home", "action"=>"index"}, @method="GET", @fullpath="/gs/">>, @_request=#<ActionDispatch::Request:0x00000102161e50 @env={...}, @request_method="GET", @filtered_parameters={"controller"=>"home", "action"=>"index"}, @method="GET", @fullpath="/gs/">, @_env={...}, @lookup_context=#<ActionView::LookupContext:0x00000102160d20 @details_key=nil, @details={:handlers=>[:erb, :rjs, :builder, :rhtml, :rxml], :formats=>[:html, :text, :js, :css, :ics, :csv, :xml, :rss, :atom, :yaml, :multipart_form, :url_encoded_form, :json], :locale=>[:en, :en]}, @skip_default_locale=false, @frozen_formats=false, @view_paths=[/Users/nicholasthrower/Sites/genome_suite/app/views, /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views]>, @_action_name="index", @_response_body=nil, @_config={}>, "action_dispatch.request.content_type"=>nil, "action_dispatch.request.request_parameters"=>{}, "rack.request.query_string"=>"", "rack.request.query_hash"=>{}, "action_dispatch.request.query_parameters"=>{}, "action_dispatch.request.parameters"=>{"controller"=>"home", "action"=>"index"}, "action_dispatch.request.formats"=>[text/html]}>
+Completed   in 1ms
+
+
+Started GET "/gs/users/sign_in" for 127.0.0.1 at 2011-07-20 17:21:13 -0400
+  Processing by Devise::SessionsController#new as HTML
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/shared/_links.erb (1.2ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/sessions/new.html.erb within layouts/application (144.6ms)
+Completed 200 OK in 266ms (Views: 150.2ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/gs/" for 127.0.0.1 at 2011-07-20 17:21:27 -0400
+  Processing by HomeController#index as HTML
+
+Inside the new strategy
+
+Request
+
+#<ActionDispatch::Request:0x00000102180210 @env={"SERVER_SOFTWARE"=>"Apache/2.2.17 (Unix) mod_ssl/2.2.17 OpenSSL/0.9.8r DAV/2 Phusion_Passenger/3.0.7", "SERVER_PROTOCOL"=>"HTTP/1.1", "SERVER_NAME"=>"dev", "SERVER_ADMIN"=>"you@example.com", "SERVER_ADDR"=>"127.0.0.1", "SERVER_PORT"=>"80", "REMOTE_ADDR"=>"127.0.0.1", "REMOTE_PORT"=>"56987", "REMOTE_USER"=>"test1", "REQUEST_METHOD"=>"GET", "QUERY_STRING"=>"", "DOCUMENT_ROOT"=>"/Library/WebServer/www/", "REQUEST_URI"=>"/gs/", "SCRIPT_NAME"=>"/gs", "PATH_INFO"=>"/", "HTTP_HOST"=>"dev", "HTTP_CONNECTION"=>"keep-alive", "HTTP_AUTHORIZATION"=>"Basic dGVzdDE6dGVzdDE=", "HTTP_USER_AGENT"=>"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_8) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/13.0.782.55 Safari/535.1", "HTTP_ACCEPT"=>"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "HTTP_ACCEPT_ENCODING"=>"gzip,deflate,sdch", "HTTP_ACCEPT_LANGUAGE"=>"en-US,en;q=0.8", "HTTP_ACCEPT_CHARSET"=>"ISO-8859-1,utf-8;q=0.7,*;q=0.3", "HTTP_COOKIE"=>"_genome_suite_session=BAh7CUkiD3Nlc3Npb25faWQGOgZFRiIlODQyZjY3NTQ0YzIzY2QzZDc5YTFjOThhMTJiOWNiZTRJIhBfY3NyZl90b2tlbgY7AEZJIjFLL1d6Z0xDbDNndXF5UzBuVTZWcXVjMHJpVUJEUjg1eFdkWkNTYnMycVVvPQY7AEZJIhN1c2VyX3JldHVybl90bwY7AEZJIgkvZ3MvBjsARkkiCmZsYXNoBjsARklDOiVBY3Rpb25EaXNwYXRjaDo6Rmxhc2g6OkZsYXNoSGFzaHsGOgphbGVydEkiFEZhaWxlZCB0byBMb2dpbgY7AFQGOgpAdXNlZG86CFNldAY6CkBoYXNoewY7B1Q%3D--b51d57827848a92af35cb5755a7e92adefc9d2bd", "HTTP_REMOTE_USER"=>"test1", "SCRIPT_URL"=>"/gs/", "SCRIPT_URI"=>"http://dev/gs/", "RU"=>"test1", "PASSENGER_CONNECT_PASSWORD"=>"2mtDhzUJVIoQtsZyWm91r3FfJfNHPc1SB2GuN5L2bui", "_"=>"_", "rack.version"=>[1, 0], "rack.input"=>#<PhusionPassenger::Utils::RewindableInput:0x00000103a6fb90 @io=#<PhusionPassenger::Utils::UnseekableSocket:0x0000010129c3c0 @socket=#<UNIXSocket:fd 11>>, @rewindable_io=nil, @unlinked=false>, "rack.errors"=>#<IO:<STDERR>>, "rack.multithread"=>false, "rack.multiprocess"=>true, "rack.run_once"=>false, "rack.url_scheme"=>"http", "action_dispatch.parameter_filter"=>[:password], "action_dispatch.secret_token"=>"6792df39b5999b0fdf88f17a57a0c1bc04d411d16d60105c3c2b3a38091ed51b0bd23ee185a116b5fe034f150a9970afabc136b8fd370603a81f6d748df1e499", "action_dispatch.show_exceptions"=>true, "action_dispatch.remote_ip"=>127.0.0.1, "rack.session"=>{"session_id"=>"842f67544c23cd3d79a1c98a12b9cbe4", "_csrf_token"=>"K/WzgLCl3guqyS0nU6Vquc0riUBDR85xWdZCSbs2qUo=", "user_return_to"=>"/gs/", "flash"=>{}}, "rack.session.options"=>{:path=>"/", :domain=>nil, :expire_after=>nil, :secure=>false, :httponly=>true, :id=>"842f67544c23cd3d79a1c98a12b9cbe4"}, "rack.request.cookie_string"=>"_genome_suite_session=BAh7CUkiD3Nlc3Npb25faWQGOgZFRiIlODQyZjY3NTQ0YzIzY2QzZDc5YTFjOThhMTJiOWNiZTRJIhBfY3NyZl90b2tlbgY7AEZJIjFLL1d6Z0xDbDNndXF5UzBuVTZWcXVjMHJpVUJEUjg1eFdkWkNTYnMycVVvPQY7AEZJIhN1c2VyX3JldHVybl90bwY7AEZJIgkvZ3MvBjsARkkiCmZsYXNoBjsARklDOiVBY3Rpb25EaXNwYXRjaDo6Rmxhc2g6OkZsYXNoSGFzaHsGOgphbGVydEkiFEZhaWxlZCB0byBMb2dpbgY7AFQGOgpAdXNlZG86CFNldAY6CkBoYXNoewY7B1Q%3D--b51d57827848a92af35cb5755a7e92adefc9d2bd", "rack.request.cookie_hash"=>{"_genome_suite_session"=>"BAh7CUkiD3Nlc3Npb25faWQGOgZFRiIlODQyZjY3NTQ0YzIzY2QzZDc5YTFjOThhMTJiOWNiZTRJIhBfY3NyZl90b2tlbgY7AEZJIjFLL1d6Z0xDbDNndXF5UzBuVTZWcXVjMHJpVUJEUjg1eFdkWkNTYnMycVVvPQY7AEZJIhN1c2VyX3JldHVybl90bwY7AEZJIgkvZ3MvBjsARkkiCmZsYXNoBjsARklDOiVBY3Rpb25EaXNwYXRjaDo6Rmxhc2g6OkZsYXNoSGFzaHsGOgphbGVydEkiFEZhaWxlZCB0byBMb2dpbgY7AFQGOgpAdXNlZG86CFNldAY6CkBoYXNoewY7B1Q=--b51d57827848a92af35cb5755a7e92adefc9d2bd"}, "action_dispatch.cookies"=>{"_genome_suite_session"=>"BAh7CUkiD3Nlc3Npb25faWQGOgZFRiIlODQyZjY3NTQ0YzIzY2QzZDc5YTFjOThhMTJiOWNiZTRJIhBfY3NyZl90b2tlbgY7AEZJIjFLL1d6Z0xDbDNndXF5UzBuVTZWcXVjMHJpVUJEUjg1eFdkWkNTYnMycVVvPQY7AEZJIhN1c2VyX3JldHVybl90bwY7AEZJIgkvZ3MvBjsARkkiCmZsYXNoBjsARklDOiVBY3Rpb25EaXNwYXRjaDo6Rmxhc2g6OkZsYXNoSGFzaHsGOgphbGVydEkiFEZhaWxlZCB0byBMb2dpbgY7AFQGOgpAdXNlZG86CFNldAY6CkBoYXNoewY7B1Q=--b51d57827848a92af35cb5755a7e92adefc9d2bd"}, "action_dispatch.request.unsigned_session_cookie"=>{"session_id"=>"842f67544c23cd3d79a1c98a12b9cbe4", "_csrf_token"=>"K/WzgLCl3guqyS0nU6Vquc0riUBDR85xWdZCSbs2qUo=", "user_return_to"=>"/gs/", "flash"=>{}}, "warden"=>Warden::Proxy:2178102460 @config={:default_scope=>:user, :scope_defaults=>{}, :default_strategies=>{:user=>[:remote_user_auth, :rememberable, :database_authenticatable]}, :intercept_401=>false, :failure_app=>Devise::FailureApp}, "action_dispatch.request.path_parameters"=>{:controller=>"home", :action=>"index"}, "action_controller.instance"=>#<HomeController:0x000001029e7480 @action_has_layout=true, @view_context_class=nil, @_headers={"Content-Type"=>"text/html"}, @_status=200, @_response=#<ActionDispatch::Response:0x000001029e71b0 @writer=#<Proc:0x000001029e6f58@/Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/actionpack-3.0.9/lib/action_dispatch/http/response.rb:43 (lambda)>, @block=nil, @length=0, @header={}, @status=200, @body=[], @cookie=[], @sending_file=false, @blank=false, @cache_control={}, @etag=nil, @request=#<ActionDispatch::Request:0x000001029e7278 @env={...}, @request_method="GET", @filtered_parameters={"controller"=>"home", "action"=>"index"}, @method="GET", @fullpath="/gs/">>, @_request=#<ActionDispatch::Request:0x000001029e7278 @env={...}, @request_method="GET", @filtered_parameters={"controller"=>"home", "action"=>"index"}, @method="GET", @fullpath="/gs/">, @_env={...}, @lookup_context=#<ActionView::LookupContext:0x000001021badc0 @details_key=nil, @details={:handlers=>[:erb, :rjs, :builder, :rhtml, :rxml], :formats=>[:html, :text, :js, :css, :ics, :csv, :xml, :rss, :atom, :yaml, :multipart_form, :url_encoded_form, :json], :locale=>[:en, :en]}, @skip_default_locale=false, @frozen_formats=false, @view_paths=[/Users/nicholasthrower/Sites/genome_suite/app/views, /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views]>, @_action_name="index", @_response_body=nil, @_config={}>, "action_dispatch.request.content_type"=>nil, "action_dispatch.request.request_parameters"=>{}, "rack.request.query_string"=>"", "rack.request.query_hash"=>{}, "action_dispatch.request.query_parameters"=>{}, "action_dispatch.request.parameters"=>{"controller"=>"home", "action"=>"index"}, "action_dispatch.request.formats"=>[text/html]}>
+Completed   in 1ms
+
+
+Started GET "/gs/users/sign_in" for 127.0.0.1 at 2011-07-20 17:21:27 -0400
+  Processing by Devise::SessionsController#new as HTML
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/shared/_links.erb (1.1ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/sessions/new.html.erb within layouts/application (7.8ms)
+Completed 200 OK in 64ms (Views: 12.3ms | ActiveRecord: 0.0ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+DEPRECATION WARNING: RAILS_DEFAULT_LOGGER is deprecated. Please use ::Rails.logger. (called from block (2 levels) in <top (required)> at /Users/nicholasthrower/Sites/genome_suite/config/initializers/devise.rb:233)
+
+Inside Warden
+
+[:remote_user_auth, :rememberable, :database_authenticatable]
+
+
+Started GET "/gs/" for 127.0.0.1 at 2011-07-20 17:21:40 -0400
+  Processing by HomeController#index as HTML
+
+
+AUTHENTICATING REMOTE USER
+
+  [1m[36mSQL (17.4ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.4ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`login` = 'test1' LIMIT 1
+  [1m[36mSQL (0.2ms)[0m  [1mBEGIN[0m
+  [1m[35mSQL (1.1ms)[0m  describe `users`
+  [1m[36mAREL (0.3ms)[0m  [1mINSERT INTO `users` (`email`, `encrypted_password`, `login`, `remember_created_at`, `sign_in_count`, `current_sign_in_at`, `last_sign_in_at`, `current_sign_in_ip`, `last_sign_in_ip`, `created_at`, `updated_at`) VALUES ('', '', 'test1', NULL, 0, NULL, NULL, NULL, NULL, '2011-07-20 21:21:40', '2011-07-20 21:21:40')[0m
+  [1m[35mSQL (20.6ms)[0m  COMMIT
+  [1m[36mSQL (0.1ms)[0m  [1mBEGIN[0m
+  [1m[35mAREL (0.2ms)[0m  UPDATE `users` SET `email` = NULL, `updated_at` = '2011-07-20 21:21:40' WHERE `users`.`id` = 1
+  [1m[36mSQL (0.1ms)[0m  [1mCOMMIT[0m
+  [1m[35mUser Load (44.9ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1
+Completed   in 446ms
+
+
+Started GET "/gs/users/sign_in" for 127.0.0.1 at 2011-07-20 17:21:40 -0400
+  Processing by Devise::SessionsController#new as HTML
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/shared/_links.erb (1.2ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/sessions/new.html.erb within layouts/application (8.5ms)
+Completed 200 OK in 33ms (Views: 13.4ms | ActiveRecord: 85.2ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+DEPRECATION WARNING: RAILS_DEFAULT_LOGGER is deprecated. Please use ::Rails.logger. (called from block (2 levels) in <top (required)> at /Users/nicholasthrower/Sites/genome_suite/config/initializers/devise.rb:234)
+
+Inside Warden
+
+[:remote_user_auth, :rememberable, :database_authenticatable]
+
+
+Started GET "/gs/" for 127.0.0.1 at 2011-07-20 17:25:11 -0400
+  Processing by HomeController#index as HTML
+
+
+AUTHENTICATING REMOTE USER
+
+  [1m[36mSQL (0.6ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.4ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`login` = 'test1' LIMIT 1
+  [1m[36mSQL (0.2ms)[0m  [1mBEGIN[0m
+  [1m[35mAREL (0.3ms)[0m  UPDATE `users` SET `email` = NULL, `updated_at` = '2011-07-20 21:25:11' WHERE `users`.`id` = 1
+  [1m[36mSQL (16.9ms)[0m  [1mCOMMIT[0m
+  [1m[35mUser Load (0.5ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1
+Completed   in 152ms
+
+
+Started GET "/gs/users/sign_in" for 127.0.0.1 at 2011-07-20 17:25:11 -0400
+  Processing by Devise::SessionsController#new as HTML
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/shared/_links.erb (1.1ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/sessions/new.html.erb within layouts/application (8.2ms)
+Completed 200 OK in 33ms (Views: 12.9ms | ActiveRecord: 18.9ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+DEPRECATION WARNING: RAILS_DEFAULT_LOGGER is deprecated. Please use ::Rails.logger. (called from block (2 levels) in <top (required)> at /Users/nicholasthrower/Sites/genome_suite/config/initializers/devise.rb:238)
+
+Inside Warden
+
+[:remote_user_auth, :rememberable, :database_authenticatable]
+
+
+Started GET "/gs/" for 127.0.0.1 at 2011-07-20 17:39:11 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mSQL (0.4ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.4ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`login` = 'test1' AND `users`.`email` IS NULL LIMIT 1
+  [1m[36mSQL (0.2ms)[0m  [1mBEGIN[0m
+  [1m[35mSQL (1.2ms)[0m  describe `users`
+  [1m[36mAREL (0.6ms)[0m  [1mINSERT INTO `users` (`email`, `encrypted_password`, `login`, `remember_created_at`, `sign_in_count`, `current_sign_in_at`, `last_sign_in_at`, `current_sign_in_ip`, `last_sign_in_ip`, `created_at`, `updated_at`) VALUES (NULL, '', 'test1', NULL, 0, NULL, NULL, NULL, NULL, '2011-07-20 21:39:11', '2011-07-20 21:39:11')[0m
+Mysql2::Error: Column 'email' cannot be null: INSERT INTO `users` (`email`, `encrypted_password`, `login`, `remember_created_at`, `sign_in_count`, `current_sign_in_at`, `last_sign_in_at`, `current_sign_in_ip`, `last_sign_in_ip`, `created_at`, `updated_at`) VALUES (NULL, '', 'test1', NULL, 0, NULL, NULL, NULL, NULL, '2011-07-20 21:39:11', '2011-07-20 21:39:11')
+  [1m[35mSQL (0.1ms)[0m  ROLLBACK
+Completed 500 Internal Server Error in 141ms
+
+NameError (uninitialized constant RAILS_BASE_LOGGER):
+  config/initializers/devise.rb:17:in `rescue in authenticate!'
+  config/initializers/devise.rb:14:in `authenticate!'
+
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/actionpack-3.0.9/lib/action_dispatch/middleware/templates/rescues/_trace.erb (1.7ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/actionpack-3.0.9/lib/action_dispatch/middleware/templates/rescues/_request_and_response.erb (3.2ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/actionpack-3.0.9/lib/action_dispatch/middleware/templates/rescues/diagnostics.erb within rescues/layout (9.6ms)
+
+
+Started GET "/gs/" for 127.0.0.1 at 2011-07-20 17:40:14 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mUser Load (0.2ms)[0m  [1mSELECT `users`.* FROM `users` WHERE `users`.`login` = 'test1' AND `users`.`email` IS NULL LIMIT 1[0m
+  [1m[35mSQL (0.2ms)[0m  BEGIN
+  [1m[36mSQL (1.2ms)[0m  [1mdescribe `users`[0m
+  [1m[35mAREL (0.5ms)[0m  INSERT INTO `users` (`email`, `encrypted_password`, `login`, `remember_created_at`, `sign_in_count`, `current_sign_in_at`, `last_sign_in_at`, `current_sign_in_ip`, `last_sign_in_ip`, `created_at`, `updated_at`) VALUES (NULL, '', 'test1', NULL, 0, NULL, NULL, NULL, NULL, '2011-07-20 21:40:14', '2011-07-20 21:40:14')
+Mysql2::Error: Column 'email' cannot be null: INSERT INTO `users` (`email`, `encrypted_password`, `login`, `remember_created_at`, `sign_in_count`, `current_sign_in_at`, `last_sign_in_at`, `current_sign_in_ip`, `last_sign_in_ip`, `created_at`, `updated_at`) VALUES (NULL, '', 'test1', NULL, 0, NULL, NULL, NULL, NULL, '2011-07-20 21:40:14', '2011-07-20 21:40:14')
+  [1m[36mSQL (0.1ms)[0m  [1mROLLBACK[0m
+Completed 500 Internal Server Error in 61ms
+
+NameError (uninitialized constant RAILS_BASE_LOGGER):
+  config/initializers/devise.rb:17:in `rescue in authenticate!'
+  config/initializers/devise.rb:14:in `authenticate!'
+
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/actionpack-3.0.9/lib/action_dispatch/middleware/templates/rescues/_trace.erb (1.0ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/actionpack-3.0.9/lib/action_dispatch/middleware/templates/rescues/_request_and_response.erb (3.1ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/actionpack-3.0.9/lib/action_dispatch/middleware/templates/rescues/diagnostics.erb within rescues/layout (7.8ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+DEPRECATION WARNING: RAILS_DEFAULT_LOGGER is deprecated. Please use ::Rails.logger. (called from block (2 levels) in <top (required)> at /Users/nicholasthrower/Sites/genome_suite/config/initializers/devise.rb:238)
+
+Inside Warden
+
+[:remote_user_auth, :rememberable, :database_authenticatable]
+
+
+Started GET "/gs/" for 127.0.0.1 at 2011-07-20 17:40:24 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mSQL (0.5ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.3ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`login` = 'test1' AND `users`.`email` IS NULL LIMIT 1
+  [1m[36mSQL (0.2ms)[0m  [1mBEGIN[0m
+  [1m[35mSQL (1.1ms)[0m  describe `users`
+  [1m[36mAREL (0.7ms)[0m  [1mINSERT INTO `users` (`email`, `encrypted_password`, `login`, `remember_created_at`, `sign_in_count`, `current_sign_in_at`, `last_sign_in_at`, `current_sign_in_ip`, `last_sign_in_ip`, `created_at`, `updated_at`) VALUES (NULL, '', 'test1', NULL, 0, NULL, NULL, NULL, NULL, '2011-07-20 21:40:24', '2011-07-20 21:40:24')[0m
+Mysql2::Error: Column 'email' cannot be null: INSERT INTO `users` (`email`, `encrypted_password`, `login`, `remember_created_at`, `sign_in_count`, `current_sign_in_at`, `last_sign_in_at`, `current_sign_in_ip`, `last_sign_in_ip`, `created_at`, `updated_at`) VALUES (NULL, '', 'test1', NULL, 0, NULL, NULL, NULL, NULL, '2011-07-20 21:40:24', '2011-07-20 21:40:24')
+  [1m[35mSQL (0.1ms)[0m  ROLLBACK
+COULD NOT CREATE NEW USER: test1, 
+  [1m[36mUser Load (0.2ms)[0m  [1mSELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1[0m
+Completed   in 141ms
+
+
+Started GET "/gs/users/sign_in" for 127.0.0.1 at 2011-07-20 17:40:24 -0400
+  Processing by Devise::SessionsController#new as HTML
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/shared/_links.erb (1.1ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/sessions/new.html.erb within layouts/application (8.5ms)
+Completed 200 OK in 32ms (Views: 13.5ms | ActiveRecord: 3.3ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+DEPRECATION WARNING: RAILS_DEFAULT_LOGGER is deprecated. Please use ::Rails.logger. (called from block (2 levels) in <top (required)> at /Users/nicholasthrower/Sites/genome_suite/config/initializers/devise.rb:238)
+
+Inside Warden
+
+[:remote_user_auth, :rememberable, :database_authenticatable]
+
+
+Started GET "/gs/" for 127.0.0.1 at 2011-07-20 17:42:38 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mSQL (0.4ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.3ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`login` = 'test1' AND `users`.`email` IS NULL LIMIT 1
+  [1m[36mSQL (0.2ms)[0m  [1mBEGIN[0m
+  [1m[35mSQL (1.1ms)[0m  describe `users`
+  [1m[36mAREL (0.5ms)[0m  [1mINSERT INTO `users` (`email`, `encrypted_password`, `login`, `remember_created_at`, `sign_in_count`, `current_sign_in_at`, `last_sign_in_at`, `current_sign_in_ip`, `last_sign_in_ip`, `created_at`, `updated_at`) VALUES (NULL, '', 'test1', NULL, 0, NULL, NULL, NULL, NULL, '2011-07-20 21:42:38', '2011-07-20 21:42:38')[0m
+Mysql2::Error: Column 'email' cannot be null: INSERT INTO `users` (`email`, `encrypted_password`, `login`, `remember_created_at`, `sign_in_count`, `current_sign_in_at`, `last_sign_in_at`, `current_sign_in_ip`, `last_sign_in_ip`, `created_at`, `updated_at`) VALUES (NULL, '', 'test1', NULL, 0, NULL, NULL, NULL, NULL, '2011-07-20 21:42:38', '2011-07-20 21:42:38')
+  [1m[35mSQL (0.1ms)[0m  ROLLBACK
+
+COULD NOT CREATE NEW USER: test1, 
+Mysql2::Error: Column 'email' cannot be null: INSERT INTO `users` (`email`, `encrypted_password`, `login`, `remember_created_at`, `sign_in_count`, `current_sign_in_at`, `last_sign_in_at`, `current_sign_in_ip`, `last_sign_in_ip`, `created_at`, `updated_at`) VALUES (NULL, '', 'test1', NULL, 0, NULL, NULL, NULL, NULL, '2011-07-20 21:42:38', '2011-07-20 21:42:38')
+  [1m[36mUser Load (0.3ms)[0m  [1mSELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1[0m
+Completed   in 131ms
+
+
+Started GET "/gs/users/sign_in" for 127.0.0.1 at 2011-07-20 17:42:38 -0400
+  Processing by Devise::SessionsController#new as HTML
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/shared/_links.erb (1.1ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/sessions/new.html.erb within layouts/application (8.9ms)
+Completed 200 OK in 32ms (Views: 14.0ms | ActiveRecord: 2.9ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+DEPRECATION WARNING: RAILS_DEFAULT_LOGGER is deprecated. Please use ::Rails.logger. (called from block (2 levels) in <top (required)> at /Users/nicholasthrower/Sites/genome_suite/config/initializers/devise.rb:239)
+
+Inside Warden
+
+[:remote_user_auth, :rememberable, :database_authenticatable]
+
+
+Started GET "/gs/" for 127.0.0.1 at 2011-07-20 17:45:03 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mSQL (0.4ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.4ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`login` = 'test1' AND `users`.`email` = '' LIMIT 1
+  [1m[36mSQL (0.2ms)[0m  [1mBEGIN[0m
+  [1m[35mSQL (1.3ms)[0m  describe `users`
+  [1m[36mAREL (0.3ms)[0m  [1mINSERT INTO `users` (`email`, `encrypted_password`, `login`, `remember_created_at`, `sign_in_count`, `current_sign_in_at`, `last_sign_in_at`, `current_sign_in_ip`, `last_sign_in_ip`, `created_at`, `updated_at`) VALUES ('', '', 'test1', NULL, 0, NULL, NULL, NULL, NULL, '2011-07-20 21:45:03', '2011-07-20 21:45:03')[0m
+  [1m[35mSQL (84.9ms)[0m  COMMIT
+  [1m[36mSQL (0.1ms)[0m  [1mBEGIN[0m
+  [1m[35mAREL (0.4ms)[0m  UPDATE `users` SET `last_sign_in_at` = '2011-07-20 21:45:03', `current_sign_in_at` = '2011-07-20 21:45:03', `last_sign_in_ip` = '127.0.0.1', `current_sign_in_ip` = '127.0.0.1', `sign_in_count` = 1, `updated_at` = '2011-07-20 21:45:03' WHERE `users`.`id` = 1
+  [1m[36mSQL (21.2ms)[0m  [1mCOMMIT[0m
+Rendered home/index.html.erb within layouts/application (2.4ms)
+Completed 200 OK in 276ms (Views: 38.3ms | ActiveRecord: 109.2ms)
+
+
+Started GET "/gs/" for 127.0.0.1 at 2011-07-20 17:45:51 -0400
+  Processing by HomeController#index as HTML
+  [1m[35mUser Load (0.4ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`id` = 1 LIMIT 1
+Rendered home/index.html.erb within layouts/application (2.6ms)
+Completed 200 OK in 32ms (Views: 8.0ms | ActiveRecord: 0.4ms)
+
+
+Started GET "/gs/" for 127.0.0.1 at 2011-07-20 17:47:17 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mUser Load (0.4ms)[0m  [1mSELECT `users`.* FROM `users` WHERE `users`.`id` = 1 LIMIT 1[0m
+Rendered home/index.html.erb within layouts/application (2.1ms)
+Completed 200 OK in 57ms (Views: 6.3ms | ActiveRecord: 0.4ms)
+
+
+Started GET "/gs/" for 127.0.0.1 at 2011-07-20 17:48:15 -0400
+  Processing by HomeController#index as HTML
+  [1m[35mUser Load (0.4ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`id` = 1 LIMIT 1
+Rendered home/index.html.erb within layouts/application (2.3ms)
+Completed 200 OK in 27ms (Views: 6.5ms | ActiveRecord: 0.4ms)
+
+
+Started GET "/gs/" for 127.0.0.1 at 2011-07-20 17:48:33 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mUser Load (0.3ms)[0m  [1mSELECT `users`.* FROM `users` WHERE `users`.`id` = 1 LIMIT 1[0m
+
+
+true
+
+Rendered home/index.html.erb within layouts/application (2.1ms)
+Completed 200 OK in 29ms (Views: 6.2ms | ActiveRecord: 0.3ms)
+
+
+Started GET "/gs/" for 127.0.0.1 at 2011-07-20 17:48:48 -0400
+  Processing by HomeController#index as HTML
+  [1m[35mUser Load (0.3ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`id` = 1 LIMIT 1
+
+
+true
+
+
+
+#<User:0x00000103e67568>
+
+Rendered home/index.html.erb within layouts/application (2.1ms)
+Completed 200 OK in 29ms (Views: 6.2ms | ActiveRecord: 0.3ms)
+
+
+Started GET "/gs/" for 127.0.0.1 at 2011-07-20 17:48:53 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mUser Load (0.2ms)[0m  [1mSELECT `users`.* FROM `users` WHERE `users`.`id` = 1 LIMIT 1[0m
+
+
+true
+
+
+
+#<User id: 1, email: "", encrypted_password: "", login: "test1", remember_created_at: nil, sign_in_count: 1, current_sign_in_at: "2011-07-20 21:45:03", last_sign_in_at: "2011-07-20 21:45:03", current_sign_in_ip: "127.0.0.1", last_sign_in_ip: "127.0.0.1", created_at: "2011-07-20 21:45:03", updated_at: "2011-07-20 21:45:03">
+
+Rendered home/index.html.erb within layouts/application (3.6ms)
+Completed 200 OK in 34ms (Views: 10.8ms | ActiveRecord: 0.2ms)
+DEPRECATION WARNING: config.action_view.debug_rjs will be removed in 3.1, from 3.1 onwards you will need to install prototype-rails to continue to use RJS templates . (called from synchronize at <internal:prelude>:10)
+
+
+Started GET "/gs/" for 127.0.0.1 at 2011-07-20 17:49:29 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mSQL (0.5ms)[0m  [1mSHOW TABLES[0m
+  [1m[35mUser Load (0.4ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`id` = 1 LIMIT 1
+
+
+true
+
+
+
+#<User id: 1, email: "", encrypted_password: "", login: "test1", remember_created_at: nil, sign_in_count: 1, current_sign_in_at: "2011-07-20 21:45:03", last_sign_in_at: "2011-07-20 21:45:03", current_sign_in_ip: "127.0.0.1", last_sign_in_ip: "127.0.0.1", created_at: "2011-07-20 21:45:03", updated_at: "2011-07-20 21:45:03">
+
+Rendered home/index.html.erb within layouts/application (2.4ms)
+Completed 200 OK in 131ms (Views: 7.0ms | ActiveRecord: 0.8ms)
+
+
+Started GET "/gs" for 127.0.0.1 at 2011-07-20 17:49:53 -0400
+  Processing by HomeController#index as HTML
+  [1m[36mUser Load (0.3ms)[0m  [1mSELECT `users`.* FROM `users` WHERE `users`.`email` = 'test1' LIMIT 1[0m
+Completed   in 14ms
+
+
+Started GET "/gs/users/sign_in" for 127.0.0.1 at 2011-07-20 17:49:53 -0400
+  Processing by Devise::SessionsController#new as HTML
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/shared/_links.erb (1.3ms)
+Rendered /Users/nicholasthrower/.rvm/gems/ruby-1.9.2-p290@rails302/gems/devise-1.4.2/app/views/devise/sessions/new.html.erb within layouts/application (9.2ms)
+Completed 200 OK in 58ms (Views: 14.2ms | ActiveRecord: 0.3ms)

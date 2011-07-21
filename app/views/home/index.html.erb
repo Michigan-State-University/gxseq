@@ -1,0 +1,16 @@
+<h1 class="pagetitle">Welcome to the GLBRC Genomic Data Management Suite<span>(beta)</span></h1>
+<p>
+	To get started click on the Genomes tab above and select an interesting genome from the list.<br/>
+	You may also be interested in the experiments tab. From there you can upload new data, create new experiments and view details about the different experiment types in the system.
+</p>
+<p>
+	<h2>If you are new to the site you should read the <%#= link_to "Frequently Asked Questions", faq_instructions_path %></h2>
+</p>
+<hr>
+<div>
+	<%#= render :partial => 'newest_features' %>
+	Logged in as: <%= current_user.inspect if current_user %><br/>
+	Session: <%= user_session %><br/>
+	<br/>
+	remote_user: <%= @remote_user %> <br/>
+</div>
