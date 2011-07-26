@@ -11,7 +11,7 @@ Warden::Strategies.add(:remote_user_auth) do
   def authenticate!
     # find or create a user with login == REMOTE_USER
     if(APP_CONFIG[:create_from_remote_user] == true)
-      remote_email = request.headers["REMOTE_EMAIL"] || ''
+      remote_email = request.headers["REMOTE_EMAIL"] || ' '
       remote_user = request.headers["HTTP_REMOTE_USER"]
       begin
         resource = User.find_by_login(remote_user) || begin

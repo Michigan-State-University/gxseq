@@ -5,10 +5,13 @@ gem 'rails', '3.0.9'
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
 
-gem 'activerecord-oracle_enhanced-adapter'
-gem 'ruby-oci8'
-#gem 'mysql2', '~> 0.2.6'
+# Choose your database adapter
+#gem 'activerecord-oracle_enhanced-adapter'
+#gem 'ruby-oci8'
+gem 'mysql2', '~> 0.2.6'
+
 gem "devise"
+
 # Use unicorn as the web server
 # gem 'unicorn'
 
