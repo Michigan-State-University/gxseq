@@ -6,9 +6,13 @@ gem 'rails', '3.0.9'
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
 
 # Choose your database adapter
-#gem 'activerecord-oracle_enhanced-adapter'
-#gem 'ruby-oci8'
-gem 'mysql2', '~> 0.2.6'
+group :production do
+  gem 'activerecord-oracle_enhanced-adapter'
+  gem 'ruby-oci8'
+end
+group :development, :test do
+  gem 'mysql2', '~> 0.2.6'
+end
 
 gem "devise"
 
