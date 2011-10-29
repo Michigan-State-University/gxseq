@@ -1,5 +1,6 @@
 class Admin::UsersController < Admin::AdminController
   before_filter :find_user, :except => [:index,:new, :create, :logout]
+  before_filter :load_data, :only => [:edit, :new, :create, :update]
   before_filter :check_auth, :except => [:sign_out]
   
   # render index.html
@@ -15,12 +16,14 @@ class Admin::UsersController < Admin::AdminController
   # render new.rhtml
   def new
     @user = User.new
+    @roles = Role.all
   end
  
   def show
   end
   
   def create
+    @roles = Role.all
     #TODO Not Implemented
     render :text  => "Not Implemented"
   end
@@ -42,6 +45,13 @@ class Admin::UsersController < Admin::AdminController
 protected
   def find_user
     @user = User.find(params[:id], :include => :roles)
+  end
+  
+  def load_data
+    if current_user && current_user.is_admin?
+      @default = Role.find_by_name("user")
+      @roles = Role.all
+    end
   end
   
   def check_auth

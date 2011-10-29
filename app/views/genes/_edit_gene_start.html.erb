@@ -1,0 +1,19 @@
+<h2>Location Editor</h2>
+<% if @gene.possible_starts(300).size ==0 %>
+	<p style="color:red">There are 0 alternative starts in the current gene frame</p>
+<% else %>
+	<p>Choose a new start position from the possible positions below</p> 
+	<div style="overflow-x:scroll;overflow-y:hidden;position:relative;">
+		<% w = ((@gene.locations.first.end_pos+600)-@gene.locations.first.start_pos) %>
+		<% start = @gene.locations.first.start_pos-300 %>
+		<%= number_line(start, w, {:height => 150}) %>
+		<div style="position:absolute;top:0px">
+			<%= codon_map(@gene,start,w) %>
+		</div>
+		<div style="position:absolute;top:100px;width:100px">
+			Possible Start: <%= image_tag("models/purple.gif", :size => '15x10', :style => "float:right") %><br/>
+			Current Start: <%= image_tag("models/green.gif", :size => '15x10', :style => "float:right") %><br/>
+			Current End: <%= image_tag("models/red.gif", :size => '15x10', :style => "float:right") %>
+		</div>
+	</div>
+<% end %>

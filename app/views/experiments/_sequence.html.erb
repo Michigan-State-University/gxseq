@@ -1,0 +1,138 @@
+<h3>Sequence Data</h3>
+<div style="float:left;width:420px;">
+	<div style="float:left;width:370px;">
+		Choose your sequence. If you have multiple in your file, use the green button to add extra fields. Verify that SeqID matches the chromosome field in your file.<br/><br/>
+	</div>
+	<div style="float:left;">
+		<%= link_to_function image_tag("add.gif", :title => "Add another sequence", :style => "border:none"), "add_sequence_select(0,'#{f.object.class.name.underscore}')" %>
+	</div>
+</div>
+	
+<div style="float:left;width:50px;">
+	<span style="font-size:150%;">OR</span>
+</div>
+
+<div style="float:left;width:275px;">
+	Choose an organism to add all of its sequence.<br/>
+	 <%= select_tag(:species, "<option></option>".html_safe+options_from_collection_for_select(@species, :bioentry_id_string, :name), 
+				{:onchange => "add_multiple_sequences(this.options[this.selectedIndex].value,'#{f.object.class.name.underscore}');"}) %>
+</div>
+
+<div id="experiment_sequence_list" style="clear:both">
+	<div style="border-top:1px dashed lightgrey"><br/></div>
+	<% f.object.bioentries_experiments.each_with_index do |be, index| %>
+		<%= f.fields_for :bioentries_experiments, be do |entry| %>
+			<div id="sequence_list_item_<%= index %>" class="sequence_list_item">
+				<br/>
+				<div style="float:left;padding-left:1em">
+					<span class="sequence_list_item_name">Sequence <%= "#{index + 1}" %></span><br/>
+					<%= entry.collection_select :bioentry_id, @bioentries, :id, :display_info,{},
+					{ 
+						:data_id => index,
+						:class => "sequence_select", 
+						:onchange => "set_sequence_name(this, '#{f.object.class.name.underscore}')"
+					}
+					%>
+				</div>
+				<div style="float:left;padding-left:1em">
+					SeqID<br/>
+					<%= entry.text_field :sequence_name, :class => "sequence_id", :size => 15, :value => (entry.object.sequence_name || @bioentries.first.accession if @bioentries.first) %><br/>
+				</div>
+				<div class="sequence_item_delete" style="float:left;padding-left:1em">
+					<br/>
+					<% if index > 0 %>
+						<%= link_to_function image_tag("delete.png", :title => "Add another sequence", :style => "border:none"), "remove_sequence_select(#{index},'#{f.object.class.name.underscore}')" %>
+					<% end %>
+				</div>
+			</div>
+		<% end %>
+	<% end %>
+</div>
+
+<% @bioentries.each do |bioentry| %>
+	<%= hidden_field_tag bioentry.id.to_s+"_accession", bioentry.accession, :disabled => true %>
+<% end %>
+
+
+<script type="text/javascript">
+//Javascript to handle adding/removing sequences to the experiment. Its not pretty but it works
+	add_multiple_sequences=function(id_array,classname){
+		id_array = id_array.split(",")
+		clear_sequence_list();
+		if(id_array[0]=="")
+			return;
+		//setup the first dropdown
+		if(id_array.length > 0){
+			var new_select = $(classname +'_bioentries_experiments_attributes_0_bioentry_id');
+			for(x=0;x<new_select.options.length;x++){
+				if(new_select.options[x].value==id_array[0])
+				{	new_select.selectedIndex = x;}
+			}
+			$(classname +'_bioentries_experiments_attributes_0_sequence_name').value = $(id_array[0]+'_accession').value;
+		}		
+		//setup the rest
+		for(i=1;i<id_array.length;i++){
+			add_sequence_select(id_array[i], classname);
+		}
+	};
+	
+	add_sequence_select = function(selected_id, classname){
+		//setup items
+		var list = $('experiment_sequence_list');
+		var new_id = $$('.sequence_select').length;
+		var new_select_div = $$('.sequence_list_item')[0].cloneNode(true);
+		setup_id_changes(new_select_div, new_id, selected_id, classname)
+		list.appendChild(new_select_div);
+	};
+	
+	set_sequence_name = function(item, classname){
+		$(classname + '_bioentries_experiments_attributes_' + item.attributes['data_id'].value + 
+		'_sequence_name').value = $((item.options[item.selectedIndex].value) + '_accession').value
+	};
+	
+	clear_sequence_list = function(){
+		list = $$('.sequence_list_item')
+		for(idx=1;idx<list.length;idx++)
+		{
+			$('experiment_sequence_list').removeChild(list[idx]);
+		}
+	};
+	
+	remove_sequence_select=function(id,classname){
+		var div_to_remove = $('sequence_list_item_'+id);
+		var parent_div = $('experiment_sequence_list');
+		//reset id's
+		update_items = div_to_remove.nextSiblings();
+		for(i=0;i<update_items.length;i++)
+		{
+			setup_id_changes(update_items[i],id,-1,classname);
+			id+=1;	
+		}
+		parent_div.removeChild(div_to_remove);
+	};
+	
+	setup_id_changes=function(update_select_div, new_id, selected_id, classname){
+		update_select_div.id = "sequence_list_item_"+new_id
+		//name
+		update_select_div.getElementsByClassName('sequence_list_item_name')[0].innerHTML="Sequence "+(new_id+1)
+		//new select
+		var new_select = update_select_div.getElementsByClassName('sequence_select')[0];
+		if(!selected_id || selected_id < 0){selected_id = new_select[new_select.selectedIndex].value}
+		new_select.id = classname + "_bioentries_experiments_attributes_"+new_id+"_bioentry_id";
+		new_select.name = classname + "[bioentries_experiments_attributes]["+new_id+"][bioentry_id]";
+		new_select.attributes['data_id'].value = new_id;
+		for(x=0;x<new_select.options.length;x++){
+			if(new_select.options[x].value==selected_id)
+				new_select.selectedIndex = x;
+		}
+		//new sequence id
+		var new_seq_id = update_select_div.getElementsByClassName('sequence_id')[0];
+		new_seq_id.id = classname + "_bioentries_experiments_attributes_"+new_id+"_sequence_name";
+		new_seq_id.name = classname + "[bioentries_experiments_attributes]["+new_id+"][sequence_name]";
+		new_seq_id.value = $(selected_id+'_accession').value			
+		//new delete button (can't be cloned from first as it doesn't allow delete)
+		var delete_div = update_select_div.getElementsByClassName('sequence_item_delete')[0];
+		var new_delete_button = '<%= link_to_function image_tag("delete.png",:title => "Remove this sequence", :style => "border:none"), "remove_sequence_select(id_here,\"#{f.object.class.name.underscore}\")"%>'
+		delete_div.innerHTML = "<br/>"+new_delete_button.gsub(/id_here/,new_id)
+	};
+</script>

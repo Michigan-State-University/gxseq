@@ -1,0 +1,5 @@
+<% experiment.assets.each do |asset|%>
+  <div style="float:right">
+    <%= link_to( (render :partial => "assets/#{asset.class.name.underscore}_details",:locals => {:asset => asset}), asset_path(asset.id), :popup => true )%>
+  </div>
+<% end %>

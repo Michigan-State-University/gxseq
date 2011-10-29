@@ -1,0 +1,9 @@
+<%=
+{
+  :success => true,
+  :data => {                    
+  :text => "#{render :partial => 'genes/info'}",
+  :title  => "Locus: "+@gene_model.locus_tag
+}
+}.to_json.html_safe
+%>

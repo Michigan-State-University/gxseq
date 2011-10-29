@@ -1,0 +1,16 @@
+<b>Feature: <%=@generic.display_name %></b>&nbsp;&nbsp;
+<hr/>
+<table>
+  <tr><td>Strand:</td><td> <%=@generic.locations.first.strand ? "Forward" : "Reverse"%> </td></tr>
+  <tr>
+	<td>Locations:</td>
+	<td> 
+		<% @generic.locations.each do |location|%>
+			(<%= location.start_pos  %>..<%= location.end_pos %>)<br/>
+		<% end %>
+	</td>
+ </tr>
+  <% @generic.qualifiers.each do |qualifier|%>
+    <tr><td><%= qualifier.term.name.capitalize %>:</td><td><%=truncate(qualifier.value,:length=>50)%></td></tr>
+  <%end%>
+</table>

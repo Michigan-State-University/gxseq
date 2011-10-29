@@ -1,3 +1,23 @@
+GIT
+  remote: git://github.com/clyfe/devise_ldap_authenticatable.git
+  revision: 4d41c6c3d8e6b08902ee24def683f5f9fd784f19
+  specs:
+    devise_ldap_authenticatable (0.4.6)
+      devise (~> 1.3.4)
+      net-ldap (~> 0.2.2)
+
+GIT
+  remote: git://github.com/throwern/paper_trail.git
+  revision: 1a9e4e85157d50324eeec16fd1a8770115e76411
+  specs:
+    paper_trail (2.2.9)
+      rails (~> 3)
+
+PATH
+  remote: vendor/gems/composite_primary_keys-3.1.10
+  specs:
+    composite_primary_keys (3.1.10)
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -24,20 +44,38 @@ GEM
       activesupport (= 3.0.9)
       arel (~> 2.0.10)
       tzinfo (~> 0.3.23)
+    activerecord-oracle_enhanced-adapter (1.3.2)
     activeresource (3.0.9)
       activemodel (= 3.0.9)
       activesupport (= 3.0.9)
     activesupport (3.0.9)
+    acts_as_api (0.3.8)
+      activemodel (>= 3.0.0)
+      activesupport (>= 3.0.0)
+      rack (>= 1.1.0)
+    archive-tar-minitar (0.5.2)
     arel (2.0.10)
     bcrypt-ruby (2.1.4)
+    bio (1.4.1)
     builder (2.1.2)
-    devise (1.4.2)
+    cocaine (0.1.0)
+    columnize (0.3.4)
+    daemons (1.1.4)
+    delayed_job (2.1.4)
+      activesupport (~> 3.0)
+      daemons
+    devise (1.3.4)
       bcrypt-ruby (~> 2.1.2)
       orm_adapter (~> 0.0.3)
       warden (~> 1.0.3)
     erubis (2.6.6)
       abstract (>= 1.0.0)
+    exception_notification (2.4.1)
+    formtastic (2.0.2)
+      rails (~> 3.0)
     i18n (0.5.0)
+    linecache19 (0.5.12)
+      ruby_core_source (>= 0.1.4)
     mail (2.2.19)
       activesupport (>= 2.3.6)
       i18n (>= 0.4.0)
@@ -45,13 +83,22 @@ GEM
       treetop (~> 1.4.8)
     mime-types (1.16)
     mysql2 (0.2.11)
+    net-ldap (0.2.2)
     orm_adapter (0.0.5)
+    paperclip (2.3.16)
+      activerecord (>= 2.3.0)
+      activesupport (>= 2.3.2)
+      cocaine (>= 0.0.2)
+      mime-types
+    polyamorous (0.5.0)
+      activerecord (~> 3.0)
     polyglot (0.3.1)
     rack (1.2.3)
     rack-mount (0.6.14)
       rack (>= 1.0.0)
     rack-test (0.5.7)
       rack (>= 1.0)
+    railroady (1.0.2)
     rails (3.0.9)
       actionmailer (= 3.0.9)
       actionpack (= 3.0.9)
@@ -68,17 +115,49 @@ GEM
       thor (~> 0.14.4)
     rake (0.9.2)
     rdoc (3.8)
+    ruby-debug-base19 (0.11.25)
+      columnize (>= 0.3.1)
+      linecache19 (>= 0.5.11)
+      ruby_core_source (>= 0.1.4)
+    ruby-debug19 (0.11.6)
+      columnize (>= 0.3.1)
+      linecache19 (>= 0.5.11)
+      ruby-debug-base19 (>= 0.11.19)
+    ruby-oci8 (2.0.6)
+    ruby_core_source (0.1.5)
+      archive-tar-minitar (>= 0.5.2)
+    squeel (0.9.0)
+      activerecord (~> 3.0)
+      activesupport (~> 3.0)
+      polyamorous (~> 0.5.0)
     thor (0.14.6)
     treetop (1.4.9)
       polyglot (>= 0.3.1)
     tzinfo (0.3.29)
-    warden (1.0.4)
+    warden (1.0.6)
       rack (>= 1.0)
+    will_paginate (3.0.0)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
-  devise
-  mysql2 (~> 0.2.6)
+  activerecord-oracle_enhanced-adapter
+  acts_as_api (~> 0.3)
+  bio (~> 1.4.1)
+  composite_primary_keys (= 3.1.10)!
+  delayed_job (~> 2)
+  devise (~> 1.3.4)
+  devise_ldap_authenticatable!
+  exception_notification (~> 2.4.1)
+  formtastic (~> 2)
+  mysql2
+  paper_trail (= 2.2.9)!
+  paperclip (~> 2.3)
+  railroady
   rails (= 3.0.9)
+  ruby-debug19
+  ruby-oci8
+  squeel (~> 0.9)
+  thor (~> 0.14.6)
+  will_paginate (~> 3)

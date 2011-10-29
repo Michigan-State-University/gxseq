@@ -1,0 +1,39 @@
+<b>Gene Model: <%=@gene_model.locus_tag+(@gene_model.variants==1 ? "" : ".#{@gene_model.rank.to_i}")%></b>&nbsp;&nbsp;
+<hr/>
+<div style="float:right"><%= link_to "more details...", gene_path(@gene_model.locus_tag), :target => @gene_model.locus_tag %></div>
+<table>
+  <tr><td>Location:</td><td> <%=@gene_model.start_pos.to_i%>,<%=@gene_model.end_pos.to_i%></td></tr>
+  <tr><td>Strand:</td><td> <%=@gene.locations.first.strand==1 ? "Forward" : "Reverse"%> </td></tr>
+  <%if @gene.gene%><tr><td>Gene:</td><td> <%=@gene.name%><%end%>
+  <%unless @gene.gene_synonyms.blank?%><tr> <td>Synonyms:</td><td> <%=@gene.gene_synonyms.map(&:value).uniq.to_sentence %> </td></tr> <%end%>
+  <%if @gene.product%><tr><td> Product:</td><td> <%=@gene.product.value%> </td></tr> <%end%>
+  <% @gene.notes.each do |n|%>
+    <tr><td>Note:</td><td><%=truncate(n.value,:length=>50)%></td></tr>
+  <%end%>
+</table>
+
+<% if @cds%>
+	<br/><br/>
+	<b>CDS</b><br/>
+	<table>
+	  <tr><td>Location:</td><td> <%=@cds.locations.collect(&:start_pos).min%>,<%=@cds.locations.collect(&:end_pos).max%></td></tr>
+	  <%if @cds.protein_id%><tr><td>Protein:</td><td> <%=@cds.protein_id.value%></td></tr><%end%>
+	  <%if @cds.product%><tr><td> Product: </td><td><%=@cds.product.value%></td></tr><%end%>
+	  <% @cds.notes.each do |n|%>
+	    <tr><td>Note:</td><td><%=truncate(n.value,:length=>50)%></td></tr>
+	  <%end%>
+	</table>
+<% end %>
+
+<% if @mrna%>
+  <br/><br/>
+  <b>mRNA</b><br/>
+  <table>
+    <tr><td>Location:</td><td><%=@mrna.locations.collect(&:start_pos).min%>,<%=@mrna.locations.collect(&:end_pos).max%></td></tr>
+    <%if @mrna.transcript_id%><tr><td> Transcript:</td><td><%=@mrna.transcript_id.value%></td></tr><%end%>
+    <%if @mrna.product%><tr><td>Product:</td><td><%=@mrna.product.value%><td></tr><%end%>
+    <% @mrna.notes.each do |n|%>
+      <tr><td>Note:</td><td><%=truncate(n.value,:length=>50)%></td></tr>
+    <%end%>
+  </table>
+<% end %>

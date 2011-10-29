@@ -1,0 +1,38 @@
+<% if f = gene_model.send(feature) %>
+<tr class=<%= cycle("odd","even") %> >
+	<td class="keyword" ><%= f.display_name %></td><td style="width:5%"></td><td></td>
+	<td class="options" >
+		<%# permitted_to? :create, f.qualifiers.new do %>
+			<%= image_tag("add.gif", :style => "border:none;cursor:pointer", :onclick => "$(new_#{feature}_note_#{gene_model.id}).toggle();")%>
+		<%# end %>
+	</td>
+</tr>
+<% cycle("odd","even")%>
+		<tr id="new_<%= feature %>_note_<%= gene_model.id %>" style="display:none;">
+			<td></td>
+			<td></td>
+			<td>
+				
+				<% notes = f.notes # grab before we add the new form note%>
+				<% new_note = f.qualifiers.build(:seqfeature => f, :rank => f.notes.size + 1, :term => Term.find_by_name('note')) %>
+				<%# permitted_to? :create, new_note do %>
+					<% form_for new_note do |form|%>
+						Create a new <%= f.display_name %> note
+						<%= form.submit "Add Note", :style => "float:right;margin-right:1em;margin-bottom:1em"%>
+						<%= form.text_area :value, :cols => 75, :rows => 8 %><br/>
+						<%= form.hidden_field :seqfeature_id %>
+						<%= form.hidden_field :rank %>
+						<%= form.hidden_field :term_id %>
+						<br/>
+					<% end %>
+				<%# end %>
+			</td>
+			<td></td>
+		</tr>
+	<% notes.each do |note| %>
+		<%= render :partial => 'note_line', :locals => {:note => note} %>
+	<% end %>
+	<% if notes.empty? %>
+		<tr><td></td><td><td></td></td><td></td></tr>
+	<% end %>
+<% end %>

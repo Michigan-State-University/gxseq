@@ -1,0 +1,37 @@
+
+<div id="gene_canvas"></div>
+	
+	<script type="text/javascript">
+	window.onload = function(){
+		draw_canvas()
+	}
+	var draw_canvas = function(){
+		var ext = Ext.get('gene_canvas')
+		if(!Ext.get('standard_format').isVisible()) //TODO FIX tightly coupled to parent div
+			return
+		//clear for re-paint ( toggle links )
+		ext.replaceWith({id:'gene_canvas',tag:'div'});
+	
+		var container = new Ext.Element(document.createElement('DIV'));	
+		container.setStyle('position', 'relative');
+		container.setStyle('height', '100%');
+		container.setHeight(<%= @canvas_height %>)
+		container.setWidth(<%= @canvas_width %>)
+		container.appendTo(ext);
+	
+		var canvas = new Sv.painters.ModelsCanvas({
+			strand : "<%= @gene.locations.first.strand == 1 ? '+' : '-' %>",
+			boxHeight : <%= @model_height %>,
+			selectable : false
+		});
+	
+		canvas.setContainer(container.dom);
+		canvas.setPixelBaseRatio(<%= @gui_zoom %>);
+		canvas.setCheckBoundaries(false);
+		
+		var subset = Ext.JSON.decode('<%= @gui_data.html_safe %>');
+		canvas.setData(subset);
+		canvas.paint();
+	};
+
+	</script>

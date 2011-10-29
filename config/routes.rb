@@ -1,67 +1,82 @@
 GenomeSuite::Application.routes.draw do
-  devise_for :users
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
-  # Sample of regular route:
-  #   match 'products/:id' => 'catalog#view'
-  # Keep in mind you can assign values other than :controller and :action
+  ##Navigation
+  #root :to => "home#index"
+  root :to => "home#index"
+  match '/faq' => 'help#faq', :as  => :faq
+  match '/about' => 'help#about', :as  => :about
+  match '/help' => 'help#index', :as  => :help
+  match '/contact' => 'help#contact', :as  => :contact
+  match 'sitemap' => 'help#sitemap', :as => :sitemap
 
-  # Sample of named route:
-  #   match 'products/:id/purchase' => 'catalog#purchase', :as => :purchase
-  # This route can be invoked with purchase_url(:id => product.id)
+  ##genome
+  resources :bioentries do 
+    get 'tracks'
+  end
+  resources :genes do
+    get 'details', :on => :collection
+  end
+  resources :gene_models
+  
+  resources :locations
+  resources :seqfeature_qualifier_values
 
-  # Sample resource route (maps HTTP verbs to controller actions automatically):
-  #   resources :products
-
-  # Sample resource route with options:
-  #   resources :products do
-  #     member do
-  #       get 'short'
-  #       post 'toggle'
-  #     end
-  #
-  #     collection do
-  #       get 'sold'
-  #     end
-  #   end
-
-  # Sample resource route with sub-resources:
-  #   resources :products do
-  #     resources :comments, :sales
-  #     resource :seller
-  #   end
-
-  # Sample resource route with more complex sub-resources
-  #   resources :products do
-  #     resources :comments
-  #     resources :sales do
-  #       get 'recent', :on => :collection
-  #     end
-  #   end
-
-  # Sample resource route within a namespace:
-  #   namespace :admin do
-  #     # Directs /admin/products/* to Admin::ProductsController
-  #     # (app/controllers/admin/products_controller.rb)
-  #     resources :products
-  #   end
-  namespace :admin do
-    root :controller => "admin", :action => "index"
-    resources :users, do 
-      get :logout, :on  => :collection
+  ##Browser
+  resources :track_layouts
+  resources :tracks
+  match "fetchers/metadata"
+  match "fetchers/base_counts"
+  match "fetchers/gene_models"
+  match "fetchers/genome"  
+  match "generic_feature/gene_models"
+  match "protein_sequence/genome"
+  
+  ##Experiments
+  resources :assets, :only => [:show]
+  resources :tools do
+    get 'details', :on => :collection
+    get 'smooth', :on => :collection
+    post 'smooth', :on => :collection
+  end
+  resources :experiments do
+    get 'asset_details', :on => :collection
+  end
+  resources :chip_chips do
+    get 'details', :on => :collection
+    get 'compute_peaks', :on => :member
+    get 'initialize_experiment', :on => :member
+  end
+  resources :chip_seqs do
+    get 'details', :on => :collection
+    get 'compute_peaks', :on => :member
+    get 'initialize_experiment', :on => :member
+  end
+  resources :synthetics do
+    get 'details', :on => :collection
+    get 'compute_peaks', :on => :member
+    get 'initialize_experiment', :on => :member
+  end
+  resources :variants do
+    collection do
+      get 'details'
+      get 'track_data'
+      post 'reload_assets'
     end
-    resources :roles
+    get 'initialize_experiment', :on => :member
   end
   
-  # You can have the root of your site routed with "root"
-  # just remember to delete public/index.html.
-  root :to => "home#index"
-
-  # See how all your routes lay out with "rake routes"
-
-  # This is a legacy wild controller route that's not recommended for RESTful applications.
-  # Note: This route will make all actions in every controller accessible via GET requests.
-  # match ':controller(/:action(/:id(.:format)))'
+  ##Accounts
+  devise_for :users
+  resources :user, :controller => 'user' do
+    post 'update_track_node', :on => :member
+  end
+  
+  namespace :admin do
+    root :controller => "admin", :action => "index"
+    resources :users
+    resources :roles
+  end
 end

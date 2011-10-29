@@ -1,0 +1,43 @@
+<% content_for :head do %>
+	<%= render :partial => "common/extjs" %>
+<% end %>
+
+<% content_for :top_bar do -%>
+	<h1 class="pagetitle"><%= experiment.class.to_label %> Experiment <%= experiment.name %></h1>
+<% end -%>
+
+<%= render :partial => "experiments/sidebar", :locals => {:experiment => experiment} %>
+
+<% content_for :item_bar do -%>
+  <%= link_to "Reload", {:action => 'initialize_experiment', :id => experiment.id}, {
+    :confirm => "Are you sure?\n\nThis will re-initialize the experiment, removing and re-creating any computed data", 
+    :remote => true,
+    :class => "button",
+    :style => "margin-bottom:1em" } %>
+    <%= render :partial => "actions" rescue nil %>
+    <div style="float:right">
+  	  <%= render :partial => 'experiments/nav_links', :locals => {:experiment => experiment} %>
+  	</div>
+  <div id="initialize_experiment" style="clear:both"></div>
+	
+<% end -%>
+
+<div style="width:80%;float:left">
+  <div>
+    <h2 class="smalltitle" style="clear:both;font-size:120%;width:150px">Visuals</h2>
+    <%= render :partial => "graphics" %>
+  </div>
+
+  <div style="float:left;width:80%">
+    <h2 class="smalltitle" style="clear:both;font-size:120%">Info</h2>
+  	<%= render :partial => 'experiments/metadata', :locals => {:experiment => experiment} %>
+  	<div style="clear:both;float:left">
+  	  <%= render :partial => "experiments/console_log", :locals => {:experiment => experiment} %>
+  	</div>
+  </div>
+</div>
+
+<div style="width:20%;float:right">
+  <h2 class="smalltitle" style="clear:both;font-size:120%;">Assets</h2>
+	<%= render :partial => "experiments/assets", :locals => {:experiment => experiment} %>
+</div>

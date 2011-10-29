@@ -1,0 +1,69 @@
+<% content_for :head do %>
+	<%= render :partial => "common/extjs_css" %>
+	<%= render :partial => "common/svjs_css" %>
+	<%= render :partial => "common/extjs" %>
+	<%= render :partial => "common/svjs" %>
+<% end %>
+
+<%= content_for :sidebar do %>
+	<%= render :partial => "sidebar", :locals => {:active => ''} %>
+<% end %>
+
+<% if @gene %>
+	<% content_for :top_bar do %>
+		<h1 class="pagetitle"> 
+			<%= @locus + (@gene.gene.nil? ? "" : " - "+@gene.gene.value) %>
+			<div style="float:right;font-size:50%;padding-top:1em">
+				<%= @bioentry.display_info %>
+			</div>
+		</h1>
+	<% end %>
+
+	<% if @genes.size > 1 %>
+		<% content_for :left_column do -%>
+			<div class="hb-green">Notice</div>
+			<div class="box-green">	
+				<h2 style="color:darkred;">Locus Tag Is Not Unique!</h2>
+				Alternate versions:
+				<p style="margin:.5em">
+					<% @genes.each do |g| %>
+						<%= link_to (g.bioentry.species_name + " >" + g.bioentry.display_name + ":" + g.bioentry.version.to_s), g %><br/><br/>
+					<% end %>
+				</p>
+			</div>
+		<% end -%>
+	<% end %>
+	
+	<% content_for :item_bar do -%>	
+		<div style="float:left">
+			<%= link_to "New Gene", new_gene_path, :class => "button" %>
+			<%= link_to "Advanced Edit", edit_gene_path(@gene), :class => "button" %>
+		</div>
+		<%= render :partial => 'format_links' %>
+	<% end -%>
+	
+
+	<!-- Standard Format -->
+	<div id="standard_format" style="clear:both;<%= @format=='standard' ? "" : "display:none;" %>">
+		<%= render :partial => 'standard' %>
+	</div>
+
+	<!-- Genbank Format	 -->
+	<div id="genbank_format" style="clear:both;<%= @format=='genbank' ? "" : "display:none" %>">
+		<%= render :partial => 'genbank' %>
+	</div>
+	
+	<!-- Variant Format -->
+	<% if @bioentry.variants %>
+		<div id="variants_format" style="<%= @format=='variants' ? "" : "display:none" %>">
+			<%= render :partial  => 'variants' %>
+		</div>
+	<% end %>
+	
+<% elsif @locus %>
+	<h1 class="pagetitle"><%= @locus %> </h1>
+	<h3 style="color:darkred">No data found</h3>
+<% else %>
+	<h1 class="pagetitle"><%= params[:id] %> </h1>
+	<h3 style="color:darkred">No data found</h3>
+<% end %>

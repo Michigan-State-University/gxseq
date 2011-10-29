@@ -1,0 +1,15 @@
+development:
+  site_name: GLBRC Genome Suite
+  site_link: http://gs.glbrc.org
+  admin_email: admin@gs.org
+  admin_user: admin
+  admin_pass: secret
+  use_remote_user: true
+  create_from_remote_user: true
+    
+production:
+  admin_email: admin@gs.org
+  admin_user: admin
+  admin_pass: secret
+  use_remote_user: true
+  create_from_remote_user: true

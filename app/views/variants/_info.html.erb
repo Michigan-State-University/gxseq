@@ -1,0 +1,20 @@
+<p><b>Sequence</b></p>
+<div style="font-family:'Courier';background:#FEFEFE;padding:1em">
+><%= @variant.name %> from <%= @left %>  to <%= @right %><br/>
+<%= @variant.get_sequence(@left,@right,@bioentry.id).gsub("","&#8203").html_safe %>
+</div>
+<br/>
+<br/>
+<% # matching variants %>
+<% html = "" %>
+<% @variant.find_matches(@left,@right-1,@bioentry.id).each do |variant| %>
+		<% html+= "<tr><td style='padding:4px;height:3em;width:40%;border-bottom:1px solid lightgrey;border-left:1px solid lightgrey'><b>#{variant.name}</b></td><td style='border-bottom:1px solid lightgrey'>#{truncate(variant.description,:length => 75)}</td></tr>"%>
+<% end %>
+<% unless html.empty? %>
+	<table cellspacing="0" style="background-color:whiteSmoke;width:100%">
+		<tr>
+			<td colspan=2 style="height:2em;background-color:#C7C7C7;text-align:center"><b>Matching Variant Experiments</b></td>
+		</tr>
+		<%= html %>
+	</table>
+<% end %>

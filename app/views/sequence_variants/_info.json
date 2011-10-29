@@ -1,0 +1,9 @@
+<%=
+{
+  :success => true,
+  :data => {                    
+  :text => (render :partial => 'sequence_variants/info'),
+  :title  => "Sequence Variant: "+@sequence_variant.id.to_s
+}
+}.to_json.html_safe
+%>

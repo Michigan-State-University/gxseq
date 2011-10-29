@@ -1,0 +1,37 @@
+<!-- Form -->
+<div class="clear">	
+<%= semantic_form_for @gene do |form| %>
+	<%= semantic_form_for @gene, do |form| %>
+		<!-- Gene -->
+		<h1 class="pagetitle">Gene</h1>
+		<p>
+			A Gene is represented by one or more Gene Models all with the same unique locus_tag. The Gene feature should have one location containing the minimum start and maximum end position of it's gene models. Gene attributes should be generic and applicable to all Gene Models
+		</p>
+		<%= form.hidden_field :bioentry_id, :value => @gene.bioentry_id %>
+		<div class="border">
+		
+		<%= form.inputs "Gene", :class => "border_white", :id => 'gene_qualifiers' do %>
+			<%= form.semantic_errors :locations %>
+			<%= form.semantic_errors :locus_tag %>
+			<%= render :partial => 'seqfeature_fields', :locals => {:f => form, :show_strand => true}%>
+		<% end %>
+		</div> 
+		<h1 class="pagetitle">Gene Model(s)</h1>
+		<p>
+			Each Gene Model is a collection of the Gene, CDS, and mRNA features. A gene model should have CDS (coding sequence) defined and if possible mRNA(miscellaneous RNA) for UTR. The CDS feature represents coding sequence and will be drawn in Green on the Sequence Viewer. The mRNA represents Exons and will be drawn in Red on the Sequence Viewer.
+		</p>
+		<%= link_to_add_fields image_tag("add", :alt => "Add Gene Model", :style => "float:left;margin-left:16em;margin-top:-8em"), form, :gene_models, {:render => "below"} %>
+		<!-- Gene Models -->
+		<%= form.semantic_fields_for :gene_models do |gm| %>
+			<%= render :partial => 'gene_model_fields', :locals => {:f => gm}%>
+		<% end %>
+		<!-- Submit -->
+		
+		<%= form.buttons do %>
+			<%= link_to "Cancel", @gene, :class => "button" %>
+			<%= form.commit_button :button_html => { :class => "button", :disable_with => 'Wait...' } %>
+		<% end %>
+		
+	<% end %>
+<% end %>
+</div>

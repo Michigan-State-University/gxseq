@@ -1,0 +1,14 @@
+<h1>Create a new Role</h1>
+
+<%= error_messages_for :role %>
+<% form_for(@role, :url => {:action => "create"}, :html => {:class => 'contactform'}) do |f| -%>
+
+  <%= render :partial => "form", :locals => {:f => f} %>
+  
+  <p><%= submit_tag 'Submit' %> or
+  <%= link_to 'Cancel', admin_roles_path %></p>
+<% end -%>
+
+<% content_for :sidebar do -%>
+  <%= render :partial => "admin/sidebar" %>
+<% end %>

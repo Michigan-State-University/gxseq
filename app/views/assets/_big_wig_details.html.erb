@@ -1,0 +1,29 @@
+<div class="asset_orange" style="color:black;">
+	<div style="font-size:133%;padding-bottom:1em"><b>Big WIG</b></div>
+	<div style="padding-left:1em">
+			<p>
+				<b><i><%= asset.filename %></i></b>
+			</p>
+			<b>Max:</b>
+			<%= asset.max.round(2) %>
+			<br/>
+			<b>Min:</b>
+			<%= asset.min.round(2) %>
+			<br/>
+			<b>Mean:</b>
+			<%= (asset.mean.round(2)) %>
+			<br/>
+			<b>Std Deviation: </b>
+			<%= asset.standard_deviation.round(2) %>
+			<br/>
+			<br/>
+			<p>
+				<b>Size:</b>
+				<%= number_to_human_size(asset.data_file_size) %>
+			</p>
+			<p>
+				<b>Bases Covered:</b><br/>
+				<%= number_with_delimiter(asset.bases_covered) %>
+			</p>
+	</div>
+</div>

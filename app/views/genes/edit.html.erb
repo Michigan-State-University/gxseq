@@ -1,0 +1,47 @@
+<% content_for :head do %>
+	<%= render :partial => "common/extjs_css" %>
+	<%= render :partial => "common/svjs_css" %>
+	<%= stylesheet_link_tag 'formtastic', 'formtastic_overrides' %>
+	<%= render :partial => "common/extjs" %>
+	<%= render :partial => "common/svjs" %>
+<% end %>
+
+<%= content_for :sidebar do %>
+	<%= render :partial => "sidebar", :locals => {:active => ''} %>
+<% end %>
+
+<% if @gene %>
+	<% content_for :top_bar do %>
+		<h1 class="pagetitle"> 
+			<%= "Edit: " + @locus + (@gene.gene.nil? ? "" : " - "+@gene.gene.value) %>
+			<div style="float:right;font-size:50%;padding-top:1em">
+				<%= @bioentry.display_info %>
+			</div>
+		</h1>
+	<% end %>
+	
+	<% content_for :item_bar do -%>	
+		<div style="float:left">
+			<%#= link_to "Back", @gene, :class => "button" %>
+			With the advanced gene editor you can manipulate all aspects of a stored Gene. Below you will find a graphical representation of the gene and a form with several items. Changes will be recorded in the database after you submit the form. For more information please read the Advanced Edit section of the <%= link_to "Gene Details", details_genes_path %> page.
+		</div>
+		<%= render :partial => 'format_links' %>
+	<% end -%>
+
+	<!-- Graphic Gene-->
+	
+	<div class="clear">
+		<div id="standard_format">
+			<div class="border" style="overflow:hidden">
+				<%= number_line(@view_start, @canvas_width, {:height => 40,:per_pixel => @gui_zoom}) %>
+				<%= @gui_zoom.to_s+ ":1" %>
+				<%= render :partial => 'graphic' %>
+			</div>
+		</div>
+	</div>
+	
+	<!-- Form -->
+	<%= render :partial => 'form' %>
+<% else %>
+<h1 class="pagetitle">Edit:  No Gene Found</h1>
+<% end %>

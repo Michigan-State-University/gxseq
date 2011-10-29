@@ -1,0 +1,19 @@
+<h1 class="pagetitle">User: <%=h @user.login %></h1>
+<% content_for :sidebar do -%>
+  <%= render :partial => "admin/sidebar" %>
+<% end %>
+<p>
+  <b>Login:</b>
+  <%=h @user.login %>
+</p>
+<p>
+  <b>Email:</b>
+  <%=h @user.email %>
+</p>
+<p>
+  <b>Role(s):</b>
+  <%=h @user.roles.collect{|r| r.name}.join(', ') %>
+</p>
+
+<%= link_to 'Edit', edit_admin_user_path(@user) %> |
+<%= link_to 'Back', admin_users_path %>

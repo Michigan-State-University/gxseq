@@ -1,0 +1,28 @@
+<% # Build a nested hash of tracks for use in the track_selector %>
+<% # Each bioentry has many tracks, each track has a path a/bcd/ef that is converted into a nested hash {:a=>{:bcd=>{:ef => [track]}}} %>
+<%#= 
+active = {:text => 'active', :children => []}
+inactive = {:text => 'inactive', :expanded => true, :children => []}
+@bioentry.tracks.each do |track|
+	hsh = {
+		:text => track.name,
+		:id	 => track.id,
+		:type => track.class.name,
+		:leaf => true
+	}
+	paths = (current_user.preferred_track_path(track) || track.path).split('/')
+	nested_array = inactive[:children]
+	paths.each do |path|
+		idx = (nested_array.index{|item| item[:text]==path} || nested_array.unshift({:text => path,:children => []});0)
+		nested_array = nested_array[idx][:children]
+	end
+	nested_array << hsh
+end
+
+{
+	:success => true,
+	:expanded => true,
+	:children => [active,inactive]
+}.to_json.html_safe
+
+%>

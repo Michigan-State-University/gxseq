@@ -1,0 +1,20 @@
+<div style="clear:both;float:left">
+	<% unless experiment.description.blank? %>
+	<p>
+		<b>Description:</b><br/>
+		<%= experiment.description.gsub(/\n/, "<br/>")  %>
+	</p>
+	<% end %>
+
+	<p>
+		<b>Created by:</b><br/>
+		<%= experiment.user.login unless experiment.user.nil?%>
+	</p>
+	<p>
+		<%= experiment.created_at.strftime("Uploaded on %m/%d/%Y at %I:%M%p") %>
+	</p>
+
+</div>
+
+
+

@@ -1,0 +1,51 @@
+xml.instruct! :xml, :version  => "1.0", :encoding  => "UTF-8"
+xml.chart do
+  be = @chip_seq.bioentries_experiments.where(:bioentry_id => @bioentry.id).first #TODO FIXME this is temp for testing need to return all for display
+  bioentry = be.bioentry
+  bc = bioentry.length
+  num=400
+  @chip_seq.summary_data(0,bioentry.length,num,be.sequence_name).each_with_index do |n,idx|
+    xml.linedata(:x => (idx*(bc/num)).ceil, :y => n)
+  end
+  @chip_seq.peaks.with_bioentry(bioentry.id).each do |p|
+    xml.pointdata(:x => p.pos, :y => p.val)
+  end
+end
+# xml.chart do 
+#   # for point in @points do
+#   #    xml.pointdata(:x => point[:x], :y => point[:y], :state => point[:state])
+#   # end
+#   # xml.linedata(:x => @data[:x1], :y => @data[:y1])
+#   # xml.linedata(:x => @data[:x2], :y => @data[:y2])
+#   be = @chip_seq.bioentries_experiments.first #TODO FIXME this is temp for testing need to return all for display
+#   bioentry = be.bioentry
+#   bc = bioentry.length
+#   num=200
+#   unless(params[:peaks]=='true')
+#     xml.linedata do
+#       @chip_seq.summary_data(0,bioentry.length,num,be.sequence_name).each_with_index do |n,idx|
+#         xml.linepoint do
+#           xml.linex((idx*(bc/num)).ceil)
+#           xml.liney(n)
+#         end
+#     
+#       end
+#     end
+#   else
+#     xml.peakdata do    
+#       @chip_seq.peaks.with_bioentry(bioentry.id).each do |p|
+#         xml.linepoint do
+#           xml.pointx(p.pos)
+#           xml.pointy(p.val)
+#         end
+#       end
+#       # Note: This last point is a Hack to keep the axis for peaks amd density aligned.
+#       # Remove! if the two series are drawn together this datapoint is INVALID
+#       
+#       xml.linepoint do
+#         xml.pointx(bc)
+#         xml.pointy(@chip_seq.summary_data(0,bioentry.length,num,be.sequence_name).last)
+#       end
+#     end
+#   end
+# end

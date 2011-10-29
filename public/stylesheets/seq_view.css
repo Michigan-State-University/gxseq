@@ -1,0 +1,677 @@
+/* ExtJS overrides */
+.x-tree-node-collapsed .x-tree-node-icon {
+	background-image: url('../images/folder.png');
+}
+.x-tree-node-expanded .x-tree-node-icon {
+	background-image: url('../images/folder-open.png');
+}
+
+/* Track Icons */
+.sequence_track			{ background-image:url('../images/geneseq.png')!important;}
+.gene_track				{ background-image:url('../images/gene.png')!important;}
+.chip_chip_track		{ background-image:url('../images/chipchip.png')!important;}
+.chip_seq_track			{ background-image:url('../images/chipseq.png')!important;}
+.synthetic_track		{ background-image:url('../images/synthetic.png')!important;}
+
+
+/* Silk Icons */
+.silk_add				{ background-image:url('../images/add.gif')!important;}
+.silk_application_side_list	{ background-image:url('../images/application_side_list.png') !important; }
+.silk_application_side_tree	{ background-image:url('../images/application_side_tree.png') !important;}
+.silk_arrow_divide   	{ background-image:url('../images/arrow_divide.png')!important;}
+.silk_arrow_down     	{ background-image:url('../images/arrow_down.png')!important;}
+.silk_arrow_inout    	{ background-image:url('../images/arrow_inout.png')!important;}
+.silk_arrow_left     	{ background-image:url('../images/arrow_left.png')!important;}
+.silk_arrow_right    	{ background-image:url('../images/arrow_right.png')!important;}
+.silk_arrow_refresh  	{ background-image:url('../images/arrow_refresh.png')!important;}
+.silk_arrow_undo     	{ background-image:url('../images/arrow_undo.png')!important;}
+.silk_arrow_up       	{ background-image:url('../images/arrow_up.png')!important;}
+.silk_application    	{ background-image:url('../images/application.png')!important;}
+.silk_terminal       	{ background-image:url('../images/application_xp_terminal.png')!important;}
+.silk_cancel			{ background-image:url('../images/cancel.gif')!important;}
+.silk_commit			{ background-image:url('../images/commit.gif')!important;}
+.silk_comment			{ background-image:url('../images/comment.png')!important;}
+.silk_comment_edit		{ background-image:url('../images/comment_edit.png')!important;}
+.silk_blue_forward   	{ background-image:url('../images/control_fastforward_blue.png')!important;}
+.silk_blue_rewind    	{ background-image:url('../images/control_rewind_blue.png')!important;}
+.silk_bricks         	{ background-image:url('../images/bricks.png')!important;}
+.silk_book_open      	{ background-image:url('../images/book_open.png')!important;}
+.silk_bug            	{ background-image:url('../images/bug.png')!important;}
+.silk_bullet_black   	{ background-image:url('../images/bullet_black.png')!important;}
+.silk_bullet_blue    	{ background-image:url('../images/bullet_blue.png')!important;}
+.silk_bullet_green   	{ background-image:url('../images/bullet_green.png')!important;}
+.silk_bullet_orange  	{ background-image:url('../images/bullet_orange.png')!important;}
+.silk_bullet_pink    	{ background-image:url('../images/bullet_pink.png')!important;}
+.silk_bullet_red     	{ background-image:url('../images/bullet_red.png')!important;}
+.silk_bullet_white   	{ background-image:url('../images/bullet_white.png')!important;}
+.silk_css            	{ background-image:url('../images/css.png')!important;}
+.silk_connect        	{ background-image:url('../images/connect.png')!important;}
+.silk_cog_go         	{ background-image:url('../images/cog_go.png') ;}
+.silk_cursor         	{ background-image:url('../images/cursor.png') ;}
+.silk_disconnect     	{ background-image:url('../images/disconnect.png')!important;}
+.silk_delete         	{ background-image:url('../images/delete.png')!important;}
+.silk_disk           	{ background-image:url('../images/disk.png')!important;}
+.silk_email_go       	{ background-image:url('../images/email_go')!important;}
+.silk_emoticon_happy 	{ background-image:url('../images/emoticon_happy.png')!important;}
+.silk_folder			{ background-image:url('../images/folder.png')!important;}
+.silk_folder_edit		{ background-image:url('../images/folder_edit.png')!important;}
+.silk_information    	{ background-image:url('../images/information.png')!important;}
+.silk_lightning      	{ background-image:url('../images/lightning.png')!important;}
+.silk_lock           	{ background-image:url('../images/lock.png')!important;}
+.silk_lock_open      	{ background-image:url('../images/lock_open.png')!important;}
+.silk_magnifier      	{ background-image:url('../images/magnifier.png')!important;}
+.silk_package        	{ background-image:url('../images/package.png')!important;}
+.silk_palette        	{ background-image:url('../images/palette.png')!important;}
+.silk_select_area    	{ background-image:url('../images/select_area.png')!important;}
+.silk_server_go      	{ background-image:url('../images/server_go.png')!important;}
+.silk_shape_handles  	{ background-image:url('../images/shape_handles.png')!important;}
+.silk_table  			{ background-image:url('../images/table.png')!important;}
+.silk_user_comment   	{ background-image:url('../images/user_comment.png')!important;}
+.silk_wrench         	{ background-image:url('../images/wrench.png')!important;}
+.silk_zoom_in        	{ background-image:url('../images/zoom_in.png')!important;}
+.silk_zoom_out       	{ background-image:url('../images/zoom_out.png')!important;}
+.silk_zoom           	{ background-image:url('../images/zoom.png')!important;}
+
+.loading { background:url('../images/loading.gif') no-repeat 2px 2px; width:60px; height:16px;}
+
+.waiting { 
+	background:url('../images/loading.gif') no-repeat 0px 1px; 
+	margin:0px;
+	padding-left:15px;
+}
+
+.promote {
+	z-index:9999;
+}
+#noscript {
+	font-family:arial, helvetica, monaco, times;
+	margin:auto;
+	margin-top:150px;
+	width:450px;
+	font-size:12px;
+	padding:5px;
+	border:dotted 1px rgb(230,230,230);
+	background-color:rgb(248,248,255);
+}
+#noscript p {
+	padding-left:10px;
+	padding-top:10px;
+}
+
+.navicon { 
+	margin-top: 3px;
+	margin-left:1px;
+	background-image:url('../images/bricks.png');
+	}
+
+.navtitle {
+	color: #333;
+	font-family: tahoma, arial, verdana, sans-serif;
+	font-size: 11px;
+	font-weight: bold;
+	line-height: 15px;
+	padding-left: 4px;
+	padding-bottom:2px;
+}
+
+.AJ_tip {
+	z-index:9999;
+	border:solid red 1px;
+	position:absolute;
+	width:30px;
+	height:30px;
+	top:500px;
+	left:500px;
+}
+
+.AJ_bookmarks {
+	padding:2px;
+}
+.AJ_bookmark {
+	position:relative;
+	height:16px;
+	margin-bottom:2px;
+}
+.AJ_bookmark_delete {
+	position:absolute;
+	left:0px;
+	top:0px;
+	width:16px;
+	height:16px;
+	cursor:pointer;
+	background-image:url('../images/delete.png');
+}
+.AJ_bookmark_select {
+	position:absolute;
+	left:20px;
+	height:16px;
+	cursor:pointer;
+	font-family:tahoma,arial,verdana,sans-serif;
+	font-size:11px;
+}
+.AJ_system_messages {
+	padding:2px;
+	white-space:nowrap;
+	font-family:tahoma,arial,verdana,sans-serif;
+	font-size:11px;	
+}
+.AJ_system_error {
+	padding-left:20px;
+	min-height:16px;
+	background:url('../images/bomb.png') no-repeat;
+}
+.AJ_system_warning {
+	padding-left:20px;
+	min-height:16px;
+	background:url('../images/error.png') no-repeat;
+}
+.AJ_system_notice {
+	padding-left:20px;
+	min-height:16px;
+	background:url('../images/comment.png') no-repeat;
+}
+.AJ_infobox, .AJ_infobox table {
+	padding:2px;
+	font-family:tahoma,arial,verdana,sans-serif;
+	font-size:11px;
+}
+.AJ_cancel {
+  background-image:url('../images/cancel.gif') no-repeat;
+  cursor:pointer;
+}
+.AJ_commit {
+  background-image:url('../images/commit.gif') no-repeat;
+  cursor:pointer;
+}
+.AJ_delete {
+	cursor:pointer;
+/*	background-image:url('../images/delete.png');*/
+}
+.AJ_add {
+/*	cursor:pointer;*/
+/*	float:right;*/
+	background-image:url('../images/add.gif');
+}
+.AJ_editbox, .AJ_editbox table {
+	padding:2px;
+	font-family:tahoma,arial,verdana,sans-serif;
+	font-size:11px;
+}
+.AJ_addbox {
+	padding:2px;
+	z-index:10;
+	position:absolute;
+   border:black 1px solid;
+	background:url('../images/bg_bullet_full_1.gif');
+	font-family:tahoma,arial,verdana,sans-serif;
+	height:35px;
+	font-size:11px;
+}
+.AJ_selectbox {
+  margin-top:9px;
+}
+.AJ_bugs {
+	padding:2px;
+	font-family:arial,tahoma,verdana,sans-serif;
+	font-size:10px;
+}
+.AJ_bugs ul {
+	list-style:circle;
+	margin-left:15px;
+	padding-left:0px;
+}
+
+.AJ_syndication {
+	font-family:tahoma,arial,verdana,sans-serif;
+	font-size:11px;		
+}
+.AJ_syndication th {
+	font-weight:bold;
+	padding-right:2px;
+	text-align:right;
+}
+.AJ_aboutbox {
+	padding:2px;
+	font-family:tahoma,arial,verdana,sans-serif;
+	font-size:11px;
+	text-align:center;
+}
+.AJ_panel {
+	padding:2px;
+	font-family:tahoma,arial,verdana,sans-serif;
+	font-size:11px;
+	text-align:center;
+}
+.AJ_tracks {
+	height:100%;
+	overflow-y:auto;
+	overflow-x:hidden;
+}
+.AJ_style_selector {
+	font-family:tahoma,arial,verdana,sans-serif;
+	font-size:11px;
+	padding:2px;
+}	
+
+
+.AJ_editor .x-btn-left{
+	background:none;
+}
+.AJ_editor .x-btn-right{
+	background:none;
+}
+
+.AJ_editor table .x-btn-center{
+	background:none;
+	white-space:nowrap;
+}
+
+.bigButton .x-btn-left{
+	width:6px;
+	height:21px;
+	background:url(../images/default/button/btn-sprite.gif) no-repeat 0 0;
+}
+.bigButton .x-btn-right{
+	width:6px;
+	height:21px;
+	background:url(../images/default/button/btn-sprite.gif) no-repeat 0 -21px;
+}
+
+.bigButton table .x-btn-center{
+	background:url(../images/default/button/btn-sprite.gif) repeat-x 0 -42px;
+	white-space:nowrap;
+}
+
+.x-toolbar .no-background{
+	background:none;
+	border-style:none;
+}
+
+/* ---  TOOLBAR ---*/
+
+/*
+	Styles for the track components
+*/
+.AJ_track {
+	position:relative; 
+	width:100%;
+	border:0;
+	margin:0;
+	font-family:arial, helvetica, sans-serif;
+	border-bottom:dotted 1px rgb(230,230,230);
+	background-color:rgb(248,248,255);
+}
+
+.AJ_track .AJ_toolbar .x-toolbar {
+	position:absolute;
+	top:0px;
+	left:0px;
+	width:100%;
+	min-height:20px;
+	height:25px;
+	z-index:999;
+	border:0px!important;
+	background:none !important;
+}
+
+.AJ_track_title {
+	color:black;
+}
+
+.masked {
+	background-color:#E1E1E1;
+	border:1px solid;
+	border-color:#C1C1C1;;
+}
+
+.ytb-spacer {
+	width:20px;
+}
+
+.AJ_region_indicator {
+	position:absolute;
+	border:dotted red 1px;
+	background-color:rgb(233,233,233);
+	opacity:.4;
+	filter:alpha(opacity=40);
+	z-index:5;
+}
+.AJ_mouse_label {
+	position:absolute;
+	font-size:10px;
+	top:0px;
+	z-index:6;
+	text-align:center;
+}
+.AJ_mouse_label div {
+	background-color:white;
+	border:solid gray 1px;
+}
+.AJ_crosshair {
+	z-index:5;
+}
+.AJ_position_indicator {
+	position:absolute;
+	left:0px;
+	top:0px;
+	height:100%;
+	width:0px;
+	border-right:dotted red 1px;
+	z-index:5;
+}
+
+.AJ_overflow {
+	position:absolute;
+	top:0px;
+	left:0px;
+	width:100%;
+  height:100%;
+	overflow:hidden;
+	/*overflow-y:scroll;
+	overflow-x:hidden;*/
+}
+.AJ_canvas {
+	position:relative;
+	height:100%;
+}
+
+.models_forward{
+	position:relative;
+	background-color:rgb(248,255,248);
+/*	background-image:url('../images/forward_models_background.png');*/
+/*	background-image:url('../images/f1.png');*/
+}
+.models_reverse{
+	position:relative;
+	background-color:rgb(255,248,248);
+/*	background-image:url('../images/reverse_models_background.png');*/
+/*	background-image:url('../images/r1.png');*/
+}
+.AJ_above {
+	position:relative;
+}
+.AJ_mid {
+	position:relative;
+}
+.AJ_below {
+	position:relative;
+}
+.AJ_forward {
+	position:relative;
+	height:0px;
+	font-family:monospace,courier;	
+}
+.AJ_reverse {
+	position:relative;
+	height:0px;
+	font-family:monospace,courier;	
+}
+.AJ_scaler_bg {
+	background-image:url('../images/AJ_scaler_bg.png');
+	width:41px;
+	height:140px;
+	z-index:900;
+}
+.AJ_scaler_fg {
+	background-image:url('../images/AJ_scaler_fg.png');
+	width:31px;
+	height:20px;
+	z-index:900;
+}
+.AJ_resizer {
+	border:dashed black 1px;
+	z-index:900;
+}
+
+/* images
+	Styles for the boxes plugin
+*/
+.highlighted { 
+	background-color:yellow!important;
+	opacity:.4;
+	filter:alpha(opacity=40);
+}
+
+.container { position:absolute; height:8px; cursor:pointer; border-collapse:collapse; }
+.container .arrow_right { background: url('../images/sprites_small_models.png') 0px -112px; height:8px; width:5px; }
+.container .arrow_left  { background: url('../images/sprites_small_models.png') 0px -122px; height:8px; width:5px; }
+.container .title {	font-family:arial, verdana, helvetica; font-size:10px; height:10px; padding:0px 4px;}
+.container .body { height:8px; }
+.container .body .model { height:8px; position:relative; }
+.container .body .model .component { height:8px; position:absolute; top:0px; }
+
+.label {
+	padding-left  : 2px;
+	padding-right : 2px;
+	font-family : arial,helvetica,monospace;
+}
+/*grey arrow - unused*/
+.arrowLeft  { background: url('../images/models/left.gif');  }
+.arrowRight { background: url('../images/models/right.gif'); }
+/* arrow shaped mask */
+.forward_arrow { background: url('../images/models/forward.png') }
+.reverse_arrow { background: url('../images/models/reverse.png') }
+/*Gene Model styles*/
+.mRNA            { background: url('../images/models/red.gif') repeat-x; }
+.five_prime_UTR  { background: url('../images/models/red.gif') repeat-x; }
+.three_prime_UTR { background: url('../images/models/red.gif') repeat-x; }
+.CDS             { background: url('../images/models/green.gif') repeat-x; }
+.gene            { background: url('../images/models/bar.gif') repeat-x; }
+/*Variant styles*/
+.deletion			{ background: url('../images/models/red.gif') repeat-x; }
+.insertion		{ background: url('../images/models/green.gif') repeat-x; }
+.snp					{ background: url('../images/models/blue.gif') repeat-x; }
+.indel				{ background: url('../images/models/purple.gif') repeat-x; }
+
+/* Non Gene Model features*/
+.rep_origin 		{ background: url('../images/models/purple.gif') repeat-x; }
+.repeat_region 	{ background: url('../images/models/purple.gif') repeat-x; }
+.mat_peptide 		{ background: url('../images/models/orange.gif') repeat-x; }
+.misc_feature 	{ background: url('../images/models/grey.gif') repeat-x; }
+.misc_RNA 			{ background: url('../images/models/grey.gif') repeat-x; }
+.promoter 			{ background: url('../images/models/blue.gif') repeat-x; }
+.ltr 						{ background: url('..//images/models/bar.gif') repeat-x; }
+.misc_binding 	{ background: url('../images/models/bar.gif') repeat-x; }
+.misc_difference{ background: url('../images/models/bar.gif') repeat-x; }
+.misc_recomb 		{ background: url('../images/models/bar.gif') repeat-x; }
+.misc_rna 			{ background: url('../images/models/bar.gif') repeat-x; }
+.ncrna 					{ background: url('../images/models/bar.gif') repeat-x; }
+.old_sequence 	{ background: url('../images/models/bar.gif') repeat-x; }
+.rrna 					{ background: url('../images/models/bar.gif') repeat-x; }
+.sts 						{ background: url('../images/models/bar.gif') repeat-x; }
+.tmrna 					{ background: url('../images/models/bar.gif') repeat-x; }
+.trna 					{ background: url('../images/models/bar.gif') repeat-x; }
+.feature_parent { background: url('../images/models/parent.gif') repeat-x; }
+/* Unused */
+.CDS_changed { background: url('../images/models/green.gif') repeat-x; /*	border: 1px solid #467AA7; Light ExtJs Blue */border: 1px solid yellow;}
+
+/*histogram styles*/
+.line_above {background-color:rgb(144,100,100);}
+.line_below {background-color:rgb(100,144,100);}
+
+/*light-blue line*/
+.line {
+  background-color:rgb(230,230,250);
+}
+
+#repeats .cds, .mule { background: url('../images/models/orange.gif') repeat-x; }
+#repeats .mRNA, .tr     { background: url('../images/models/purple.gif') repeat-x; }
+#repeats .mask, .mask { background: url('../images/models/grey.gif')   repeat-x; }
+
+/* style for search result*/
+.drop_list { font-family:arial, verdana, helvetica; font-size:10px; top:2px; border-bottom:dotted black 1px;}
+
+/* Style for the GC_CONTENT Track*/
+.small_button {
+	background: transparent url(..//images/bullet_blue.png);
+}
+
+.custom-slider .x-slider-thumb {
+	cursor:pointer;
+	background:url('../images/models/grey.gif') repeat-x;
+}
+
+
+/*Nucleotide letters*/
+.A { 
+	background-color:rgb(140,220,140);
+  background-image:url('../images/bases/A.gif');
+}
+.T { 
+	background-color:rgb(220,140,140);
+  background-image:url('../images/bases/T.gif');
+}
+.C { 
+	background-color:rgb(140,140,220);
+  background-image:url('../images/bases/C.gif');
+}
+.G { 
+	background-color:rgb(140,140,140);
+  background-image:url('../images/bases/G.gif');
+}
+.N { 
+	background-color:rgb(255,140,0);
+  background-image:url('../images/bases/N.gif');
+}
+/*Transparent Nucleotide letters*/
+.A_trans { 
+	background-color:rgb(255,255,255,0);
+  background-image:url('../images/bases/A.gif');
+}
+.T_trans { 
+	background-color:rgb(255,255,255,0);
+  background-image:url('../images/bases/T.gif');
+}
+.C_trans { 
+	background-color:rgb(255,255,255,0);
+  background-image:url('../images/bases/C.gif');
+}
+.G_trans { 
+	background-color:rgb(255,255,255,0);
+  background-image:url('../images/bases/G.gif');
+}
+.N_trans { 
+	background-color:rgb(255,255,255,0);
+  background-image:url('../images/bases/N.gif');
+}
+
+
+/*
+	Protein Letters
+*/
+
+.p_default {
+  background-color:rgb(248,248,255);
+}
+
+.p_star { 
+	background-color:rgb(250,150,150);
+	background-image:url('../images/bases/p_star.gif');
+}
+.p_A { 
+	background-color:rgb(248,248,255);
+	background-image:url('../images/bases/p_A.gif');
+}
+.p_C { 
+	background-color:rgb(248,248,255);
+	background-image:url('../images/bases/p_C.gif');
+}
+.p_D { 
+	background-color:rgb(248,248,255);
+	background-image:url('../images/bases/p_D.gif');
+}
+.p_E { 
+	background-color:rgb(248,248,255);
+	background-image:url('../images/bases/p_E.gif');
+}
+.p_F { 
+	background-color:rgb(248,248,255);
+	background-image:url('../images/bases/p_F.gif');
+}
+.p_G { 
+	background-color:rgb(248,248,255);
+	background-image:url('../images/bases/p_G.gif');
+}
+.p_H { 
+	background-color:rgb(248,248,255);
+	background-image:url('../images/bases/p_H.gif');
+}
+.p_I { 
+	background-color:rgb(248,248,255);
+	background-image:url('../images/bases/p_I.gif');
+}
+.p_K { 
+	background-color:rgb(248,248,255);
+	background-image:url('../images/bases/p_K.gif');
+}
+.p_L { 
+	background-color:rgb(248,248,255);
+	background-image:url('../images/bases/p_L.gif');
+}
+.p_M { 
+	background-color:rgb(100,250,100);
+	background-image:url('../images/bases/p_M.gif');
+}
+.p_N { 
+	background-color:rgb(248,248,255);
+	background-image:url('../images/bases/p_N.gif');
+}
+.p_P { 
+	background-color:rgb(248,248,255);
+	background-image:url('../images/bases/p_P.gif');
+}
+.p_Q { 
+	background-color:rgb(248,248,255);
+	background-image:url('../images/bases/p_Q.gif');
+}
+.p_R { 
+	background-color:rgb(248,248,255);
+	background-image:url('../images/bases/p_R.gif');
+}
+.p_S { 
+	background-color:rgb(248,248,255);
+	background-image:url('../images/bases/p_S.gif');
+}
+.p_T { 
+	background-color:rgb(248,248,255);
+	background-image:url('../images/bases/p_T.gif');
+}
+.p_V { 
+	background-color:rgb(248,248,255);
+	background-image:url('../images/bases/p_V.gif');
+}
+.p_W { 
+	background-color:rgb(248,248,255);
+	background-image:url('../images/bases/p_W.gif');
+}
+.p_Y { 
+	background-color:rgb(248,248,255);
+	background-image:url('../images/bases/p_Y.gif');
+}
+/*
+	Styles for the WGTA track
+*/
+.AJ_xslider_bg {
+	position:relative;
+	height:16px;
+	width:80px;
+	background:url('../images/sprites_slider.png') 0px -1px;
+}
+.AJ_xslider_fg {
+	position:absolute;
+	top:0px;
+	left:0px;
+	background:url('../images/sprites_slider.png') 0px -18px;
+	cursor:pointer;
+	height:16px;
+	width:14px;
+}
+.CG {
+	background-color:rgb(180,180,100);
+}
+.CHH {
+	background-color:rgb(180,150,150);
+}
+.CHG {
+	background-color:rgb(100,100,180);
+}

@@ -1,0 +1,26 @@
+<h1 class="pagetitle">Roles</h1>
+
+<% paginated_section @roles do %>
+  <table>
+    <caption><%= link_to 'New role', new_admin_role_path %></caption>
+  	<thead>
+  	  <th class="top" scope="col">Role</th>
+  		<th class="top" scope="col">Options</th>
+  	</thead>
+  
+  	<% for role in @roles %>
+  		<tr>
+  		  	<th scope="row"><%=h role.name %></th>
+  	    	<td>
+  				  <% if current_user.is_admin? %>
+  		    		<%= link_to '[Edit]', :action => 'edit', :id => role %>
+  				  <% end %>
+  			  </td>
+  	  </tr>
+  	<% end %>
+  </table>
+<% end %>
+
+<% content_for :sidebar do -%>
+  <%= render :partial => "admin/sidebar" %>
+<% end %>

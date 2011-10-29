@@ -1,0 +1,7 @@
+xml.instruct! :xml, :version  => "1.0", :encoding  => "UTF-8"
+xml.chart do
+  num=500
+  @variant.variant_counts(num).each do |n|
+    xml.linedata(:x => n.pos, :y => n.count)
+  end
+end

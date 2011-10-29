@@ -1,0 +1,181 @@
+<%= render :partial => "sidebar", :locals => {:active => "faq"} %>
+<% content_for :top_bar do %>	
+	<h1 class="pagetitle">Frequently Asked Questions</h1>
+	<ul>
+		<div id='toc' style="padding-left:5px;">
+		</div>
+	</ul>
+<% end %>
+
+
+<% video_text = "Watch Demo" %>
+
+<div style="clear:both">	
+	<h2 class="title"><a name="faq2">How do I view a Genome</a></h2>
+	<div class="left-faq">
+		<p>
+			To view a genome you need to click on the 'Genomes' tab in the navigation bar. A list of all available genomes 
+			will be displayed for you to choose from. Clicking on the name of your genome of interest will load up the browser 
+			so you can view more detailed information.
+		</p>
+	</div>
+	<div class="right-faq">
+		<%= link_to video_text, "../videos/load_genome.mov", :popup => true %>
+	</div>
+</div>
+	
+<div style="clear:both">
+	<h2 class="title"><a name="faq3">How do I activate/deactivate a track</a></h2>
+		<div class="left-faq">
+			<p>
+			After loading a genome a few default tracks will be active. The rest of the tracks will be listed under the inactive folder. Clicking and dragging a track into the 'active' are 'inactive' folder will activate or de-activate that track. Active tracks will automatically appear in the main tracks window and begin loading data. You can also activate/inactivate a track by double-clicking it.
+		</div>
+		<div class="right-faq">
+			<%= link_to video_text, "../videos/move_tracks.mov", :popup => true %>
+		</div>
+</div>
+
+<div style="clear:both">
+	<h2 class="title"><a name="faq10">Can I change the order of tracks?</a></h2>
+	<p class="left-faq">
+		Yes, tracks are rendered in the order they are listed. To change the order of a track, drag it into a new position in the active tracks list. The main tracks window will then automatically update the display to reflect the changes.
+	</p>
+</div>
+
+<div style="clear:both">
+	<h2 class="title"><a name="faq12">How do I make my own folders, rename them, and delete them?</a></h2>
+	<div class="left-faq">	
+	<p>
+		Folders are managed in the Track Selection pane. There is a 'gear' icon at the top of the panel that can be used to create a new folder. Double-clicking on a folder allows you to rename it. Make sure to give a pause between clicks if you are using a Mac. All of the folders can be renamed except for the active and inactive parent folders. Right clicking on a folder will bring up a folder options menu where you can choose to 'Remove' a folder. Tracks will remain in the folder you put them in. If a folder has no tracks it will not be saved and will not appear on subsequent loads of the genome. Folders are specific to each user and cannot be shared.
+	</p>
+	</div>
+	<div class="right-faq">
+		<%= link_to video_text, "../videos/folders.mov", :popup => true %>
+	</div>
+</div>
+
+<div style="clear:both">
+	<h2 class="title"><a name="faq5">What is mousemode?</a></h2>
+<div class="left-faq">	
+	<p>
+		The current mousemode defines what actions will occur when you click on the main tracks window. The mousemode can be chosen from the mode selection dropdown or by clicking the mode selection button to cycle through each mode. There are also hotkeys mapped to each mode for convenience. The hotkey (shift) toggles to the next mode.
+		<ul>
+			<li><b>Browse-</b>(hotkey 'b')<br/>
+				The browse mode allows you to pan along the genome. After clicking anywhere in the main tracks window you can drag the genome left or right in the direction you want to view. The new data will automatically be downloaded and drawn to the screen.
+			</li>
+			<li><b>Zoom-</b>(hotkey 'z')<br/>
+				The zoom mode allows you to quickly select a region on the genome you wish to view in more detail. After clicking anywhere in the main tracks window you can drag the mouse to highlight the region you wish to zoom into.
+			</li>
+			<li><b>Scale-</b>(hotkey 's')<br/>
+				The scale mode allows you to change the scale of each individual track. Most tracks on the browser have elements that can be scaled. Clicking on the track and dragging the mouse up or down with increase or decrease the scale respectively.
+			</li>
+			<li><b>Resize-</b>(hotkey 'r')<br/>
+				The resize mode allows you to change the height of each individual track. Clicking on the track and dragging the mouse up or down with increase or decrease the height respectively.
+			</li>
+		</ul>
+	</p></div>
+	<div class="right-faq">
+		<%= link_to video_text, "../videos/mousemode.mov", :popup => true %>	
+	</div>
+</div>
+
+<div style="clear:both">
+	<h2 class="title"><a name="faq7">Can I change the size of a track?</a></h2>
+	<p>
+		Yes please refer to the 'mousemode' section above.
+	</p>
+</div>
+
+<div style="clear:both">
+	<h2 class="title"><a name="faq8">Can I change the scale of the track items?</a></h2>
+	<p>
+		Yes please refer to the 'mousemode' section above.
+	</p>
+</div>
+
+<div style="clear:both">	
+	<h2 class="title"><a name="faq6">How do I change the zoom level?</a></h2>
+	<div class="left-faq">
+		<p>
+			There are several different ways to change the zoom level of the browser. On the top navigator bar there is a pixel/base ratio that displays the current zoom level. You can type any valid ratio into this box and then press enter or click "Go" to change the zoom. The "Zoom In" and "Zoom out" buttons represented by a "+" and "-" step up and down through the available zoom levels. Also, the mousemode zoom tool allows you to select a region to view in more detail.
+		</p>
+	</div>
+	<div class="right-faq">
+		<%= link_to video_text, "../videos/zooming.mov", :popup => true %>	
+	</div>
+</div>
+
+<div style="clear:both">
+	<h2 class="title"><a name="faq14">How do I search for features or sequence in the genome?</a></h2>
+	<p class="left-faq">
+		Searching is performed within the Gene Models track. There is a searchbox in the upper right corner of the track. The search will match any feature loaded for the genome and it is not case sensitive. After typing four or more characters a drop down list will be displayed containing the search results. There are controls on the bottom of the list to navigate the pages of results. There is also a   Clicking on an item in the list will center the main Tracks window on that item and load the Feature Details panel with information about the feature.
+	</p>
+	<div class="right-faq">
+		<%= link_to video_text, "../videos/searching.mov", :popup => true %>
+	</div>
+</div>
+
+<div style="clear:both">
+	<h2 class="title"><a name="faq9">How do I change the color of track items?</a></h2>
+	<div class="left-faq">
+		<p>Every track has a context menu that can be used to set some of its properties. You can open this window by right clicking on the track in the main Tracks window or by right clicking on the track name in the Track Selection pane. Among other options this context menu will allow you to change the color of the items on a track.</p>
+	</div>
+	<div class="right-faq">
+		<%= link_to video_text, "../videos/track_color.mov", :popup => true %>
+	</div>
+</div>
+
+<div style="clear:both">
+	<h2 class="title"><a name="faq13">What is a layout?</a></h2>
+	<div class="left-faq">
+		<p>
+			A layout is a saved set of preferences for a particular genome. Layouts are persistent and will remain in the system even after you logout. The layout will save an in-order list of active tracks, the height of each track, the color of each track, the position on the genome and the current zoom level. A list of layouts is available in the 'Layouts' panel. Clicking on any of the listed layouts will refresh the view with the stored information. If a layout has been loaded it will be listed in the top left corner of the site.
+		</p>
+	</div>
+</div>
+
+<div style="clear:both">
+	<h2 class="title"><a name="faq14">How do a save a layout?</a></h2>
+	<p class="left-faq">
+		There is a 'disk' icon at the top of the Track Selection panel that is used to save the current layout. A dialog box will open asking you to type a name for the new layout.  and available for further use.
+	</p>
+	<div class="right-faq">
+		<%= link_to video_text, "../videos/layout.mov", :popup => true %>
+	</div>
+</div>
+
+<div style="clear:both">
+	<h2 class="title"><a name="faq15">Can I share a layout with another user?</a></h2>
+	<p class="left-faq">
+		Currently only layouts that you have created will be displayed under your layout list. However, if you bookmark or copy the url of a loaded layout and give it to another user, they will be able to open up and view your layout.
+	</p>
+</div>
+
+<div style="clear:both">
+	<h2 class="title"><a name="faq16">How do I load Genomes into the site?</a></h2>
+	<p class="left-faq">Users are not allowed to load genomes into the database at this point in time. If there is a genome you are working on that you would like to have loaded please contact <%= link_to "support", contact_path %>. </p>
+</div>
+
+<div style="clear:both">
+	<h2 class="title"><a name="faq17">How do I load experiments into the site?</a></h2>
+	<p class="left-faq">There is a list of the experiment types supported by the system <%#= link_to "here", experiments_path %>. Please refer to that page. In that listing there are links to more detailed information about each experiment type as well as how to load data, and in what format.</p>
+</div>
+
+<script type="text/javascript">
+//Dynamic Table of Contents
+Event.observe(window, 'load', function(){
+	toc = $('toc');
+	if(toc){
+		items = $$('a');
+		for(i in items){	
+			item = items[i]
+			if(item.getAttribute && item.getAttribute('name')){
+				var li = document.createElement("li");
+				li.innerHTML = "<a href='#"+item.getAttribute('name')+"'>"+item.innerHTML+"</a>";
+				toc.appendChild(li);
+			}
+		}
+	}
+});
+
+</script>

@@ -1,0 +1,14 @@
+<% content_for :head do %>
+	<%= render :partial => "common/extjs_css_gray" %>
+	<%= render :partial => "common/svjs_css" %>
+	<%= render :partial => "common/extjs" %>
+	<%= render :partial => "common/svjs" %>
+<% end %>
+<% content_for :breadcrumbs do %>
+	<% if @layout %>
+		<p> Layout - <%= @layout.name %></p>
+		<% else %>
+		<h4> Default Layout </h3>
+	<% end %>
+<% end %>
+<%= build_genome_gui(@bioentry) %>

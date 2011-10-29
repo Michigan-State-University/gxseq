@@ -1,0 +1,52 @@
+<h1 class="pagetitle">ChIP chip Experiment Details</h1>
+<%= render :partial => "experiments/sidebar" %>
+
+<h2>Description</h2><hr><br/>
+<p>
+	ChIP-chip combines chromatin immunoprecipitation (ChIP) with with microarray technology (chip). The genome browser uses the tile data from ChIP-Seq to render a histogram display.
+</p>
+
+<h2>Browsing</h2><hr><br/>
+<p>
+	ChIP-chip experiments will be located in the ChipChip folder within the Track Selection pane.<br/>
+	<%= image_tag("chip_seq_folder.png") %>
+	<br/>
+</p>
+<p>
+	To activate a ChipChip experiment click and drag it into the Active Tracks section.<br/>
+	<%= image_tag("active_tracks.png") %>
+</p>
+<p>
+	The track will then appear in the Browser section and start loading. In a few moments a histogram will display.
+	<%= image_tag("red_hist.png") %>
+</p>
+
+<h2>Loading Data</h2><hr><br/>
+<p>
+	Chip chip experiments are loaded using density data. The files should be tab delimited including base position and density.<br/>
+	Here is an example of the upload format:
+</p>
+<div style="margin-left:2em">
+	<p>
+		<code>
+		1&nbsp;&nbsp;&nbsp;0.12<br/>
+		2&nbsp;&nbsp;&nbsp;1.12<br/>
+		3&nbsp;&nbsp;&nbsp;0.00<br/>
+		...
+		</code>
+	</p>
+
+	<p>
+		Column 1 is the position on the genome starting at 1<br/>
+		Column 2 is the tag density for that base.
+	</p>
+</div>	
+<br/>
+<p>
+	It is up to the individual to decide how to convert microarray tile data into a single value for each base.
+</p>
+<p>
+	In order for the browser to properly display results and for synthetic experiments to build using the experiment data <b>every base must have a value even if it is 0.0</b>
+</p>
+
+<%= link_to "ChIP chip Exeriments", chip_chips_path %> | <%= link_to "Experiment Types", experiments_path %>

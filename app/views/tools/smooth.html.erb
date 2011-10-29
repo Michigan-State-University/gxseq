@@ -1,0 +1,58 @@
+<% content_for :top_bar do -%>
+  <h1 class="pagetitle">Smooth Data</h1>
+<% end -%>
+
+<%= render :partial => "sidebar", :locals => {:active => "smooth"} %>
+
+<% content_for :item_bar do -%>
+  <p>
+		This tool allows you to create a new experiment altering the original with a smoothing algorithm. More details about the smoothing tool can be found <%= link_to "here", details_tools_path %>.
+	</p>
+<% end -%>
+<div style="float:left;width:600px">
+<%= error_messages_for :new_experiment %>
+<% form_tag(:action => "smooth") do %>	
+
+  <%= label_tag :experiment %><br/>
+  <%= select_tag(:experiment_id, "<option>-Select the experiment to smooth</option>".html_safe +
+  options_from_collection_for_select(@experiments,:id,:detailed_display_info) )%>
+  <br/><br/>
+  
+  <%= label_tag :name %><br/>
+  <%= text_field_tag :name%><br/>
+  <br/>
+  
+  <%= label_tag :description %><br/>
+  <%= text_area_tag :description,"",{:cols => "40",:rows => "7"} %><br/>
+  <br/>
+  
+  <div style="float:left">
+    <%= label_tag :window_size %><br/>
+    <%= select_tag(:window, options_for_select([10,20,30,40,50,100,150,200,250,500,750,1000]) ) %>
+  </div>
+  
+  <div style="float:left;padding-left:2em;">
+    <%= label_tag :type,"Smoothing type" %><br/>
+    <%= select_tag(:type, options_for_select({'Rolling Average' => 'avg', 'Windowed Probe Count' => 'probe'}) ) %>
+  </div>
+  
+  <div id="probe-options" style="float:left;padding-left:2em;">
+    <%= label_tag :type,"Cutoff (windowed count only)" %><br/>
+    <%= text_field_tag :cutoff,"",{:size => "5"}%>
+  </div>
+  
+  <div style="clear:both"></div>
+  <br/><br/>	
+  <%= submit_tag "Smooth Data" %>
+<% end -%>
+
+</div>
+
+<%#= observe_field(:experiment_id,
+					:update => :exp_info,
+					:url => {:controller => :experiments, :action => :asset_details},
+					:with => "exp_id") %>
+					
+<div id="exp_info" style="float:right">
+
+</div>

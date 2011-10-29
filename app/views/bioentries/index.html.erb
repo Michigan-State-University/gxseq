@@ -1,0 +1,94 @@
+<% content_for :head do %>
+	<%= stylesheet_link_tag 'sstree' %>
+	<%= javascript_include_tag 'sstree' %>
+<% end %>
+
+<% content_for :body_onload do -%>
+	<%= "document.getElementById('sstree-sequence').onselectstart = function() { return(false); };" %>
+<% end %>
+
+<% content_for :top_bar do %>
+	<!-- Header here -->
+	<h1 class="pagetitle">Genomes</h1>
+<% end %>
+
+<% content_for :item_bar do %>
+	<!-- Filter / Search items here -->
+	<div style="float:left">
+		<%= link_to "Upload Sequence", send("new_bioentry_path"), :class => "button" %>
+	</div>
+<% end %>
+
+<% content_for :sidebar do %>
+	<!-- Sidebar / Links / Notices here -->
+	<%= render :partial => "sidebar", :locals => {:active => 'listing'} %>
+<% end %>
+
+<div class="table" id="sstree-sequence">
+<table class="listing sstree">
+	<thead>
+		<th style="border:none" width="10%">Species</th>
+		<th style="border:none" width="35%">Taxon</th>
+		<th style="border:none" width="10%">Version</th>
+		<th style="border:none" width="45%">Sequence</th>
+	</thead>
+	<% @bioentry_species.each_with_index do |species, species_idx| %>
+	<% id = species_idx + 1  %>
+	<tr id="<%= id %>" class="one" onclick="toggleRows(document.getElementById('a_<%= id %>'));return false">
+		<td colspan="2">
+			<div class="tier1">
+				<a id="a_<%= id %>" style="width:32px;height:32px" class="folder-open" name="<%= id %>"href="#<%= id %>" onclick="toggleRows(this);return false"></a>
+				<%= species.scientific_name.name %>
+			</div>
+		</td>
+		<td></td><td></td>
+	</tr>
+		<% taxon_children = species.in_use_children %>
+		<% taxon_children.each_with_index do |t, t_idx| %>
+		<% id = "#{species_idx + 1}-#{t_idx + 1}" %>
+				<tr id="<%= id %>" class="two" onclick="toggleRows(document.getElementById('a_<%= id %>'));return false">
+					<td colspan="2" style='text-align:center;'>
+						<div class="tier2">
+							<a id="a_<%= id %>" style="width:32px;height:32px" class="folder" name="<%= id %>" href="#<%= id %>" onclick="toggleRows(this);return false"> </a>
+						<%#= link_to t.name, t.bioentries.first%> <%= t.scientific_name.name %>
+						<% if t.taxon_names.size > 1 %>
+						- <%= link_to_function "Hide",
+						"$('#{t.id}_show_more').show(); $('#{t.id}_variants').hide(); $('#{t.id}_show_less').hide()",
+						{:id => "#{t.id}_show_less", :style => 'display:none'} 
+						%>
+							<div id='<%= t.id %>_variants' style="display:none">
+								<% t.taxon_names.each do |n| %>
+									<% next if n == t.scientific_name %>
+									-<%= n.name %><br/>
+								<% end %>
+							</div>
+							<%= link_to_function "#{t.taxon_names.size - 1} variants",
+							"$('#{t.id}_show_less').show(); $('#{t.id}_variants').show(); $('#{t.id}_show_more').hide()",
+							:id => "#{t.id}_show_more" 
+							%>
+						<% end %>
+						</div>
+					</td>
+					<td></td>
+					<td></td>
+				</tr>
+				<% t.versions.each_with_index do |t_version, v_idx| %>
+				<% id = "#{species_idx + 1}-#{t_idx + 1}-#{v_idx + 1}" %>
+				<tr id="<%= id %>" class="item" style="display:none" onclick="toggleRows(document.getElementById('a_<%= id %>'));return false">
+					<td><div class="tier4">
+						<a name="<%= id %>" href="#<%= id %>" ></a></div></td>
+					<td></td>
+					<td style="text-align:left">
+						<%= t_version %>
+					</td>
+					<td style="text-align:center">
+						<% t.bioentries.with_version(t_version).includes([:source_features => [:qualifiers => :term]]).each do |entry| %>
+							<%= link_to entry.short_name, entry, :target => 'bioentry'+entry.id.to_s %><%= entry==t.bioentries.with_version(t_version).last ? "" : "," %>
+						<% end %>
+					</td>
+				</tr>
+				<% end %>
+		<% end %>
+	<% end %>
+</table>
+</div>

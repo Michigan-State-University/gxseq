@@ -1,0 +1,2 @@
+<%= link_to "Compute Peaks", {:action => 'compute_peaks', :id => @chip_chip.id}, {:confirm => "Are you sure?\nThis will remove any pre-existing peak data", :remote => true,:class => "button", :onclick => "$('compute_peaks').innerHTML='Computing...'"}%>
+<div id="compute_peaks"></div>

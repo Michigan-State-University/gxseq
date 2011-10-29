@@ -1,0 +1,8 @@
+<%=
+{
+  :success => true,
+  :data => {                    
+  	:text => "#{render :partial => 'variants/info'}"
+	}
+}.to_json.html_safe
+%>

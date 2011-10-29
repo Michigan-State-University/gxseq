@@ -1,0 +1,17 @@
+Displaying data for : <%= @bioentry.display_info %> View in <%= link_to "Sequence Viewer", bioentry_path(@bioentry, :tracks => [@chip_seq.tracks.with_bioentry(@bioentry.id).first.id]) %>
+<div id='exp_chart'>
+	<%= swf_tag "mixed_plot.swf", 
+		:id => "#{@chip_seq}_plot", 
+		:size => "600x300", 
+		:flashvars => {
+			:checklabel => "Show Peaks", 
+			:pointseries => "Peaks", 
+			:lineseries => "Tag Count",
+			:entry_id => @bioentry.id,
+			:id => @chip_seq.id, 
+			:local_url => "#{root_path}chip_seqs/"
+		} %>
+</div>
+<% @chip_seq.bioentries_experiments.each_with_index do |be,idx| %>
+<%= "|" unless idx==0 %> <%= link_to_unless_current be.bioentry.display_name, chip_seq_path(@chip_seq, :entry_id => be.bioentry_id) %>
+<% end %>

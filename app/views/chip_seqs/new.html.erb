@@ -1,0 +1,19 @@
+<% content_for :top_bar do -%>
+	<h1 class="pagetitle">New Chip Seq Experiment</h1>
+<% end -%>
+<%= render :partial => "experiments/sidebar" %>
+<%= error_messages_for :chip_seq %>
+
+<% form_for @chip_seq, :html => {:multipart => true} do |f| %>
+	<%= render :partial => 'experiments/form', :locals => {:f => f} %>
+	<br/>
+	<%= render :partial => 'experiments/file_form', :locals => {:f => f} %>
+	<div style="clear:both">
+		<br/><hr/><br/><br/>
+		<%= f.submit "Upload Experiment" %>
+	</div>
+<% end %>
+<br/>
+<div style="float:right;padding-right:1em">
+<%= link_to "Back", chip_seqs_path %>
+</div>

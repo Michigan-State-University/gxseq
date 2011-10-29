@@ -1,5 +1,10 @@
 class Admin::AdminController < ApplicationController
-  def index
-    redirect_to new_user_session_path unless current_user.is_admin?
+  before_filter :check_admin
+  def check_admin
+    unless current_user.is_admin?
+      flash[:error] = "Not Authorized!"
+      redirect_to root_path
+      return
+    end
   end
 end

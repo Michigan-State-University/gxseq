@@ -1,58 +1,77 @@
+# Trust the upstream server to authenticate and set REMOTE_USER env var for login
+# This process needs to be re-factored. It works, but this seems like hack.
+#
+# New warden strategy for remote user authentication
+# Warden::Strategies.add(:remote_user_auth) do
+#   # if we have no http header we can't use this strategy
+#   # only valid if configured for remote_user
+#   def valid? 
+#     APP_CONFIG[:use_remote_user]==true && !request.headers["HTTP_REMOTE_USER"].blank?
+#   end 
+#   
+#   def authenticate!
+#     # find or create a user with login == REMOTE_USER
+#     remote_user = request.headers["HTTP_REMOTE_USER"]
+#     if(APP_CONFIG[:create_from_remote_user] == true)
+#       remote_email = request.headers["REMOTE_EMAIL"] || ' '
+#       begin
+#         resource = User.find_by_login(remote_user) || begin
+#           User.create(
+#           :login=>remote_user,
+#           :email=>remote_email,
+#           :password=>'s!G5ds@O8n9d'
+#           )
+#         end
+#       rescue
+#         ::Rails.logger.info("\n:remote_user_auth Could not create new user: '#{remote_user}', '#{remote_email}'\n#{$!}")
+#         fail(:invalid)
+#       end
+#     else
+#       resource = User.find_by_login(remote_user)
+#     end
+#     # if we were not able to create or find a user then pass on to another strategy
+#     if(resource)
+#       success!(resource)
+#     elsif !halted?
+#       pass
+#     end
+#   end
+# end
+# Warden::Strategies.add(:local_override) do
+#   def valid?
+#     true
+#   end
+# 
+#   def authenticate!
+#     resource = valid_password? && mapping.to.find_for_database_authentication(authentication_hash)
+# 
+#     if validate(resource){ resource.valid_password?(password) }
+#       resource.after_database_authentication
+#       success!(resource)
+#     elsif !halted?
+#       fail(:invalid)
+#     end
+#   end
+# end
+
 # Use this hook to configure devise mailer, warden hooks and so forth. The first
 # four configuration values can also be set straight in your models.
-
-# New warden strategy for remote user authentication
-# Trusts the upstream server to authenticate and set REMOTE_USER env var for login
-Warden::Strategies.add(:remote_user_auth) do 
-  def valid? 
-    APP_CONFIG[:use_remote_user] ==  true && !request.headers["HTTP_REMOTE_USER"].blank? 
-  end 
-  
-  def authenticate!
-    # find or create a user with login == REMOTE_USER
-    if(APP_CONFIG[:create_from_remote_user] == true)
-      remote_email = request.headers["REMOTE_EMAIL"] || ' '
-      remote_user = request.headers["HTTP_REMOTE_USER"]
-      begin
-        resource = User.find_by_login(remote_user) || begin
-	  User.create(
-	    :login=>remote_user,
-	    :email=>remote_email,
-	    :password=>'s!G5ds@O8n9d'
-	  )
-	end
-      rescue
-        ::Rails.logger.info("\n:remote_user_auth Could not create new user: '#{remote_user}', '#{remote_email}'\n#{$!}")
-        fail(:invalid)
-      end
-    else
-      resource = User.find_by_login(remote_user)
-    end
-    # if we were not able to create or find a user then pass on to another strategy
-    if(resource)
-      success!(resource)
-    elsif !halted?
-      pass
-    end
-  end
-end
-
 Devise.setup do |config|
   # ==> LDAP Configuration 
-  # config.ldap_logger = true
-  # config.ldap_create_user = false
-  # config.ldap_update_password = true
+   config.ldap_logger = true
+   config.ldap_create_user = true
+   config.ldap_update_password = false
   # config.ldap_config = "#{Rails.root}/config/ldap.yml"
   # config.ldap_check_group_membership = false
   # config.ldap_check_attributes = false
-  # config.ldap_use_admin_to_bind = false
-  
+   config.ldap_use_admin_to_bind = true
+   
   # ==> Mailer Configuration
   # Configure the e-mail address which will be shown in DeviseMailer.
   config.mailer_sender = "gs@glbrc.org"
 
   # Configure the class responsible to send e-mails.
-  # config.mailer = "Devise::Mailer"
+  config.mailer = "Devise::Mailer"
 
   # ==> ORM configuration
   # Load and configure the ORM. Supports :active_record (default) and
@@ -69,6 +88,7 @@ Devise.setup do |config|
   # You can also supply a hash where the value is a boolean determining whether
   # or not authentication should be aborted when the value is not present.
   # config.authentication_keys = [ :email ]
+  config.authentication_keys = [ :login ]
 
   # Configure parameters from the request object used for authentication. Each entry
   # given should be a request method and it will automatically be passed to the
@@ -80,18 +100,18 @@ Devise.setup do |config|
   # Configure which authentication keys should be case-insensitive.
   # These keys will be downcased upon creating or modifying a user and when used
   # to authenticate or find a user. Default is :email.
-  config.case_insensitive_keys = [ :email ]
+  #config.case_insensitive_keys = [ :email, :login ]
   
   # Configure which authentication keys should have whitespace stripped.
   # These keys will have whitespace before and after removed upon creating or
   # modifying a user and when used to authenticate or find a user. Default is :email.
-  config.strip_whitespace_keys = [ :email ]
+  #config.strip_whitespace_keys = [ :email, :login ]
 
   # Tell if authentication through request.params is enabled. True by default.
   # config.params_authenticatable = true
 
   # Tell if authentication through HTTP Basic Auth is enabled. False by default.
-  config.http_authenticatable = true
+  # config.http_authenticatable = false
 
   # If http headers should be returned for AJAX requests. True by default.
   # config.http_authenticatable_on_xhr = true
@@ -140,7 +160,9 @@ Devise.setup do |config|
 
   # Options to be passed to the created cookie. For instance, you can set
   # :secure => true in order to force SSL only cookies.
-  # config.cookie_options = {}
+  config.cookie_options = {
+    :secure => true
+  }
 
   # ==> Configuration for :validatable
   # Range for password length. Default is 6..128.
@@ -152,7 +174,7 @@ Devise.setup do |config|
   # ==> Configuration for :timeoutable
   # The time you want to timeout the user session without activity. After this
   # time the user will be asked for credentials again. Default is 30 minutes.
-  # config.timeout_in = 30.minutes
+  config.timeout_in = 60.minutes
 
   # ==> Configuration for :lockable
   # Defines which strategy will be used to lock an account.
@@ -207,11 +229,11 @@ Devise.setup do |config|
   # Turn scoped views on. Before rendering "sessions/new", it will first check for
   # "users/sessions/new". It's turned off by default because it's slower if you
   # are using only default views.
-  # config.scoped_views = false
+  config.scoped_views = true
 
   # Configure the default scope given to Warden. By default it's the first
   # devise role declared in your routes (usually :user).
-  # config.default_scope = :user
+  config.default_scope = :user
 
   # Configure sign_out behavior.
   # Sign_out action can be scoped (i.e. /users/sign_out affects only :user scope).
@@ -243,6 +265,6 @@ Devise.setup do |config|
   # change the failure app, you can configure them inside the config.warden block.
   #
   config.warden do |manager|
-    manager.default_strategies(:scope => :user).unshift :remote_user_auth
+    manager.default_strategies(:scope => :user).unshift :database_authenticatable
   end
 end

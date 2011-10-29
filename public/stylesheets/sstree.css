@@ -1,0 +1,86 @@
+  .folder {
+    background: url(../images/folder.png) no-repeat;	
+    float: left; height: 16px; width: 16px; padding-right: 3px
+  }
+  .folder-open {
+    background: url(../images/folder-open.png) no-repeat;
+    float: left; height: 16px; width: 16px; padding-right: 3px
+  }
+  .tier1 {
+  	margin-left: 0; 
+  }
+
+  .tier2 { 
+  	margin-left: 1.5em; 
+  }
+
+  .tier3 { 
+  	margin-left: 3em;
+  }
+
+  .tier4 { 
+  	margin-left: 4.5em; 
+  }
+
+  .tier5 { 
+   margin-left: 7.5em; 
+  }
+  /* Added to pad secondary grow-outs properly */
+  .tier5-1 { 
+   margin-left: 6.2em; 
+  }
+/*  Removed to make way for un-imaged tier5*/
+  .tier6 { 
+    margin-left: 7.5em; 
+  }
+
+  .tier7 { 
+  	margin-left: 9em; 
+  }
+
+  /* Added to pad third grow-outs properly */
+  .tier7-1 { 
+   margin-left: 10.2em; 
+  }
+
+  .tier8 { 
+   margin-left: 10.5em; 
+  }
+
+  .tier9 { 
+  	margin-left: 12em; 
+  }
+
+  .tier10 { 
+  	margin-left: 13.5em; 
+  }
+table.condensed {
+    border: 10;
+    width: 60em;
+}
+table.sstree {
+	margin: 0 0 0.2em 20px;
+	table-layout: fixed;
+	border-collapse: collapse;
+	border: none;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    user-select: none;}
+table.sstree td {border:none;}
+table.sstree tr.one {border-top:1px solid rgb(215,215,215); border-bottom:1px solid rgb(200,200,200)}
+table.sstree tr.one td{background-color:rgb(210,210,210);font:italic bold 12px/30px Georgia, serif;}
+table.sstree tr.one:hover td{background-color:rgb(210,210,220);cursor:pointer;}
+table.sstree tr.one td.hovered{background-color:rgb(210,210,220);cursor:pointer;}
+table.sstree tr.two {border-top:1px solid rgb(220,220,220); border-left:2px solid white;border-bottom:1px solid rgb(210,210,210)}
+table.sstree tr.two td{background-color:rgb(225,225,225);}
+table.sstree tr.two:hover td{background-color:rgb(225,225,235);cursor:pointer;}
+table.sstree tr.two td.hovered{background-color:rgb(225,225,235);cursor:pointer;}
+table.sstree tr.three {border-left:4px solid white;border-bottom:1px solid rgb(225,225,225);}
+table.sstree tr.three td{background-color:rgb(240,240,240);}
+table.sstree tr.three:hover td{background-color:rgb(240,240,250);cursor:pointer;}
+table.sstree tr.three td.hovered{background-color:rgb(240,240,250);cursor:pointer;}
+/*table.sstree tr.item td{background-color:rgb(245,245,245);height:1.5em; border-left:3px solid white;}*/
+table.sstree tr.item {border-top:1px solid rgb(250,250,250);border-left:6px solid white;border-bottom:1px solid rgb(230,230,230)}
+table.sstree tr.item td{background-color:rgb(245,245,245);height:2em;}
+table.sstree tr.item a{padding:1px;}
+/*table.sstree tr.item:hover td{background-color:rgb(240,240,240);border-top:1px solid rgb(250,250,250);border-left:1px solid rgb(240,240,240);border-bottom:1px solid rgb(230,230,230)}*/

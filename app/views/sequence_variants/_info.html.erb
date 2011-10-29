@@ -1,0 +1,59 @@
+<%= @sequence_variant.html_header.html_safe %>
+
+<table>
+	<tr>
+		<td><b>Experiment:</b></td>
+		<td><b><%= @sequence_variant.experiment.name %></b></td>
+	</tr>
+	<tr>
+		<td><b>Pos:</b></td>
+		<td><%= @sequence_variant.pos %></td>
+	</tr>
+	
+	<tr>
+		<td><b>Length:</b></td>
+		<td><%= @sequence_variant.length %></td>
+	</tr>
+	<% if @sequence_variant.qual && @sequence_variant.qual >= 0 %>
+	<tr>
+		<td><b>Quality:</b></td>
+		<td><%= @sequence_variant.qual %></td>
+	</tr>
+	<% end %>
+	<% if @sequence_variant.depth %>
+	<tr>
+		<td><b>Depth:</b></td>
+		<td><%= @sequence_variant.depth %></td>
+	</tr>
+	<% end %>
+	<tr><td>&nbsp;</td></tr>
+	
+	<% if @sequence_variant.ref && @sequence_variant.ref.length > 0 %>
+	<tr>
+		<td style="padding-bottom:.25em"><b>Reference Sequence:</b></td>
+		<td><%= text_area_tag :ref, @sequence_variant.ref, :size => "#{[@sequence_variant.ref.length,20].min}x#{(@sequence_variant.ref.length/20.to_f).ceil}", :disabled => true, :style => "border:none;spellcheck=false"%></td>
+	</tr>
+	<% end %>
+	<% if @sequence_variant.alt && @sequence_variant.alt.length > 0  %>
+	<tr>
+		<td style="padding-bottom:.25em"><b>Alternate Sequence:</b></td>
+		<td><%= text_area_tag :alt, @sequence_variant.alt, :size => "#{[@sequence_variant.alt.length,20].min}x#{(@sequence_variant.alt.length/20.to_f).ceil}", :disabled => true, :style => "border:none;spellcheck=false"%></td>
+	</tr>
+	<% end %>
+</table>
+<hr/>
+<br/>
+
+<% # matching variants %>
+<% html = "" %>
+<% @sequence_variant.experiment.find_matches(@sequence_variant.pos,@sequence_variant.pos+@sequence_variant.length-1,@bioentry.id).each do |variant| %>
+		<% html+= "<tr><td style='padding:4px;height:3em;width:40%;border-bottom:1px solid lightgrey;border-left:1px solid lightgrey'><b>#{variant.name}</b></td><td style='border-bottom:1px solid lightgrey'>#{truncate(variant.description,:length => 75)}</td></tr>"%>
+<% end %>
+<% unless html.empty? %>
+	<table cellspacing="0" style="background-color:whiteSmoke;width:100%">
+		<tr>
+			<td colspan=2 style="height:2em;background-color:#C7C7C7;text-align:center"><b>Matching Variant Experiments</b></td>
+		</tr>
+		<%= html.html_safe %>
+	</table>
+<% end %>

@@ -1,0 +1,28 @@
+<div id="location_form_<%= location.id %>" style="display:none">
+	<%= form_for location do |f| %>		
+		<%= f.text_field :start_pos, :class => "field" %>,
+		<%= f.text_field :end_pos, :class => "field" %>
+	
+		<% if defined?(strand) && strand %>
+			<%= f.label :strand, "Strand"  %>
+			<%= f.select :strand, {"3'<-5'" => -1,"3'->5'" => 1}, :class => "field" %>
+		<% end %>
+		<% unless defined?(delete) && !delete %>
+			<div style="float:right">
+				<%= link_to(image_tag("delete.png", :style => "border:none"), 
+						location,
+						:method => :delete,
+						:confirm => "Deleting location: (#{location.start_pos}, #{location.end_pos}})\nAre you sure?") %>
+			</div>
+		<% end %>
+		<%= f.submit "update" %>
+		<%= link_to_function("Cancel", "$('location_form_#{location.id }').hide();$('location_data_#{location.id}').show();") %>
+	<% end %>
+</div>
+
+<div id="location_data_<%= location.id %>">
+	<span style="border-radius:6px;border:solid 1px darkgrey;width:100px;margin:0;padding:2px;"><%= location.start_pos %></span>
+	<span style="border-radius:6px;border:solid 1px darkgrey;width:100px;margin:0;padding:2px;"><%= location.end_pos %></span>
+	<%= link_to_function(image_tag("comment_edit.png", :style => "border:none"), 
+	"$('location_form_#{location.id }').show();$('location_data_#{location.id}').hide();") %>
+</div>

@@ -7,10 +7,16 @@ class CreateRoles < ActiveRecord::Migration
     create_table :roles_users, :force => true, :id => false do |t|
       t.belongs_to :role
       t.belongs_to :user
-      t.timestamps
     end
     add_index :roles_users, :role_id
     add_index :roles_users, :user_id
+    
+    Role.create(
+      :name => "user"
+    )
+    Role.create(
+      :name => "guest"
+    )
   end
 
   def self.down

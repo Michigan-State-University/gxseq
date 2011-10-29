@@ -1,0 +1,21 @@
+<div class="asset_green" style="color:black;">
+	<div style="font-size:133%;padding-bottom:1em"><b>MAQ Indel format (JGI)</b></div>
+	<div style="padding-left:1em">
+		<p>
+			<b><i><%= asset.filename %></i></b>
+		</p>
+		<p>
+			<b>Created:</b><br/>
+			<%= asset.data_updated_at.to_s %>
+		</p>
+		<p>
+			<b>Size:</b><br/>
+			<%= number_to_human_size(asset.data_file_size) %>
+		</p>
+		<% if asset.state != 'complete' %>
+		<p>
+			<b><span style="color:darkblue"><%= asset.state %></span></b>		
+		</p>
+		<% end %>
+	</div>
+</div>

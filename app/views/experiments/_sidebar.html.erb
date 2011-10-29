@@ -1,0 +1,12 @@
+<% content_for :sidebar do -%>
+	<% active = experiment.class.name.underscore if defined? experiment %>
+	<% active = '' unless defined? active %>
+	<h3>Experiment types</h3>
+	<ul class="nav">
+	<li><%= link_to "ChipSeq", chip_seqs_path, :class => "#{'active' if active== 'chip_seq'}" %></li>
+	<li><%= link_to "ChipChip", chip_chips_path, :class => "#{'active' if active== 'chip_chip'}" %></li>
+	<li><%= link_to "Synthetic", synthetics_path, :class => "#{'active' if active== 'synthetic'}" %></li>
+	<li><%= link_to "Variants", variants_path, :class => "#{'active' if active== 'variant'}" %></li>
+	<li><%= link_to "Details", experiments_path, :class => "#{'active' if active== 'details'}" %></li>
+	</ul>
+<% end -%>

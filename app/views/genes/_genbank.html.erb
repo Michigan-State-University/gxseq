@@ -1,0 +1,7 @@
+<div id="genbank_text" class="clear" style="width:100%">
+	<div class="border">
+	<pre style="font-size:100%">
+		<%= @features.collect(&:to_genbank).join.html_safe %>
+	</pre>
+	</div>
+</div>

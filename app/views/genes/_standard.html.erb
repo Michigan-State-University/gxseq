@@ -1,0 +1,119 @@
+<div class="clear">
+	<!-- Gene Details -->
+	<div class="border">
+	<h2>Gene Details</h2>
+	<table>
+		<% reset_cycle %>
+		<% if @gene.gene %>
+			<tr class=<%= cycle("odd","even") %>>
+				<td class="keyword">Gene Name</td>
+				<td><%= @gene.gene.value %></td>
+			</tr>
+		<% end %>
+		<% unless @gene.gene_synonyms.empty? %>
+		<tr class=<%= cycle("odd","even") %>>
+			<td class="keyword">Other Names</td>
+			<td><%= @gene.gene_synonyms.collect(&:value).to_sentence%></td>
+		</tr>
+		<% end %>
+		<% products = [@gene.gene_models.collect(&:cds).compact.collect(&:product),@gene.product].flatten.compact.uniq %>
+		<% products.each do |p| %>
+		<tr class=<%= cycle("odd","even") %>>
+			<td class="keyword">Product</td>
+			<td><%= p.value%></td>
+		</tr>
+		<% end %>
+		<% if @gene.function %>
+		<tr class=<%= cycle("odd","even") %>>
+			<td class="keyword">Function</td>
+			<td><%= @gene.function.value%></td>
+		</tr>
+		<% end %>
+		<tr class=<%= cycle("odd","even") %>>
+			<td class="keyword">Start Position</td>
+			<td><%= @gene.locations.first.start_pos %></td>
+		</tr>
+		<tr class=<%= cycle("odd","even") %>>
+			<td class="keyword">End Position</td>
+			<td><%= @gene.locations.first.end_pos %></td>
+		</tr>
+	</table>
+	</div>
+	
+	<!-- Graphic Gene-->
+	<div class="border" style="overflow:hidden">
+		<%= render :partial => 'graphic' %>
+	</div>
+	<!-- Gene Models -->
+	<% if @gene.gene_models.size > 1 %>
+		<div class="border">
+			<h2>
+				<%= "This locus has #{@gene.gene_models.size.to_s} gene models: #{@gene.gene_models.collect{|g| (link_to g.display_name, "##{g.display_name}")}.to_sentence}".html_safe %>
+			</h2>
+			<p class="caption" style="margin:0 0 0 1em"> *Gene suffixes do not correlate to any external database reference. They are generated for graphical disambiguation only.</p>
+		</div>
+	<% end %>
+	
+	<% @gene.gene_models.each do |gene_model| %>
+		<h1 class="pagetitle" style="font-size:190%">
+			<%= link_to_function(
+				gene_model.display_name,
+				"Ext.get('gene_model_#{gene_model.id}_data').setVisibilityMode(2).toggle();
+				Ext.get('gene_model_#{gene_model.id}_hidden').setVisibilityMode(2).toggle();",
+				{:name => gene_model.display_name,:style => "text-decoration:none;color:rgb(100,100,100);cursor:pointer;"})
+			%>
+		</h1>
+		<div id="gene_model_<%= gene_model.id %>_hidden" style="display:none">
+			<div class="border"><p>...</p></div>
+		</div>
+		<div id="gene_model_<%= gene_model.id %>_data">
+			<!-- Note Details -->
+			<div class="border">
+				<h2>Notes</h2>
+				<table>
+					<% reset_cycle %>
+					<%= render :partial => "note_feature", :locals => {:gene_model => gene_model, :feature => 'gene'} %>
+					<%= render :partial => "note_feature", :locals => {:gene_model => gene_model, :feature => 'mrna'} %>
+					<%= render :partial => "note_feature", :locals => {:gene_model => gene_model, :feature => 'cds'} %>
+				</table>
+			</div>
+			<!-- Sequence Details -->
+			<% if gene_model.cds %>
+				<div class="border">
+					<h2>Sequence Details</h2>
+					<table>
+						<% reset_cycle %>
+						<% if gene_model.mrna && gene_model.mrna.transcript_id %>
+							<tr class=<%= cycle("odd","even") %>>
+								<td class="keyword">Transcript ID</td>
+								<td><%=gene_model.mrna.transcript_id.value%></td>
+							</tr>
+						<% end %>
+						<tr class=<%= cycle("odd","even") %>>
+							<td class="keyword">Gene Length</td>
+							<td><%= gene_model.na_sequence.size if gene_model.na_sequence %></td>
+						</tr>
+						<tr class=<%= cycle("odd","even") %>>
+							<td class="keyword">NA Sequence</td>
+							<td style="font-family:'Courier';"><pre style="overflow-x:scroll"><%= formatted_sequence(gene_model.na_sequence,{:rows => 10, :delimiter => "\n"}) %></pre></td>
+						</tr>
+						<% if gene_model.cds.protein_id %>
+							<tr class=<%= cycle("odd","even") %>>
+								<td class="keyword">Protein ID</td>
+								<td><%= gene_model.cds.protein_id.value %></td>
+							</tr>
+						<% end %>
+						<tr class=<%= cycle("odd","even") %>>
+							<td class="keyword">Protein Length</td>
+							<td><%= gene_model.protein_sequence.size if gene_model.protein_sequence %></td>
+						</tr>
+						<tr class=<%= cycle("odd","even") %>>
+							<td class="keyword">Protein Sequence</td>
+							<td style="font-family:'Courier';"><pre style="overflow-x:scroll"><%= formatted_sequence(gene_model.protein_sequence,{:rows => 10, :delimiter => "\n"}) %></pre></td>
+						</tr>
+					</table>
+				</div>
+			<% end %>
+		</div>
+	<% end %>
+</div>

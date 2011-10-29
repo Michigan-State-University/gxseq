@@ -1,0 +1,9 @@
+<% content_for :sidebar do -%>
+	<% active = 'listing' unless defined? active %>
+	<h3>Genes</h3>
+	<ul class="nav">
+	<li><%= link_to "Listing", genes_path, :class => "#{'active' if active== 'listing'}" %></li>
+	<li><%= link_to "Create", new_gene_path, :class => "#{'active' if active== 'create'}" %></li>
+	<li><%= link_to "Details", details_genes_path, :class => "#{'active' if active== 'details'}" %></li>
+	</ul>
+<% end -%>

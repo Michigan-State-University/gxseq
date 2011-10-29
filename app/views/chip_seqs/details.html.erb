@@ -1,0 +1,50 @@
+<h1 class="pagetitle">Chip Seq Experiment Details</h1>
+<%= render :partial => "experiments/sidebar" %>
+
+<h2>Description</h2><hr><br/>
+<p>
+	ChIP-Seq combines chromatin immunoprecipitation (ChIP) with massively parallel DNA sequencing. The genome browser uses the tag densities from ChIP-Seq to render a histogram display.
+</p>
+
+<h2>Browsing</h2><hr><br/>
+<p>
+	ChIP-Seq experiments will be located in the ChipSeq folder within the Track Selection pane.<br/>
+	<%= image_tag("chip_seq_folder.png") %>
+	<br/>
+</p>
+<p>
+	To activate a ChipSeq experiment click and drag it into the Active Tracks section.<br/>
+	<%= image_tag("active_tracks.png") %>
+</p>
+<p>
+	The track will then appear in the Browser section and start loading. In a few moments a histogram will display.
+	<%= image_tag("red_hist.png") %>
+</p>
+
+<h2>Loading Data</h2><hr><br/>
+<p>
+	Chip Seq experiments are loaded using tag density data. The files should be tab delimited including base position and density.<br/>
+	Here is an example of the upload format:
+</p>
+<div style="margin-left:2em">
+	<p>
+		<code>
+		1&nbsp;&nbsp;&nbsp;0.12<br/>
+		2&nbsp;&nbsp;&nbsp;1.12<br/>
+		3&nbsp;&nbsp;&nbsp;0.00<br/>
+		...
+		</code>
+	</p>
+
+	<p>
+		Column 1 is the position on the genome starting at 1<br/>
+		Column 2 is the tag density for that base.
+	</p>
+</div>	
+<br/>
+<p>
+	Tag density can be calculated using the QuEST package (Anton Valouev et al., 20008, NATURE METHODS 9: 829-834)<br/>
+	Reads can be mapped to a genome using eland (single end) or SOAP (paired end)<br/>
+</p>
+
+<%= link_to "Chip Seq Exeriments", chip_seqs_path %> | <%= link_to "Experiment Types", experiments_path %>

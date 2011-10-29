@@ -1,0 +1,54 @@
+<% note_length = 350 %>
+<tr>
+	<td class="options" >
+	<% unless note.versions.empty? %>
+		<%= " #{note.versions.last.created_at.strftime("%D")}<br/> <b>#{User.find(note.originator).login}</b>".html_safe %>
+	<% end %>
+	</td>
+	<td class="options">
+		<% if note.value.size > note_length %>
+			<%= link_to_function( image_tag("arrow_closed.png", :id => "#{note.text_id}_arrow_closed", :style => "border:none"), 
+			"$('#{note.text_id}_arrow_open').toggle();$('#{note.text_id}_arrow_closed').toggle();$('#{note.text_id}_note_small').toggle();$('#{note.text_id}_note_full').toggle();")%>
+			<%= link_to_function( image_tag("arrow_open.png", :id => "#{note.text_id}_arrow_open", :style => "border:none;display:none;"), 
+			"$('#{note.text_id}_arrow_open').toggle();$('#{note.text_id}_arrow_closed').toggle();$('#{note.text_id}_note_small').toggle();$('#{note.text_id}_note_full').toggle();")%>
+		<% end %>
+	</td>
+	<td>
+		<div id="list_note_<%= note.text_id%>">
+			<div id="<%= note.text_id %>_note_small"><%= truncate(h(note.value), :length => note_length).gsub(/\n|;/,"<br/>") %></div>
+			<% if note.value.size > note_length %>
+				<div id="<%= note.text_id %>_note_full" style="display:none"><%=(h note.value).gsub(/\n|;/,"<br/>") %></div>
+			<% end %>
+		</div>
+		<div id="edit_note_<%= note.text_id%>" style="display:none;">
+			<% form_for note do |f| %>
+				<%= f.text_area :value, :cols => 75, :rows => 8 %>
+				<br/>
+				<%= f.submit "Update" %>
+			<% end %>
+		</div>
+		<% unless note.versions.empty? %>
+			<div id="note_versions_<%= note.text_id %>" style="display:none">
+				<br/>
+				<h1 class="pagetitle" style="font-size:110%">History</h1>
+				<table>				
+					<% note.versions.reverse.each do |version| %>
+						<tr>
+							<td style="border:solid 2px rgb(210,210,210);width:5%"><%= version.index + 1 %></td>
+							<td style="border:solid 2px rgb(215,215,215);width:15%;font-size:80%;text-align:right"><%= version.previous ? " #{note.versions.last.created_at.strftime("%D")}<br/> <b>#{User.find(version.originator).login}</b>".html_safe : "<b>Original</b>".html_safe  %>
+							<td style="border:solid 2px rgb(225,225,225);font-size:90%"><%=h version.reify.value if version.reify %></td>
+						</tr>
+					<% end %>
+				</table>
+			</div>
+		<% end %>
+	</td>
+	<td style="vertical-align:top">
+		<%# permitted_to? :edit, note d) %>
+			<%= image_tag("comment_edit.png", :style => "border:none;cursor:pointer", :onclick => "$('edit_note_#{note.text_id}').toggle();$('list_note_#{note.text_id}').toggle();")%>
+		<%# end %>
+		<% unless note.versions.empty? %>
+			&nbsp;<%= image_tag("table.png", :style => "border:none;cursor:pointer", :onclick => "$('note_versions_#{note.text_id}').toggle();")%>(<%= note.versions.size %>)
+		<% end %>
+	</td>
+</tr>

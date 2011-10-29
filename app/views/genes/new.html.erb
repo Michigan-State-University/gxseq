@@ -1,0 +1,30 @@
+<% content_for :head do -%>
+	<%= stylesheet_link_tag 'formtastic', 'formtastic_overrides' %>
+	<%= render :partial => "common/extjs_css" %>
+	<%= render :partial => "common/extjs" %>
+<% end -%>
+
+<% content_for :sidebar do %>
+	<%= render :partial => "sidebar", :locals => {:active => 'create'} %>
+<% end %>
+
+<% content_for :top_bar do%>
+	<h1 class="pagetitle">Create New Gene</h1>
+<% end %>
+
+<% content_for :item_bar do -%>
+	With this Form you can add Genes and Gene Models to the database. First you must choose a Taxonomy and Sequence. For more information please read the Create Gene section of the <%= link_to 'gene details', details_genes_path %> page.
+<% end %>
+
+<%= render :partial => 'taxon_form' %>
+<br/><br/>
+<div id="bioentry_field">	
+	<% if(@taxon) %>
+		<%= render :partial => 'bioentry_form' %>
+	<% end%>	
+	<div id="form_field">
+		<% if(@taxon && @bioentry) %>
+			<%= render :partial => 'form' %>
+		<% end %>
+	</div>
+</div>

@@ -1,0 +1,8 @@
+<%= @experiment.peaks.with_bioentry(@bioentry_id).order(:pos).map{ |peak| 
+	{
+		:id => peak.id,
+		:pos => peak.pos,
+		:val => peak.val,
+		:link => peak.nearest_genes.map{|g| link_to(g.name,g,:target => g.id)}.join(',')
+	}			
+}.to_json.html_safe %>

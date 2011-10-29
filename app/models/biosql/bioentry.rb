@@ -1,0 +1,135 @@
+class Bioentry < ActiveRecord::Base
+  set_table_name "bioentry"
+  set_primary_key :bioentry_id
+  belongs_to :biodatabase, :class_name => "Biodatabase"
+  belongs_to :taxon
+  
+  has_one :biosequence, :dependent  => :destroy
+  
+  has_many :bioentry_dbxrefs, :class_name => "BioentryDbxref", :dependent  => :destroy
+  has_many :bioentry_qualifier_values, :order=>"bioentry_id,term_id,rank", :class_name => "BioentryQualifierValue", :dependent  => :destroy
+  has_many :bioentry_references, :class_name=>"BioentryReference", :dependent  => :destroy
+  has_many :comments, :class_name =>"Comment", :order =>'rank', :dependent  => :destroy
+  has_many :object_bioentry_relationships, :class_name=>"BioentryRelationship", :foreign_key=>"object_bioentry_id", :dependent  => :destroy  
+  has_many :object_bioentry_paths, :class_name=>"BioentryPath", :foreign_key=>"object_bioentry_id", :dependent  => :destroy 
+  has_many :references, :through=>:bioentry_references, :class_name => "Reference"
+  has_many :seqfeatures, :order => "rank", :dependent  => :destroy
+  has_many :subject_bioentry_relationships, :class_name=>"BioentryRelationship", :foreign_key=>"subject_bioentry_id", :dependent  => :destroy
+  has_many :subject_bioentry_paths, :class_name=>"BioentryPath", :foreign_key=>"subject_bioentry_id", :dependent  => :destroy
+  has_many :terms, :through=>:bioentry_qualifier_values, :class_name => "Term"
+    
+  #seqfeature types
+  has_many :source_features, :class_name => "Source"
+  has_many :gene_features, :class_name => "Gene"
+  has_many :cds_features, :class_name => "Cds"
+  has_many :mrna_features, :class_name => "Mrna"
+  
+  ##Extensions
+  has_many :gene_models, :dependent  => :destroy
+  has_many :bioentries_experiments
+  has_many :experiments, :through => :bioentries_experiments, :dependent  => :destroy
+  has_many :chip_seqs, :through => :bioentries_experiments
+  has_many :chip_chips, :through => :bioentries_experiments
+  has_many :synthetics, :through => :bioentries_experiments
+  has_many :variants, :through => :bioentries_experiments
+  has_many :tracks, :dependent => :destroy
+  has_many :peaks
+  has_one :models_track
+  has_one :six_frame_track
+  has_one :protein_sequence_track
+  has_one :generic_feature_track
+  
+  scope :with_version, lambda { |v| where("version = ?",v) }
+  has_paper_trail :version_method_name => 'reified_version'
+  acts_as_api
+  
+  ## Class Methods
+  
+  def self.all_taxon
+    Bioentry.includes(:taxon).all.collect(&:taxon).uniq
+  end
+  
+  def self.all_species
+    Bioentry.includes(:taxon).all.collect(&:taxon).uniq.collect(&:species).uniq
+  end
+  
+  
+  ## Instance Methods
+  
+  # initalizing tracks after creation
+  def create_tracks
+    result = []
+    result << create_models_track if models_track.nil?
+    result << create_six_frame_track if six_frame_track.nil?
+    #result << create_protein_sequence_track if protein_sequence_track.nil?
+    result << create_generic_feature_track if generic_feature_track.nil?    
+    return result
+  end
+  
+  # convenience methods
+  def length
+    biosequence.length
+  end
+  
+  def qualifiers
+    self.bioentry_qualifier_values
+  end
+  
+  def display_info
+    "#{species_name} #{taxon.species==taxon ? '' : " > "+taxon.scientific_name.name} - #{version} : #{ source_features[0].generic_label_type}(#{source_features[0].generic_label})"
+  end
+  
+  def display_name
+    "#{ source_features[0].generic_label_type}(#{source_features[0].generic_label})"
+  end
+  
+  def short_name
+    source_features[0].generic_label
+  end
+  
+  def species_name
+    taxon.species.scientific_name.name
+  end
+  
+  def superkingdom
+    if(taxon.left_value && taxon.right_value)
+      Taxon.find(:first, :include => :taxon_names, :conditions => "node_rank='superkingdom' AND left_value < #{taxon.left_value} AND right_value > #{taxon.left_value}")
+    else
+      nil
+    end
+  end
+  
+  def is_bacteria?
+    superkingdom == Taxon::BACTERIA && superkingdom != nil
+  end
+  
+  def is_archaea?
+    superkingdom == Taxon::ARCHAEA && superkingdom != nil
+  end
+  
+  def is_eukaryota?
+    superkingdom == Taxon::EUKARYOTA && superkingdom != nil
+  end
+  #To dump a bioentry
+  #./bioentry2flat.pl -dbuser annoj -dbpass 'PASS' -dbname annoj -outformat genbank -format genbank -file output_test2.gbk -biodbname bioperl
+end
+
+
+
+# == Schema Information
+#
+# Table name: sg_bioentry
+#
+#  oid         :integer(38)     not null, primary key
+#  accession   :string(32)      not null
+#  identifier  :string(32)
+#  name        :string(32)      not null
+#  description :string(512)
+#  version     :integer(2)      default(0), not null
+#  division    :string(6)       default("UNK")
+#  db_oid      :integer(38)     not null
+#  tax_oid     :integer(38)
+#  deleted_at  :datetime
+#  updated_at  :datetime
+#
+

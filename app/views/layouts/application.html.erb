@@ -1,46 +1,95 @@
-</html>
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Genome Suite</title>
-    <!-- <meta http-equiv="content-type" content="text/html; charset=iso-8859-1" /> -->
-		<%= csrf_meta_tag %>
-		<%= stylesheet_link_tag :all %>
-		<%= javascript_include_tag :defaults %>
+	<title>Genome Suite</title>
+	<%= csrf_meta_tag %>
+	<%= stylesheet_link_tag 'main_layout', 'layout_extras' %>
+	<%= yield :head %>
+	<%= javascript_include_tag :defaults %>
+	<%= javascript_include_tag 'swfobject' %>
+	<%= favicon_link_tag %>
 </head>
-<body>
-    <div id="main">
-        <div id="header">
-            <%= link_to "GLBRC Genome Suite", "gs.glbrc.org", :style => 'color:darkorange;font-size:200%'%>
-						<!-- <a href="#" class="logo"><img src="img/logo.gif" width="101" height="29" alt="" /></a> -->
-						<%= application_top_navbar_items %>
-        </div>
-        <div id="middle">
-						<% # the sidebar is only rendered if it has data %>
-						<% sidebar_data = yield :sidebar %>
-						<% unless sidebar_data.blank? %>
-            	<div id="left-column">
-	               <%= sidebar_data %> 
-	            </div>
-						<% end %>
-						<% # expand the div width if sidebar is not present %>
-            <div id="center-column" <%= "style='width:91%;margin-top:-10px;'" if sidebar_data.blank? %>>
-								<% top_bar_data = yield :top_bar %>
-								<% unless top_bar_data.blank? %>
-								<div class="top-bar">
-									<%= top_bar_data %>
-                </div>
-								<% end %>
-								<% select_bar_data = yield :select_bar %>
-								<% unless select_bar_data.blank? %>
-									<div class="select-bar">
-										<%= select_bar_data %>
-	                </div>
-								<% end %>
-								<%= yield  %> 
-            </div>
-        </div>
-        <div id="footer"><p>©2011 <%= link_to "Great Lakes Bioenergy Research Center", "http://glbrc.org" %></p></div>
-    </div>
+
+<% body_onload = (yield :body_onload) %>
+<body onload="<%= body_onload || "" %>">
+	<div id="header-bkg"></div>
+	<div id="main">	
+		<div id="logo" style="font-size:150%">
+			<% if APP_CONFIG[:site_link] %>
+			<%= link_to APP_CONFIG[:site_name], APP_CONFIG[:site_link]%>
+			<% else %>
+			<%= APP_CONFIG[:site_name] %>
+			<% end %>
+		</div>		
+		<div class="logo-right">
+			<% if user_signed_in? %>
+			<b><%= current_user.login %></b> | <%= link_to "My Account",current_user %> | <%= link_to "Log Out", destroy_user_session_url, :method => :delete %>
+			<% else %>
+			<b>Please <%=  link_to "Sign In",new_user_session_path %></b>
+			<% end %>
+		</div>
+		<div style="clear:both"></div>
+		<div id="header">
+			<%= application_top_navbar_items %>
+		</div>		
+		<div id="middle">
+			<% # the sidebar is only rendered if it has data %>
+			<% sidebar_data = yield :sidebar %>
+			<% unless sidebar_data.blank? %>
+			<div id="left-column">
+				<%= sidebar_data %>
+				<%= yield :left_column %>
+			</div>
+			<% end %>
+			<% # expand the div width if sidebar is not present %>
+			<div id="center-column" <%= "style='background:none;width:96%;margin-left:1%;margin-top:-10px;'" if sidebar_data.blank? %>>
+				<div style="position:absolute;z-index:1000;right:5%;top:10%;">
+					<% flash.each do |name, msg| %>
+					<div id="<%= name %>_flash_msg" style="cursor:pointer" onclick="$('<%= name %>_flash_msg').hide();">
+						<%= content_tag :div, msg, :id => "flash_#{name}" if msg.is_a?(String) %>
+					</div>
+					<% end %>
+				</div>
+				<% top_bar_data = yield :top_bar %>
+				<% breadcrumbs = yield :breadcrumbs %>
+				<% unless top_bar_data.blank? && breadcrumbs.blank?%>
+				<div class="top-bar">
+					<%= top_bar_data %>
+					<div class="breadcrumbs" style="float:left"><%= breadcrumbs %></div>
+				</div>
+				<% end %>
+				<% item_bar_data = yield :item_bar %>
+				<% unless item_bar_data.blank? %>
+				<div class="item-bar">
+					<%= item_bar_data %>
+					<div style="clear:both"></div>
+				</div>
+				<% end %>
+				<%= yield  %> 
+			</div>
+		</div>
+		<div id="footer">
+			<div class="footer-links">
+				<%= link_to "Home", root_path %> |
+				<%= link_to "Sequence", bioentries_path %> |
+				<%= link_to "Genes", genes_path %> |
+				<%= link_to "Experiments", experiments_path %> |
+				<%= link_to "Tools", tools_path %> |
+				<%= link_to "Help", help_path %> |
+				<%= link_to "Frequently Asked Questions", faq_path %>
+				<br/>
+				<%= link_to "My Account", current_user %> | 
+				<%= link_to "Contact", contact_path %> |				
+				<%= link_to "Site map", sitemap_path %>
+			</div>
+			<div class="footer-copyright">
+				<div style="float:left;margin-top:-10px;padding-bottom:-10px"><%= link_to(image_tag("GLBRC_Logo.jpg", :size => '234x55'), "http://www.glbrc.org") %>	</div>				
+				<div style="float:right"><%= link_to image_tag("doe_logo_color_web_a.gif", :style => "margin:5px"), "http://www.energy.gov/" %></div>
+				<div style="float:right"><%= link_to image_tag("brc_logo_color_web_a.gif", :style => "margin:5px"), "http://genomicscience.energy.gov/centers/index.shtml" %></div>				
+				<div style="padding-top:10px;color:rgb(75,75,75)">© copyright Great Lakes Bioenergy Research Center 2011. All rights reserved</div>
+
+			</div>
+		</div>
+	</div>
 </body>
 </html>
