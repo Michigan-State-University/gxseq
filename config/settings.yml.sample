@@ -1,15 +1,18 @@
-development:
-  site_name: GLBRC Genome Suite
+allenv: &ALLENV
   site_link: http://gs.glbrc.org
-  admin_email: admin@gs.org
+  admin_email: admin@gs.glbrc.org
   admin_user: admin
   admin_pass: secret
   use_remote_user: true
-  create_from_remote_user: true
-    
+
 production:
-  admin_email: admin@gs.org
-  admin_user: admin
-  admin_pass: secret
-  use_remote_user: true
-  create_from_remote_user: true
+  <<: *ALLENV
+  site_name: Genome Suite
+       
+development:
+  <<: *ALLENV
+  site_name: Genome Suite Dev
+  
+test:
+  <<: *ALLENV
+  site_name: Genome Suite Test
