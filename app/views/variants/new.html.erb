@@ -1,20 +1,16 @@
 <% content_for :top_bar do -%>
 	<h1 class="pagetitle">New Variant Experiment</h1>
 <% end -%>
+
+<% content_for :item_bar do -%>
+  <p style="float:left">Enter the information for your Variant experiment below. Please view the <%= link_to "details", details_variants_path %> page for more information</p>
+  <div style="float:right;padding-right:1em">
+    <%= link_to "Cancel", variants_path, :class => "button" %>
+  </div>
+<% end -%>
+
 <%= render :partial => "experiments/sidebar" %>
+
 <%= error_messages_for :variant %>
 
-<% form_for @variant, :html => {:multipart => true} do |f| %>
-	<%= render :partial => 'experiments/form', :locals => {:f => f} %>
-	<br/>
-	<%= render :partial => 'experiments/file_form', :locals => {:f => f, :types => {"MAQ snp" => "MaqSnp", "MAQ indel" => "MaqIndel"}} %>	
-	<div style="clear:both">
-		<br/>
-		<hr/><br/><br/>
-		<%= f.submit "Upload Experiment", :class => "button" %>
-	</div>
-
-<% end %>
-<div style="float:right;padding-right:1em">
-<%= link_to "Cancel", variants_path, :class => "button" %>
-</div>
+<%= render :partial => 'experiments/form', :locals => {:experiment => @variant} %>

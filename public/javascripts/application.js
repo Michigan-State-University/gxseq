@@ -50,6 +50,6 @@ document.on("change", "*[data-onchange]", function(event, element) {
 	new Ajax.Request(onchange_url, {
     method: "get",
 		parameters: param,
-    onComplete:    function(request) {changeElement.innerHTML=request.responseText},
+    onComplete: function(request) {changeElement.innerHTML=request.responseText},
   });
 });

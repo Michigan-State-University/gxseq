@@ -47,17 +47,26 @@ GenomeSuite::Application.routes.draw do
   resources :chip_chips do
     get 'details', :on => :collection
     get 'compute_peaks', :on => :member
-    get 'initialize_experiment', :on => :member
+    member do
+      get 'initialize_experiment'
+      get 'graphics'
+    end
   end
   resources :chip_seqs do
     get 'details', :on => :collection
     get 'compute_peaks', :on => :member
-    get 'initialize_experiment', :on => :member
+    member do
+      get 'initialize_experiment'
+      get 'graphics'
+    end
   end
   resources :synthetics do
     get 'details', :on => :collection
     get 'compute_peaks', :on => :member
-    get 'initialize_experiment', :on => :member
+    member do
+      get 'initialize_experiment'
+      get 'graphics'
+    end
   end
   resources :variants do
     collection do
@@ -65,7 +74,10 @@ GenomeSuite::Application.routes.draw do
       get 'track_data'
       post 'reload_assets'
     end
-    get 'initialize_experiment', :on => :member
+    member do
+      get 'initialize_experiment'
+      get 'graphics'
+    end
   end
   
   ##Accounts

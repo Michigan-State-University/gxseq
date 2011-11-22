@@ -43,12 +43,12 @@ class ChipSeq < Experiment
 
   def create_tracks
     self.bioentries_experiments.each do |be|
-      create_histogram_track(:bioentry => be.bioentry) if histogram_track.nil?
+      histogram_tracks.create(:bioentry => be.bioentry) unless histogram_tracks.any?{|t| t.bioentry_id == be.bioentry_id}
     end
   end
 
   def summary_data(start,stop,num,chrom)
-    big_wig.summary_data(start,stop,num,chrom).map(&:to_f)
+    self.big_wig ? big_wig.summary_data(start,stop,num,chrom).map(&:to_f) : []
   end
 
   ##Track Config
@@ -75,7 +75,7 @@ class ChipSeq < Experiment
 
   def set_abs_max
     bioentries_experiments.each do |be|
-      be.update_attribute(:abs_max, self.max(be.sequence_name))
+      be.update_attribute(:abs_max, self.max(be.sequence_name)) rescue (logger.info "\n\nError Setting abs_max for experiment: #{self.inspect}\n\n")
     end
   end
   

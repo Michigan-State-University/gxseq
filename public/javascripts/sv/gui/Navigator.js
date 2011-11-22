@@ -68,7 +68,7 @@ AnnoJ.Navigator = function()
 							menu : taxon_menu
 						});
 						
-						var sequence_menu = new Ext.menu.Menu({title : 'Sequence'});
+						var sequence_menu = new Ext.menu.Menu({title : 'Sequence', maxHeight : 400});
 						Ext.each(syndication.entries.data, function(item){
 							sequence_menu.add({
 								text     	: item.name,					
@@ -78,6 +78,8 @@ AnnoJ.Navigator = function()
 								}
 							});
 						})
+						if(syndication.entries.data.length >= 15) sequence_menu.add({text : ' '}); //bug in scroll window. Partially hides last element
+						  
 						var sequence = new Ext.button.Split({
 							tooltip: "Select Sequence",
 							text : syndication.entries.selected,
@@ -124,6 +126,7 @@ AnnoJ.Navigator = function()
 							]	
 						})
 						navContainer.insert(0,titleBar);
+						AnnoJ.getGUI().Tracks.doLayout();
 						AnnoJ.getGUI().Tracks.doComponentLayout();
 						Navigator.Position.init({
 							min : 1,
@@ -167,7 +170,8 @@ AnnoJ.Navigator = function()
 				min : 0,
 				max : 0,
 				position : 0,
-				verbose : false
+				verbose : false,
+				padding : 25
 			};
 			var config = defaultConfig;
 			var atMin = false;
@@ -182,8 +186,7 @@ AnnoJ.Navigator = function()
 				//Here because this only should be done once. Where else can we put it?
 				self.Controls.slider.setMinValue(config.min);
 				self.Controls.slider.setMaxValue(config.max);
-				self.Controls.slider.setValue(config.position);
-				config.padding = 25; // padding in pixels on either end 
+				self.Controls.slider.setValue(config.position);				
 			};
 			
 			//Get the current position
@@ -214,20 +217,31 @@ AnnoJ.Navigator = function()
 				atMax = false;
 				
 				// Check boundaries
-				halfX = Math.round(Toolbar.getBox().width/2);
+				width = Toolbar.getBox().width
+				halfX = Math.round(width/2);
 				ratio = Zoom.config.bases / Zoom.config.pixels;
 				offset = Math.round((halfX-config.padding)*ratio);
-
-				if (gpos < (config.min+offset))
-				{
-					gpos = (config.min+offset);
-					atMin = true;
-				}
+				if(offset<0)offset=0;
+        console.log("position:")
+        console.log(gpos)
+        console.log(config)
+        console.log(halfX)
+        console.log(ratio)
+        console.log(offset)
+        
+        
 				if (gpos > (config.max-offset))
 				{
 					gpos = (config.max-offset);
 					atMax = true;
 				}
+				
+				if (gpos < (config.min+offset))
+				{
+					gpos = (config.min+offset);
+					atMin = true;
+				}
+
 				config.position = gpos;
 				location.position = gpos;
 			};
@@ -339,17 +353,30 @@ AnnoJ.Navigator = function()
 				atMax = false;
 				
 				var ratio = bases / pixels;
-		
+		  
 				width = self.Toolbar.getBox().width;
 				
 				// Check boundaries
 				ceiling = Position.config.max + (2*Position.config.padding*ratio)
+				console.log("zoom")
+				console.log(ratio)
+				console.log(width)
+				console.log(ceiling)
 				if(ratio*width > ceiling)
 				{
-				    bases = Math.ceil(ceiling/width)
+				  atMax = true;
+          //Max zoom for data
+				  if(ceiling > width){
+				    bases = Math.ceil(ceiling/width);
 				    pixels = 1;
-				    atMax = true;
-				    
+				  }
+				  //Max zoom for data shorter than one window
+				  else{
+				    atMin = true;
+				    bases = 1;
+				    pixels = Math.ceil(width/ceiling);
+				    if((bases/pixels) < config.min ) pixels = (bases/config.min)
+			    }
 				}
 				else if (ratio >= config.max)
 				{

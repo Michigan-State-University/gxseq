@@ -126,15 +126,16 @@ Ext.define("Sv.tracks.BaseTrack",{
         {
          var ext = new Ext.Element(document.createElement('DIV'));
          ext.addCls('AJ_toolbar');
-         //ext.appendTo(document.body);
+         ext.appendTo(document.body);
         
          visible = self.showControls;
         
          var toolbar = new Ext.Toolbar({
-             renderTo : ext,
+             renderTo : ext,//self.Frame.ext,
              height: 25
          });
-        
+         //ext.appendChild(toolbar);
+         
          //Button to close (remove) the track
          var closeButton = new Ext.Button(
          {
@@ -149,7 +150,7 @@ Ext.define("Sv.tracks.BaseTrack",{
         // Commented out for now till other permission features
         // are all worked out
 
-        var addButton = '';
+        var addButton = ' ';
         // if(self.config.showAdd){
         //   addButton = new Ext.Button(
         //      {
@@ -184,14 +185,9 @@ Ext.define("Sv.tracks.BaseTrack",{
          var spacer = new Ext.Toolbar.Spacer();
          spacer.permanent = true;
              
-         var items = [closeButton, addButton, title, filler, toggleButton, spacer];
-             
-         Ext.each(items, function(item)
-         {
-             toolbar.add(item);
-         });
-             
-                         
+         var items = [closeButton,addButton, title, filler, toggleButton, spacer];
+         toolbar.add(items);          
+                      
          //Change the title shown in the toolbar
          function setTitle(text)
          {
@@ -238,7 +234,12 @@ Ext.define("Sv.tracks.BaseTrack",{
          {
              if (!item.show || !item.hide) return;
              items.insert(index, item);
-             toolbar.insert(index, item);
+             // we have to queue up the insert or EXT tries to manipulate the dom
+             // when the dom item doesn't exist yet...
+             //toolbar.insert(index, item);
+             toolbar.on('enable', function(){
+               this.insert(index,item);
+             });             
          };
              
          function isVisible()
@@ -268,18 +269,18 @@ Ext.define("Sv.tracks.BaseTrack",{
         this.ext = this.Frame.ext;
 	},
     //Functions for interacting with the DOM
-    appendFrameTo      : function(d) { this.Frame.ext.appendTo(d);},
+    appendFrameTo      : function(d) { this.Frame.ext.appendTo(d);this.Toolbar.toolbar.enable()},
     removeFrame      : function()  { 
 			if(this.Frame.ext.dom.parentNode){this.Frame.ext.dom.parentNode.removeChild(this.Frame.ext.dom)}
 		},//Ext.removeNode(self.Frame.ext.dom);};
-    insertFrameBefore  : function(d) { this.Frame.ext.insertBefore(d);},
+    insertFrameBefore  : function(d) { this.Frame.ext.insertBefore(d);this.Toolbar.toolbar.enable()},
     insertFrameAfter   : function(d) { this.Frame.ext.insertAfter(d);},
     maskFrame          : function(m) { this.Frame.ext.mask(m); },
     unmaskFrame        : function()  { this.Frame.ext.unmask(); },
     isFrameMasked      : function()  { return this.Frame.ext.isMasked(); },   
     //Set the title of the track
     getTitle : function()      { return this.Toolbar.getTitle(); },
-    setTitle : function(title) { this.Toolbar.setTitle(title);   },
+    setTitle : function(title) { this.Toolbar.setTitle(title);},
     //Control the width and height of the track
     getWidth  : function()    { return this.Frame.ext.getWidth(w);  },
     setWidth  : function(w) { this.Frame.ext.setWidth(w);         },

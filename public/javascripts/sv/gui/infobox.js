@@ -5,12 +5,6 @@ AnnoJ.InfoBox = function()
 	
 	var body = new Ext.Element(document.createElement('DIV'));
 	body.addCls('AJ_infobox');
-
-	var innerHTML = {
-		annoj : '',
-		citation : '',
-		message : ''
-	};
 	  
 	AnnoJ.InfoBox.superclass.constructor.call(this,
 	{

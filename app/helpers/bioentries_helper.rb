@@ -48,7 +48,7 @@ module BioentriesHelper
     else
   		text += "location : {
         assembly : '0',
-        position : #{@position ? @position : '25000'},
+        position : #{@position ? @position : '1'},
         bases    : #{@bases ? @bases : '50'},
         pixels   : #{@pixels ? @pixels : '1'}
       },\n"      

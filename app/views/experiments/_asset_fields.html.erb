@@ -1,0 +1,13 @@
+<div class="nested-fields" style="clear:both">
+  <div style="float:left">
+  	<%= f.label :data, "File"%><br/>
+    <%= f.object.new_record? ? (f.file_field :data) : f.object.filename %><br/>
+  </div>
+  <div style="padding-left:1em;float:right">
+  	<%= link_to_remove_fields image_tag("delete.png",:alt => "Remove asset"), f %>
+  </div>
+  <div style="padding-left:5em;float:right">
+  	<%= f.label :type, "Type" %><br/>
+  	<%= f.select :type, asset_types, :class => "asset_file_type"%>
+  </div>
+</div>

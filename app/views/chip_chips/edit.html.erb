@@ -1,17 +1,13 @@
-<h1 class="pagetitle">Edit Chip Chip Experiment <%= @chip_chip.name %></h1>
-<%= render :partial => "experiments/sidebar" %>
-<%= error_messages_for :chip_chip %>
+<% content_for :top_bar do -%>
+  <h1 class="pagetitle">Edit Chip Chip Experiment <%= @chip_chip.name %></h1>
+<% end -%>
 
-<% form_for @chip_chip do |f| %>
-	<%= render :partial => 'experiments/form', :locals => {:f => f} %>
-	<br/>
-	<%= render :partial => 'experiments/file_form', :locals => {:f => f} %>	
-	<div style="clear:both">
-		<br/>
-		<hr/>
-	</div>
-	<br/>
-	<br/>
-	<%= f.submit %>	
-<% end %>
-<%= link_to "Cancel", @chip_chip, :style => "float:right", :class => "button"%>
+<% content_for :item_bar do -%>
+  <%= link_to "Cancel", @chip_chip, :style => "float:right", :class => "button"%>
+<% end -%>
+
+<%= render :partial => "experiments/sidebar" %>
+
+<%= error_messages_for :chip_seq %>
+
+<%= render :partial => 'experiments/form', :locals => {:experiment => @chip_chip} %>

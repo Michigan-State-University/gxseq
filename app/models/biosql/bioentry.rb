@@ -2,7 +2,8 @@ class Bioentry < ActiveRecord::Base
   set_table_name "bioentry"
   set_primary_key :bioentry_id
   belongs_to :biodatabase, :class_name => "Biodatabase"
-  belongs_to :taxon
+  #belongs_to :taxon
+  belongs_to :taxon_version
   
   has_one :biosequence, :dependent  => :destroy
   
@@ -34,10 +35,12 @@ class Bioentry < ActiveRecord::Base
   has_many :variants, :through => :bioentries_experiments
   has_many :tracks, :dependent => :destroy
   has_many :peaks
+  
   has_one :models_track
   has_one :six_frame_track
   has_one :protein_sequence_track
   has_one :generic_feature_track
+  
   
   scope :with_version, lambda { |v| where("version = ?",v) }
   has_paper_trail :version_method_name => 'reified_version'
@@ -46,7 +49,8 @@ class Bioentry < ActiveRecord::Base
   ## Class Methods
   
   def self.all_taxon
-    Bioentry.includes(:taxon).all.collect(&:taxon).uniq
+    #Bioentry.includes(:taxon).all.collect(&:taxon).uniq
+    Taxon.joins(:bioentries).select("distinct #{Taxon.table_name}.taxon_id,version")
   end
   
   def self.all_species
@@ -76,19 +80,27 @@ class Bioentry < ActiveRecord::Base
   end
   
   def display_info
-    "#{species_name} #{taxon.species==taxon ? '' : " > "+taxon.scientific_name.name} - #{version} : #{ source_features[0].generic_label_type}(#{source_features[0].generic_label})"
+    "#{species_name} #{taxon_version.species_id==taxon_version.taxon_id ? '' : " > "+taxon_version.name} - #{version} : #{generic_label_type}(#{generic_label})"
   end
   
   def display_name
-    "#{ source_features[0].generic_label_type}(#{source_features[0].generic_label})"
+    "#{ generic_label_type}(#{generic_label})"
   end
   
   def short_name
-    source_features[0].generic_label
+    generic_label
+  end
+  
+  def generic_label
+    source_features.empty? ? accession : source_features[0].generic_label
+  end
+  
+  def generic_label_type
+    source_features.empty? ? 'contig' : source_features[0].generic_label_type
   end
   
   def species_name
-    taxon.species.scientific_name.name
+    taxon_version.species.name
   end
   
   def superkingdom
@@ -99,17 +111,6 @@ class Bioentry < ActiveRecord::Base
     end
   end
   
-  def is_bacteria?
-    superkingdom == Taxon::BACTERIA && superkingdom != nil
-  end
-  
-  def is_archaea?
-    superkingdom == Taxon::ARCHAEA && superkingdom != nil
-  end
-  
-  def is_eukaryota?
-    superkingdom == Taxon::EUKARYOTA && superkingdom != nil
-  end
   #To dump a bioentry
   #./bioentry2flat.pl -dbuser annoj -dbpass 'PASS' -dbname annoj -outformat genbank -format genbank -file output_test2.gbk -biodbname bioperl
 end

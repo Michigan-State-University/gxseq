@@ -7,12 +7,18 @@ class Db < Thor
   # TODO : remove all Bio::SQL reference
   desc 'load_seq FILE','Load genomic sequence into the database'
   method_options :namespace => 'private', :verbose => false
-  method_option :version, :type => :numeric
+  method_option :version
+  method_option :taxon_name
+  method_option :division
+  method_option :molecule_type
   def load_seq(input_file)
      # setup
     revision = options[:version]
     namespace = options[:namespace]
     verbose = options[:verbose]
+    taxon_name = options[:taxon_name]
+    division = options[:division]
+    molecule_type = options[:molecule_type]
     entry_count = 0
     seq_key_terms = {}
     anno_tag_terms = {}
@@ -20,6 +26,7 @@ class Db < Thor
     feat_rank = {}
     bad_count = 0
     base = ActiveRecord::Base
+    task_start_time = Time.now
     
     # Parse input
     begin
@@ -49,58 +56,117 @@ class Db < Thor
       # Put this all in a transaction, just in case. We don't want partial bioentries
       begin
         Biodatabase.transaction do
-          # Getting an empty entry at end of file so we skip it here
-          next if(entry.accession.empty? && entry.definition.empty? && entry.seq.length == 0 && entry.features.size == 0)
+          # Getting an empty entry at end of file so we skip it here          
+          next if(entry.accession.blank? && entry.definition.blank? && entry.seq.length == 0 && entry.features.size == 0)
+          
+          #create the accesion for this sequence based on acc, entry_id and locus
+          entry_accession = nil
+          if(entry.accession)
+            entry_accession = entry.accession
+          else
+            if(entry.entry_id)
+              entry_accession = entry.entry_id
+            end
+            if(entry.locus)
+              entry_accession << '.' << entry.locus
+            end
+          end
+          raise "Accession error: Could not infer entry accession:" unless entry_accession
+          
           entry_count +=1
           entry_bioseq = entry.to_biosequence
           puts "Working on entry #{entry_count}: #{(entry.definition.length > 75) ? entry.definition.length[0,74]+"..." : entry.definition}" if verbose
 
           # Get Entry version
-          entry_version = revision.nil? ? (entry.version.nil? ? 1 : entry.version) : revision
-
-          if revision && verbose
-            puts "using entry_version: #{entry_version}" 
-          elsif verbose
-            puts "using version from file: #{entry_version}"
+          if(entry.respond_to?(:version))
+            entry_version = revision.nil? ? (entry.version.nil? ? 1 : entry.version) : revision
+            if revision && verbose
+              puts "using entry_version: #{entry_version}" 
+            elsif verbose
+              puts "using version from file: #{entry_version}"
+            end
+          else
+            entry_version = revision || 1
           end
           
           # Get Entry taxonomy
-          if(tn = TaxonName.find_by_name(entry.organism))
-            taxon = tn.taxon
-          elsif(entry.features.first.feature=='source' && (source_taxon_match = entry.features.first.qualifiers.collect{|q| (q.qualifier=='db_xref' && (m = q.value.match(/taxon:(\d+)/))) ? m : nil}.compact).any?  && ( t = Taxon.find_by_ncbi_taxon_id(source_taxon_match.first[1]) ))
-            taxon = t
+          taxon=nil
+          if(taxon_name)
+            if(tn = TaxonName.find_by_name(taxon_name) )
+              taxon = tn.taxon
+            end
+          elsif(entry.respond_to?(:organism))
+            taxon_name = entry.organism
+            if(tn = TaxonName.find_by_name(taxon_name) )
+              taxon = tn.taxon
+            elsif(entry.features.first.feature=='source' && (source_taxon_match = entry.features.first.qualifiers.collect{|q| (q.qualifier=='db_xref' && (m = q.value.match(/taxon:(\d+)/))) ? m : nil}.compact).any?  && ( t = Taxon.find_by_ncbi_taxon_id(source_taxon_match.first[1]) ))
+              taxon = t
+            end
           else
-            puts "No taxon found for #{entry.organism} - Creating new entry"
+            raise "Could not infer taxonomy for: #{entry.accession}.You must supply taxon_name="
+          end
+          if(!taxon)
+            puts "No taxon found for #{taxon_name} - Creating new entry"
             begin
-              # try to create so we can continue but ... not advised
+              # try to create so we can continue
               unless (Taxon.count > 0)
                 puts "*** The taxonomy tree is empty. You should load it before running this script.***"
                 parent = Taxon.create(:node_rank  => "species", :genetic_code => '1', :mito_genetic_code  => '0')
-                parent.taxon_names.create(:name => entry.organism, :name_class => "scientific name") 
+                parent.taxon_names.create(:name => taxon_name, :name_class => "scientific name") 
               else
                 # We should probably loop through the taxonomy tree creating taxon and looking for a match we can attach to
                 #   entry.taxonomy.chop.split("; ").each do |name|
                 #   end
                 # For now just make the new taxon
                 parent = Taxon.create(:node_rank  => "species", :genetic_code => '1', :mito_genetic_code  => '0')
-                parent.taxon_names.create(:name => entry.organism, :name_class => "scientific name")
+                parent.taxon_names.create(:name => taxon_name, :name_class => "scientific name")
               end
               taxon = parent
             rescue
-              puts "*** Error creating taxon\n#{$!}"
-              exit 0
+              raise "Error creating taxon\n#{$!}"
             end
           end
           
+          # Get Taxon Version
+          taxon_version = TaxonVersion.find_or_create_by_version_and_taxon_id(entry_version, taxon.id)
+          taxon_version.species_id ||= taxon.species.id
+          taxon_version.name ||= taxon.name
+          taxon_version.save!
+          
+          # get Division
+          unless(entry_division = division || (entry.respond_to?(:division) ? entry.division : nil))
+            puts "You must supply a 3 letter division="
+            puts "The following table should help:"
+            puts "\tPRI - primate sequences"
+            puts "\tROD - rodent sequences"
+            puts "\tMAM - other mammalian sequences"
+            puts "\tVRT - other vertebrate sequences"
+            puts "\tINV - invertebrate sequences"
+            puts "\tPLN - plant, fungal, and algal sequences"
+            puts "\tBCT - bacterial sequences"
+            puts "\tVRL - viral sequences"
+            puts "\tPHG - bacteriophage sequences"
+            puts "\tSYN - synthetic sequences"
+            puts "\tUNA - unannotated sequences"
+            puts "\tEST - EST sequences (expressed sequence tags)"
+            puts "\tPAT - patent sequences"
+            puts "\tSTS - STS sequences (sequence tagged sites)"
+            puts "\tGSS - GSS sequences (genome survey sequences)"
+            puts "\tHTG - HTG sequences (high-throughput genomic sequences)"
+            puts "\tHTC - unfinished high-throughput cDNA sequencing"
+            puts "\tENV - environmental sampling sequences"
+            raise "*** No division could be found"
+          end
+          
           # Check for existing entry
-          unless(bioentry = Bioentry.find_by_biodatabase_id_and_accession_and_version(bio_db.id,entry.accession,entry_version))
+          unless(bioentry = Bioentry.find_by_biodatabase_id_and_accession_and_version(bio_db.id,entry_accession,entry_version))
             # bioentry
             bioentry = bio_db.bioentries.create(
-            :taxon => taxon,
-            :name => entry.accession,
-            :accession => entry.accession,
+            :taxon_version => taxon_version,
+            :name => entry_accession,
+            :accession => entry_accession,
             :identifier => 0,
-            :division => entry.division,
+            :division => entry_division,
             :description => entry.definition,
             :version => entry_version
             )
@@ -110,7 +176,7 @@ class Db < Thor
             bioseq = bioentry.create_biosequence(
             :version => entry_version,
             :length => entry.length,
-            :alphabet => entry_bioseq.molecule_type,
+            :alphabet => entry_bioseq.molecule_type || (molecule_type || (raise "A molecule type could not be found. Please supply molecule_type=")),
             :seq  => entry.seq.upcase
             )
 
@@ -144,118 +210,127 @@ class Db < Thor
             end
 
             # references
-            entry.references.each do |reference|        
-              ref_authors = reference.authors.map{|a|a.gsub(/(\,)(\s)(\w)/,'\1\3')}.to_sentence unless reference.authors.nil?
-              ref_location = "#{reference.journal ? reference.journal : 'Unpublished'}#{reference.volume.empty? ? '' : ' '+reference.volume}#{reference.issue.empty? ? '' : ' ('+reference.issue+'),'}#{reference.pages.empty? ? '' : ' '+reference.pages}#{reference.year.empty? ? '' : ' ('+reference.year+')'}"
-              ## NOTE : CRC will NOT match the bioperl crc
-              ## TODO : replace with matching crc64 algorithm from bioperl
-              ref_crc = Zlib::crc32("#{ref_authors ? ref_authors : '<undef>'}#{reference.title ? reference.title : '<undef>'}#{ref_location}")
-              unless (new_reference = Reference.find_by_crc(ref_crc))
-                # create dbxref
-                new_dbxref_id = nil
-                unless(reference.pubmed.nil? || reference.pubmed.empty?)
-                  new_dbxref = Dbxref.create(
-                  :dbname => "PUBMED",
-                  :accession => reference.pubmed,
-                  :version => 0  # NOTE: Not sure when to update reference version?
+            if(entry.respond_to?(:references))
+              entry.references.each do |reference|        
+                ref_authors = reference.authors.map{|a|a.gsub(/(\,)(\s)(\w)/,'\1\3')}.to_sentence unless reference.authors.nil?
+                ref_location = "#{reference.journal ? reference.journal : 'Unpublished'}#{reference.volume.empty? ? '' : ' '+reference.volume}#{reference.issue.empty? ? '' : ' ('+reference.issue+'),'}#{reference.pages.empty? ? '' : ' '+reference.pages}#{reference.year.empty? ? '' : ' ('+reference.year+')'}"
+                ref_crc = Zlib::crc32("#{ref_authors ? ref_authors : '<undef>'}#{reference.title ? reference.title : '<undef>'}#{ref_location}")
+                unless (new_reference = Reference.find_by_crc(ref_crc))
+                  # create dbxref
+                  new_dbxref_id = nil
+                  unless(reference.pubmed.nil? || reference.pubmed.empty?)
+                    new_dbxref = Dbxref.create(
+                    :dbname => "PUBMED",
+                    :accession => reference.pubmed,
+                    :version => 0  # NOTE: Not sure when to update reference version?
+                    )
+                    new_dbxref_id = new_dbxref.id
+                  end
+                  # create reference
+                  new_reference = Reference.create(
+                  :dbxref_id => new_dbxref_id,
+                  :location => ref_location,
+                  :title => reference.title,
+                  :authors => ref_authors,
+                  :crc => ref_crc
                   )
-                  new_dbxref_id = new_dbxref.id
                 end
-                # create reference
-                new_reference = Reference.create(
-                :dbxref_id => new_dbxref_id,
-                :location => ref_location,
-                :title => reference.title,
-                :authors => ref_authors,
-                :crc => ref_crc
+                # link reference to bioentry
+                bioentry.bioentry_references.create(
+                :reference_id => new_reference.id,
+                :start_pos => reference.sequence_position.split('-')[0],
+                :end_pos => reference.sequence_position.split('-')[1],
+                :rank => bioentry.bioentry_references.size + 1
                 )
               end
-              # link reference to bioentry
-              bioentry.bioentry_references.create(
-              :reference_id => new_reference.id,
-              :start_pos => reference.sequence_position.split('-')[0],
-              :end_pos => reference.sequence_position.split('-')[1],
-              :rank => bioentry.bioentry_references.size + 1
-              )
             end
-
-            # Bioentry Qualifier Values
-            ## keywords   
-            rank = 1   
-            entry.keywords.each do |keyword|
-              key_term = Term.find_or_create_by_name_and_ontology_id("keyword", ano_tag_ont_id)
-              bioentry.bioentry_qualifier_values.create(
-              :term_id => key_term.id,
-              :value => keyword,
-              :rank => rank)
-              rank +=1
-            end
-            ## secondary accessions
-            rank = 1
-            entry_bioseq.secondary_accessions.each do |accession|
-              acc_term = Term.find_or_create_by_name_and_ontology_id("secondary_accession", ano_tag_ont_id)
-              bioentry.bioentry_qualifier_values.create(
-              :term_id => acc_term.id,
-              :value => accession,
-              :rank => rank)
-              rank +=1
-            end
-            ## date
-            unless(entry.date.nil? || entry.date.empty?)
-              bioentry.bioentry_qualifier_values.create(
-              :term_id => Term.find_or_create_by_name_and_ontology_id("date_modified", ano_tag_ont_id).id,
-              :value => entry.date,
-              :rank => 1)
-            end
-            # Features
-            printf "-features-\n" if verbose
-            feature_count = 0
-            feat_rank.clear
-            entry.features.each do |f|
-              feature = f.clone
-              feature_count +=1
-              # term
-              type_term_id = seq_key_terms["#{feature.feature}"] || (seq_key_terms["#{feature.feature}"] = Term.find_or_create_by_name_and_ontology_id(feature.feature,seq_key_ont_id).id)      
-              feat_rank["#{feature.feature}"] ||=0
-              feat_rank["#{feature.feature}"] +=1
-              # seqfeature
-              new_seqfeature_id = Seqfeature.fast_insert(
-              :bioentry_id => bioentry.id, 
-              :type_term_id => type_term_id, 
-              :source_term_id => seq_src_term.id, 
-              :rank => feat_rank["#{feature.feature}"]
-              )
-              # location(s)
-              # parse position text - fairly naive, may need updates for complicated locations
-              strand = (feature.position=~/complement/ ? -1 : 1)
+            if(entry.respond_to?( :keywords ))
+              # Bioentry Qualifier Values
+              ## keywords
               rank = 1
-              feature.position.scan(/(\d+)\.\.(\d+)/){ |l1,l2|
-                Location.fast_insert(
-                :seqfeature_id => new_seqfeature_id, 
-                :start_pos => l1,
-                :end_pos => l2,
-                :strand => strand,
+              entry.keywords.each do |keyword|
+                key_term = Term.find_or_create_by_name_and_ontology_id("keyword", ano_tag_ont_id)
+                bioentry.bioentry_qualifier_values.create(
+                :term_id => key_term.id,
+                :value => keyword,
                 :rank => rank)
-                rank+=1
-              }      
-              # qualifiers
-              qual_rank.clear
-              feature.qualifiers.each do |qualifier|
-                qual_term_id = anno_tag_terms["#{qualifier.qualifier}"] || (anno_tag_terms["#{qualifier.qualifier}"] = Term.find_or_create_by_name_and_ontology_id(qualifier.qualifier, ano_tag_ont_id).id)
-                qual_rank["#{qualifier.qualifier}"]||=0
-                qual_rank["#{qualifier.qualifier}"]+=1
-                base.connection.execute("INSERT INTO SEQFEATURE_QUALIFIER_VALUE (seqfeature_id, term_id,value,rank)
-                VALUES(#{new_seqfeature_id},#{qual_term_id},'#{qualifier.value.to_s[0,3999].gsub(/\'/,"''")}',#{qual_rank["#{qualifier.qualifier}"]})")
+                rank +=1
               end
-              printf("\t... #{feature_count}/#{entry.features.size} done\n") if (verbose && feature_count%5000==0)
-              feature = nil
-            end#End bioentry Features
-            printf("\t... #{feature_count}/#{entry.features.size} done\n") if verbose
+            end
+            
+            ## secondary accessions
+            if entry_bioseq.secondary_accessions
+              rank = 1
+              entry_bioseq.secondary_accessions.each do |accession|
+                acc_term = Term.find_or_create_by_name_and_ontology_id("secondary_accession", ano_tag_ont_id)
+                bioentry.bioentry_qualifier_values.create(
+                :term_id => acc_term.id,
+                :value => accession,
+                :rank => rank)
+                rank +=1
+              end
+            end
+            
+            if(entry.respond_to?(:date))
+              ## date
+              unless(entry.date.nil? || entry.date.empty?)
+                bioentry.bioentry_qualifier_values.create(
+                :term_id => Term.find_or_create_by_name_and_ontology_id("date_modified", ano_tag_ont_id).id,
+                :value => entry.date,
+                :rank => 1)
+              end
+            end
+            
+            # Features
+            if(entry.respond_to?(:features))
+              printf "-features-\n" if verbose
+              feature_count=0
+              feat_rank.clear
+              entry.features.each do |f|
+                feature=f.clone
+                feature_count+=1
+                # term
+                type_term_id=seq_key_terms["#{feature.feature}"] || (seq_key_terms["#{feature.feature}"] = Term.find_or_create_by_name_and_ontology_id(feature.feature,seq_key_ont_id).id)      
+                feat_rank["#{feature.feature}"]||=0
+                feat_rank["#{feature.feature}"]+=1
+                # seqfeature
+                new_seqfeature_id=Seqfeature.fast_insert(
+                :bioentry_id => bioentry.id,
+                :type_term_id => type_term_id,
+                :source_term_id => seq_src_term.id,
+                :rank => feat_rank["#{feature.feature}"]
+                )
+                # location(s)
+                # parse position text - fairly naive, may need updates for complicated locations
+                strand = (feature.position=~/complement/ ? -1 : 1)
+                rank = 1
+                feature.position.scan(/(\d+)\.\.(\d+)/){ |l1,l2|
+                  Location.fast_insert(
+                  :seqfeature_id => new_seqfeature_id,
+                  :start_pos => l1,
+                  :end_pos => l2,
+                  :strand => strand,
+                  :rank => rank)
+                  rank+=1
+                }      
+                # qualifiers
+                qual_rank.clear
+                feature.qualifiers.each do |qualifier|
+                  qual_term_id = anno_tag_terms["#{qualifier.qualifier}"] || (anno_tag_terms["#{qualifier.qualifier}"] = Term.find_or_create_by_name_and_ontology_id(qualifier.qualifier, ano_tag_ont_id).id)
+                  qual_rank["#{qualifier.qualifier}"]||=0
+                  qual_rank["#{qualifier.qualifier}"]+=1
+                  base.connection.execute("INSERT INTO SEQFEATURE_QUALIFIER_VALUE (seqfeature_id, term_id,value,rank)
+                  VALUES(#{new_seqfeature_id},#{qual_term_id},'#{qualifier.value.to_s[0,3999].gsub(/\'/,"''")}',#{qual_rank["#{qualifier.qualifier}"]})")
+                end
+                printf("\t... #{feature_count}/#{entry.features.size} done\n") if (verbose && feature_count%1000==0)
+                feature = nil
+              end#End bioentry Features
+              printf("\t... #{feature_count}/#{entry.features.size} done\n") if verbose
+            end            
           else#Found exisiting bioentry
             puts "Skipping Existing : #{entry.accession} (#{entry.length}) - #{entry.definition} - version:#{bioentry.version} features:#{bioentry.seqfeatures.count} references:#{bioentry.bioentry_references.count}" if verbose
             bad_count+=1
           end#End this bioentry
-          GC.start
         end#End Transaction
       rescue  => e
         puts "\n***** There was an error loading entry #{entry_count}. *****\n#{$!}#{verbose ? e.backtrace.inspect : ""}"
@@ -263,7 +338,6 @@ class Db < Thor
         exit 0
       end
       entry = nil
-      GC.start
     end#End Bioentry loop
 
     total_count = entry_count - bad_count
@@ -314,7 +388,8 @@ class Db < Thor
     end
          
     # Done
-    puts "Finished - #{Time.now.strftime('%m/%d/%Y - %H:%M:%S')}"    
+    task_end_time = Time.now
+    puts "Finished - #{Time.now.strftime('%m/%d/%Y - %H:%M:%S')} :: #{Time.at(task_end_time - task_start_time).gmtime.strftime('%R:%S')}"
   end
   
   desc 'load_taxon',"Load ncbi taxonomy data into the database"

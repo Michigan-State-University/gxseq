@@ -98,6 +98,14 @@ module ActiveRecord
 
         finder_needs_type_condition? ? @relation.where(type_condition) : @relation
       end
+      
+      #NT 10-29-11 Fix for oracle_enhanced_adapter
+      def composite_where_clause(ids)
+        sql = primary_key.zip(ids).inject(Array.new) do |array, (key, value)|
+          array << "#{key} = '#{value}'"
+        end
+        "( #{sql.join(" AND ")} )"
+      end
     end
 
     module CompositeInstanceMethods

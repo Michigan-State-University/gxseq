@@ -10,37 +10,37 @@ class VariantsController < ApplicationController
     redirect_to :action => :show
   end
   
+  def graphics
+    @variant = Variant.find(params[:id], :include => :bioentries_experiments)
+    @bioentry = Bioentry.find(params[:bioentry_id] || @variant.bioentries_experiments.first.bioentry_id)
+    render :partial => "graphics", :layout => false
+  end
+  
   def index
-    unless(params[:query].blank?)
-      @species = Variant.all(:conditions => ["upper(name) like ?", "%#{params[:query].upcase}%"]).map(&:bioentries).flatten.uniq.collect(&:taxon).uniq.collect(&:species).uniq
-    else
-      @species = Variant.all.map(&:bioentries).flatten.uniq.collect(&:taxon).uniq.collect(&:species).uniq
-    end
+    query = (params[:query] || '').upcase
+    @species = Variant.includes(:taxon_version).where{upper(name) =~ "%#{query}%"}.collect(&:taxon_version).collect(&:species).uniq
   end
 
   def new
     @variant = Variant.new()
     @variant.assets.build
-    @variant.bioentries_experiments.build      
-    @bioentries = Bioentry.find(:all, :include => [:source_features => [:qualifiers]], :order => "taxon_id asc, name")
-    @species = Bioentry.all_taxon
+    @taxon_versions = TaxonVersion.order('name asc')
   end
 
   def create
     @variant = Variant.new(params[:variant])
-    @bioentries = Bioentry.find(:all, :order => "name asc")
+    @taxon_versions = TaxonVersion.order('name asc')
     begin
       if @variant.valid?
         @variant.save
-        if((w=@variant.assets.map(&:warnings)).empty?)
+        w=@variant.assets.map(&:warnings).flatten
+        if(w.empty?)
           flash[:notice]="Experiment created succesfully"
         else
           flash[:warning]="#{w.join("<br/>")}"
         end
-        redirect_to :action => :index #@variant
+        redirect_to :action => :index
       else
-        @bioentries = Bioentry.find(:all, :include => [:source_features => [:qualifiers]], :order => "taxon_id asc, name")
-        @species = Bioentry.all_taxon
         render :action => :new
       end
     rescue
@@ -51,7 +51,8 @@ class VariantsController < ApplicationController
   end
 
   def show
-    @variant = Variant.find(params[:id]) 
+    @variant = Variant.find(params[:id])
+    @bioentry = Bioentry.find(params[:bioentry_id] || @variant.bioentries_experiments.first.bioentry_id)
     respond_to do |format|
       format.html {}
       format.xml { render :layout => false }
@@ -60,18 +61,16 @@ class VariantsController < ApplicationController
 
   def edit
     @variant = Variant.find(params[:id])
-    @bioentries = Bioentry.all
-    @species = Bioentry.all_taxon
+    @taxon_versions = TaxonVersion.order('name asc')
   end
 
   def update
     @variant = Variant.find(params[:id])
+    @taxon_versions = TaxonVersion.order('name asc')
     if @variant.update_attributes(params[:variant])
       flash[:notice] = 'Variant was successfully updated.'
       redirect_to(@variant)
     else
-      @bioentries = Bioentry.all
-      @species = Bioentry.all_taxon
       render :action => "edit"
     end
   end

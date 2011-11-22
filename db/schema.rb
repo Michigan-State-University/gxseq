@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110802204134) do
+ActiveRecord::Schema.define(:version => 20111118145837) do
 
   create_table "assets", :force => true do |t|
     t.string   "type"
@@ -44,20 +44,19 @@ ActiveRecord::Schema.define(:version => 20110802204134) do
   end
 
   create_table "bioentry", :primary_key => "bioentry_id", :force => true do |t|
-    t.integer  "biodatabase_id",                 :null => false
-    t.integer  "taxon_id"
-    t.string   "name",           :limit => 40,   :null => false
-    t.string   "accession",      :limit => 128,  :null => false
-    t.string   "identifier",     :limit => 40
-    t.string   "division",       :limit => 6
-    t.string   "description",    :limit => 4000
-    t.integer  "version",                        :null => false
+    t.integer  "biodatabase_id",                   :null => false
+    t.integer  "taxon_version_id",                 :null => false
+    t.string   "name",             :limit => 40,   :null => false
+    t.string   "accession",        :limit => 128,  :null => false
+    t.string   "identifier",       :limit => 40
+    t.string   "division",         :limit => 6
+    t.string   "description",      :limit => 4000
+    t.string   "version",                          :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
   add_index "bioentry", ["accession", "biodatabase_id", "version"], :name => "bioentry_idx", :unique => true
-  add_index "bioentry", ["bioentry_id", "version"], :name => "bioentry_idx_3", :unique => true
   add_index "bioentry", ["identifier", "biodatabase_id", "version"], :name => "bioentry_idx_1", :unique => true
   add_index "bioentry", ["version"], :name => "bioentry_idx_2"
 
@@ -215,10 +214,9 @@ ActiveRecord::Schema.define(:version => 20110802204134) do
     t.integer "bioentry_id"
   end
 
-  add_index "gene_models", ["bioentry_id"], :name => "gene_models_index_4"
+  add_index "gene_models", ["bioentry_id"], :name => "gene_models_idx_3"
   add_index "gene_models", ["cds_id"], :name => "gene_models_idx_1"
   add_index "gene_models", ["gene_id"], :name => "gene_models_idx"
-  add_index "gene_models", ["id", "bioentry_id"], :name => "gene_models_index_3"
   add_index "gene_models", ["mrna_id"], :name => "gene_models_idx_2"
 
   create_table "location", :primary_key => "location_id", :force => true do |t|
@@ -408,13 +406,15 @@ ActiveRecord::Schema.define(:version => 20110802204134) do
     t.string   "node_rank",         :limit => 32
     t.integer  "genetic_code"
     t.integer  "mito_genetic_code"
-    t.datetime "created_at"
-    t.datetime "updated_at"
     t.integer  "left_value"
     t.integer  "right_value"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
+  add_index "taxon", ["left_value"], :name => "taxon_idx_1", :unique => true
   add_index "taxon", ["ncbi_taxon_id"], :name => "taxon_idx", :unique => true
+  add_index "taxon", ["right_value"], :name => "taxon_idx_2", :unique => true
 
   create_table "taxon_name", :id => false, :force => true do |t|
     t.integer  "taxon_id",                 :null => false
@@ -425,6 +425,17 @@ ActiveRecord::Schema.define(:version => 20110802204134) do
   end
 
   add_index "taxon_name", ["taxon_id", "name", "name_class"], :name => "taxon_name_idx", :unique => true
+
+  create_table "taxon_versions", :force => true do |t|
+    t.integer  "taxon_id"
+    t.integer  "species_id"
+    t.string   "scientific_name"
+    t.string   "version"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "taxon_versions", ["version"], :name => "index_taxon_versions_on_version", :unique => true
 
   create_table "term", :primary_key => "term_id", :force => true do |t|
     t.string   "name",                        :null => false

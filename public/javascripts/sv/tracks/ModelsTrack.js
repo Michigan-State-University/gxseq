@@ -102,25 +102,25 @@ Ext.define('Sv.tracks.ModelsTrack',{
               '</tpl>'
           );
 
-          var search = Ext.create("Ext.form.ComboBox",
+          var search = new Ext.form.ComboBox(
           {
-			store       : ds,
-			valueField  : 'id',
-			width       : 350,
-			queryDelay  : 1000,
-			minChars    : 3,
-			hideTrigger : true,
-			pageSize    : 20,
-			emptyText   : 'Search Gene Features...',
-			listConfig  : {
-				loadingText  : 'Searching...',
-				getInnerTpl: function() {
+			      store       : ds,
+			      valueField  : 'id',
+			      width       : 350,
+			      queryDelay  : 1000,
+			      minChars    : 3,
+			      hideTrigger : true,
+			      pageSize    : 20,
+			      emptyText   : 'Search Gene Features...',
+			      listConfig  : {
+				      loadingText  : 'Searching...',
+				      getInnerTpl: function() {
 			        var tpl = '<div class="drop_list"><div style="float:left"><b>{type}:</b>({start}-{end})</div><div style="float:right"><b>{bioentry}</b></div><br/>'+
                     '{match}'+
                     '<span>{description}</span></div>';
                     return tpl;
-			    }
-			},			
+			        }
+			      },			
             listeners : {
                 
                 beforequery:function(queryEvent){

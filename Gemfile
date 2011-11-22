@@ -26,7 +26,6 @@ gem 'exception_notification', '~> 2.4.1', :require => 'exception_notifier'
 gem 'formtastic', '~>2'
 gem 'paper_trail', '=2.2.9', :git => 'git://github.com/throwern/paper_trail.git'
 gem 'paperclip', '~> 2.3'
-#gem "preferences", "~> 0.4.2"
 gem 'squeel', '~>0.9'
 gem 'thor', '~> 0.14.6'
 gem 'will_paginate', '~>3'

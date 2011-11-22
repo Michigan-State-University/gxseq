@@ -3,8 +3,10 @@ class Taxon < ActiveRecord::Base
   set_primary_key :taxon_id
   belongs_to :parent, :class_name => "Taxon", :foreign_key => "parent_taxon_id"
   has_many :bioentries, :order => :description
-  has_many :taxon_names  
-  has_many :children, :class_name => "Taxon", :foreign_key => "parent_taxon_id"
+  has_many :taxon_names
+  has_many :taxon_versions
+  has_many :species_versions, :class_name => "TaxonVersion", :foreign_key => :species_id #only valid if taxon is species
+  has_many :children, :class_name => "Taxon", :foreign_key => "parent_taxon_id"  
   #has_many :ancestors, :class_name => "Taxon", :foreign_key => :taxon_id, :conditions => %q(#{left_value} BETWEEN left_value AND right_value)
   has_one :scientific_name, :class_name => "TaxonName", :conditions => {:name_class => "scientific name"}
   has_one :taxon_genbank_common_name, :class_name => "TaxonName", :conditions=>"name_class = 'genbank common name'"
@@ -21,22 +23,17 @@ class Taxon < ActiveRecord::Base
   has_many :synthetics, :finder_sql => ("#{EXPERIMENT_SQL} and e.type =  'Synthetic'")
   has_many :variants, :finder_sql => ( "#{EXPERIMENT_SQL} and e.type =  'Variant'")
   
-  scope :in_use, :conditions => "#{Taxon.primary_key} in (select taxon_id from #{Bioentry.table_name})"
-  
-  #Named constants - e.g. Taxon::constant
-  BACTERIA = (Taxon.find(:first, :include => :scientific_name, :conditions => "node_rank='superkingdom' AND lower(taxon_name.name)='bacteria'"))
-  ARCHAEA = (Taxon.find(:first, :include => :scientific_name, :conditions => "node_rank='superkingdom' AND lower(taxon_name.name)='archaea'"))
-  EUKARYOTA = (Taxon.find(:first, :include => :scientific_name, :conditions => "node_rank='superkingdom' AND lower(taxon_name.name)='euokaryota'"))
-  
+  scope :in_use, :conditions => "#{Taxon.primary_key} in (select taxon_id from #{TaxonVersion.table_name})"
+  scope :in_use_species, :joins => "inner join taxon_versions on taxon_versions.species_id = taxon.taxon_id", :select => 'distinct (taxon.taxon_id), parent_taxon_id, left_value, right_value, ncbi_taxon_id'
   ### Relations
   
-  def self.in_use_species
-    between_where = Taxon.joins(:bioentries).select("distinct #{Taxon.table_name}.left_value").map(&:left_value).collect{|left| "(#{left} BETWEEN left_value AND right_value)"}.join(" OR ")
-    Taxon.where(between_where).where(:node_rank => 'species').includes(:taxon_names, :scientific_name).order(:scientific_name => :name)
-  end
+  # def self.in_use_species
+  #   #between_where = Taxon.joins(:bioentries).select("distinct #{Taxon.table_name}.left_value").map(&:left_value).collect{|left| "(#{left} BETWEEN left_value AND right_value)"}.join(" OR ")
+  #   #Taxon.where(between_where).where(:node_rank => 'species').includes(:taxon_names, :scientific_name).order(:scientific_name => :name)
+  # end
   
   def ancestors
-    Taxon.where("#{left_value || -1} BETWEEN left_value AND right_value")
+    Taxon.where("#{left_value || -1} BETWEEN left_value AND right_value").order(:left_value)
   end
   
   ###
@@ -69,12 +66,9 @@ class Taxon < ActiveRecord::Base
     return nil
   end
   
+  # expects a species to call this method
   def in_use_children
-    if(self.left_value && self.right_value)
-      return Taxon.find_by_sql("select t.* from #{Taxon.table_name} t where t.left_value BETWEEN #{self.left_value} AND #{self.right_value} AND t.taxon_id in (select taxon_id from #{Bioentry.table_name})" )
-    else
-      return [self]
-    end
+    species_versions.joins(:taxon).map(&:taxon).uniq
   end
   
 end

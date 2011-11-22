@@ -1,7 +1,8 @@
 class BioentriesController < ApplicationController
 
   def index
-    @bioentry_species = Taxon.in_use_species.includes(:scientific_name)
+    @bioentry_species = Taxon.in_use_species.includes(:scientific_name, :taxon_versions => [:taxon => [:taxon_names]])
+    logger.info "\n\n#{pp @bioentry_species.all}\n\n"
   end
   
   def new
@@ -36,7 +37,7 @@ class BioentriesController < ApplicationController
     end
     
     #default active track
-    @active_tracks = "['#{@bioentry.models_track.id}']"
+    @active_tracks = "['#{@bioentry.six_frame_track.id}','#{@bioentry.models_track.id}']"
      
     ## set layout
     if(params[:default])

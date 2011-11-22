@@ -2,28 +2,32 @@ class GenesController < ApplicationController
   before_filter :get_gene_data, :only => [:edit, :update]
   before_filter :new_gene_data, :only => [:new]
   def index   
-    @genes = GeneModel.includes(:bioentry)
+    @genes = GeneModel.scoped
+    # query string
     unless(params[:q].blank?)
       q = params[:q]+'%'
-      @genes = GeneModel.where{ (locus_tag =~ q) | (gene_name =~ q)}
+      # we are matching locus_tag and gene_name with the search
+      @genes = @genes.where{ (locus_tag =~ q) | (gene_name =~ q)}
     end
+    # paging
     unless(params[:paging]=='false')
       page = params[:page] || 1
       per_page = params[:limit] || params[:per_page] || @per_page
       @genes = @genes.paginate(:page => page, :per_page => per_page)
     end
+    # sorting - because we display association data we need to sort on association columns
     if(params[:sort] && (sort=JSON.parse(params[:sort])) )
       sort.each do |s|
         if(s['property'] && s['direction'])
           case s['property']
           when 'sequence_name'
-            #@genes = 
+            # virtual attribute, not sortable
           when 'sequence_version'
             @genes = @genes.joins{bioentry}.order("bioentry.version #{s['direction']}")
           when 'sequence_taxon'
             @genes = @genes.joins{bioentry.taxon.scientific_name}.order("taxon_name.name #{s['direction']}")
           when 'sequence_species'
-            # needs proper 'species' association / relation
+            # needs proper 'species' relation, not sortable
             #@genes = @genes.joins{bioentry.taxon.species.scientific_name}.order("taxon_name.name #{s['direction']}")
           else
             @genes = @genes.order("#{s['property']} #{s['direction']}")
@@ -31,12 +35,11 @@ class GenesController < ApplicationController
         end
       end
     end
-    @bioentry_ids = @genes.select('distinct gene_models.bioentry_id').all
     respond_to do |format|
-      format.html {}
+      format.html{}
       format.json {
         render :json => {
-          :total_entries => @genes.total_entries,
+          :total_entries => 10,#@genes.total_entries,
           :gene_models => @genes.as_api_response(:listing)
         }
       }

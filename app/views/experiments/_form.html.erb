@@ -1,14 +1,58 @@
-<div class="form_item">
-	<h3 class="pagetitle">Metadata</h3>
-	Choose a unique name for your experiment. Try to keep it concise.<br/>
-	<%= f.text_field :name, :size => 25%>
-	<br/>
-	<br/>
+<% form_for experiment, :html => {:multipart => true} do |f| %>
 
-	Enter any descriptive information you would like to remember.<br/>
-	<%= f.text_area :description, :rows => "7" %><br/>
-</div>
+  <div class="form_item">
+  	<h3>Metadata</h3>
+  	Choose a unique name for your experiment. Try to keep it concise.<br/>
+  	<%= f.text_field :name, :size => 25%>
+  	<br/><br/>
+  	Enter any descriptive information you would like to remember.<br/>
+  	<%= f.text_area :description, :rows => "7" %><br/>
+  </div>
 
-<div class="form_item">
-	<%= render :partial => "experiments/sequence", :locals => {:f => f} %>
-</div>
+  <div class="form_item">
+    <h3>Sequence Data</h3>
+    <div style="float:left">
+        <% if f.object.new_record? %>
+          <%= f.collection_select :taxon_version_id, @taxon_versions, :id, :name_with_version %>
+        <% else %>
+          <%= f.collection_select :taxon_version_id, @taxon_versions, :id, :name_with_version, {}, :onchange => "$(bioentries_experiments_list).remove()" %>
+          <div id="bioentries_experiments_list">
+            <% f.fields_for :bioentries_experiments do |be| %>
+              <div class="nested-fields" style="clear:both">
+                <div style="padding-left:1em;float:left">
+                  <%= be.object.bioentry.short_name %>
+                </div>
+                <div style="padding-left:1em;float:right">
+                	<%= link_to_remove_fields image_tag("delete.png", :alt => "Remove Sequence"), be %>
+                </div>
+                <div style="padding-left:1em;float:right">
+                	SeqID:<%= be.text_field :sequence_name %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+    </div>  
+  </div>
+
+  
+  
+  <div class="form_item">
+    <%= render :partial => "form_options", :locals => {:f => f} rescue nil%>
+  </div>
+
+  <div class="form_item">
+    	<h3 style="float:left;width:8em">Asset File(s)</h3>
+    	<%= link_to_add_fields image_tag("add.gif", :title => "Add another File", :style => "float:left"), f, :assets, :render => "below" %>
+    	<% f.fields_for :assets do |asset| %>
+  	    <%= render :partial => "asset_fields", :locals => {:f => asset} %>
+  	  <% end %>
+  </div>
+
+  <div style="clear:both">
+  	<br/><hr/><br/><br/>
+  	<%= f.submit "Save Experiment" %>
+  </div>
+  	
+<% end %>
+  

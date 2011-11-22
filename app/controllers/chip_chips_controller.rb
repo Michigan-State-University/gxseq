@@ -18,28 +18,23 @@ class ChipChipsController < ApplicationController
   end
 
   def index
-    unless(params[:query].blank?)
-      @species = ChipChip.all(:conditions => ["upper(name) like ?", "%#{params[:query].upcase}%"]).map(&:bioentries).flatten.uniq.collect(&:taxon).uniq.collect(&:species).uniq
-    else
-      @species = ChipChip.all.map(&:bioentries).flatten.uniq.collect(&:taxon).uniq.collect(&:species).uniq
-    end
+    query = (params[:query] || '').upcase
+    @species = ChipChip.includes(:taxon_version).where{upper(name) =~ "%#{query}%"}.collect(&:taxon_version).collect(&:species).uniq
   end
 
   def new
     @chip_chip = ChipChip.new()
     @chip_chip.assets.build
-    @chip_chip.bioentries_experiments.build
-    @bioentries = Bioentry.find(:all, :include => [:source_features => [:qualifiers]], :order => "taxon_id asc, name")
-    @species = Bioentry.all_taxon
+    @taxon_versions = TaxonVersion.order('name asc')
   end
 
   def create
     @chip_chip = ChipChip.new(params[:chip_chip])
-    @bioentries = Bioentry.find(:all, :order => "name asc")
+    @taxon_versions = TaxonVersion.order('name asc')
     begin
       if @chip_chip.valid?
         @chip_chip.save
-        if((w=@chip_chip.assets.map(&:warnings)).empty?)
+        if((w=@chip_chip.assets.map(&:warnings).flatten).empty?)
           flash[:notice]="Experiment created succesfully"
         else
           flash[:warning]="#{w.join("<br/>")}"
@@ -47,8 +42,6 @@ class ChipChipsController < ApplicationController
         end
         redirect_to :action => :index #@chip_chip
       else
-        @bioentries = Bioentry.find(:all, :include => [:source_features => [:qualifiers]], :order => "taxon_id asc, name")
-        @species = Bioentry.all_taxon
         render :action => :new
       end
     rescue
@@ -60,7 +53,7 @@ class ChipChipsController < ApplicationController
 
   def show
     @chip_chip = ChipChip.find(params[:id])
-    @bioentry = Bioentry.find(params[:entry_id] || @chip_chip.bioentries_experiments.first.bioentry_id)
+    @bioentry = Bioentry.find(params[:bioentry_id] || @chip_chip.bioentries_experiments.first.bioentry_id)
     respond_to do |format|
       format.html {}
       format.xml { render :layout => false }
@@ -69,12 +62,12 @@ class ChipChipsController < ApplicationController
 
   def edit
     @chip_chip = ChipChip.find(params[:id])
-    @bioentries = Bioentry.all
-    @species = Bioentry.all_taxon
+    @taxon_versions = TaxonVersion.order('name asc')
   end
 
   def update
     @chip_chip = ChipChip.find(params[:id])
+    @taxon_versions = TaxonVersion.order('name asc')
     if @chip_chip.update_attributes(params[:chip_chip])        
       if((w=@chip_chip.assets.map(&:warnings).flatten).empty?)
         flash[:notice] = 'Chip Chip was successfully updated.'
@@ -84,8 +77,6 @@ class ChipChipsController < ApplicationController
       end
       redirect_to(@chip_chip)
     else
-      @bioentries = Bioentry.find(:all, :order => "name asc")
-      @species = Bioentry.all_taxon
       render :action => "edit"
     end
   end

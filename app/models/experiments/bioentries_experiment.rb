@@ -11,4 +11,11 @@ class BioentriesExperiment < ActiveRecord::Base
   scope :with_bioentry, lambda { |id|
         { :conditions => { :bioentry_id => id } }
       }
+  def bioentry_short_name
+    bioentry.short_name
+  end
+  
+  def name
+    'Experiment Sequence'
+  end
 end

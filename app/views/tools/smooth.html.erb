@@ -15,7 +15,7 @@
 
   <%= label_tag :experiment %><br/>
   <%= select_tag(:experiment_id, "<option>-Select the experiment to smooth</option>".html_safe +
-  options_from_collection_for_select(@experiments,:id,:detailed_display_info) )%>
+  options_from_collection_for_select(@experiments,:id,:detailed_display_info), :'data-remote' => asset_details_experiments_url, :'data-with' => 'exp_id', :'data-element' => :exp_info )%>
   <br/><br/>
   
   <%= label_tag :name %><br/>
@@ -47,11 +47,6 @@
 <% end -%>
 
 </div>
-
-<%#= observe_field(:experiment_id,
-					:update => :exp_info,
-					:url => {:controller => :experiments, :action => :asset_details},
-					:with => "exp_id") %>
 					
 <div id="exp_info" style="float:right">
 

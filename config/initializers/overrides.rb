@@ -147,29 +147,6 @@ class CompositePrimaryKeys::CompositeKeys
     join(",")
   end
 end
-#  ORACLE lob columns may need to use multiple primary_keys
-# module ActiveRecord
-#   module ConnectionAdapters
-#     class OracleAdapter
-#       def write_lobs(table_name, klass, attributes)
-#         id = quote(attributes[klass.primary_key])
-#         klass.columns.select { |col| col.sql_type =~ /LOB$/i }.each do |col|
-#           value = attributes[col.name]
-#           next if value.nil?  || (value == '')
-#           if klass.respond_to?(:primary_keys)
-#             lob = select_one("SELECT #{col.name} FROM #{table_name} WHERE #{klass.primary_keys.collect{|key| "#{key} = #{attributes[key.to_s] || 'NULL'}"}.join(" AND ")}",
-#                              'Writable Large Object')[col.name]
-#           else
-#             lob = select_one("SELECT #{col.name} FROM #{table_name} WHERE #{klass.primary_key} = #{id}",
-#                              'Writable Large Object')[col.name]
-#           end  
-#           value = value.to_yaml if col.text? && klass.serialized_attributes[col.name]
-#           lob.write value
-#         end
-#       end
-#     end
-#   end
-# end
 
 ## PaperTrail
 ##
@@ -191,9 +168,9 @@ ActiveRecord::Base.class_eval do
 end
 
 # Extend devise method this would be easier (not necessary) with base devise_ldap_authenticatable but it doesn't support db_authenticatable
-module Devise::LdapAdapter  
+module Devise::LdapAdapter
   def self.get_ldap_param(login, param)
-    options = build_ldap_options(login)      
+    options = build_ldap_options(login)
     resource = LdapConnect.new(options)
     resource.ldap_param_value(param)
   end  

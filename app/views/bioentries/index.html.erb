@@ -72,19 +72,27 @@
 					<td></td>
 					<td></td>
 				</tr>
-				<% t.versions.each_with_index do |t_version, v_idx| %>
+				<% t.taxon_versions.each_with_index do |t_version, v_idx| %>
 				<% id = "#{species_idx + 1}-#{t_idx + 1}-#{v_idx + 1}" %>
 				<tr id="<%= id %>" class="item" style="display:none" onclick="toggleRows(document.getElementById('a_<%= id %>'));return false">
 					<td><div class="tier4">
 						<a name="<%= id %>" href="#<%= id %>" ></a></div></td>
 					<td></td>
 					<td style="text-align:left">
-						<%= t_version %>
+						<%= t_version.version %>
 					</td>
 					<td style="text-align:center">
-						<% t.bioentries.with_version(t_version).includes([:source_features => [:qualifiers => :term]]).each do |entry| %>
-							<%= link_to entry.short_name, entry, :target => 'bioentry'+entry.id.to_s %><%= entry==t.bioentries.with_version(t_version).last ? "" : "," %>
-						<% end %>
+					  <% bioentry_count = t_version.bioentries.includes([:source_features => [:qualifiers => :term]]).count %>
+					  <% if(bioentry_count <= 35) %>
+  						<% t_version.bioentries.includes([:source_features => [:qualifiers => :term]]).each do |entry| %>
+  							<%= link_to entry.short_name, entry, :target => 'bioentry'+entry.id.to_s %><%= entry==t_version.bioentries.last ? "" : "," %>
+  						<% end %>
+						<% else %>
+  						<% t_version.bioentries.includes([:source_features => [:qualifiers => :term]]).order('bioentry_id asc').limit(35).each do |entry| %>
+  							<%= link_to entry.short_name, entry, :target => 'bioentry'+entry.id.to_s %>
+  						<% end %>
+  						  <%= "and #{bioentry_count - 35} more ..." %>
+  					<% end %>
 					</td>
 				</tr>
 				<% end %>

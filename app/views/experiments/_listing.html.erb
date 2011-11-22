@@ -16,17 +16,12 @@
 			</div>
 			<div style="float:right;padding-left:1em"><%= submit_tag "Go", :class => "button"%></div>
 			<div style="float:right">Search: <%= text_field_tag :query %></div>
-			<!-- <div style="float:right;padding-right:2em">
-				Group By: <%#= select_tag :group_by, 
-					options_for_select({"Strain" => 'strain',"Chromosome" => 'chr'}, {:selected => params[:group_by]}), 
-					{:onchange => "$('chr').hide();$('strain').hide();$(this.value).show();"} %>
-			</div> -->
 		</form>
 <% end %>
 
 <% #setup sort from params %>
 <% o = params[:o]; o = 'name' unless ['name','created_at','state'].include?(o) %>
-<% d = params[:d]; d = 'asc' unless d == 'asc' %>
+<% d = params[:d]; d = 'asc' unless ['asc','desc'].include?(d) %>
 
 <div class="table">
 <table id="sstree-exp" class="listing sstree">
@@ -47,21 +42,21 @@
 				<td width="15%"></td>
 				<td width="15%"></td>
 			</tr>			
-			<% s.in_use_children.each_with_index do |t, t_idx| %>
+			<% s.species_versions.each_with_index do |t, t_idx| %>
 			<% next if t.send(exp_type+'s').empty? %>
 			<% id = "#{s_idx + 1}-#{t_idx + 1}" %>			
 				<tr id="<%= id %>" style="display:none" class="two" onclick="toggleRows(document.getElementById('a_<%= id %>'));return false">
 					<td>
 						<div class="tier2">
 							<a id="a_<%= id %>" name="<%= id %>" href="#<%= id %>" onclick="toggleRows(this);return false"></a>
-							<%= t==s ? "Generic Strain" : t.scientific_name.name %>
+							<%= t==s ? "Generic Strain" : t.name_with_version %>
 						</div>
 					</td>
 					<td></td>
 					<td></td>
 				</tr>
-				<% t.bioentries.collect{|b| b.send(exp_type+"s")}.flatten.sql_sort(o,d).uniq.each_with_index do |exp, exp_idx| %>
-				<% next if params[:query] && !exp.name=~/#{params[:query]}/ %>
+				<% t.send(exp_type+'s').each_with_index do |exp, exp_idx| %>
+				<% next if params[:query] && !(exp.name=~/#{params[:query]}/) %>
 				<% id = "#{s_idx + 1}-#{t_idx + 1}-#{exp_idx + 1}" %>
 		  		<tr id="<%= id %>" style="display:none" class="item">
 						<td>

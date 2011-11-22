@@ -1,17 +1,18 @@
-Displaying data for : <%= @bioentry.display_name %> View in <%= link_to "Sequence Viewer", bioentry_path(@bioentry, :tracks => [@chip_chip.tracks.with_bioentry(@bioentry.id).first.id] %>
-<div id='exp_chart' style="<%= idx==0 ? '' : "display:none" %>">
-	<%= swf_tag "mixed_plot.swf", 
-		:id => "#{@chip_chip}_#{entry.bioentry_id}_plot", 
-		:size => "600x300", 
-		:flashvars => {
-			:checklabel => "Show Peaks", 
-			:pointseries => "Peaks", 
-			:lineseries => "Tag Count",
-			:entry_id => @bioentry.id,
-			:id => @chip_chip.id,
-			:local_url => "#{root_path}chip_chips/"
-		} %>
+<div id="graphics_container">
+  Displaying data for : <%= @bioentry.display_name %>. View in <%= link_to "Sequence Viewer", bioentry_path(@bioentry, :tracks => [@chip_chip.tracks.with_bioentry(@bioentry.id).first.id] )%>
+  <div id='exp_chart'>
+  	<%= swf_tag "mixed_plot.swf", 
+  		:id => "#{@chip_chip}_#{@bioentry.bioentry_id}_plot", 
+  		:size => "600x300", 
+  		:flashvars => {
+  			:checklabel => "Show Peaks", 
+  			:pointseries => "Peaks", 
+  			:lineseries => "Tag Count",
+  			:entry_id => @bioentry.id,
+  			:id => @chip_chip.id,
+  			:local_url => "#{root_path}chip_chips/"
+  		} %>
+  </div>
+
+  <%= select_tag :bioentry_id, options_from_collection_for_select(@chip_chip.bioentries_experiments, :bioentry_id, :bioentry_short_name, @bioentry.id), :'data-onchange' => graphics_chip_chip_url(@chip_chip), :'data-with' => :bioentry_id, :'data-element' => 'graphics_container'%>
 </div>
-<% @chip_chip.bioentries_experiments.each do |be| %>
-<%= "|" unless idx==0 %> <%= link_to_unless_current be.bioentry.display_name, chip_chip_path(@chip_chip, :entry_id => be.bioentry_id) %>
-<% end %>

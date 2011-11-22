@@ -10,40 +10,40 @@ class FetchersController < ApplicationController
     species_array = []
     versions = []
     taxons = []
-    bioentry = Bioentry.includes(:taxon).where(:bioentry_id => bioentry_id).first
-    species = bioentry.taxon.species
-    Bioentry.all_species.each do |taxon|
+    bioentry = Bioentry.find(bioentry_id)
+    species = bioentry.taxon_version.species
+    Taxon.in_use_species.each do |taxon|
       species_array.push({
-        :id => taxon.in_use_children.first.bioentries.first.id,
-        :name => taxon.scientific_name.name
+        :id => taxon.in_use_children.first.taxon_versions.first.bioentries.first.id,
+        :name => taxon.name
       })
     end
     species.in_use_children.each do |taxon|
       if(taxon == species)
         taxons.push({
-          :id => taxon.bioentries.first.id,
+          :id => taxon.taxon_versions.first.bioentries.first.id,
           :name => "Generic Strain"
         })
       else        
         taxons.push({
-          :id => taxon.bioentries.first.id,
-          :name => taxon.scientific_name.name
+          :id => taxon.taxon_versions.first.bioentries.first.id,
+          :name => taxon.name
         })
       end
     end
     
-    bioentry.taxon.versions.each do |v|
+    species.species_versions.each do |v|
       versions.push({
-        :id => bioentry.taxon.bioentries.with_version(v).first.id,
-        :name => v
+        :id => v.bioentries.first.id,
+        :name => v.version
       })
     end
     
-    bioentry.taxon.bioentries.with_version(bioentry.version).includes(:source_features => :qualifiers).each do |b|
+    bioentry.taxon_version.bioentries.includes(:source_features => :qualifiers).each do |b|
       bioentries.push({
         :id => b.id,
         :accession => b.accession,
-        :name => b.source_features[0].generic_label, # we usually only have one source what do we show if there are more?
+        :name => b.generic_label, # we usually only have one source what do we show if there are more?
       })
     end
     #sort the sequence list, this converts everything to integer, Long strings i.e mitochondria/plasmid will be sorted arbitrarily
@@ -61,7 +61,7 @@ class FetchersController < ApplicationController
                :email => 'throwern@msu.edu'
             },
             :service => {
-               :title => species.scientific_name.name,
+               :title => species.name,
                :copyright => 'Copyright 2008 GLBRC', 
                :license => 'http://creativecommons.org',
                :version => '2008-Dec-09',
@@ -70,11 +70,11 @@ class FetchersController < ApplicationController
             },
             :species => {
               :data => species_array, 
-              :selected => species.scientific_name.name
+              :selected => species.name
             },
             :taxons => {
               :data => taxons, 
-              :selected => (bioentry.taxon.species == bioentry.taxon ? "Generic Strain" : bioentry.taxon.scientific_name.name)
+              :selected => (bioentry.taxon_version.taxon == bioentry.taxon_version.species ? "Generic Strain" : bioentry.taxon_version.name)
             },
             :versions => {
               :data => versions,
@@ -82,12 +82,12 @@ class FetchersController < ApplicationController
             },
             :entries => {
               :data => bioentries, 
-              :selected => bioentry.source_features[0].generic_label # AGAIN, we usually only have one source what do we show if there are more?
+              :selected => bioentry.generic_label # AGAIN, we usually only have one source what do we show if there are more?
             },
             :entry => {
                :accession => bioentry.accession,
                :accession_link => ACCESSION_LINK,
-               :size => (Biosequence.select(:length).where(:bioentry_id=>bioentry.id).first.length rescue 100),
+               :size => (Biosequence.select(:length).where(:bioentry_id=>bioentry.id).first.length rescue 1000),
             }
          }
       }

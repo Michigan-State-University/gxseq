@@ -221,17 +221,18 @@ Ext.define('Sv.painters.BaseCanvas',{
   	{
   		if (!img) return;
   	
-  		//If the image is not complete then only render it when ready
-  		//This can cause issues with expected render order.
-  		//
-  		if (!img.complete)
-  		{			
-  			Ext.EventManager.addListener(img, 'load', function()
-  			{
-  				fillImage(img,repeat,x,y,w,h);
-  			});
-  			return;
-  		}
+      //If the image is not complete then only render it when ready
+      //This can cause issues with expected render order.
+      
+      if (!img.complete)
+      {      
+       Ext.EventManager.addListener(img, 'load', function()
+       {
+         fillImage(img,repeat,x,y,w,h);
+       });
+       return;
+      }
+       
   		var box = check(x,y,w,h);
   		if (!box) return;
   	

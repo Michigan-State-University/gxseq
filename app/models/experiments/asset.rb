@@ -21,9 +21,19 @@ class Asset < ActiveRecord::Base
     #self.validated = false
   end
   
+  def full_filename
+    #return the interpolated filename
+    name = File.basename(data.path)
+  end
+  
   def filename
     #return the interpolated filename
-    File.basename(data.path)
+    name = File.basename(data.path)
+    if(name.length > 20)
+      return "#{name[0,12]}..#{name[-7,7]}"
+    else
+      return name
+    end
   end
   
   #parse the file format, return (boolean 'valid', array 'error strings')

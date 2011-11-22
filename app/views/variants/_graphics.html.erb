@@ -1,5 +1,5 @@
-<div style="float:left;width:600px" class="clear">
-	<div style="float:left;width:150px;margin-top:-10px"><span style="color:#777;">0 <span style="color:#444;font-size:105%">Variant Counts</span> >250</span><div style="width:150px;height:4px;
+<div style="float:left;width:600px" class="clear" id="graphics_container">
+	<div style="float:right;width:150px;padding-right:1em"><span style="color:#777;">0 <span style="color:#444;font-size:105%">Variant Counts</span> >250</span><div style="width:150px;height:4px;
 		background-image: -webkit-gradient(linear, left bottom, right top, from(white), to(black));
 		background-image: -moz-linear-gradient(left center,white,black)"></div></div>
 	<table style="font-size:95%">
@@ -10,8 +10,8 @@
 			<th style="text-align:center">Deletion</th>
 			<th style="text-align:center">Indel</th>
 		</tr>
-	<% @variant.bioentries_experiments.each do |be| %>
-		<% b = be.bioentry %>
+	<%# @variant.bioentries_experiments.each do |be| %>
+		<% b = @bioentry #be.bioentry %>
 		<tr>
 			<% t = "open #{b.display_name} in Sequence Viewer" %>
 			<td style="padding-top:1em"><%= link_to(b.display_info,b,:alt => t, :title => t,:popup => true) %></td>
@@ -30,6 +30,9 @@
 				</div>
 			</td>
 		</tr>
-	<% end %>
+	<%# end %>
 	</table>
+
+  <%= select_tag :bioentry_id, options_from_collection_for_select(@variant.bioentries_experiments, :bioentry_id, :bioentry_short_name, @bioentry.id), :'data-onchange' => graphics_variant_url(@variant), :'data-with' => :bioentry_id, :'data-element' => 'graphics_container'%>
+
 </div>

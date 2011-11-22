@@ -1,6 +1,7 @@
 
 class Experiment < ActiveRecord::Base
   belongs_to :user
+  belongs_to :taxon_version
   has_many :bioentries_experiments, :dependent => :destroy
   #has_many through is ignoring the set_primary_key definition. Need to fix this!
   #has_many :bioentries, :through => :bioentries_experiments
@@ -10,18 +11,20 @@ class Experiment < ActiveRecord::Base
   has_many :peaks
   has_many :tracks
   #validates_presence_of :user
+  validates_presence_of :assets
   validates_presence_of :name
   validates_uniqueness_of :name, :scope => :bioentry_id, :message => " has already been used"
   validates_length_of :name, :maximum => 35, :on => :create, :message => "must be less than 35 characters"
   validates_length_of :description, :maximum => 500, :on => :create, :message => "must be less than 500 characters"
+  validates_presence_of :taxon_version
   
-  accepts_nested_attributes_for :bioentries_experiments
-  accepts_nested_attributes_for :assets
+  accepts_nested_attributes_for :bioentries_experiments, :allow_destroy => true
+  accepts_nested_attributes_for :assets, :allow_destroy => true
   
-  before_validation_on_create :initialize_assets
-  before_validation_on_create :initialize_bioentries
+  before_validation :initialize_assets, :on => :create
+  before_validation :initialize_bioentries, :on => :create
   before_create 'self.state = "pending"'
-  after_create :create_tracks
+  after_save :create_tracks
   after_create :initialize_experiment
   has_paper_trail :ignore => [:state]
   has_console_log
@@ -37,7 +40,6 @@ class Experiment < ActiveRecord::Base
   end
   
 ## Instance Methods
-  
   # update clone method for deep clone of bioentry <-> experiment association
   # Used when cloning experiments for smoothing
   def clone(hsh={})
@@ -52,13 +54,26 @@ class Experiment < ActiveRecord::Base
     end
     return e
   end
-    
+
   def initialize_assets
     assets.each { |a| a.experiment = self }
   end
   
   def initialize_bioentries
-    bioentries_experiments.each { |b| b.experiment = self }
+  end
+  
+  def taxon_version_id=(tv_id)    
+    if(tv_id.to_i == self.taxon_version_id)
+      logger.info "\n\nTaxon Version UNCHANGED\n\n"
+      return super(tv_id)
+    end
+    tv = TaxonVersion.find(tv_id)
+    self.bioentries_experiments.destroy_all
+    tv.bioentries.each do |b|
+      self.bioentries_experiments.build(:bioentry => b,:sequence_name => b.accession,:experiment => self)
+    end
+    
+    super(tv_id)
   end
   
   def initialize_experiment

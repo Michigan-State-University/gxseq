@@ -63,22 +63,13 @@ var AnnoJ = (function()
 		// try
 		// {
 			GUI = buildGUI();
-		// }
-	
+		// }	
 		// catch (e)
 		// {
 		// 	Ext.MessageBox.hide();		
 		// 	WebApp.exception(e, 'An exception was encountered when AnnoJ attempted to initialize the graphical user interface. Please notify the website administrator so that this may be addressed.');
 		// 	return false;
 		// };
-		//GUI.notice('Browser check passed', true);
-		//GUI.notice('Configuration loaded');
-		//GUI.notice('GUI constructed');
-		
-		//Load the stylesheets
-		//progressBar.updateProgress(0.3, '', 'Loading stylesheets...');
-		//Ext.each(config.stylesheets, GUI.StyleSelector.manage);
-		//GUI.notice('Stylesheets loaded');
 		
 		//Syndicate the genome
 		progressBar.updateProgress(0.25, 'Loading genome...');
@@ -184,7 +175,6 @@ var AnnoJ = (function()
 		var LayoutBox = new AnnoJ.LayoutBox();
 
 		var InfoBox = new AnnoJ.InfoBox();
-        InfoBox.hide();
 
     //var EditBox = new AnnoJ.EditBox();
     // EditBox.hide();
@@ -225,7 +215,7 @@ var AnnoJ = (function()
 				//AboutBox,
 				LayoutBox,
 			  TrackSelector,
-			  InfoBox,
+			  InfoBox
         //EditBox,
 			    //Bugs,
 			    //Messenger
@@ -263,7 +253,7 @@ var AnnoJ = (function()
         TrackSelector.on('openTrack', Tracks.tracks.open);
         TrackSelector.on('moveTrack', Tracks.tracks.reorder);
         TrackSelector.on('closeTrack', Tracks.tracks.close);
-		
+		InfoBox.hide();
 		return {
 			//Messenger : Messenger,
 			TrackSelector : TrackSelector,
