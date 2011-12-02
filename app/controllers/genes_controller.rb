@@ -141,6 +141,7 @@ class GenesController < ApplicationController
   def new_gene_data
     @taxon = @bioentry = nil
     @taxons = Bioentry.all_taxon
+    @taxon_versions = TaxonVersion.all
     seq_src_ont_id = Ontology.find_or_create_by_name("SeqFeature Sources").id
     @seq_src_term_id = Term.find_or_create_by_name_and_ontology_id("EMBL/GenBank/SwissProt",seq_src_ont_id).id
     begin

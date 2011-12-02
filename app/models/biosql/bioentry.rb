@@ -49,7 +49,8 @@ class Bioentry < ActiveRecord::Base
   
   def self.all_taxon
     #Bioentry.includes(:taxon).all.collect(&:taxon).uniq
-    Taxon.joins(:bioentries).select("distinct #{Taxon.table_name}.taxon_id,version")
+    #Taxon.joins(:bioentries).select("distinct #{Taxon.table_name}.taxon_id,version")
+    TaxonVersion.all.collect(&:taxon)
   end
   
   def self.all_species
