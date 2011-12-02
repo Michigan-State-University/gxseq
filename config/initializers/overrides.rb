@@ -2,7 +2,6 @@
 
 ## RUBY
 ##
-
 # extend string class with to_formatted() method
 begin
   class String
@@ -12,6 +11,15 @@ begin
       delimiter = hsh[:delimiter] || "\n"
       num_char = rows*per_row+(rows-1)
       self.gsub(/(.{#{per_row}})/,"\\1 ").gsub(/(.{#{num_char}})(\s)/,"\\1#{delimiter}")
+    end
+    def break_and_wrap_text(size=50,char="\n",ljust=0,justify_first=true)
+      values=self.gsub(/(.{1,#{size}})( +|$)\n?|(.{1,#{size-1}})(,|;|:|-|=)|(.{#{size}})/,"\\1\\3\\4\\5\n").strip.split("\n")
+      value=values.shift
+      text=(justify_first ? char.ljust(ljust) : '')+"#{value.strip}"
+      values.each do |v|
+        text+=char.ljust(ljust)+"#{v.strip}"
+      end
+      return text
     end
   end
 rescue
@@ -40,9 +48,9 @@ end
 
 ## Bio-SQL
 ##
-
-# extend method to return index as well as match
 begin
+  
+  # extend method to return index as well as match
   module Bio::Sequence::Common
     def window_search(window_size, step_size = 1)
       last_step = 0
@@ -53,14 +61,26 @@ begin
       return self[last_step + window_size .. -1]
     end
   end
+  
+  ## Fix hard position parsing of locus line
+  module Bio
+    class GenBank::Locus
+      def initialize(locus_line)
+        if locus_line.empty?
+          # do nothing (just for empty or incomplete entry string)
+        else
+          key,@entry_id,@length,length_t,@natype,@circular,@division,@date = locus_line.split("\s")
+          @length = @length.to_i
+        end
+      end
+    end
+  end
 rescue
-  puts "Error: Bio Sequence definition in environment.rb failed\nDid you install the bio gem?"
+  puts "Error: Bio Sequence definition in environment.rb failed\nDid you install the bio gem?\n#{$!}"
 end
 
 ## ActiveRecord
 ##
-
-
 module ActiveRecord
   class Base
     # fast_insert avoiding class instantiation. Skips validation, callbacks and observers

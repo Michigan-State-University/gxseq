@@ -23,7 +23,7 @@ AnnoJ.Navigator = function()
 			}
 			BaseJS.syndicate({
 				url : params.url,
-  			    bioentry : params.bioentry,
+			  bioentry : params.bioentry,
 				success : function(response)
 				{
 					syndication = response;
@@ -126,13 +126,16 @@ AnnoJ.Navigator = function()
 							]	
 						})
 						navContainer.insert(0,titleBar);
-						AnnoJ.getGUI().Tracks.doLayout();
-						AnnoJ.getGUI().Tracks.doComponentLayout();
+
+						
 						Navigator.Position.init({
 							min : 1,
 							max : syndication.entry.size,
-							value : AnnoJ.config.location.position //Too tightly coupled fix this
 						});
+						
+						AnnoJ.getGUI().Tracks.doLayout();
+						AnnoJ.getGUI().Tracks.doComponentLayout();
+						
 						params.success(response);
 					}
 				},
@@ -221,14 +224,7 @@ AnnoJ.Navigator = function()
 				halfX = Math.round(width/2);
 				ratio = Zoom.config.bases / Zoom.config.pixels;
 				offset = Math.round((halfX-config.padding)*ratio);
-				if(offset<0)offset=0;
-        console.log("position:")
-        console.log(gpos)
-        console.log(config)
-        console.log(halfX)
-        console.log(ratio)
-        console.log(offset)
-        
+				if(offset<0)offset=0;        
         
 				if (gpos > (config.max-offset))
 				{
@@ -358,10 +354,6 @@ AnnoJ.Navigator = function()
 				
 				// Check boundaries
 				ceiling = Position.config.max + (2*Position.config.padding*ratio)
-				console.log("zoom")
-				console.log(ratio)
-				console.log(width)
-				console.log(ceiling)
 				if(ratio*width > ceiling)
 				{
 				  atMax = true;

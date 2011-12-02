@@ -212,18 +212,19 @@ class FetchersController < ApplicationController
          end
       else
          if(params[:annoj_action] == 'lookup')
-             #bioentry_id = params['bioentry']
              bioentry = Bioentry.find(params['bioentry'])
-             bioentry_ids = bioentry.taxon.bioentries.map(&:id)
-             query = params[:query].upcase            
-             gene_models = GeneModel.includes([[:cds => [:qualifiers]],[:gene=>[:qualifiers]],[:mrna=>[:qualifiers]]]).where{((upper(cds.qualifiers.value) =~ "#{query}%") | (upper(gene.qualifiers.value) =~ "#{query}%") | (upper(cds.qualifiers.value) =~ "#{query}%")) & (bioentry_id.in(bioentry_ids))}.paginate({:page => params[:page],:per_page => params[:limit]})
-            
+             bioentry_ids = bioentry.taxon_version.bioentries.map(&:id)
+             query = params[:query].upcase
+             gene_models = GeneModel.includes{[gene.qualifiers, cds.qualifiers, mrna.qualifiers]}.where{((upper(gene.qualifiers.value) =~ "%#{query}%") | (upper(cds.qualifiers.value) =~ "%#{query}%") | (upper(mrna.qualifiers.value) =~ "%#{query}%")) & (bioentry_id.in(bioentry_ids))}.paginate({:page => params[:page],:per_page => params[:limit]})
+             
              data = []
 
-             # Collect the data and matching result
-             gm = gene_models.first
-             
-             gene_models.each do |gene_model|
+             # Collect the data and matching result             
+             gene_models.each do |m|
+                
+                #Hack! in-efficient workaround for failed eager-loading with conditions
+                gene_model = GeneModel.where(:id => m).includes{[gene.qualifiers, cds.qualifiers, mrna.qualifiers]}.first
+                
                 info = "<br/>"
                 match = ""
                 max_pre_char = 35
@@ -231,17 +232,21 @@ class FetchersController < ApplicationController
                 max_total_char = 100
                 ["gene","cds","mrna"].each do |feature|
                     if fea = gene_model.send(feature)
-                        fea.qualifiers.each do |q|                            
-                            if(pos = q.value.upcase=~(/#{params[:query].upcase}/))
-                               match = "<b>#{q.term.name}:</b>"
-                               text=q.value
-                               if(pos > max_pre_char)
-                                 text = "..."+text[pos-max_pre_char, (text.length-(pos-max_pre_char))]
-                               end    
-                               text.gsub!(/(.{1,#{max_line_char}})( +|$\n?)|(.{1,#{max_line_char}})/,"\\1\\3\n")
-                               text = truncate(text, :length => 70)
-                               match += highlight(text, params[:query], :highlighter => '<b class="darkred">\1</b>')
-                             end
+                        fea.qualifiers.each do |q|
+                            # avoiding repeats
+                            next if(q.term.name=='locus_tag'||q.term.name=='gene') unless feature =='gene'
+                            
+                            if(pos = q.value(false).upcase=~(/#{params[:query].upcase}/))
+                              match = "<b>#{q.term.name}:</b>"
+                              text=q.value(false)
+                              if(pos > max_pre_char)
+                               text = "..."+text[pos-max_pre_char, (text.length-(pos-max_pre_char))]
+                              end    
+                              text.gsub!(/(.{1,#{max_line_char}})( +|$\n?)|(.{1,#{max_line_char}})/,"\\1\\3\n")
+                              text = truncate(text, :length => 70)
+                              match += highlight(text, params[:query], :highlighter => '<b class="darkred">\1</b>')
+                              break
+                            end
                          end
                      end
                  end

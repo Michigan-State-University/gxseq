@@ -13,7 +13,7 @@ class Db < Thor
   method_option :molecule_type
   def load_seq(input_file)
      # setup
-    revision = options[:version]
+    version = options[:version]
     namespace = options[:namespace]
     verbose = options[:verbose]
     taxon_name = options[:taxon_name]
@@ -35,7 +35,15 @@ class Db < Thor
       puts "*** Error parsing input *** \n#{$!}"
       exit 0
     end
-
+    
+    
+    # Check file format
+    supported_file_types= ['genbank','fasta']
+    file_type = data.dbclass.name.gsub(/Bio::/,'').downcase
+    unless(supported_file_types.include?(file_type))
+      raise "Unsupported file type #{file_type}\nPlease provide a #{supported_file_types.to_sentence(:last_word_connector => ' or ')}"
+    end
+    
     # grab the time for stats
     curr_time = Time.now
 
@@ -48,7 +56,6 @@ class Db < Thor
     ano_tag_ont_id = Ontology.find_or_create_by_name("Annotation Tags").id
     seq_src_term = Term.find_or_create_by_name_and_ontology_id("EMBL/GenBank/SwissProt",seq_src_ont_id)
 
-
     # Loop through each of the entries we receive (From file or STDIN)
     data.each do |e|
       #clone the iterator, allow for garbage collection
@@ -58,20 +65,24 @@ class Db < Thor
         Biodatabase.transaction do
           # Getting an empty entry at end of file so we skip it here          
           next if(entry.accession.blank? && entry.definition.blank? && entry.seq.length == 0 && entry.features.size == 0)
-          
           #create the accesion for this sequence based on acc, entry_id and locus
           entry_accession = nil
-          if(entry.accession)
+          if(entry.accession && !entry.accession.blank?)
             entry_accession = entry.accession
           else
-            if(entry.entry_id)
+            case file_type
+            when 'fasta'
               entry_accession = entry.entry_id
-            end
-            if(entry.locus)
-              entry_accession << '.' << entry.locus
+              if(entry.locus)
+                entry_accession << '.' << entry.locus
+              end
+            when 'genbank'
+              entry_accession = entry.locus.entry_id
             end
           end
-          raise "Accession error: Could not infer entry accession:" unless entry_accession
+          if entry_accession.blank?
+            raise "Accession error: Could not infer entry accession:#{entry.get("LOCUS")}" 
+          end
           
           entry_count +=1
           entry_bioseq = entry.to_biosequence
@@ -79,14 +90,9 @@ class Db < Thor
 
           # Get Entry version
           if(entry.respond_to?(:version))
-            entry_version = revision.nil? ? (entry.version.nil? ? 1 : entry.version) : revision
-            if revision && verbose
-              puts "using entry_version: #{entry_version}" 
-            elsif verbose
-              puts "using version from file: #{entry_version}"
-            end
+            entry_version = (entry.version.nil? ? 1 : entry.version)
           else
-            entry_version = revision || 1
+            entry_version = 1
           end
           
           # Get Entry taxonomy
@@ -128,7 +134,7 @@ class Db < Thor
           end
           
           # Get Taxon Version
-          taxon_version = TaxonVersion.find_or_create_by_version_and_taxon_id(entry_version, taxon.id)
+          taxon_version = TaxonVersion.find_or_create_by_version_and_taxon_id((version || 1), taxon.id)
           taxon_version.species_id ||= taxon.species.id
           taxon_version.name ||= taxon.name
           taxon_version.save!
@@ -155,7 +161,7 @@ class Db < Thor
             puts "\tHTG - HTG sequences (high-throughput genomic sequences)"
             puts "\tHTC - unfinished high-throughput cDNA sequencing"
             puts "\tENV - environmental sampling sequences"
-            raise "*** No division could be found"
+            raise "*** No division could be found\n"
           end
           
           # Check for existing entry

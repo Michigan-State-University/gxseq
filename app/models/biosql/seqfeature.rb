@@ -38,6 +38,15 @@ class Seqfeature < ActiveRecord::Base
   #has_many :notes, :class_name => "SeqfeatureQualifierValue", :order => "rank", :conditions => "trm_oid = #{Term.find_by_name("note").id}"
 
   ## CLASS METHODS
+  #Override STI. If the type is not defined, create a class for it.
+  def self.find_sti_class(type_name)
+    begin
+      super(type_name)
+    rescue ActiveRecord::SubclassNotFound
+      logger.error "\n\nEncountered Unknown Seqfeature type: #{type_name}\n\n"
+      Object.const_set(type_name.gsub(/\W/,"_").gsub(/_+/,"_"),Class.new(Seqfeature))
+    end
+  end
    def self.find_all_by_locus_tag(locus="")
       self.find(:all, 
       :include => [:bioentry, :locations, :type_term, [:qualifiers => [:term]]], 
@@ -95,7 +104,17 @@ class Seqfeature < ActiveRecord::Base
        return nil
      end
    end
-
+   
+   def db_xrefs
+     n = []
+     qualifiers.each do |q|
+       if q.term.name == 'db_xref'
+         n<< q
+       end
+     end
+     return n    
+   end
+   
    def notes
      n = []
      qualifiers.each do |q|
@@ -136,37 +155,15 @@ class Seqfeature < ActiveRecord::Base
   end
   
   def to_genbank
-    locations = genbank_location.gsub(/(.{1,58})( +|$)\n?|(.{1,57})(,|;|:|-|=)|(.{58})/,"\\1\\3\\4\\5\n").strip.split("\n")
-    location=locations.first;
-    locations-=[location]
-    text ="\n".ljust(5)+type_term.name.ljust(15)+" #{location}"
-    locations.each do |l|
-      text+="\n".ljust(21)+"#{l}"
-    end
+    text ="\n".ljust(6)+type_term.name.ljust(15)
+    text += genbank_location.break_and_wrap_text(58,"\n",22,false)
     qualifiers.each do |q|
-      values = ("/#{q.term.name}="+q.value).gsub(/(.{1,58})( +|$)\n?|(.{1,57})(,|;|:|-|=)|(.{58})/,"\\1\\3\\4\\5\n").strip.split("\n")
-      value=values.first;
-      values-=[value];
-      text+="\n".ljust(21)+"#{value.strip}"
-      values.each do |v|
-        text+="\n".ljust(21)+"#{v.strip}"
-      end
+      text += ("/#{q.term.name}="+q.value).break_and_wrap_text(58,"\n",22)
     end
     return text
   end
   
-  def to_genbank_for_forms
-    genbank = {:location  => [], :sqv  => [], :location_ids  => [], :sqv_ids => []}
-    locations.each do |n|
-      genbank[:location].push({n.term.name.to_sym => "#{n.start_pos}..#{n.end_pos}"})
-      genbank[:location_ids].push({n.term.name.to_sym => "#{n.term.term_id}"})
-    end
-    qualifiers.each do |x|
-      genbank[:sqv].push({x.term.name.to_sym  => x.value})
-      genbank[:sqv_ids].push({x.term.name.to_sym  => "#{x.id}"})
-    end
-    genbank
-  end
+  
   
   def initialize_associations
     qualifiers.each{|q|q.seqfeature = self}
@@ -219,6 +216,8 @@ class Seqfeature < ActiveRecord::Base
     logger.info "\n\n#{data}\n\n"
     return data
   end
+  
+ 
 end
 
 

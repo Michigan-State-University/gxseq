@@ -37,6 +37,14 @@
 			<td class="keyword">End Position</td>
 			<td><%= @gene.locations.first.end_pos %></td>
 		</tr>
+		<% unless @gene.db_xrefs.empty? %>
+  		<tr class=<%= cycle("odd","even") %>>
+  			<td class="keyword">External Reference(s)</td>
+  			<td>
+  			  <%= @gene.db_xrefs.map(&:value).join("<br/>").html_safe%>
+  			</td>
+  		</tr>
+  	<% end %>
 	</table>
 	</div>
 	
@@ -83,11 +91,21 @@
 					<h2>Sequence Details</h2>
 					<table>
 						<% reset_cycle %>
-						<% if gene_model.mrna && gene_model.mrna.transcript_id %>
-							<tr class=<%= cycle("odd","even") %>>
-								<td class="keyword">Transcript ID</td>
-								<td><%=gene_model.mrna.transcript_id.value%></td>
-							</tr>
+						<% if gene_model.mrna%>
+						  <% if gene_model.mrna.transcript_id  %>
+  							<tr class=<%= cycle("odd","even") %>>
+  								<td class="keyword">Transcript ID</td>
+  								<td><%=gene_model.mrna.transcript_id.value%></td>
+  							</tr>
+							<% end %>
+							<% if gene_model.mrna.db_xrefs %>
+  							<tr class=<%= cycle("odd","even") %>>
+    							<td class="keyword">Transcript Reference(s)</td>
+    							<td>
+    							  <%= gene_model.mrna.db_xrefs.map(&:value).join("<br/>").html_safe%>
+    							</td>
+    						</tr>
+    					<% end %>						
 						<% end %>
 						<tr class=<%= cycle("odd","even") %>>
 							<td class="keyword">Gene Length</td>
@@ -103,6 +121,15 @@
 								<td><%= gene_model.cds.protein_id.value %></td>
 							</tr>
 						<% end %>
+						<% if gene_model.cds.db_xrefs %>
+							<tr class=<%= cycle("odd","even") %>>
+  							<td class="keyword">Protein Reference(s)</td>
+  							<td>
+  							  <%= gene_model.cds.db_xrefs.map(&:value).join("<br/>").html_safe%>
+  							</td>
+  						</tr>
+  					<% end %>
+						
 						<tr class=<%= cycle("odd","even") %>>
 							<td class="keyword">Protein Length</td>
 							<td><%= gene_model.protein_sequence.size if gene_model.protein_sequence %></td>

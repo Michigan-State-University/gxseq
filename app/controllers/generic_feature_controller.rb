@@ -68,7 +68,7 @@ class GenericFeatureController < ApplicationController
          if(params[:annoj_action] == 'lookup')
              show = ["product"]
              bioentry = Bioentry.find(params['bioentry'])             
-             bioentry_ids = bioentry.taxon.bioentries.map(&:id)
+             bioentry_ids = bioentry.taxon_version.bioentries.map(&:id)
              features = Seqfeature.joins{qualifiers.term}.includes( [:locations, [:qualifiers => [:term]]]).order("term.name").where{qualifiers.term.name != 'translation'}.where("UPPER(value) like '%#{params[:query].upcase}%' AND bioentry_id in (#{bioentry_ids.join(',')}) AND display_name not in ('#{GeneModel.seqfeature_types.join("','")}')")
              data = []
              features[params[:start].to_i,params[:limit].to_i].each do |feature|

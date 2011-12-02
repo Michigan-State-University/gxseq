@@ -13,6 +13,7 @@ AnnoJ.InfoBox = function()
 		border    : false,
 		contentEl : body,
 		autoScroll : true,
+		hideCollapseTool: true,
     buttons : [
     { 
       xtype : 'button',

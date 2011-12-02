@@ -95,11 +95,11 @@ class GenesController < ApplicationController
     
     #grab the Gene for this locus
     begin
-      @gene = Gene.find(params[:id], :include => [:locations,[:bioentry => [:taxon => :scientific_name]],[:gene_models => [:cds => [:locations, [:qualifiers => :term]],:mrna => [:locations, [:qualifiers => :term]]]],[:qualifiers => :term]])
+      @gene = Gene.find(params[:id], :include => [:locations,[:bioentry => [:taxon_version]],[:gene_models => [:cds => [:locations, [:qualifiers => :term]],:mrna => [:locations, [:qualifiers => :term]]]],[:qualifiers => :term]])
       @locus = @gene.locus_tag.value.upcase
     rescue
       @locus = params[:id].upcase
-      @gene = Gene.with_locus_tag(@locus).includes(:locations, [:bioentry => [:taxon => :scientific_name]],[:gene_models => [:cds => [:locations, [:qualifiers => :term]],:mrna => [:locations, [:qualifiers => :term]]]],[:qualifiers => :term]).first
+      @gene = Gene.with_locus_tag(@locus).includes(:locations, [:bioentry => [:taxon_version]],[:gene_models => [:cds => [:locations, [:qualifiers => :term]],:mrna => [:locations, [:qualifiers => :term]]]],[:qualifiers => :term]).first
     end
     
     #check for other genes with the same locus_tag
@@ -167,7 +167,7 @@ class GenesController < ApplicationController
   def get_gene_data
     begin
       #get gene and attributes
-      @gene = Gene.find(params[:id], :include => [:locations, [:bioentry => [:taxon => :scientific_name]],[:gene_models => [:cds => [:locations, [:qualifiers => :term]],:mrna => [:locations, [:qualifiers => :term]]]],[:qualifiers => :term]])
+      @gene = Gene.find(params[:id], :include => [:locations, [:bioentry => [:taxon_version]],[:gene_models => [:cds => [:locations, [:qualifiers => :term]],:mrna => [:locations, [:qualifiers => :term]]]],[:qualifiers => :term]])
       setup_graphics_data      
       @locus = @gene.locus_tag.value.upcase
       @bioentry = @gene.bioentry
@@ -188,7 +188,6 @@ class GenesController < ApplicationController
     @view_start = @gene.min_start - (200*@gui_zoom)
     @gui_data = GeneModel.get_canvas_data(@view_start,@view_start+(@canvas_width*@gui_zoom),@gene.bioentry.id,@gui_zoom,@gene.strand)
     @depth = @gui_data.collect{|g| (g[:x2]>=(@gene.min_start-@view_start)/@gui_zoom && g[:x]<=(@gene.max_end-@view_start)/@gui_zoom) ? 1 : nil}.compact.size
-    logger.info "\n\n#{@depth}\n\n"
     @canvas_height = ( @depth * (@model_height * 2))+10 # each model and label plus padding
     @gui_data=@gui_data.to_json
   end

@@ -22,7 +22,7 @@
 	
 	<% content_for :item_bar do -%>	
 		<div style="float:left">
-			<%#= link_to "Back", @gene, :class => "button" %>
+			<%= link_to "Back", @gene, :class => "button" %>
 			With the advanced gene editor you can manipulate all aspects of a stored Gene. Below you will find a graphical representation of the gene and a form with several items. Changes will be recorded in the database after you submit the form. For more information please read the Advanced Edit section of the <%= link_to "Gene Details", details_genes_path %> page.
 		</div>
 		<%= render :partial => 'format_links' %>

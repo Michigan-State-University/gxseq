@@ -2,7 +2,7 @@ class Taxon < ActiveRecord::Base
   set_table_name "taxon"
   set_primary_key :taxon_id
   belongs_to :parent, :class_name => "Taxon", :foreign_key => "parent_taxon_id"
-  has_many :bioentries, :order => :description
+  has_many :bioentries, :through => :taxon_versions, :order => :description
   has_many :taxon_names
   has_many :taxon_versions
   has_many :species_versions, :class_name => "TaxonVersion", :foreign_key => :species_id #only valid if taxon is species

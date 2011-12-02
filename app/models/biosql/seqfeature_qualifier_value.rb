@@ -33,6 +33,25 @@ class SeqfeatureQualifierValue < ActiveRecord::Base
     value
   end
   
+  def self.db_xref_id
+    @db_xref_id ||= (Term.find_or_create_by_name_and_ontology_id("db_xref",Ontology.find_or_create_by_name("Annotation Tags").id).id)
+  end
+  
+  def value(allow_interpolate=true)
+    return super() unless allow_interpolate
+    if(term_id == self.class.db_xref_id)
+      val = super()
+      dbname,dbid=val.split(":")
+      if(dbname && dbid)
+        "#{dbname}:<a href='#{Dbxref::XREF_LINKS[dbname.underscore.to_sym]}#{dbid}' target=#>#{dbid}</a>"
+      else
+        val
+      end
+    else
+      super()
+    end
+  end
+  
   protected
   
   def update_rank

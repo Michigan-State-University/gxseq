@@ -699,7 +699,9 @@ AnnoJ.Tracks = function(userConfig)
 			};
 		};
 		
-		//Add mouse listeners
+//START MOUSE LISTENERS
+
+		//START DRAG EVENT
 		self.on('dragStarted', function()
 		{
 			if (dragMode == 'zoom'){			
@@ -727,6 +729,8 @@ AnnoJ.Tracks = function(userConfig)
 		    }
 			
 		});
+		
+		//STOP DRAG EVENT
 		self.on('dragEnded', function()
 		{
 			var box = getBox();
@@ -772,6 +776,8 @@ AnnoJ.Tracks = function(userConfig)
 				hide();
 			}
 		});
+		
+		//CONTINUE DRAG EVENT
 		self.on('dragged', function()
 		{
 			var box = mouse2box();
@@ -803,6 +809,7 @@ AnnoJ.Tracks = function(userConfig)
 				return;
 			}
 		});
+		//CANCEL DRAG EVENT
 		self.on('dragCancelled', function()
 		{
 		    if(dragMode == 'select')
@@ -818,7 +825,8 @@ AnnoJ.Tracks = function(userConfig)
 			hide();
 			
 		});
-		
+// END MOUSE LISTENERS
+
 		return {
 			hide : hide,
 			show : show,

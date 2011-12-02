@@ -2,7 +2,6 @@ class Bioentry < ActiveRecord::Base
   set_table_name "bioentry"
   set_primary_key :bioentry_id
   belongs_to :biodatabase, :class_name => "Biodatabase"
-  #belongs_to :taxon
   belongs_to :taxon_version
   
   has_one :biosequence, :dependent  => :destroy
@@ -111,8 +110,50 @@ class Bioentry < ActiveRecord::Base
     end
   end
   
-  #To dump a bioentry
-  #./bioentry2flat.pl -dbuser annoj -dbpass 'PASS' -dbname annoj -outformat genbank -format genbank -file output_test2.gbk -biodbname bioperl
+  def taxon
+    taxon_version.nil? ? nil : taxon_version.taxon 
+  end
+  
+  def keywords
+    n = []
+    bioentry_qualifier_values.each do |q|
+      if q.term.name == 'db_xref'
+        n<< q
+      end
+    end
+    return n
+  end
+  
+  ['secondary_accession','date_modified'].each do |qv|
+   define_method qv.to_sym do
+     qualifiers.each do |q|
+         if q.term.name == qv
+            return q.value
+         end
+      end
+      return nil
+    end
+  end
+  
+  def genbank_header
+    text = "LOCUS".ljust(12)+accession+"\t#{biosequence.length} bp\t#{biosequence.alphabet}\t#{date_modified}\n"
+    text +="DEFINITION".ljust(12)+"#{description}\n"
+    text +="ACCESSION".ljust(12)+"#{accession}\n"
+    text +="VERSION".ljust(12)+"#{version}\n"
+    unless keywords.empty?
+      text+="KEYWORDS".ljust(12)+keywords.join(";").break_and_wrap_text(62,"\n",13,false)+"\n"
+    end
+    text+="SOURCE".ljust(12)+taxon.name+"\n"
+    unless comments.empty?
+      text+="COMMENT".ljust(12)+comments.map(&:comment_text).join(";").break_and_wrap_text(62,"\n",13,false)+"\n"
+    end
+    text+="FEATURES".ljust(21)+"Location/Qualifiers"
+  end
+  
+  def to_genbank
+    text = genbank_header    
+    return text
+  end
 end
 
 

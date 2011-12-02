@@ -8,6 +8,7 @@ Ext.define('Sv.gui.TrackSelector',{
   autoScroll:     true,
   rootVisible:    false,
   singleExpand:   false,
+  hideCollapseTool: true,
   lines: false,
   activeTracks:   [],
   rootVisible: false,

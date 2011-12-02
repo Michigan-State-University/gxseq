@@ -165,8 +165,7 @@ input.text {
 /* middle */
 #middle {
 	float:left;
-    width:100%;
- 	
+    width:100%; 	
     min-height:700px;
 	background:#fff;
 	border: 1px solid #849dae;

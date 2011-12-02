@@ -2,7 +2,6 @@ class BioentriesController < ApplicationController
 
   def index
     @bioentry_species = Taxon.in_use_species.includes(:scientific_name, :taxon_versions => [:taxon => [:taxon_names]])
-    logger.info "\n\n#{pp @bioentry_species.all}\n\n"
   end
   
   def new
@@ -67,4 +66,21 @@ class BioentriesController < ApplicationController
     end
     render :layout => 'sequence_viewer'
   end
+  
+  def edit
+    @bioentry = Bioentry.find(params[:id])
+  end
+
+  def update
+    @bioentry = Bioentry.find(params[:id])
+    respond_to do |wants|
+      if @bioentry.update_attributes(params[:bioentry])
+        flash[:notice] = 'Bioentry was successfully updated.'
+        wants.html { redirect_to(@bioentry) }
+      else
+        wants.html { render :action => "edit" }
+      end
+    end
+  end
+  
 end

@@ -19,11 +19,11 @@ GenomeSuite::Application.routes.draw do
   resources :genes do
     get 'details', :on => :collection
   end
-  resources :gene_models
-  
+  resources :gene_models  
   resources :locations
   resources :seqfeature_qualifier_values
-
+  resources :taxon_versions
+  
   ##Browser
   resources :track_layouts
   resources :tracks
@@ -36,14 +36,6 @@ GenomeSuite::Application.routes.draw do
   
   ##Experiments
   resources :assets, :only => [:show]
-  resources :tools do
-    get 'details', :on => :collection
-    get 'smooth', :on => :collection
-    post 'smooth', :on => :collection
-  end
-  resources :experiments do
-    get 'asset_details', :on => :collection
-  end
   resources :chip_chips do
     get 'details', :on => :collection
     get 'compute_peaks', :on => :member
@@ -60,6 +52,9 @@ GenomeSuite::Application.routes.draw do
       get 'graphics'
     end
   end
+  resources :experiments do
+    get 'asset_details', :on => :collection
+  end
   resources :synthetics do
     get 'details', :on => :collection
     get 'compute_peaks', :on => :member
@@ -67,6 +62,11 @@ GenomeSuite::Application.routes.draw do
       get 'initialize_experiment'
       get 'graphics'
     end
+  end
+  resources :tools do
+    get 'details', :on => :collection
+    get 'smooth', :on => :collection
+    post 'smooth', :on => :collection
   end
   resources :variants do
     collection do

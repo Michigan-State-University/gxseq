@@ -9,6 +9,6 @@
 		<% end %>
 		<%= f.hidden_field :id, :value => f.object.id unless f.object.new_record? %>
 		<%= f.input :value, :as => ((f.object.value && f.object.value.length > 30) ? :text : :string),:label => false, :input_html => {:disabled => (f.object.term && f.object.term.name=='locus_tag' && !f.object.new_record?)} %>
-		<%= link_to_remove_fields image_tag("delete",:alt => "Remove Field"), f unless (f.object.term && f.object.term.name=='locus_tag')%>
+		<%= link_to_remove_fields image_tag("delete.png",:alt => "Remove Field"), f unless (f.object.term && f.object.term.name=='locus_tag')%>
 	<% end %>
 </ul>

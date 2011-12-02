@@ -1,6 +1,10 @@
 <% content_for :head do %>
 	<%= stylesheet_link_tag 'sstree' %>
+	<%= render :partial => "common/extjs" %>
+	<%= render :partial => "common/extjs_css_gray" %>
+	<%= render :partial => "common/svjs_css" %>
 	<%= javascript_include_tag 'sstree' %>
+	
 <% end %>
 
 <% content_for :body_onload do -%>
@@ -9,13 +13,17 @@
 
 <% content_for :top_bar do %>
 	<!-- Header here -->
-	<h1 class="pagetitle">Genomes</h1>
+	<h1 class="pagetitle">Sequence</h1>
 <% end %>
 
 <% content_for :item_bar do %>
 	<!-- Filter / Search items here -->
 	<div style="float:left">
-		<%= link_to "Upload Sequence", send("new_bioentry_path"), :class => "button" %>
+		<%#= link_to "Upload Sequence", send("new_bioentry_path"), :class => "button" %>
+	</div>
+	<div style="float:left;width:590px">
+	   Use the text field next to each entry to search Gene Model annotations. Clicking on a result will display the Sequence Viewer with the position and sequence of the given Gene Model.To view more information about each sequence select the list icon. <%= image_tag("table.png") %>
+	 
 	</div>
 <% end %>
 
@@ -30,7 +38,7 @@
 		<th style="border:none" width="10%">Species</th>
 		<th style="border:none" width="35%">Taxon</th>
 		<th style="border:none" width="10%">Version</th>
-		<th style="border:none" width="45%">Sequence</th>
+		<th style="border:none" width="45%">Options</th>
 	</thead>
 	<% @bioentry_species.each_with_index do |species, species_idx| %>
 	<% id = species_idx + 1  %>
@@ -43,60 +51,124 @@
 		</td>
 		<td></td><td></td>
 	</tr>
-		<% taxon_children = species.in_use_children %>
-		<% taxon_children.each_with_index do |t, t_idx| %>
-		<% id = "#{species_idx + 1}-#{t_idx + 1}" %>
-				<tr id="<%= id %>" class="two" onclick="toggleRows(document.getElementById('a_<%= id %>'));return false">
-					<td colspan="2" style='text-align:center;'>
-						<div class="tier2">
-							<a id="a_<%= id %>" style="width:32px;height:32px" class="folder" name="<%= id %>" href="#<%= id %>" onclick="toggleRows(this);return false"> </a>
-						<%#= link_to t.name, t.bioentries.first%> <%= t.scientific_name.name %>
-						<% if t.taxon_names.size > 1 %>
-						- <%= link_to_function "Hide",
-						"$('#{t.id}_show_more').show(); $('#{t.id}_variants').hide(); $('#{t.id}_show_less').hide()",
-						{:id => "#{t.id}_show_less", :style => 'display:none'} 
-						%>
-							<div id='<%= t.id %>_variants' style="display:none">
-								<% t.taxon_names.each do |n| %>
-									<% next if n == t.scientific_name %>
-									-<%= n.name %><br/>
-								<% end %>
-							</div>
-							<%= link_to_function "#{t.taxon_names.size - 1} variants",
-							"$('#{t.id}_show_less').show(); $('#{t.id}_variants').show(); $('#{t.id}_show_more').hide()",
-							:id => "#{t.id}_show_more" 
-							%>
-						<% end %>
-						</div>
+			<% species.species_versions.each_with_index do |t_version, v_idx| %>
+				<% id = "#{species_idx + 1}-#{v_idx + 1}" %>
+				<tr id="<%= id %>" class="item">
+					<td>
+					  <div class="tier4">
+					    <a name="<%= id %>" href="#<%= id %>" ></a>
+					  </div>
 					</td>
-					<td></td>
-					<td></td>
-				</tr>
-				<% t.taxon_versions.each_with_index do |t_version, v_idx| %>
-				<% id = "#{species_idx + 1}-#{t_idx + 1}-#{v_idx + 1}" %>
-				<tr id="<%= id %>" class="item" style="display:none" onclick="toggleRows(document.getElementById('a_<%= id %>'));return false">
-					<td><div class="tier4">
-						<a name="<%= id %>" href="#<%= id %>" ></a></div></td>
-					<td></td>
+					<td style="text-align:left">
+					  <%= t_version.name %>
+					</td>
 					<td style="text-align:left">
 						<%= t_version.version %>
 					</td>
 					<td style="text-align:center">
-					  <% bioentry_count = t_version.bioentries.includes([:source_features => [:qualifiers => :term]]).count %>
-					  <% if(bioentry_count <= 35) %>
-  						<% t_version.bioentries.includes([:source_features => [:qualifiers => :term]]).each do |entry| %>
-  							<%= link_to entry.short_name, entry, :target => 'bioentry'+entry.id.to_s %><%= entry==t_version.bioentries.last ? "" : "," %>
-  						<% end %>
-						<% else %>
-  						<% t_version.bioentries.includes([:source_features => [:qualifiers => :term]]).order('bioentry_id asc').limit(35).each do |entry| %>
-  							<%= link_to entry.short_name, entry, :target => 'bioentry'+entry.id.to_s %>
-  						<% end %>
-  						  <%= "and #{bioentry_count - 35} more ..." %>
-  					<% end %>
+            <!-- <div style="float:right">(<%#= t_version.bioentries.includes([:source_features => [:qualifiers => :term]]).count %>)</div>  -->
+            <!-- <div style="float:left;margin-left:2em"> -->
+              <% unless t_version.bioentries.blank? %>
+					      <%= remote_search(t_version.bioentries.first.id,"fetchers/gene_models","taxon_version_#{t_version.id}_search") %>
+					    <% end %>
+					    <%= link_to image_tag("table.png"), t_version, :target => :blank %> (<%= t_version.bioentries.count %>)
+            <!-- </div>   -->         
 					</td>
 				</tr>
-				<% end %>
+				<%# end %>
 		<% end %>
 	<% end %>
 </table>
 </div>
+<script type="text/javascript">
+Ext.onReady(function(){
+  Ext.define('GeneSearchResult',{
+    extend : 'Ext.data.Model',
+    fields: [
+    {name: 'id', type:'int'},
+    {name: 'type', type:'string'},
+    {name: 'match', type:'string'},
+    {name: 'bioentry', type: 'string'},
+    {name: 'bioentry_id', type: 'int'},
+    {name: 'start', type: 'int'},
+    {name: 'end', type: 'int'},
+    {name: 'description', type: 'string'},
+    {name: 'reload_url',type:'string'}
+    ]
+  });
+
+  //Custom rendering Template
+  var resultTpl = new Ext.XTemplate(
+    '<tpl for=".">',
+    '<div style="float:left"><b>{type}:</b>({start}-{end})</div><div style="float:right"><b>{bioentry}</b></div><br/>',
+    '{match}',
+    '<span>{description}</span>',
+    '</tpl>'
+  );
+  items = document.getElementsByClassName('remote_search');
+  Ext.each(items,function(){
+    renderSearchBox(this.readAttribute('data-item'),this.readAttribute('data-url'),this.id)
+  })
+  
+});      
+
+function renderSearchBox(bioentry_id, searchURL,searchDiv,searchString){
+  var ds = Ext.create('Ext.data.Store',{
+    model: 'GeneSearchResult',
+    pageSize : 20,
+    proxy : {
+      type : 'ajax',
+      url : searchURL,
+      reader:{
+        type : 'json',
+        root : 'rows',
+        totalProperty : 'count',
+        id : 'id'
+      },
+      extraParams : {
+        annoj_action  : 'lookup',
+        bioentry      : bioentry_id
+      }
+    },
+
+  });
+
+  var search = new Ext.form.ComboBox(
+    {
+      store       : ds,
+      valueField  : 'id',
+      width       : 300,
+      queryDelay  : 300,
+      minChars    : 4,
+      hideTrigger : true,
+      pageSize    : 10,
+      renderTo    : searchDiv,
+      emptyText   : searchString,
+      listConfig  : {
+        loadingText  : 'Searching...',
+        getInnerTpl: function() {
+          var tpl = '<div class="drop_list"><div style="float:left"><b>{type}:</b>({start}-{end})</div><div style="float:right"><b>{bioentry}</b></div><br/>'+
+          '{match}'+
+          '<span>{description}</span></div>';
+          return tpl;
+        }
+      },			
+      listeners : {
+
+        beforequery:function(queryEvent){
+          //Hack fix for missing query param: http://www.sencha.com/forum/showthread.php?134592-EXTJSIV-2470-4.0.1-ComboBox-not-issuing-queryParam-on-paging-requests
+          queryEvent.combo.store.proxy.extraParams.query = queryEvent.combo.getValue();
+        },
+        change:function(combo){
+          combo.store.currentPage = 1;
+        },
+        select : function(box, items)
+        {
+          record = items[0] //we only allow single selection
+          window.open( record.data.reload_url+"/"+record.data.bioentry_id+"?tracks[]=models_track&gene_id="+record.data.id+"&pos="+record.data.start,
+          record.data.bioentry_id+"_sequence")
+        }
+      }
+    });
+  }
+</script>

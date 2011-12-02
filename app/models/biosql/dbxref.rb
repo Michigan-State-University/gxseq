@@ -6,6 +6,21 @@ class Dbxref < ActiveRecord::Base
   has_many :references, :class_name=>"Reference"
   has_many :term_dbxrefs, :class_name => "TermDbxref"
   has_many :bioentry_dbxrefs, :class_name => "BioentryDbxref"
+  
+  def display_info
+    "#{dbname}:<a href='#{XREF_LINKS[dbname.underscore.to_sym]}#{accession}' target=#>#{accession}</a>"
+  end
+
+  XREF_LINKS = {
+    :pubmed => "http://www.ncbi.nlm.nih.gov/pubmed?term=",
+    :pmid => "http://www.ncbi.nlm.nih.gov/pubmed?term=",
+    :taxon => "http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=",
+    :tair => "http://arabidopsis.org/servlets/TairObject?type=locus&name=",
+    :geneid => "http://www.ncbi.nlm.nih.gov/gene?term=",
+    :gi => "http://www.ncbi.nlm.nih.gov/nuccore/",
+    :sgd => "http://www.yeastgenome.org/cgi-bin/locus.fpl?locus="
+  }
+  
 end
 
 # == Schema Information

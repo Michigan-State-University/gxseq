@@ -10,6 +10,7 @@ AnnoJ.LayoutBox = function()
 		iconCls   : 'silk_application_side_list',
 		border    : false,
 		contentEl : body,
+		hideCollapseTool: true,
 		autoScroll : true
 	});	
 	

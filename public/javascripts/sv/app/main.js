@@ -72,28 +72,26 @@ var AnnoJ = (function()
 		// };
 		
 		//Syndicate the genome
-		progressBar.updateProgress(0.25, 'Loading genome...');
-		GUI.NavBar.syndicate(
-		{
-			url : config.genome,
-			bioentry : config.bioentry,
-			success : function(response)
-			{
-				//GUI.notice('Genome syndicated');
-				GUI.NavBar.setLocation(config.location);
-				progressBar.updateProgress(0.5, 'Building tracks...');
-				buildTracks();
-				//GUI.notice('Tracks instantiated');				
-				progressBar.updateProgress(1.0, 'Finished');
-				progressBar.hide();
-			},
-			failure : function(string)
-			{
-				progressBar.hide();
-				//error('Unable to load genomic metadata from address: ' + config.genome);
-				Ext.MessageBox.alert('Error', 'Unable to load genomic metadata from address: ' + config.genome);
-			}
-		});
+		progressBar.updateProgress(0.5, 'Loading genomes...');
+    GUI.NavBar.syndicate(
+       {
+        url : config.genome,
+        bioentry : config.bioentry,
+        success : function(response)
+        {
+          progressBar.updateProgress(0.75, 'Building tracks...');
+          GUI.NavBar.setLocation(config.location);
+          buildTracks();
+          progressBar.updateProgress(1.0, 'Finished');
+          progressBar.hide();
+          GUI.NavBar.setLocation(config.location);
+        },
+        failure : function(string)
+        {
+          progressBar.hide();
+          Ext.MessageBox.alert('Error', 'Unable to load genomic metadata from address: ' + config.genome);
+        }
+       });
 	 };
 	//Build all the tracks
 	function buildTracks()
@@ -254,6 +252,7 @@ var AnnoJ = (function()
         TrackSelector.on('moveTrack', Tracks.tracks.reorder);
         TrackSelector.on('closeTrack', Tracks.tracks.close);
 		InfoBox.hide();
+		Viewport.doLayout();
 		return {
 			//Messenger : Messenger,
 			TrackSelector : TrackSelector,
@@ -307,7 +306,6 @@ var AnnoJ = (function()
 	};
 	function getActiveTracks() {
 	  return GUI.Tracks.tracks;
-	    // return GUI.Track.tracks
 	};
 	function setLocation(location) {
 		return GUI.NavBar.setLocation(location);

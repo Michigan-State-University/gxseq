@@ -74,21 +74,21 @@ Ext.define('Sv.tracks.ModelsTrack',{
           });
           
           var ds = Ext.create('Ext.data.Store',{
-			model: 'GeneSearchResult',
-			pageSize : 20,
-			proxy : {
-			    type : 'ajax',
-    		    url : self.searchURL,
-    			reader:{
-    			    type : 'json',
-    			    root : 'rows',
-    			    totalProperty : 'count',
-    			    id : 'id'
-    			},
-    			extraParams : {
-    			   annoj_action  : 'lookup',
-    			   bioentry      : self.bioentry
-    			}
+			      model: 'GeneSearchResult',
+			      pageSize : 20,
+			      proxy : {
+			        type : 'ajax',
+    		      url : self.searchURL,
+    			    reader:{
+    			      type : 'json',
+    			      root : 'rows',
+    			      totalProperty : 'count',
+    			      id : 'id'
+    			    },
+    			    extraParams : {
+    			      annoj_action  : 'lookup',
+    			      bioentry      : self.bioentry
+    			    }
 			},
 
           });

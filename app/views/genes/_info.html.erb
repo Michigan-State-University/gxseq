@@ -10,6 +10,9 @@
   <% @gene.notes.each do |n|%>
     <tr><td>Note:</td><td><%=truncate(n.value,:length=>50)%></td></tr>
   <%end%>
+  <% @gene.db_xrefs.each do |x|%>
+    <tr><td>db_xref:</td><td><%=x.value.html_safe%></td></tr>
+  <%end%>
 </table>
 
 <% if @cds%>
@@ -22,6 +25,9 @@
 	  <% @cds.notes.each do |n|%>
 	    <tr><td>Note:</td><td><%=truncate(n.value,:length=>50)%></td></tr>
 	  <%end%>
+	  <% @cds.db_xrefs.each do |x|%>
+      <tr><td>db_xref:</td><td><%=x.value.html_safe%></td></tr>
+    <%end%>
 	</table>
 <% end %>
 
@@ -34,6 +40,9 @@
     <%if @mrna.product%><tr><td>Product:</td><td><%=@mrna.product.value%><td></tr><%end%>
     <% @mrna.notes.each do |n|%>
       <tr><td>Note:</td><td><%=truncate(n.value,:length=>50)%></td></tr>
+    <%end%>
+    <% @mrna.db_xrefs.each do |x|%>
+      <tr><td>db_xref:</td><td><%=x.value.html_safe%></td></tr>
     <%end%>
   </table>
 <% end %>
