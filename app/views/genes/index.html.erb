@@ -15,16 +15,19 @@
 <!-- Filter / Search items here -->
 	<div style="float:left">
 		<%= link_to "New Gene", send("new_gene_path"), :class => "button" %>
-	</div>
+	</div>	
 	<div style="float:right">
 		<%= form_tag genes_path, :method => :get %>
-			Search:
+			Search on Locus Tag or Gene Name:
 			<%= text_field_tag :q, params[:q] %>
 			<%= submit_tag " Go ", :class => "button" %>
 		</form>
 	</div>
 <% end %>
-
+<p>
+  Details about each Gene Model are displayed in the list below. Selecting a locus tag will open a page with even more detailed information about that gene. You can also select the sequence name to load the Sequence Viewer and display the gene model annotation.
+</p>
+<br/>
 <div id="gene_listing"></div>
 
 <script type="text/javascript">

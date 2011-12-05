@@ -21,10 +21,6 @@
 	<div style="float:left">
 		<%#= link_to "Upload Sequence", send("new_bioentry_path"), :class => "button" %>
 	</div>
-	<div style="float:left;width:590px">
-	   Use the text field next to each entry to search Gene Model annotations. Clicking on a result will display the Sequence Viewer with the position and sequence of the given Gene Model.To view more information about each sequence select the list icon. <%= image_tag("table.png") %>
-	 
-	</div>
 <% end %>
 
 <% content_for :sidebar do %>
@@ -32,13 +28,17 @@
 	<%= render :partial => "sidebar", :locals => {:active => 'listing'} %>
 <% end %>
 
+<p>
+   Each species in the database is displayed below. Click the arrow next to an entry to list all of its sequence, or use the text field to search on name and description. Then, select a result to display the Sequence Viewer and load the entry. To view more detailed information about each species select the list icon. <%= image_tag("table.png") %>	 
+</p>
+<br/>
 <div class="table" id="sstree-sequence">
 <table class="listing sstree">
-	<thead>
-		<th style="border:none" width="10%">Species</th>
-		<th style="border:none" width="35%">Taxon</th>
-		<th style="border:none" width="10%">Version</th>
-		<th style="border:none" width="45%">Options</th>
+	<thead >
+		<th style="border:none;text-align:left" width="5%">Species</th>
+		<th style="border:none;text-align:left" width="30%">Taxon</th>
+		<th style="border:none;text-align:left" width="10%">Version</th>
+		<th style="border:none" width="55%">Sequence</th>
 	</thead>
 	<% @bioentry_species.each_with_index do |species, species_idx| %>
 	<% id = species_idx + 1  %>
@@ -54,57 +54,43 @@
 			<% species.species_versions.each_with_index do |t_version, v_idx| %>
 				<% id = "#{species_idx + 1}-#{v_idx + 1}" %>
 				<tr id="<%= id %>" class="item">
-					<td>
+					<td colspan="2"style="text-align:center">
 					  <div class="tier4">
 					    <a name="<%= id %>" href="#<%= id %>" ></a>
 					  </div>
-					</td>
-					<td style="text-align:left">
 					  <%= t_version.name %>
 					</td>
 					<td style="text-align:left">
 						<%= t_version.version %>
 					</td>
-					<td style="text-align:center">
-            <!-- <div style="float:right">(<%#= t_version.bioentries.includes([:source_features => [:qualifiers => :term]]).count %>)</div>  -->
-            <!-- <div style="float:left;margin-left:2em"> -->
+					<td style="text-align:left">
               <% unless t_version.bioentries.blank? %>
-					      <%= remote_search(t_version.bioentries.first.id,"fetchers/gene_models","taxon_version_#{t_version.id}_search") %>
+					      <%= remote_search(t_version.id,"taxon_versions.json","taxon_version_#{t_version.id}_search") %>
 					    <% end %>
-					    <%= link_to image_tag("table.png"), t_version, :target => :blank %> (<%= t_version.bioentries.count %>)
-            <!-- </div>   -->         
+					    <%= link_to image_tag("table.png", :style => "padding:0px 1px 0px 5px"), t_version, :target => :blank %> 
+					    (<%= t_version.bioentries.count %>)     
 					</td>
 				</tr>
-				<%# end %>
 		<% end %>
 	<% end %>
 </table>
 </div>
 <script type="text/javascript">
+
 Ext.onReady(function(){
+  //Define Model
   Ext.define('GeneSearchResult',{
     extend : 'Ext.data.Model',
     fields: [
     {name: 'id', type:'int'},
-    {name: 'type', type:'string'},
-    {name: 'match', type:'string'},
-    {name: 'bioentry', type: 'string'},
-    {name: 'bioentry_id', type: 'int'},
-    {name: 'start', type: 'int'},
-    {name: 'end', type: 'int'},
-    {name: 'description', type: 'string'},
+    {name: 'accession', type:'string'},
+    {name: 'name', type: 'string'},
+    {name: 'length', type: 'int'},
     {name: 'reload_url',type:'string'}
     ]
   });
-
-  //Custom rendering Template
-  var resultTpl = new Ext.XTemplate(
-    '<tpl for=".">',
-    '<div style="float:left"><b>{type}:</b>({start}-{end})</div><div style="float:right"><b>{bioentry}</b></div><br/>',
-    '{match}',
-    '<span>{description}</span>',
-    '</tpl>'
-  );
+  
+  // Add search boxes to each row
   items = document.getElementsByClassName('remote_search');
   Ext.each(items,function(){
     renderSearchBox(this.readAttribute('data-item'),this.readAttribute('data-url'),this.id)
@@ -112,10 +98,10 @@ Ext.onReady(function(){
   
 });      
 
-function renderSearchBox(bioentry_id, searchURL,searchDiv,searchString){
+function renderSearchBox(taxon_version_id, searchURL,searchDiv,searchString){
   var ds = Ext.create('Ext.data.Store',{
     model: 'GeneSearchResult',
-    pageSize : 20,
+    pageSize : 10,
     proxy : {
       type : 'ajax',
       url : searchURL,
@@ -126,8 +112,7 @@ function renderSearchBox(bioentry_id, searchURL,searchDiv,searchString){
         id : 'id'
       },
       extraParams : {
-        annoj_action  : 'lookup',
-        bioentry      : bioentry_id
+        taxon_version_id  : taxon_version_id
       }
     },
 
@@ -138,19 +123,16 @@ function renderSearchBox(bioentry_id, searchURL,searchDiv,searchString){
       store       : ds,
       valueField  : 'id',
       width       : 300,
-      queryDelay  : 300,
-      minChars    : 4,
-      hideTrigger : true,
+      queryDelay  : 500,
+      minChars    : 1,
+      hideTrigger : false,
       pageSize    : 10,
       renderTo    : searchDiv,
       emptyText   : searchString,
       listConfig  : {
         loadingText  : 'Searching...',
         getInnerTpl: function() {
-          var tpl = '<div class="drop_list"><div style="float:left"><b>{type}:</b>({start}-{end})</div><div style="float:right"><b>{bioentry}</b></div><br/>'+
-          '{match}'+
-          '<span>{description}</span></div>';
-          return tpl;
+          return '<div class="drop_list"><div style="float:left"><b>{accession}:</b>({length})</div><div style="float:right"><b>{name}</b></div><br/></div>'
         }
       },			
       listeners : {
@@ -165,8 +147,7 @@ function renderSearchBox(bioentry_id, searchURL,searchDiv,searchString){
         select : function(box, items)
         {
           record = items[0] //we only allow single selection
-          window.open( record.data.reload_url+"/"+record.data.bioentry_id+"?tracks[]=models_track&gene_id="+record.data.id+"&pos="+record.data.start,
-          record.data.bioentry_id+"_sequence")
+          window.open(record.data.reload_url+"/"+record.data.id,record.data.id+"_sequence")
         }
       }
     });

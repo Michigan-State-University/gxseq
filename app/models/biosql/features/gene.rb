@@ -70,11 +70,15 @@ class Gene < Seqfeature
   end
   
   def initialize_associations
+    logger.info "\n\nStart validating GENE\n\n"
     self.gene_models.each{|gm| gm.gene=self; gm.bioentry=self.bioentry}
+    logger.info "\n\n Before Super\n\n"
     super
+    logger.info "\n\n-done validating GENE\n\n"
   end
   
   def check_locus_tag
+    logger.info "\n\nCHECKING LOCUS TAG = GENE\n\n"
     if(self.locus_tag)
       if(self.locus_tag.value.match(/\s/))
         self.errors.add("locus_tag", "cannot have white space")

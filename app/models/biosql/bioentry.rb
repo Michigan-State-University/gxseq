@@ -5,7 +5,7 @@ class Bioentry < ActiveRecord::Base
   belongs_to :taxon_version
   
   has_one :biosequence, :dependent  => :destroy
-  
+  has_one :biosequence_without_seq, :class_name => "Biosequence", :select => [:alphabet,:length,:version,:created_at,:updated_at]
   has_many :bioentry_dbxrefs, :class_name => "BioentryDbxref", :dependent  => :destroy
   has_many :bioentry_qualifier_values, :order=>"bioentry_id,term_id,rank", :class_name => "BioentryQualifierValue", :dependent  => :destroy
   has_many :bioentry_references, :class_name=>"BioentryReference", :dependent  => :destroy
@@ -50,7 +50,7 @@ class Bioentry < ActiveRecord::Base
   def self.all_taxon
     #Bioentry.includes(:taxon).all.collect(&:taxon).uniq
     #Taxon.joins(:bioentries).select("distinct #{Taxon.table_name}.taxon_id,version")
-    TaxonVersion.all.collect(&:taxon)
+    TaxonVersion.all.collect(&:taxon).uniq
   end
   
   def self.all_species
@@ -80,11 +80,11 @@ class Bioentry < ActiveRecord::Base
   end
   
   def display_info
-    "#{species_name} #{taxon_version.species_id==taxon_version.taxon_id ? '' : " > "+taxon_version.name} - #{version} : #{generic_label_type}(#{generic_label})"
+    "#{species_name} #{taxon_version.species_id==taxon_version.taxon_id ? '' : " > "+taxon_version.name} - #{taxon_version.version} : #{display_name}"
   end
   
   def display_name
-    "#{ generic_label_type}(#{generic_label})"
+    "#{generic_label_type}(#{short_name})"
   end
   
   def short_name

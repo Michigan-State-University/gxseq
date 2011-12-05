@@ -87,7 +87,7 @@ class FetchersController < ApplicationController
             :entry => {
                :accession => bioentry.accession,
                :accession_link => ACCESSION_LINK,
-               :size => (Biosequence.select(:length).where(:bioentry_id=>bioentry.id).first.length rescue 1000),
+               :size => (bioentry.biosequence_without_seq.length rescue 1000),
             }
          }
       }

@@ -3,7 +3,7 @@ class SeqfeatureQualifierValue < ActiveRecord::Base
   set_primary_keys :seqfeature_id, :term_id, :rank
   
   belongs_to :term
-  belongs_to :seqfeature
+  belongs_to :seqfeature, :inverse_of => :qualifiers
   validates_presence_of :seqfeature
   validates_presence_of :term_id
   validates_presence_of :value
@@ -59,7 +59,7 @@ class SeqfeatureQualifierValue < ActiveRecord::Base
       if(self.seqfeature)
         self.rank = ((self.seqfeature.qualifiers.where(:term_id => self.term_id).map(&:rank).compact.max)||0) + 1
       end
-      logger.info "\n\n#{"Just updated rank"}\n\n"
+      logger.info "\n\n#{"Just updated rank sqv"}\n\n"
     end
     
   end

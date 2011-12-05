@@ -1,6 +1,10 @@
 class Cds < Seqfeature
-  has_one :gene_model
+  # do not autosave or we will infinite loop, gene_model auto-saves mrna and cds
+  has_one :gene_model, :inverse_of => :cds, :autosave => false
   def display_name
+    'CDS'
+  end
+  def display_type
     'CDS'
   end
 end

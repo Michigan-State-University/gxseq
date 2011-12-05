@@ -1,6 +1,6 @@
 <% if f = gene_model.send(feature) %>
 <tr class=<%= cycle("odd","even") %> >
-	<td class="keyword" ><%= f.display_name %></td><td style="width:5%"></td><td></td>
+	<td class="keyword" ><%= f.display_type %></td><td style="width:5%"></td><td></td>
 	<td class="options" >
 		<%# permitted_to? :create, f.qualifiers.new do %>
 			<%= image_tag("add.gif", :style => "border:none;cursor:pointer", :onclick => "$(new_#{feature}_note_#{gene_model.id}).toggle();")%>

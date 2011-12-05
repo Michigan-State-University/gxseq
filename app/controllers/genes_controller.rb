@@ -5,9 +5,9 @@ class GenesController < ApplicationController
     @genes = GeneModel.scoped
     # query string
     unless(params[:q].blank?)
-      q = params[:q]+'%'
+      q = "%#{params[:q].upcase}%"
       # we are matching locus_tag and gene_name with the search
-      @genes = @genes.where{ (locus_tag =~ q) | (gene_name =~ q)}
+      @genes = @genes.where{ (upper(locus_tag) =~ q) | (upper(gene_name) =~ q)}
     end
     # paging
     unless(params[:paging]=='false')
@@ -39,7 +39,7 @@ class GenesController < ApplicationController
       format.html{}
       format.json {
         render :json => {
-          :total_entries => 10,#@genes.total_entries,
+          :total_entries => @genes.total_entries,
           :gene_models => @genes.as_api_response(:listing)
         }
       }
@@ -64,7 +64,9 @@ class GenesController < ApplicationController
   def create
     begin
       @taxons = Bioentry.all_taxon
+      @taxon_versions = TaxonVersion.all
       @gene = Gene.new(params[:gene])
+      
       @bioentry = @gene.bioentry
       @taxon = @gene.bioentry.taxon
       @bioentries = @taxon.bioentries

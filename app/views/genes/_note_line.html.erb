@@ -2,7 +2,7 @@
 <tr>
 	<td class="options" >
 	<% unless note.versions.empty? %>
-		<%= " #{note.versions.last.created_at.strftime("%D")}<br/> <b>#{User.find(note.originator).login}</b>".html_safe %>
+		<%= " #{note.versions.last.created_at.strftime("%D")}<br/> <b>#{User.find(note.versions.last.whodunnit).login}</b>".html_safe %>
 	<% end %>
 	</td>
 	<td class="options">
@@ -35,7 +35,7 @@
 					<% note.versions.reverse.each do |version| %>
 						<tr>
 							<td style="border:solid 2px rgb(210,210,210);width:5%"><%= version.index + 1 %></td>
-							<td style="border:solid 2px rgb(215,215,215);width:15%;font-size:80%;text-align:right"><%= version.previous ? " #{note.versions.last.created_at.strftime("%D")}<br/> <b>#{User.find(version.originator).login}</b>".html_safe : "<b>Original</b>".html_safe  %>
+							<td style="border:solid 2px rgb(215,215,215);width:15%;font-size:80%;text-align:right"><%= version.previous ? " #{note.versions.last.created_at.strftime("%D")}<br/> <b>#{User.find(version.whodunnit).login}</b>".html_safe : "<b>Original</b>".html_safe  %>
 							<td style="border:solid 2px rgb(225,225,225);font-size:90%"><%=h version.reify.value if version.reify %></td>
 						</tr>
 					<% end %>

@@ -2,9 +2,9 @@ class GeneModel < ActiveRecord::Base
   # created from an aggregation of seqfeature data
   # Dependent on Location, Seqfeature(Gene, CDS) and SeqfeatureQualifierValue(locus_tag)
 
-  belongs_to :gene
-  belongs_to :mrna, :dependent => :destroy
-  belongs_to :cds
+  belongs_to :gene, :inverse_of => :gene_models
+  belongs_to :mrna, :inverse_of => :gene_model
+  belongs_to :cds, :inverse_of => :gene_model
   belongs_to :bioentry
   has_many :cds_locations, :class_name => "Location", :foreign_key => :seqfeature_id, :primary_key => :cds_id, :dependent  => :destroy
   has_many :mrna_locations, :class_name => "Location", :foreign_key => :seqfeature_id, :primary_key => :mrna_id, :dependent  => :destroy
@@ -389,7 +389,8 @@ class GeneModel < ActiveRecord::Base
     end
   end
   
-  def initialize_associations   
+  def initialize_associations
+    logger.info "\n\nstart init gene model\n\n"
     # cds
       if(cds)
         cds.gene_model = self unless cds.gene_model
@@ -410,7 +411,7 @@ class GeneModel < ActiveRecord::Base
       if !self.rank || self.rank==0
         self.rank = ((self.gene.gene_models.map(&:rank).compact.max)||0) + 1
       end
-
+      logger.info "\n\ndone set rank\n\n"
       # fall back position
       self.start_pos = gene.locations.map(&:start_pos).min unless self.start_pos
       self.end_pos = gene.locations.map(&:end_pos).max unless self.end_pos
@@ -419,6 +420,8 @@ class GeneModel < ActiveRecord::Base
       self.variants = self.gene.gene_models.size
       self.locus_tag = self.gene.locus_tag.value
       self.strand = self.gene.strand
+      logger.info "\n\ndone init gene model\n\n"
+      debugger
     end
 end
 # == Schema Information

@@ -1,14 +1,17 @@
 class Seqfeature < ActiveRecord::Base
   set_table_name "seqfeature"
   set_primary_key :seqfeature_id
-  has_paper_trail
+  # has_paper_trail :meta => {
+  #   :parent_id => Proc.new { |seqfeature| seqfeature.bioentry_id },
+  #   :parent_type => "Bioentry"
+  # }
   set_sequence_name "SEQFEATURE_SEQ"
   set_inheritance_column :display_name
   belongs_to :bioentry
   belongs_to :type_term, :class_name => "Term", :foreign_key => "type_term_id"
   belongs_to :source_term, :class_name => "Term", :foreign_key =>"source_term_id"
   has_many :seqfeature_dbxrefs, :class_name => "SeqfeatureDbxref", :foreign_key => "seqfeature_id", :dependent  => :delete_all
-  has_many :qualifiers, :include => :term, :class_name => "SeqfeatureQualifierValue", :order => "term.name,seqfeature_qualifier_value.rank", :dependent  => :delete_all
+  has_many :qualifiers, :include => :term, :class_name => "SeqfeatureQualifierValue", :order => "term.name,seqfeature_qualifier_value.rank", :inverse_of => :seqfeature, :dependent  => :delete_all
   
   has_many :object_seqfeature_paths, :class_name => "SeqfeaturePath", :foreign_key => "object_seqfeature_id", :dependent  => :delete_all
   has_many :subject_seqfeature_paths, :class_name => "SeqfeaturePath", :foreign_key => "subject_seqfeature_id"
@@ -29,10 +32,7 @@ class Seqfeature < ActiveRecord::Base
   
   before_validation :initialize_associations
   
-  has_paper_trail :meta => {
-    :parent_id => Proc.new { |seqfeature| seqfeature.bioentry_id },
-    :parent_type => "Bioentry"
-  }
+
   
   #TODO : convert this to a real class with STI on the SQV table
   #has_many :notes, :class_name => "SeqfeatureQualifierValue", :order => "rank", :conditions => "trm_oid = #{Term.find_by_name("note").id}"
@@ -166,14 +166,14 @@ class Seqfeature < ActiveRecord::Base
   
   
   def initialize_associations
-    qualifiers.each{|q|q.seqfeature = self}
+    #qualifiers.each{|q|q.seqfeature = self}
     if type_term_id.nil? && display_name
       seq_key_ont_id = Ontology.find_or_create_by_name("SeqFeature Keys").id
       self.type_term_id = Term.find_or_create_by_name_and_ontology_id(self.display_name,seq_key_ont_id).id
     end
     if !self.rank || self.rank==0 && self.bioentry_id && self.type_term_id
-      self.rank = self.bioentry.seqfeatures.where(:type_term_id => self.type_term_id).maximum(:rank) + 1
-      self.bioentry.seqfeatures << self
+      self.rank = (self.bioentry.seqfeatures.where(:type_term_id => self.type_term_id).maximum(:rank)||0) + 1
+      self.bioentry.seqfeatures.build(self)
     end
   end
   
