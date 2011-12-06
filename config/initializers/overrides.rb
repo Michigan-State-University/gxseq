@@ -213,3 +213,17 @@ module Devise::LdapAdapter
     end
   end
 end
+
+## Squeel
+##
+# fix Arel override causing LOB update failure. Probably from loss of column metadata?
+module Arel
+  class Table
+    def [] name
+      name = name.to_sym
+      (columns.find { |column| column.name == name }) || (::Arel::Attribute.new self, name)
+      #old
+      #::Arel::Attribute.new self, name.to_sym
+    end
+  end
+end

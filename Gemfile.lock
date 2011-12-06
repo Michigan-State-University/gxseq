@@ -126,7 +126,7 @@ GEM
     ruby-oci8 (2.0.6)
     ruby_core_source (0.1.5)
       archive-tar-minitar (>= 0.5.2)
-    squeel (0.9.0)
+    squeel (0.9.3)
       activerecord (~> 3.0)
       activesupport (~> 3.0)
       polyamorous (~> 0.5.0)
@@ -158,6 +158,6 @@ DEPENDENCIES
   rails (= 3.0.9)
   ruby-debug19
   ruby-oci8
-  squeel (~> 0.9)
+  squeel (~> 0.9.0)
   thor (~> 0.14.6)
   will_paginate (~> 3)
