@@ -77,7 +77,7 @@ class VariantsController < ApplicationController
 
   def destroy
     @variant = Variant.find(params[:id])
-    if (current_user.is_admin?)
+    if (current_user.is_admin? || current_user.owns?(@variant))
       @variant.destroy
       flash[:warning]="Experiment #{@variant.name} has been removed"
       redirect_to :action => :index

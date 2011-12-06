@@ -83,7 +83,7 @@ class ChipChipsController < ApplicationController
 
   def destroy
     @chip_chip = ChipChip.find(params[:id])
-    if (current_user.is_admin?)
+    if (current_user.is_admin? || current_user.owns?(@chip_chip))
       @chip_chip.destroy
       flash[:warning]="Experiment #{@chip_chip.name} has been removed"
       redirect_to :action => :index
