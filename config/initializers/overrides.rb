@@ -221,7 +221,11 @@ module Arel
   class Table
     def [] name
       name = name.to_sym
-      (columns.find { |column| column.name == name }) || (::Arel::Attribute.new self, name)
+      begin
+        (columns.find { |column| column.name == name }) || (::Arel::Attribute.new self, name)
+      rescue
+        ::Arel::Attribute.new self, name
+      end
       #old
       #::Arel::Attribute.new self, name.to_sym
     end

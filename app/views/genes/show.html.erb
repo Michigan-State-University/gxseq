@@ -27,7 +27,7 @@
 				Alternate versions:
 				<p style="margin:.5em">
 					<% @genes.each do |g| %>
-						<%= link_to (g.bioentry.species_name + " >" + g.bioentry.display_name + ":" + g.bioentry.version.to_s), g %><br/><br/>
+						<%= link_to (g.bioentry.species_name + " >" + g.bioentry.display_name + ":" + g.bioentry.taxon_version.version.to_s), g %><br/><br/>
 					<% end %>
 				</p>
 			</div>

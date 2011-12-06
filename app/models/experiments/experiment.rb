@@ -13,7 +13,7 @@ class Experiment < ActiveRecord::Base
   #validates_presence_of :user
   validates_presence_of :assets
   validates_presence_of :name
-  validates_uniqueness_of :name, :scope => :bioentry_id, :message => " has already been used"
+  validates_uniqueness_of :name, :scope => :taxon_version_id, :message => " has already been used"
   validates_length_of :name, :maximum => 35, :on => :create, :message => "must be less than 35 characters"
   validates_length_of :description, :maximum => 500, :on => :create, :message => "must be less than 500 characters"
   validates_presence_of :taxon_version
