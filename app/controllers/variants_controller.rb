@@ -3,12 +3,20 @@ class VariantsController < ApplicationController
   #skip_before_filter :login_required, :only => :show
 
   ##custom actions - rjs
-  def reload_assets
+  def initialize_experiment
     @variant = Variant.find(params[:id])
-    @variant.reload_data_from_assets
-    flash[:warning]="Reloading Variant Data"
-    redirect_to :action => :show
+    @variant.initialize_experiment
+    render :update do |page|
+      page.replace_html 'initialize_experiment', "Job Started. Refresh to view updates in the console."
+    end
   end
+  
+  # def reload_assets
+  #   @variant = Variant.find(params[:id])
+  #   @variant.reload_data_from_assets
+  #   flash[:warning]="Reloading Variant Data"
+  #   redirect_to :action => :show
+  # end
   
   def graphics
     @variant = Variant.find(params[:id], :include => :bioentries_experiments)

@@ -69,7 +69,7 @@ class MaqIndel < Asset
     #setup ref / alt  sequence
     size = col[6].split(":")[0].to_i
     seq = col[6].split(":")[1]
-    pos = col[3].to_i
+    pos = col[3].to_i - 1 #convert to zero-based
     if size > 0
       type = "Insertion"
       reference = bioentry_seq[pos].chr
