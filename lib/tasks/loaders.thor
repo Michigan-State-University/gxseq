@@ -165,7 +165,7 @@ class Db < Thor
           end
           
           # Check for existing entry
-          unless(bioentry = Bioentry.find_by_biodatabase_id_and_accession_and_version(bio_db.id,entry_accession,entry_version))
+          unless(bioentry = Bioentry.find_by_taxon_version_id_and_biodatabase_id_and_accession_and_version(taxon_version.id,bio_db.id,entry_accession,entry_version))
             # bioentry
             bioentry = bio_db.bioentries.create(
             :taxon_version => taxon_version,

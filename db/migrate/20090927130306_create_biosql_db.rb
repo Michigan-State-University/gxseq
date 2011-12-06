@@ -42,8 +42,8 @@ class CreateBiosqlDb < ActiveRecord::Migration
       t.column :version, :string, :null => false
       t.timestamps
     end
-    add_index(:bioentry, [:accession, :biodatabase_id, :version], :unique => true, :name => :bioentry_idx)
-    add_index(:bioentry, [:identifier, :biodatabase_id, :version], :unique => true, :name => :bioentry_idx_1)
+    add_index(:bioentry, [:taxon_version, :accession, :biodatabase_id, :version], :unique => true, :name => :bioentry_idx)
+    add_index(:bioentry, [:taxon_version, :identifier, :biodatabase_id, :version], :unique => true, :name => :bioentry_idx_1)
     add_index(:bioentry, :version, :name => :bioentry_idx_2)
     
     create_table :bioentry_dbxref, :id => false do |t|
