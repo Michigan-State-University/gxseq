@@ -78,7 +78,7 @@ class FetchersController < ApplicationController
             },
             :versions => {
               :data => versions,
-              :selected => bioentry.version
+              :selected => bioentry.taxon_version.version
             },
             :entries => {
               :data => bioentries, 
@@ -234,8 +234,8 @@ class FetchersController < ApplicationController
                     if fea = gene_model.send(feature)
                         fea.qualifiers.each do |q|
                             # avoiding repeats
+                            next if(q.term.name=='translation')
                             next if(q.term.name=='locus_tag'||q.term.name=='gene') unless feature =='gene'
-                            
                             if(pos = q.value(false).upcase=~(/#{params[:query].upcase}/))
                               match = "<b>#{q.term.name}:</b>"
                               text=q.value(false)

@@ -374,7 +374,7 @@ Ext.define('Sv.tracks.BrowserTrack', {
                     },
                     failure: function(message)
                     {
-                        AnnoJ.error('Failed to load data for track ' + self.name + ' (' + message + ')');
+                        console.error('Failed to load data for track ' + self.name + ' (' + message + ')');
                         views.loading = null;
                         state.busy = false;
                         self.setTitle(self.name);

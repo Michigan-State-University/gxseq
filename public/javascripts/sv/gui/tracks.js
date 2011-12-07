@@ -856,6 +856,14 @@ AnnoJ.Tracks = function(userConfig)
 		// 	timer = setTimeout(refresh, 100);
 		// });
 
+    function doLayout()
+    {
+      Ext.each(active, function(track)
+			{
+			  track.Toolbar.toolbar.doLayout();
+		  });
+    };
+    
 		//Refresh the list of enabled / disabled tracks
 		function refresh()
 		{
@@ -879,7 +887,7 @@ AnnoJ.Tracks = function(userConfig)
 				track.setLocation(view);
 			});
 			//TODO : fix this, too tightly coupled
-			//AnnoJ.resetHeight();
+			AnnoJ.resetHeight();
 		};
 		
 		//Determine whether or not a track is visible to the user
@@ -1134,7 +1142,8 @@ AnnoJ.Tracks = function(userConfig)
 			getConfigs : getConfigs,
 			closeAll : closeAll,
 			each : each,
-			mouse2track : mouse2track
+			mouse2track : mouse2track,
+			doLayout : doLayout
 		};
 	})();
 };

@@ -232,12 +232,16 @@ var AnnoJ = (function()
 				Tracks
 			]
 		});
+		this.renderDiv = Ext.get(config.renderTo);
 		//disable the context menu
 		window.oncontextmenu = new Function("return false");
 		//disable selection to avoid highlighting the tracks/buttons
 		//document.getElementById('page-container').onselectstart = new Function("return false");
+		Viewport.setWidth(this.renderDiv.getWidth())
 		Ext.EventManager.addListener(window, 'resize', function(){
+		      GUI.Viewport.setWidth(self.renderDiv.getWidth())
     	    GUI.Viewport.doLayout();
+    	    GUI.Tracks.tracks.doLayout();
     	});
 		//Hook GUI components together via events
 		NavBar.on('describe', function(syndication) {
@@ -253,6 +257,7 @@ var AnnoJ = (function()
         TrackSelector.on('closeTrack', Tracks.tracks.close);
 		InfoBox.hide();
 		Viewport.doLayout();
+		//Viewport.doComponentLayout();
 		return {
 			//Messenger : Messenger,
 			TrackSelector : TrackSelector,
