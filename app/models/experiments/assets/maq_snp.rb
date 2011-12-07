@@ -10,8 +10,12 @@ class MaqSnp < Asset
       @seq_name_lookup||={}
       update_attribute(:state, "loading")
       experiment.update_state_from_assets
-      parse_and_create_variants
-      update_attribute(:state, "complete")
+      e = parse_and_create_variants
+      if(e==0)
+        update_attribute(:state, "complete")
+      else
+        update_attribute(:state, "#{e} warning#{e > 1 ? 's': ''}")
+      end
       experiment.update_state_from_assets
     rescue
       logger.info "\n\nError running MaqSnp create_variants:\n\n#{$!}\n"
@@ -24,6 +28,7 @@ class MaqSnp < Asset
   handle_asynchronously :load_data
   
   def parse_and_create_variants
+    errors = 0
     if self.new_record?
       f = self.data.queued_for_write[:original]
     else
@@ -35,12 +40,16 @@ class MaqSnp < Asset
     part = (line_count / 10).to_i
     f.each do |line|
       count+=1
-      hsh_array = parse_variant_line(line)
-      hsh_array.each{|hsh| SequenceVariant.fast_insert(hsh) }
+      if(hsh_array = parse_variant_line(line))      
+        hsh_array.each{|hsh| SequenceVariant.fast_insert(hsh) }
+      else
+        errors +=1
+      end
       if(count % part == 0)
         puts "loading..#{((count/line_count.to_f)*100).ceil}%"
       end
     end
+    return errors
   end
   
   def parse_variant_line(line)
@@ -50,7 +59,9 @@ class MaqSnp < Asset
     # store nil return so we don't continue to look it up
     if @seq_name_lookup[col[0]] == "Null" || @seq_name_lookup[col[0]].nil?
       @seq_name_lookup[col[0]] = "Null"
-      return a
+      puts "warning: Unknown Sequence Found in File:"
+      puts "\t'#{col[0]}'"
+      return false
     else
       bioentry_id = @seq_name_lookup[col[0]].bioentry_id
     end

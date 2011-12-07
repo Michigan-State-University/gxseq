@@ -60,6 +60,8 @@ class MaqIndel < Asset
     # store nil return so we don't continue to look it up
     if @seq_name_lookup[col[2]] == "Null" || @seq_name_lookup[col[2]].nil?
       @seq_name_lookup[col[2]] = "Null"
+      puts "warning: Unknown Sequence Found in File:"
+      puts "\t'#{col[2]}'"
       return false
     else
       bioentry_id = @seq_name_lookup[col[2]].bioentry_id
