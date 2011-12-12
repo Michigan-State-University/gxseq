@@ -64,10 +64,15 @@ GenomeSuite::Application.routes.draw do
     end
   end
   resources :tools do
-    get 'details', :on => :collection
-    get 'smooth', :on => :collection
-    post 'smooth', :on => :collection
+    collection do
+      get 'details'
+      get 'smooth'
+      post 'smooth'
+      get 'variant_genes'
+      post 'variant_genes'
+    end
   end
+  
   resources :variants do
     collection do
       get 'details'

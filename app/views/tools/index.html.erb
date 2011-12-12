@@ -14,31 +14,36 @@
   The smoothing tool uses the 'rolling average' or 'windowed cutoff' algorithm to create a new experiment. The rolling average uses a configurable window size. The windowed cutoff uses a supplied cutoff value and returns the number of inflection points that cross the cutoff within each window.
 </p>
 
-<h2 class="title" style="margin-top:3em">Running Jobs</h2>
+<h3><%= link_to "Variant Genes", variant_genes_tools_path  %></h3><hr><br/>
+<p>
+  This tool allows you to query variant experiment sets for genes with opposing variation.
+</p>
+
+<!-- <h2 class="title" style="margin-top:3em">Running Jobs</h2>
 <div class="table">
 <table class="listing">
   <thead>
-  	<th class="top">ID</th>
-  	<th class="top">Job</th>
-  	<th class="top">Created</th>
-  	<th class="top">Started</th>
-  	<th class="top">State</th>
-  	<th class="top" width="8%">Options</th>
+    <th class="top">ID</th>
+    <th class="top">Job</th>
+    <th class="top">Created</th>
+    <th class="top">Started</th>
+    <th class="top">State</th>
+    <th class="top" width="8%">Options</th>
   </thead>
 
-<% @jobs.each do |job| %>
-	<tr>
-		<td><%= job.id %></td>
-		<td><%=YAML.load(job.handler)['method_name'].to_s.gsub("without_delay",'').gsub("_"," ") rescue 'name error'%></td>
-		<td><%= job.created_at.strftime('%H:%M - %B %d, %Y') %></td>
-		<td><%= job.locked_at.strftime('%H:%M - %B %d, %Y') unless job.locked_at.nil?%></td>
-		<% if current_user.is_admin? %>
-		  <td style="text-align:left"><%= job.locked_at.nil? ? "pending" : (job.last_error.nil? ? "running" : "<div style='color:darkred;overflow-y:scroll;max-height:10em;'>#{job.last_error.gsub(/\\n/,"<br/>")}</div>".html_safe) %></td>
-		<% else %>
-		  <td><%= job.failed_at.nil? ? (job.locked_at.nil? ? "pending" : "running" ) : content_tag(:span, "Error", :style => "color:darkred") %></td>
-		<% end %>
-		<td><%= link_to "Remove", tool_path(job.id), :method => 'delete', :confirm => "Are you sure?" if current_user.is_admin?%></td>
-	</tr>
-<% end %>
+<%# @jobs.each do |job| %>
+  <tr>
+    <td><%#= job.id %></td>
+    <td><%#=YAML.load(job.handler)['method_name'].to_s.gsub("without_delay",'').gsub("_"," ") rescue 'name error'%></td>
+    <td><%#= job.created_at.strftime('%H:%M - %B %d, %Y') %></td>
+    <td><%#= job.locked_at.strftime('%H:%M - %B %d, %Y') unless job.locked_at.nil?%></td>
+    <%# if current_user.is_admin? %>
+      <td style="text-align:left"><%#= job.locked_at.nil? ? "pending" : (job.last_error.nil? ? "running" : "<div style='color:darkred;overflow-y:scroll;max-height:10em;'>#{job.last_error.gsub(/\\n/,"<br/>")}</div>".html_safe) %></td>
+    <%# else %>
+      <td><%#= job.failed_at.nil? ? (job.locked_at.nil? ? "pending" : "running" ) : content_tag(:span, "Error", :style => "color:darkred") %></td>
+    <%# end %>
+    <td><%#= link_to "Remove", tool_path(job.id), :method => 'delete', :confirm => "Are you sure?" if current_user.is_admin?%></td>
+  </tr>
+<%# end %>
 </table>
-</div>
+</div> -->

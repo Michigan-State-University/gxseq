@@ -11,11 +11,11 @@
 <% end -%>
 <div style="float:left;width:600px">
 <%= error_messages_for :new_experiment %>
-<% form_tag(:action => "smooth") do %>	
+<% form_tag(:action => "smooth") do %>
 
   <%= label_tag :experiment %><br/>
   <%= select_tag(:experiment_id, "<option>-Select the experiment to smooth</option>".html_safe +
-  options_from_collection_for_select(@experiments,:id,:detailed_display_info), :'data-remote' => asset_details_experiments_url, :'data-with' => 'exp_id', :'data-element' => :exp_info )%>
+  options_from_collection_for_select(@experiments,:id,:detailed_display_info), :'data-onchange' => asset_details_experiments_url, :'data-with' => 'exp_id', :'data-element' => :exp_info )%>
   <br/><br/>
   
   <%= label_tag :name %><br/>

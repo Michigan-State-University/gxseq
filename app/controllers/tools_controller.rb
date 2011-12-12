@@ -33,6 +33,25 @@ class ToolsController < ApplicationController
   def details
   end
   
+  def variant_genes
+    @taxon_versions = TaxonVersion.all
+    @variants, @variant_genes = [],[]
+    if request.xhr?
+      if(params[:taxon_version_id])
+        @variants = TaxonVersion.find(params[:taxon_version_id]).variants rescue []
+      end
+      render :partial => 'variant_genes_experiments'
+    elsif params[:taxon_version_id]
+      t = TaxonVersion.find(params[:taxon_version_id]) rescue nil
+      @variants = t.variants rescue []
+      if(params[:set_a] && params[:set_b] && t)
+        @variant_genes = GeneModel.find_differential_variants(params[:set_a],params[:set_b],t.bioentries.map(&:id),params[:page]||1).includes(:gene,:bioentry)
+      else
+        flash.now[:error] = "You must select at least 1 experiment from Set A and Set B"
+      end     
+    end
+  end
+  
   # GET /tools
   def index
     #@tools = Tool.all

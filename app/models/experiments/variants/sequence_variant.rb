@@ -1,5 +1,6 @@
 class SequenceVariant < ActiveRecord::Base
   belongs_to :experiment
+  belongs_to :bioentry
   has_paper_trail
   scope :with_bioentry, lambda { |id|
         { :conditions => { :bioentry_id => id } }
@@ -11,6 +12,11 @@ class SequenceVariant < ActiveRecord::Base
   # def attributes_protected_by_default
   #   super - [self.class.inheritance_column]
   # end
+  
+  def same_as?(seq_var)
+    return false unless seq_var.is_a?(SequenceVariant)
+    self.bioentry_id == seq_var.bioentry_id && self.pos == seq_var.pos && self.alt == seq_var.alt && self.ref == seq_var.ref
+  end
   
   #For conversion from SNP using IUB codes
   IUB_CODE =

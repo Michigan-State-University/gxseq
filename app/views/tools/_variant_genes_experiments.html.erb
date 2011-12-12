@@ -1,0 +1,10 @@
+<div style="width:300px">
+  <div style="float:left">
+    Set A
+    <%= select_tag :set_a, options_from_collection_for_select(@variants,:id,:name,params[:set_a]), :multiple => true %>
+  </div>
+  <div style="float:right">
+    Set B
+    <%= select_tag :set_b, options_from_collection_for_select(@variants,:id,:name,params[:set_b]), :multiple => true %>
+  </div>
+</div>

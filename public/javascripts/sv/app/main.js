@@ -332,12 +332,12 @@ var AnnoJ = (function()
 	};	
 	function resetHeight(){
 		//var total_height = GUI.Tracks.getFrameHeight();
-		//total_height += GUI.NavBar.ext.getHeight();
-		var total_height = 0;
+		total_height = GUI.NavBar.ext.getHeight();
 		Ext.each(GUI.Tracks.tracks.active, function(t)
 		{
 			total_height+=(t.height+1)
 		});
+		
 		if(total_height < height){
 			total_height = height
 		}

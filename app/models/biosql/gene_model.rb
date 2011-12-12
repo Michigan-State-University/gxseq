@@ -45,6 +45,37 @@ class GeneModel < ActiveRecord::Base
     ["Gene","Cds","Mrna"]
   end
   
+  def self.find_differential_variants(set_a, set_b, bioentries, page=1)
+    return [] if set_a.empty? || set_b.empty?
+    set_a_array= set_a.join(",")
+    set_b_array = set_b.join(",")
+    bioentries_array = bioentries.join(",")
+    # AND gm.bioentry_id IN (#{bioentries_array})
+    GeneModel.where(
+      (
+      <<-SQL
+       id in (
+        SELECT distinct(gm.id) from gene_models gm 
+        INNER JOIN sequence_variants sv 
+        ON gm.start_pos < sv.pos 
+        AND gm.end_pos > sv.pos 
+        AND gm.bioentry_id = sv.bioentry_id
+        AND sv.experiment_id IN (#{set_a_array})
+        WHERE NOT EXISTS
+        (
+          select gm2.id from gene_models gm2
+          INNER JOIN sequence_variants sv 
+          ON gm2.start_pos < sv.pos 
+          AND gm2.end_pos > sv.pos 
+          AND gm2.bioentry_id = sv.bioentry_id
+          AND sv.experiment_id IN (#{set_b_array})
+          WHERE gm2.id = gm.id
+        )
+      )
+      SQL
+      )).order(:bioentry_id,:locus_tag).paginate(:page => page,:per_page => 100)
+  end
+  
   def as_json(*args)
     hsh = super(*args)
     hsh['gene_model']['sequence_name'] = bioentry.display_name
