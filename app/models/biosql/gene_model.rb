@@ -73,7 +73,7 @@ class GeneModel < ActiveRecord::Base
         )
       )
       SQL
-      )).order(:bioentry_id,:locus_tag).paginate(:page => page,:per_page => 100)
+      )).order(:bioentry_id,:start_pos).paginate(:page => page,:per_page => 100)
   end
   
   def as_json(*args)
