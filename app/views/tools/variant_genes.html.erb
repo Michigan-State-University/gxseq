@@ -2,12 +2,10 @@
   <h1 class="pagetitle">Variant Genes</h1>
 <% end -%>
 
-<%= render :partial => "sidebar", :locals => {:active => "smooth"} %>
+<%= render :partial => "sidebar", :locals => {:active => "variant_genes"} %>
 
 <% content_for :item_bar do -%>
-  <p>
-		This tool queries Gene Models and Sequence Variants to find associations. Choose the taxonomy you would like to query and create two experiment sets by selecting from lists below. This tool will report genes that have at least 1 change in all Set A experiments and no change in any set B experiment. 
-	</p>
+		This tool queries Gene Models and Sequence Variants to find associations. Choose the taxonomy you would like to query and create two experiment sets by selecting from the lists below. Submitting the query will list genes with at least 1 change in all Set A experiments and no change in any set B experiment. 
 <% end -%>
 
 <% form_tag request.path, :method => 'get' do %>
@@ -29,6 +27,9 @@
 <% unless @variant_genes.empty? %>
   <div id="results">
     <h2 class="title">Results</h2>
+    <p>
+      The table below lists all genes matching the supplied criteria. Selecting a gene locus tag will open a new window with detailed information about the gene. Selecting a sequence name will open a new window and load the Sequence Viewer at the gene models location.
+    </p>
     <div class="digg_pagination">
       <%= will_paginate @variant_genes %>
     </div>
@@ -44,12 +45,12 @@
       </thead>
       <% @variant_genes.each do |gene_model| %>
         <tr>
-          <td><%= link_to gene_model.display_name, gene_model.gene %></td>
+          <td><%= link_to gene_model.display_name, gene_model.gene, :target => "gene_#{gene_model.gene.id}" %></td>
           <td><%= gene_model.gene_name %></td>
           <td><%= gene_model.start_pos %></td>
           <td><%= gene_model.end_pos %></td>
           <td><%= (gene_model.strand == 1 ? '<span style="color:darkgreen">F</span>' : '<span style="color:darkred">R</span>').html_safe %></td>
-          <td><%= link_to gene_model.bioentry.short_name, gene_model.bioentry, :pos => gene_model.start_pos, :gene_id => gene_model.gene_id, :target => gene_model.bioentry_id%></td>
+          <td><%= link_to gene_model.bioentry.short_name, bioentry_url(gene_model.bioentry,:pos => gene_model.start_pos, :gene_id => gene_model.id),{:target => gene_model.bioentry_id}%></td>
         </tr>
       <% end %>
       </table>

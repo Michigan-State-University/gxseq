@@ -51,6 +51,9 @@ class ToolsController < ApplicationController
         @variant_genes = @variant_genes.includes(:gene,:bioentry)
         @variant_genes = @variant_genes.order(:bioentry_id,:start_pos)
         @variant_genes = @variant_genes.paginate(:page => (params[:page] || 1), :per_page => 25)
+        if(@variant_genes.empty?)
+          flash.now[:warning]= "No genes found matching the given criteria. Please expand your search."
+        end
       else
         flash.now[:error] = "You must select at least 1 experiment from Set A and Set B"
       end
