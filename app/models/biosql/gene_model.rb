@@ -49,19 +49,26 @@ class GeneModel < ActiveRecord::Base
     return [] if set_a.empty? || set_b.empty?
     set_a_array= set_a.join(",")
     set_b_array = set_b.join(",")
-    GeneModel.where("EXISTS (
-      SELECT * FROM sequence_variants sv
-      WHERE gene_models.bioentry_id = sv.bioentry_id
-      AND start_pos <= sv.pos
-      AND end_pos >= sv.pos
-      AND sv.experiment_id IN (#{set_a_array})
-    )").where("NOT EXISTS (
-      SELECT * FROM sequence_variants sv
-      WHERE gene_models.bioentry_id = sv.bioentry_id
-      AND start_pos <= sv.pos
-      AND end_pos >= sv.pos
-      AND sv.experiment_id IN (#{set_b_array})
-    )")
+    query = GeneModel.scoped
+    set_a.each do |exp_id|
+      query = query.where("EXISTS (
+        SELECT * FROM sequence_variants sv
+        WHERE gene_models.bioentry_id = sv.bioentry_id
+        AND start_pos <= sv.pos
+        AND end_pos >= sv.pos
+        AND sv.experiment_id = #{exp_id}
+      )")
+    end
+    set_b.each do |exp_id|
+      query = query.where("NOT EXISTS (
+        SELECT * FROM sequence_variants sv
+        WHERE gene_models.bioentry_id = sv.bioentry_id
+        AND start_pos <= sv.pos
+        AND end_pos >= sv.pos
+        AND sv.experiment_id = #{exp_id}
+      )")
+    end
+    return query
   end
   
   def as_json(*args)
