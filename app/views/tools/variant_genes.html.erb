@@ -6,13 +6,13 @@
 
 <% content_for :item_bar do -%>
   <p>
-		There are two Variant Experiment groups and a taxonomy list below. Choose the taxonomy you would like to query, then create two sets by selecting experiments from each list and click submit. This tool will list genes that have at least 1 change in all Set A experiments and no change in any set B experiment. 
+		This tool queries Gene Models and Sequence Variants to find associations. Choose the taxonomy you would like to query and create two experiment sets by selecting from lists below. This tool will report genes that have at least 1 change in all Set A experiments and no change in any set B experiment. 
 	</p>
 <% end -%>
 
 <% form_tag request.path, :method => 'get' do %>
   <%= label_tag :taxonomy %><br/>
-  <%= select_tag(:taxon_version_id, options_from_collection_for_select(@taxon_versions,:id,:name_with_version,params[:taxon_version_id]), {:include_blank => true, :'data-onchange' => variant_genes_tools_url, :'data-with' => 'taxon_version_id', :'data-element' => :exp_info} )%>
+  <%= select_tag(:taxon_version_id, options_from_collection_for_select(@taxon_versions,:id,:name_with_version,params[:taxon_version_id]), {:'data-onchange' => variant_genes_tools_url, :'data-with' => 'taxon_version_id', :'data-element' => :exp_info} )%>
   <br/><br/>
 
 <div id="exp_info" style="float:left">

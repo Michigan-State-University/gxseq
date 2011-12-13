@@ -45,10 +45,19 @@ class ToolsController < ApplicationController
       t = TaxonVersion.find(params[:taxon_version_id]) rescue nil
       @variants = t.variants rescue []
       if(params[:set_a] && params[:set_b] && t)
-        @variant_genes = GeneModel.find_differential_variants(params[:set_a],params[:set_b],t.bioentries.map(&:id),params[:page]||1).includes(:gene,:bioentry)
+        logger.info "\n\nBioentry count: #{t.bioentries.length}\n\n"
+        @variant_genes = GeneModel.find_differential_variants(params[:set_a],params[:set_b],)
+        @variant_genes = @variant_genes.where{bioentry_id.in(my{t.bioentries})}
+        @variant_genes = @variant_genes.includes(:gene,:bioentry)
+        @variant_genes = @variant_genes.order(:bioentry_id,:start_pos)
+        @variant_genes = @variant_genes.paginate(:page => (params[:page] || 1), :per_page => 25)
       else
         flash.now[:error] = "You must select at least 1 experiment from Set A and Set B"
-      end     
+      end
+    else
+      t = TaxonVersion.first
+      @variants = t.variants rescue []
+      params[:taxon_version_id] = t.id rescue nil
     end
   end
   

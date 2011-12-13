@@ -15,6 +15,7 @@ class CreateSequenceVariants < ActiveRecord::Migration
     add_index :sequence_variants, [:experiment_id, :pos], :name => :seq_variant_idx
     add_index :sequence_variants, [:experiment_id, :bioentry_id], :name => :seq_variant_idx_1
     add_index :sequence_variants, [:experiment_id, :bioentry_id, :pos], :name => :seq_variant_idx_2
+    add_index :sequence_variants, [:bioentry_id, :pos], :name => :seq_variant_idx_4
   end
 
   def self.down
