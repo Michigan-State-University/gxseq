@@ -45,10 +45,8 @@ class GeneModel < ActiveRecord::Base
     ["Gene","Cds","Mrna"]
   end
   
-  def self.find_differential_variants(set_a, set_b)
-    return [] if set_a.empty? || set_b.empty?
-    set_a_array= set_a.join(",")
-    set_b_array = set_b.join(",")
+  def self.find_differential_variants(set_a, set_b=[])
+    return [] if set_a.empty? #|| set_b.empty? Allow empty set_b
     query = GeneModel.scoped
     set_a.each do |exp_id|
       query = query.where("EXISTS (

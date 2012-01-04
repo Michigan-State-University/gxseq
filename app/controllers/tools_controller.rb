@@ -44,8 +44,8 @@ class ToolsController < ApplicationController
     elsif params[:taxon_version_id]
       t = TaxonVersion.find(params[:taxon_version_id]) rescue nil
       @variants = t.variants rescue []
-      if(params[:set_a] && params[:set_b] && t)
-        @variant_genes = GeneModel.find_differential_variants(params[:set_a],params[:set_b],)
+      if(params[:set_a] && t)
+        @variant_genes = GeneModel.find_differential_variants(params[:set_a],params[:set_b]||[])
         @variant_genes = @variant_genes.where{bioentry_id.in(my{t.bioentries})}
         @variant_genes = @variant_genes.includes(:gene,:bioentry)
         @variant_genes = @variant_genes.order(:bioentry_id,:start_pos)        
