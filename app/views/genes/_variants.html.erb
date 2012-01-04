@@ -31,11 +31,11 @@
 					</tr>
 					<tr class  = <%= cycle("odd","even") %>>
 						<td class = "keyword">Protein Length</td>
-						<td><%= (p_seq = gene_model.variant_protein_sequence(variant.id,@variant_window)).size %></td>
+						<td><%= (p_seq = gene_model.variant_protein_sequence(variant.id,@variant_window)).size rescue 0 %></td>
 					</tr>
 					<tr class  = <%= cycle("odd","even") %>>
 						<td class = "keyword">Protein Sequence</td>
-						<td style = "font-family:'Courier';"><pre style="overflow-x:scroll"><%= formatted_sequence(p_seq,{:rows => 9, :delimiter => "<br/>"}) %></pre></td>
+						<td style = "font-family:'Courier';"><pre style="overflow-x:scroll"><%= formatted_sequence(p_seq,{:rows => 9, :delimiter => "<br/>"}) rescue ""%></pre></td>
 					</tr>
 					<% end %>
 				</table>
