@@ -54,6 +54,9 @@
         </tr>
       <% end %>
       </table>
+      <div style="float:right;margin:1em">
+        <%= link_to ("Download "+(image_tag "table.png")).html_safe, variant_genes_tools_path(:format => :csv,:set_a => params[:set_a], :set_b => params[:set_b], :taxon_version_id => params[:taxon_version_id])%>
+      </div>
     </div>
   </div>
 <% end %>
