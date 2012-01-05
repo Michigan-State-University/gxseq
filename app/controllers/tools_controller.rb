@@ -70,7 +70,7 @@ class ToolsController < ApplicationController
         :disposition => "attachment; filename=variant_genes_#{Time.now.to_i}.csv"
       }
       format.html {
-        unless @variant_genes.empty?)
+        unless @variant_genes.empty?
           @variant_genes = @variant_genes.paginate(:page => (params[:page] || 1), :per_page => 25)
         end
       }
