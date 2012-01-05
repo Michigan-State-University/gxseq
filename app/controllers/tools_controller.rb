@@ -70,7 +70,7 @@ class ToolsController < ApplicationController
         :disposition => "attachment; filename=variant_genes_#{Time.now.to_i}.csv"
       }
       format.html {
-        @variant_genes = @variant_genes.paginate(:page => (params[:page] || 1), :per_page => 25)
+        @variant_genes = (@variant_genes.paginate(:page => (params[:page] || 1), :per_page => 25) unless @variant_genes.empty?)
       }
       if(@variant_genes.empty?)
         flash.now[:warning]= "No genes found matching the given criteria. Please expand your search."
