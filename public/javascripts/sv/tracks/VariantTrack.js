@@ -231,7 +231,7 @@ Ext.define('Sv.tracks.VariantTrack',{
 
 			var canvasA = new Sv.painters.VariantsCanvas();
 			canvasA.setContainer(containerA.dom);
-	        canvasA.on('itemSelected', self.lookupItem);
+	    canvasA.on('itemSelected', self.lookupItem);
 
 			function paint(left, right, bases, pixels)
 			{

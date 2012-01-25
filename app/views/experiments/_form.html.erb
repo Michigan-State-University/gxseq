@@ -7,6 +7,7 @@
   	<br/><br/>
   	Enter any descriptive information you would like to remember.<br/>
   	<%= f.text_area :description, :rows => "7" %><br/>
+  	<%= render :partial => "metadata", :locals => {:f => f} rescue nil%>
   </div>
 
   <div class="form_item">
@@ -35,17 +36,17 @@
     </div>  
   </div>
 
-  
-  
   <div class="form_item">
     <%= render :partial => "form_options", :locals => {:f => f} rescue nil%>
   </div>
 
   <div class="form_item">
     	<h3 style="float:left;width:8em">Asset File(s)</h3>
-    	<%= link_to_add_fields image_tag("add.gif", :title => "Add another File", :style => "float:left"), f, :assets, :render => "below" %>
+    	<%= link_to_add_fields image_tag("add.gif", :title => "Add another File", :style => "float:left"), f, :assets, {:render => "below",:partial => "experiments/asset_fields", :locals => {:asset_types => experiment.asset_types} } %>
     	<% f.fields_for :assets do |asset| %>
-  	    <%= render :partial => "asset_fields", :locals => {:f => asset} %>
+  	    <%= 
+  	      render :partial => "asset_fields", :locals => {:f => asset} rescue render :partial => "experiments/asset_fields", :locals => {:asset_types => experiment.asset_types,:f => asset}
+  	    %>
   	  <% end %>
   </div>
 

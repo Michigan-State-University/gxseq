@@ -1,10 +1,14 @@
 <h1 class="pagetitle"><%= @asset.full_filename %></h1>
 <%= render :partial => "experiments/sidebar" %>
 <div style="float:left">
-<%= render :partial => "#{@asset.class.name.underscore}_details", :locals => {:asset => @asset} %>
+<%= render :partial => "#{@asset.class.name.underscore}_details", :locals => {:asset => @asset} rescue
+    render :partial => "details", :locals => {:asset => @asset}
+%>
 </div>
 <div style="float:left;padding-left:1em">
-<%= render :partial => "#{@asset.class.name.underscore}_info", :locals => {:asset => @asset} %>
+<%= render :partial => "#{@asset.class.name.underscore}_info", :locals => {:asset => @asset} rescue
+    render :partial => "info", :locals => {:asset => @asset}
+%>
 </div>
 <div style="float:right">
 	<%= @asset.web_console({:width => 400}).html_safe %>

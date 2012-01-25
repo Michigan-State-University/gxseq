@@ -116,8 +116,9 @@ Ext.define('Sv.painters.GenericFeatureCanvas', {
 			var fontLetterWidth = font_height / 2
 
 			//Levelize the reads and get the max visible level (used for a shortcut later)
-			var max = this.levelize(data);
 			var maxLevel = Math.ceil(region.y2 / (h + self.boxSpace));
+			var max = this.levelize(data,maxLevel);
+			
 			var html = '';
 			var id = '';
 

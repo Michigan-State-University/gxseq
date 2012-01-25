@@ -303,15 +303,15 @@
 }
 
 .AJ_track .AJ_toolbar .x-toolbar {
-	position:absolute;
+  position:absolute;
 	top:0px;
 	left:0px;
 	width:100%;
-	min-height:20px;
-	height:25px;
-	z-index:999;
-	border:0px!important;
-	background:none !important;
+/*  min-height:20px;*/
+  height:25px;
+	z-index:2;
+/*  border:0px!important;*/
+/*  background:#eee !important;*/
 }
 
 .AJ_track_title {
@@ -334,13 +334,13 @@
 	background-color:rgb(233,233,233);
 	opacity:.4;
 	filter:alpha(opacity=40);
-	z-index:5;
+	z-index:4;
 }
 .AJ_mouse_label {
 	position:absolute;
 	font-size:10px;
 	top:0px;
-	z-index:6;
+	z-index:4;
 	text-align:center;
 }
 .AJ_mouse_label div {
@@ -348,7 +348,7 @@
 	border:solid gray 1px;
 }
 .AJ_crosshair {
-	z-index:5;
+	z-index:3;
 }
 .AJ_position_indicator {
 	position:absolute;
@@ -357,22 +357,26 @@
 	height:100%;
 	width:0px;
 	border-right:dotted red 1px;
-	z-index:5;
+	z-index:4;
 }
 
 .AJ_overflow {
-	position:absolute;
-	top:0px;
-	left:0px;
-	width:100%;
-  height:100%;
+  position:absolute;
+  top:27px;
+  bottom:0px;
+  left:0px;
+  width:100%;
+/*  height:100%;*/
 	overflow:hidden;
 	/*overflow-y:scroll;
 	overflow-x:hidden;*/
 }
 .AJ_canvas {
-	position:relative;
-	height:100%;
+  position:absolute;
+  top:0px;
+  bottom:0px;
+  width:100%;
+/*  height:100%;*/
 }
 
 .models_forward{
@@ -419,7 +423,7 @@
 	z-index:900;
 }
 .AJ_resizer {
-	border:dashed black 1px;
+	border:dashed 1px black;
 	z-index:900;
 }
 
@@ -509,6 +513,13 @@
 .custom-slider .x-slider-thumb {
 	cursor:pointer;
 	background:url('../images/models/grey.gif') repeat-x;
+	border: 1px solid #ccc;
+	border-radius: 7px;
+	-moz-border-radius: 7px;
+	-webkit-border-radius: 7px;
+	-moz-box-shadow: 3px 3px 5px rgba(80,80,80,.6);
+	-webkit-box-shadow: 3px 3px 5px rgba(80,80,80,.6);
+	box-shadow: 3px 3px 5px rgba(80,80,80,.6);
 }
 
 
@@ -533,28 +544,54 @@
 	background-color:rgb(255,140,0);
   background-image:url('../images/bases/N.gif');
 }
+.base_spacer { 
+	background-color:rgb(255,255,255);	
+  background-image:url('../images/bases/spacer.gif');
+}
+
+.base_deletion {
+  background-color:rgb(255,0,0);
+  background-image:url('../images/bases/spacer.gif');
+/*  background-image:url('../images/bases/blank.gif');*/
+}
 /*Transparent Nucleotide letters*/
 .A_trans { 
-	background-color:rgb(255,255,255,0);
+/*  background-color:rgb(255,255,255);*/
   background-image:url('../images/bases/A.gif');
 }
 .T_trans { 
-	background-color:rgb(255,255,255,0);
+/*  background-color:rgb(255,255,255);*/
   background-image:url('../images/bases/T.gif');
 }
 .C_trans { 
-	background-color:rgb(255,255,255,0);
+/*  background-color:rgb(255,255,255);*/
   background-image:url('../images/bases/C.gif');
 }
 .G_trans { 
-	background-color:rgb(255,255,255,0);
+/*  background-color:rgb(255,255,255);*/
   background-image:url('../images/bases/G.gif');
 }
 .N_trans { 
-	background-color:rgb(255,255,255,0);
+/*  background-color:rgb(255,255,255);*/
   background-image:url('../images/bases/N.gif');
 }
-
+/*Mismatch Nucleotide letters*/
+.A_mis {
+	background-color:rgb(150,150,150);
+  background-image:url('../images/bases/A.gif');
+}
+.T_mis { 
+	background-color:rgb(150,150,150);
+  background-image:url('../images/bases/T.gif');
+}
+.C_mis { 
+	background-color:rgb(150,150,150);
+  background-image:url('../images/bases/C.gif');
+}
+.G_mis { 
+	background-color:rgb(150,150,150);
+  background-image:url('../images/bases/G.gif');
+}
 
 /*
 	Protein Letters

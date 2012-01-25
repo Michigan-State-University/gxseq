@@ -1,5 +1,5 @@
 <h1 class="pagetitle">Genomic Experiment Types</h1>
-<%= render :partial => "sidebar", :locals => {:active => "details"}  %>
+<%= render :partial => "sidebar", :locals => {:active => "all"}  %>
 
 <h3><%= link_to "ChIP Seq", chip_seqs_path  %></h3><hr><br/>
 <p>
@@ -11,6 +11,18 @@
 <p>
 	ChIP-chip combines chromatin immunoprecipitation (ChIP) with with microarray technology (chip). The genome browser uses the tile data from ChIP-Seq to render a histogram display. 
 	<%= link_to "(details)", details_chip_chips_path, :style => "font-size:80%" %>
+</p>
+
+<h3><%= link_to "Re-Sequence", re_seqs_path %></h3><hr><br/>
+<p>
+	Re-Sequencing experiments use genomic sequence data aligned to the reference sequence.
+	<%= link_to "(details)", details_re_seqs_path, :style => "font-size:80%" %>
+</p>
+
+<h3><%= link_to "mRNA-Seq", rna_seqs_path %></h3><hr><br/>
+<p>
+	mRNA-Seq expects RNA sequencing data aligned to the reference sequence.
+	<%= link_to "(details)", details_rna_seqs_path, :style => "font-size:80%" %>
 </p>
 
 <h3><%= link_to "Synthetic", synthetics_path %></h3><hr><br/>

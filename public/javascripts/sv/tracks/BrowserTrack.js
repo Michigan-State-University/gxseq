@@ -12,7 +12,8 @@ Ext.define('Sv.tracks.BrowserTrack', {
         var self = this;
         self.cache = 3 * screen.width;
         self.maxCache = 20 * screen.width;
-
+        self.originalHeight = self.height;
+        
         self.contextMenu.addItems(
         [
         self.name,
@@ -252,7 +253,7 @@ Ext.define('Sv.tracks.BrowserTrack', {
                     self.maskFrame('No data available at this zoom level');
                     return;
                 }
-                  self.unmaskFrame();
+                self.unmaskFrame();
 
                 //Clear if the policy or assembly have changed
                 //if (views.requested.assembly != state.assembly || policy.index != newPolicy.index)
@@ -288,6 +289,9 @@ Ext.define('Sv.tracks.BrowserTrack', {
 
                 //Paint the desired location
                 var edges = getEdges();
+                //self.paintCanvas(edges.g1, edges.g2, views.requested.bases, views.requested.pixels);
+                //try painting a wider region
+                var w = edges.g2 - edges.g1
                 self.paintCanvas(edges.g1, edges.g2, views.requested.bases, views.requested.pixels);
             };
 
@@ -329,7 +333,10 @@ Ext.define('Sv.tracks.BrowserTrack', {
                 // }
                 // else
                 // {
-                Ext.Ajax.request({
+                if(self.requestFrame){
+                  self.requestFrame(frame,pos,policy);
+                }
+                else{ Ext.Ajax.request({
                     url: self.data,
                     method: 'GET',
                     params: {
@@ -380,6 +387,7 @@ Ext.define('Sv.tracks.BrowserTrack', {
                         self.setTitle(self.name);
                     }
                 });
+              }
             };
             //} //From localStorage above
             return {
@@ -389,7 +397,10 @@ Ext.define('Sv.tracks.BrowserTrack', {
                 convertX: convertX,
                 convertG: convertG,
                 clear: clear,
-                refresh: refresh
+                refresh: refresh,
+                views : views,
+                state : state,
+                parse : parse
             };
         })();
 

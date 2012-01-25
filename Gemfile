@@ -14,7 +14,9 @@ group :development, :test do
 end
 
 gem 'acts_as_api', '~>0.3'
-gem 'bio', '~> 1.4.1'
+gem 'bio', '~> 1.4.2'
+#gem 'bio-samtools', '~>0.4', :git => 'git://github.com/throwern/bioruby-samtools.git'
+gem 'bio-samtools', '~>0.4', :path => '~/gems/bio-samtools'
 gem 'composite_primary_keys', '=3.1.10', :path => 'vendor/gems/composite_primary_keys-3.1.10'
 gem 'delayed_job', '~> 2'
 #gem 'delayed_job', '~> 2.1', :git => 'git://github.com/collectiveidea/delayed_job.git'

@@ -3,12 +3,12 @@
  */
 Ext.define('Sv.painters.HistogramCanvas',{
     extend : 'Sv.painters.DataCanvas',
+    color : 'black',
     initComponent : function(){
         this.callParent(arguments);
         var self = this;
     	var data = {};
     	var absMax = 0;
-    	var color = "black"
 
     	this.getData = function() {return data;};
     	//Set the data for this histogram from an array of points
@@ -16,7 +16,9 @@ Ext.define('Sv.painters.HistogramCanvas',{
 
     	this.setAbsMax = function(m){absMax = m;};
 
-    	this.setColor = function(value){color = value;};
+    	this.setColor = function(value){
+    	  self.color = value
+    	};
 
     	//Draw points using a specified rendering class
     	this.paint = function()
@@ -35,20 +37,24 @@ Ext.define('Sv.painters.HistogramCanvas',{
     		if (scaler == 0) return;
     		if(absMax ==0) return;
     		//Fix color (string to hex)
-    		if(color.match(/^\d+$/))
+    		if(self.color.match(/^\d+$/))
     		{
-    		    color = "#"+color
+    		    self.color = "#"+self.color
     		}
-
-    		brush.fillStyle = color;
+    		brush.fillStyle = self.color;
     		var x,y,h,w,text;
     		Ext.each(data, function(datum)
     		{	
 
     			if(flippedY){
-    				if(datum.y >= 0) return;
-    				h = Math.round( ((-datum.y)/absMax) * height * scaler );
-    				y = 0;
+    				if(datum.y >= 0){
+    				  h = Math.round( (datum.y/absMax) * height * scaler);
+    				  y = 0;
+    				}else{
+    				  h = Math.round( ((-datum.y)/absMax) * height * scaler );
+      				y = 0;
+    				}
+
     			}
     			else{
     				if(datum.y <= 0) return;

@@ -1,0 +1,5 @@
+<% content_for :top_bar do -%>
+	<h1 class="pagetitle">mRNA-Seq Experiments</h1>
+<% end -%>
+<%= render :partial => "experiments/sidebar", :locals => {:active => 'rna_seq'} %>
+<%= render :partial => "experiments/listing", :locals => {:exp_type => "rna_seq"} %>

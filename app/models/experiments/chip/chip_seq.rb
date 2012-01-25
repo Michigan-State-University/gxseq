@@ -6,8 +6,12 @@ class ChipSeq < Experiment
   has_one :wig, :foreign_key => "experiment_id"
 
   after_save :set_abs_max, :on => :update
-
+  
   ##Specialized Methods
+  def asset_types
+    {"bigWig" => "BigWig", "wig" => "Wig"}
+  end  
+  
   def load_asset_data
     # check for big_wig; create it
     self.update_attribute(:state,"saving")
@@ -60,9 +64,9 @@ class ChipSeq < Experiment
     "true"
   end
 
-  def wig_header
-    "track type=wiggle_0\nvariableStep chrom=#{sequence_name || bioentry.name} span=1"
-  end
+  # def wig_header
+  #   "track type=wiggle_0\nvariableStep chrom=#{sequence_name || bioentry.name} span=1"
+  # end
 
   ##Class Specific
   def max(chrom='')
@@ -144,15 +148,6 @@ class ChipSeq < Experiment
       puts e;logger.info "\n\n#{e}\n\n"
       return false
     end
-  end
-
-  def get_chrom_file
-    chr = Tempfile.new("chrom.sizes")
-    bioentries_experiments.each do |be|
-      chr.puts "#{be.sequence_name} #{be.bioentry.length}"
-    end 
-    chr.flush
-    return chr
   end
 
   # google js test (removed for peak + line chart)

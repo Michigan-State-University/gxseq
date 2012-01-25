@@ -4,7 +4,6 @@ GenomeSuite::Application.routes.draw do
   # first created -> highest priority.
 
   ##Navigation
-  #root :to => "home#index"
   root :to => "home#index"
   match '/faq' => 'help#faq', :as  => :faq
   match '/about' => 'help#about', :as  => :about
@@ -33,6 +32,7 @@ GenomeSuite::Application.routes.draw do
   match "fetchers/genome"  
   match "generic_feature/gene_models"
   match "protein_sequence/genome"
+  match "reads/track_data"
   
   ##Experiments
   resources :assets, :only => [:show]
@@ -54,6 +54,20 @@ GenomeSuite::Application.routes.draw do
   end
   resources :experiments do
     get 'asset_details', :on => :collection
+  end
+  resources :re_seqs do
+    get 'details', :on => :collection
+    member do
+      get 'initialize_experiment'
+      get 'graphics'
+    end
+  end
+  resources :rna_seqs do
+    get 'details', :on => :collection
+    member do
+      get 'initialize_experiment'
+      get 'graphics'
+    end
   end
   resources :synthetics do
     get 'details', :on => :collection

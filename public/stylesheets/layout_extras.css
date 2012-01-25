@@ -127,6 +127,18 @@ h3 {clear:both; margin:0em 0 0.5em 0;}
     -webkit-box-shadow: 3px 3px 9px #666;
     box-shadow: 3px 3px 9px #666;
 }
+.flash_warning {
+  border: 2px solid orange;
+  padding-left: 4px;
+  padding-right: 4px;
+  background-color: #fff5f0;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-box-shadow: 3px 3px 9px #666;
+    -webkit-box-shadow: 3px 3px 9px #666;
+    box-shadow: 3px 3px 9px #666;
+}
 
 #flash_alert {
   width: 400px;

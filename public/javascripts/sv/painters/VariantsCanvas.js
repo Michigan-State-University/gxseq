@@ -59,8 +59,8 @@ Ext.define('Sv.painters.VariantsCanvas',{
 		        container.appendChild(containerDiv);
 
 				//Levelize the data and get the max visible level (used for a shortcut later)
-				var max = this.levelize(data);
 				var maxLevel = Math.ceil(region.y2 / (h + self.boxSpace));
+				var max = this.levelize(data,maxLevel);
 				var newDivs = [];
 				Ext.each(data, function(variant)
 				{

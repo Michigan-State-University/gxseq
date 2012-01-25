@@ -25,23 +25,17 @@ class FileManager
   end
   
   def self.wig_to_bigwig(filein, fileout, chrom_file)
-    # using ucsc c executable
-    # wigToBigWig in.wig chrom.sizes out.bw
-    # options:
-    #    -blockSize=N - Number of items to bundle in r-tree.  Default 256
-    #    -itemsPerSlot=N - Number of data points bundled at lowest level. Default 1024
-    #    -clip - If set just issue warning messages rather than dying if wig
-    #                   file contains items off end of chromosome.
-    #    -unc - If set, do not use compression
-    stdin, stdout, stderr = Open3.popen3("#{CMD_PATH}wigToBigWig -clip '#{filein}' #{chrom_file} '#{fileout}'")
-    errors=""
-    
-    # Let it go, we just want to try
+    stdin, stdout, stderr = Open3.popen3("#{CMD_PATH}wigToBigWig -clip '#{filein}' '#{chrom_file}' '#{fileout}'")
     stderr.each do |e|
-      #errors += e unless e.chomp.blank?
       puts e
     end
-    # raise StandardError, errors unless errors.blank?
+  end
+  
+  def self.bedgraph_to_bigwig(filein, fileout, chrom_file)
+    stdin, stdout, stderr = Open3.popen3("#{CMD_PATH}bedGraphToBigWig '#{filein}' '#{chrom_file}' '#{fileout}'")
+    stderr.each do |e|
+      puts e
+    end
   end
   
   def self.parse(file,hsh={})

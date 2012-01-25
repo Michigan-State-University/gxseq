@@ -1,0 +1,5 @@
+<% content_for :top_bar do -%>
+	<h1 class="pagetitle">Re-Sequencing Experiments</h1>
+<% end -%>
+<%= render :partial => "experiments/sidebar", :locals => {:active => 're_seq'} %>
+<%= render :partial => "experiments/listing", :locals => {:exp_type => "re_seq"} %>

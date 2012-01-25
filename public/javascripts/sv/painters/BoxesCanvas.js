@@ -51,10 +51,9 @@ Ext.define('Sv.painters.BoxesCanvas', {
 		}
 	},
 	//Assign levels to the boxes (assumes they are all the same height)
-	levelize : function(boxes)
+	levelize : function(boxes,maxLevel)
 	{
 	  var self = this;
-
 		if (!boxes || !(boxes instanceof Array)) return;
 		var inplay = new AnnoJ.Helpers.List();
 		var max = 0;
@@ -74,25 +73,18 @@ Ext.define('Sv.painters.BoxesCanvas', {
 			{
 				if (node.value.x2 <= box.x1)
 				{
+          box.level = node.value.level;
+          inplay.insertBefore(node,box);
 					inplay.remove(node);
+          added = true;
+          max = Math.max(max, box.level);
+          break;
 				}
-			}
-			
-			//Assign the box a level
-			for (var node=inplay.first; node; node=node.next)
-			{
-				if (box.level < node.value.level)
-				{
-					inplay.insertAfter(node.prev, box);
-					added = true;
-					break;
-				}
-        		box.level ++;
-				max = Math.max(max, box.level);
+				box.level ++;
 			}
 			
 			//If no place was found to add the div, then add it to the end
-			if (!added) inplay.insertLast(box);
+			if (!added) inplay.insertAfter(inplay.last,box);
 		});
 		return max;
 	},

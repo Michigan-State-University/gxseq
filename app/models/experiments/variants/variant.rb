@@ -6,6 +6,10 @@ class Variant < Experiment
   has_many :deletions, :foreign_key => "experiment_id"
   has_many :insertions, :foreign_key => "experiment_id"
   
+  def asset_types
+    {"MAQ snp" => "MaqSnp", "MAQ indel" => "MaqIndel"}
+  end  
+  
   def max_pos
     SequenceVariant.find(:first, :order => "pos desc").pos
   end

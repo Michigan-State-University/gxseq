@@ -21,10 +21,10 @@ class FetchersController < ApplicationController
     species.in_use_children.each do |taxon|
       if(taxon == species)
         taxons.push({
-          :id => taxon.taxon_versions.first.bioentries.first.id,
+          :id => (taxon.taxon_versions.first.bioentries.first.id rescue bioentry_id),
           :name => "Generic Strain"
         })
-      else        
+      else
         taxons.push({
           :id => taxon.taxon_versions.first.bioentries.first.id,
           :name => taxon.name
@@ -34,7 +34,7 @@ class FetchersController < ApplicationController
     
     species.species_versions.each do |v|
       versions.push({
-        :id => v.bioentries.first.id,
+        :id => (v.bioentries.first.id rescue bioentry_id),
         :name => v.version
       })
     end
@@ -373,81 +373,4 @@ class FetchersController < ApplicationController
         }
       end   
    end
-   
-   
-   
-   def est_reads
-      
-      unless params[:jrws].blank?
-         jrws = JSON.parse(params[:jrws])
-         param = jrws['param']
-         case jrws['method']
-            
-         when 'syndicate'
-            render :json  => '{"success":true,"data":{"institution":{"name":"SALK","url":"http:\/\/pbio.salk.edu\/pbioe\/","logo":"img\/logo_salk.png"},"engineer":{"name":"Ryan Lister","email":"lister@salk.edu"},"service":{"title":"GeneModels","species":"Arabidopsis thaliana","access":"public","version":"Unspecified","format":"Unspecified","server":"","description":"The <i>Arabidopis thaliana<\/i> Information Resource (TAIR) provides genemodel annotation for <i>Arabidopsis thaliana<\/i>. This data is from the TAIR8 release."}}}'
-         when 'range'
-            if(param['bases']==10)
-               render :json  => "{'success':true,'data':{'read':[[6060,6,0],[6070,10,0]]}}"
-            elsif(param['bases']==1)
-               if(param['pixels']==1)
-                        render :json  => {
-                           :success => true,
-                           :data => {
-                              :read => {
-                                 :watson => [
-                                    ['56448',10,36,1,1,'AGTGTGCGTGTGACGTGTAGCTGTCGTAGTCGCTAGA'],
-                                    ['245989',12,36,1,1,'GCGGCGTTTGTGCATGCATGCTACGACACTCCAATGA'],
-                                    ['245123',13,36,1,1,'GGGCTGGCTGCAACATGTAGAAAATAAAAACACGTAA'],
-                                    ['245321',14,36,1,1,'GTGGGGGTAAAGATGCTAGACAATAGATAGCAATATA']
-                                 ],
-                                 :crick => [
-                                    ['123521',6001,36,1,1,'GGGTGTGTGGATCCCCCGAAAAATAATGATAAAAAAT']
-                                    ]
-                              }
-                           }
-                        }
-               elsif(param['pixels']==100)
-                  if(param['left'].to_i <= 6000 and param['right'].to_i  >= 6500)
-                     render :json  => {
-                        :success => true,
-                        :data => {
-                           :read => {
-                              :watson => [
-                                 ['56448',6064,36,1,1,'AGTGTGCGTGTGACGTGTAGCTGTCGTAGTCGCTAGA'],
-                                 ['245989',6060,36,1,1,'GCGGCGTTTGTGCATGCATGCTACGACACTCCAATGA'],
-                                 ['245123',6070,36,1,1,'GGGCTGGCTGCAACATGTAGAAAATAAAAACACGTAA'],
-                                 ['245321',6010,36,1,1,'GTGGGGGTAAAGATGCTAGACAATAGATAGCAATATA']
-                              ],
-                              :crick => [
-                                 ['123521',6001,36,1,1,'GGGTGTGTGGATCCCCCGAAAAATAATGATAAAAAAT']
-                                 ]
-                           }
-                        }
-                     }
-                  else
-                     render :json  => {
-                        :success => true,
-                        :data => {
-                           :read => {
-                              :watson => [
-                              ],
-                              :crick => [
-                                 ]
-                           }
-                        }
-                     }
-                  end
-               end
-            else
-               render :json  => "{'success':true,'data':{'read':{'watson':[['56448',1064,36,1,1,''],['245989',1060,36,1,1,''],['245123',1070,36,1,1,''],['245321',1010,36,1,1,'']],crick:[['123521',800,36,1,1,'']]}}}"
-            
-            end
-         end
-      else
-         render :json => {
-            :succes => false
-         }
-      end
-   end
-   #{'success':true,'data':{'sequence':{'seq':[['id','x','w','sequence']]},'sixframe':{'frames':[['some_id','frame_number','my_offset','sequence'],['2354623','2','1','SRLLVVSRLVVSQEGSL']...]}}} 
 end

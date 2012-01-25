@@ -1,0 +1,17 @@
+<div id="graphics_container">
+  Displaying data for : <%= @bioentry.display_info %>. View in <%= link_to "Sequence Viewer", bioentry_path(@bioentry, :tracks => [@rna_seq.tracks.with_bioentry(@bioentry.id).first.id]) %>
+  <div id='exp_chart'>
+  	<%= swf_tag "mixed_plot.swf", 
+  		:id => "#{@rna_seq}_plot", 
+  		:size => "600x300", 
+  		:flashvars => {
+        # :checklabel => "Show Peaks", 
+        # :pointseries => "Peaks", 
+  			:lineseries => "Read Count",
+  			:entry_id => @bioentry.id,
+  			:id => @rna_seq.id, 
+  			:local_url => "#{root_path}rna_seqs/"
+  		} %>
+  </div>
+  <%= select_tag :bioentry_id, options_from_collection_for_select(@rna_seq.bioentries_experiments, :bioentry_id, :bioentry_short_name, @bioentry.id), :onChange => "window.location='#{rna_seq_url(@rna_seq)}?bioentry_id='+this.options[this.selectedIndex].value"%>
+</div>

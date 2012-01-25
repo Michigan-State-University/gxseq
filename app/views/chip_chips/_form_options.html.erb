@@ -1,4 +1,4 @@
 <h3>Options</h3>
-<%= f.label "Show negative values?" %>
-Yes <%= f.radio_button :show_negative, "true"%>
-No <%= f.radio_button :show_negative, "false", :checked => ((@chip_chip.show_negative != 'true') ? true : '')%><br/>
+<%= f.label "Should negative values be displayed?" %>
+Yes <%= f.radio_button :show_negative, "Yes"%>
+No <%= f.radio_button :show_negative, "No", :checked => ((@chip_chip.show_negative != 'true') ? true : '')%><br/>

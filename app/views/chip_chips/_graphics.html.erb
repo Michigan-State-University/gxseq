@@ -14,5 +14,5 @@
   		} %>
   </div>
 
-  <%= select_tag :bioentry_id, options_from_collection_for_select(@chip_chip.bioentries_experiments, :bioentry_id, :bioentry_short_name, @bioentry.id), :'data-onchange' => graphics_chip_chip_url(@chip_chip), :'data-with' => :bioentry_id, :'data-element' => 'graphics_container'%>
+  <%= select_tag :bioentry_id, options_from_collection_for_select(@chip_chip.bioentries_experiments, :bioentry_id, :bioentry_short_name, @bioentry.id), :onChange => "window.location='#{chip_chip_url(@chip_chip)}?bioentry_id='+this.options[this.selectedIndex].value"%>
 </div>

@@ -83,9 +83,9 @@ module ApplicationHelper
 
   def link_to_add_fields(name, f, association, options={})
     new_object = f.object.class.reflect_on_association(association).klass.new
-    
+    partial = options[:partial] || association.to_s.singularize + "_fields"
     fields = f.fields_for(association, new_object, :child_index => "new_#{association}") do |builder|
-      render(association.to_s.singularize + "_fields", :f => builder)
+      render(partial, {:f => builder}.merge(options[:locals]) )
     end
       content_tag(:div,link_to_function(name, "add_fields(this, \"#{association}\", \"#{escape_javascript(fields)}\",'#{options[:render]}')", options), :class => "new-fields")
   end

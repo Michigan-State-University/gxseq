@@ -184,7 +184,7 @@ Ext.define("Sv.tracks.BaseTrack",{
              
          var spacer = new Ext.Toolbar.Spacer();
          spacer.permanent = true;
-             
+         
          var items = [closeButton,addButton, title, filler, toggleButton, spacer];
          toolbar.add(items);          
                       
@@ -285,7 +285,7 @@ Ext.define("Sv.tracks.BaseTrack",{
     getWidth  : function()    { return this.Frame.ext.getWidth(w);  },
     setWidth  : function(w) { this.Frame.ext.setWidth(w);         },
     getHeight : function()  { return this.Frame.ext.getHeight(h); },
-    setHeight : function(h) {this.Frame.ext.setHeight(h)},  
+    setHeight : function(h) {this.Frame.ext.setHeight(h);},  
     getMinHeight : function() { return this.minHeight; },
     getMaxHeight : function() { return this.maxHeight; },    
     //Generic event handling

@@ -13,5 +13,5 @@
   			:local_url => "#{root_path}chip_seqs/"
   		} %>
   </div>
-  <%= select_tag :bioentry_id, options_from_collection_for_select(@chip_seq.bioentries_experiments, :bioentry_id, :bioentry_short_name, @bioentry.id), :'data-onchange' => graphics_chip_seq_url(@chip_seq), :'data-with' => :bioentry_id, :'data-element' => 'graphics_container'%>
+  <%= select_tag :bioentry_id, options_from_collection_for_select(@chip_seq.bioentries_experiments, :bioentry_id, :bioentry_short_name, @bioentry.id), :onChange => "window.location='#{chip_seq_url(@chip_seq)}?bioentry_id='+this.options[this.selectedIndex].value"%>
 </div>

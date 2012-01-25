@@ -78,12 +78,12 @@ Ext.define('Sv.painters.BaseCanvas',{
   		container = dom;
   		self.clear();
   	};
-  	this.setSize = function(width, height)
-  	{ 
-  		container.style.width  = parseInt(width)  || container.offsetWidth;
-  		container.style.height = parseInt(height) || container.offsetHeight;
-  		self.refresh();
-  	};
+    // this.setSize = function(width, height)
+    // { 
+    //       container.style.width  = parseInt(width)  || container.offsetWidth;
+    //       container.style.height = parseInt(height) || container.offsetHeight;
+    //  self.refresh();
+    // };
   	
   	//Rendering functions
   	// this.paint = function()

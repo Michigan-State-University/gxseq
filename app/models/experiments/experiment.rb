@@ -113,13 +113,22 @@ class Experiment < ActiveRecord::Base
     elsif states.include?('error')
       puts "!!Changing state to error. Something went wrong parsing assets... #{Time.now}" unless self.state == 'error'
       self.update_attribute(:state, 'error')
-    elsif states.include?('loading')
+    elsif states.include?('loading') || states.include?('pending')
       puts "Changing State To loading #{Time.now}" unless self.state == 'loading'
       self.update_attribute(:state, 'loading')
     else
       puts "Changing State To complete #{Time.now}" unless self.state == 'complete'
       self.update_attribute(:state, 'complete')
     end
+  end
+  
+  def get_chrom_file
+    chr = Tempfile.new("chrom.sizes")
+    bioentries_experiments.each do |be|
+      chr.puts "#{be.sequence_name} #{be.bioentry.length}"
+    end 
+    chr.flush
+    return chr
   end
   
   ##Generalized methods (should be specialized in subclass)  
@@ -135,6 +144,13 @@ class Experiment < ActiveRecord::Base
   end
   
   def remove_asset_data
+    puts "Removing Asset Data - #{Time.now}"
+    assets.each{|a| a.remove_data}
+  end
+  
+  def asset_types
+    #override in sub-class - hash: {key => value} == {DisplayName => ClassName}
+    {'Text' => 'txt'}
   end
 end
 

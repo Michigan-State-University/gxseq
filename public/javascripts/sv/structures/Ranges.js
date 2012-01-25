@@ -206,47 +206,35 @@ var RangeList = function()
 		delete node;
 		count--;
 	};
-	
-	//Levelize all items. Checking function can be used to select which items will be included
-	this.levelize = function(func)
-	{
-		var max = 0;
-		var added = false;
-		var inplay = new lightweight_list();
-		
-		//Levelize all items
-		for (var rangeNode=firstNode; rangeNode; rangeNode=rangeNode.next)
-		{
-			if (func && !func(rangeNode.value)) continue;
-			
-			added = false;
-			rangeNode.level = 0;
 
-			//Remove out of play rangeNodes
-			for (var node=inplay.first; node; node=node.next)
-			{
-				if (node.value.x2 <= rangeNode.x1)
-				{
-					inplay.remove(node);
-				}
-			}
-			
-			//Assign the rangeNode a level
-			for (var node=inplay.first; node; node=node.next)
-			{
-				if (rangeNode.level < node.value.level)
-				{
-					inplay.insertAfter(node.prev, rangeNode);
-					added = true;
-					break;
-				}
-				rangeNode.level++;
-				max = Math.max(max, rangeNode.level);
-			}
-			
-			//If no place was found to add the rangeNode, then append it
-			if (!added) inplay.insertLast(rangeNode);
-		};
+	//Levelize all items	
+	this.levelize = function()
+	{
+		var inplay = new AnnoJ.Helpers.List();
+		var max = 0;
+	  for (var rangeNode=firstNode; rangeNode; rangeNode=rangeNode.next)
+		{
+      rangeNode.level = 0;
+      var added = false;
+      // check spots, insert if open
+      for (var node=inplay.first; node; node=node.next)
+      {
+       if (node.value.x2 < rangeNode.x1)
+       {
+                rangeNode.level = node.value.level;
+                inplay.insertBefore(node,rangeNode);
+         inplay.remove(node);
+                added = true;
+                max = Math.max(max, rangeNode.level);
+                break;
+       }
+       rangeNode.level ++;
+      }
+      
+      //If no place was found to add the div, then add it to the end
+      if (!added) inplay.insertAfter(inplay.last,rangeNode);
+		}
+		
 		return max;
 	};
 	
