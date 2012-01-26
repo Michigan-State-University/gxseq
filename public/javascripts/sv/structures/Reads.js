@@ -65,7 +65,7 @@ var ReadsList = function()
 		var pixels = parseInt(pixels) || 0;
 		
 		if (!bases || !pixels) return subset;
-
+    
 		self.viewport.update(x1,x2);
 		self.viewport.apply(function(node)
 		{

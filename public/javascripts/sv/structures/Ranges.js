@@ -223,7 +223,7 @@ var RangeList = function()
        {
                 rangeNode.level = node.value.level;
                 inplay.insertBefore(node,rangeNode);
-         inplay.remove(node);
+                inplay.remove(node);
                 added = true;
                 max = Math.max(max, rangeNode.level);
                 break;
@@ -257,7 +257,6 @@ var RangeList = function()
 			var x2 = parseInt(x2) || 0;
 	
 			if (x1 > x2) return;
-			
 			viewL = null;
 			viewR = null;
 			
@@ -265,14 +264,16 @@ var RangeList = function()
 			//Find leftmost node
 			for(var node=firstNode; node; node=node.next)
 			{
-				if (node.x2 < x1) continue;
+			 // console.log(node.x1+" < "+x1)
+				//if (node.x1 < x1) continue;
 				viewL = node;
 				viewR = node;
-				if (node.x1 > x1) break;				
+				if (node.x2 >= x1) break;
 			}
 			//Find rightmost node
 			for(var node=viewL; node; node=node.next)
 			{
+			  viewR = node
 				if (node.x1 > x2){
 					viewR = node.prev;
 					break;
@@ -328,7 +329,6 @@ var RangeList = function()
 			if (!(func instanceof Function)) return false;
 			
 			if (!viewL || !viewR) return;
-			
 			for (var node=viewL; node; node=node.next) //changed from nextR
 			{
 				func(node);

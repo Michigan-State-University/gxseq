@@ -43,17 +43,17 @@ Ext.define('Sv.painters.ReadsCanvas',{
   		}
   	};
     
-    //Add a new frameBreak
-    this.addBreak = function(x1,x2,msg)
-    {
-      self.frameBreaks.push({x1 : x1, x2 : x2, msg : msg})
-    };
-    //Clear frameBreaks
-    this.clearBreaks = function()
-    {
-      self.frameBreaks = [];
-    };
-    
+    // //Add a new frameBreak
+    // this.addBreak = function(x1,x2,msg)
+    // {
+    //   self.frameBreaks.push({x1 : x1, x2 : x2, msg : msg})
+    // };
+    // //Clear frameBreaks
+    // this.clearBreaks = function()
+    // {
+    //   self.frameBreaks = [];
+    // };
+    // 
     // View ratio for rendering
     this.setViewport = function(x1,x2,bases,pixels)
     {
@@ -95,10 +95,10 @@ Ext.define('Sv.painters.ReadsCanvas',{
   		//var max = this.levelize(data,maxLevel);
   		Ext.each(data, function(read)
   		{
-  			self.groups.add(read.cls);
-  			if (!self.groups.active(read.cls)) return;
-  			if (read.level > maxLevel) return;
-  			if (read.multi && !self.showMultis) return;
+  			//self.groups.add(read.cls);
+  			//if (!self.groups.active(read.cls)) return;
+  			//if (read.level > maxLevel) return;
+  			//if (read.multi && !self.showMultis) return;
 
   			w = read.w;
   			//e = read.e;
@@ -106,8 +106,8 @@ Ext.define('Sv.painters.ReadsCanvas',{
   			y = read.level * (h + ((scaler==0) ? 0 : self.boxSpace));
   			y = flippedY ? y : height - 1 - y - h;
 
-  			if (x + w < region.x1 || x > region.x2) return;
-  			if (y + h < region.y1 || y > region.y2) return;
+  			//if (x + w < region.x1 || x > region.x2) return;
+  			//if (y + h < region.y1 || y > region.y2) return;
 
   			//Render slightly differently if paired end
         // if (self.pairedEnd)
@@ -129,50 +129,50 @@ Ext.define('Sv.painters.ReadsCanvas',{
   				letterize(brush, read.sequence, x, y, w, h, container);
   			}
   		});
-  		
-  		//Draw the frames
-  		brush.lineWidth = 1.0;
-      Ext.each(self.frameBreaks, function(fb){        
-        
-        x = Math.round((fb.x1-self.viewport.x1) * self.viewport.pixels / self.viewport.bases);
-        if(x%2!=0) x+=1;
-        if(x >= region.x1 && x <= region.x2)
-        {
-          // Draw the Frame break
-          brush.fillStyle = "rgba(75,75,85,.8)";
-          brush.fillRect(x,0,1,height);
-          brush.fillStyle = "rgba(75,75,85,.2)";
-          brush.fillRect(x-2,0,1,height);
-          // Text background
-          brush.fillStyle = "#EEF";
-          metrics = brush.measureText(fb.msg)
-          brush.fillRect(x+5,1,metrics.width+2,11);
-          // Frame msg text
-          brush.textAlign = "left";
-          brush.fillStyle = "rgba(75,75,85,.9)";
-          brush.fillText(fb.msg,x+5,9);
-        }
-        
-        x2 = Math.round((fb.x2-self.viewport.x1) * self.viewport.pixels / self.viewport.bases);
-        if(x2 >= region.x1 && x2 <= region.x2)
-        {
-          // Text Background
-          metrics = brush.measureText(fb.msg)
-          brush.fillStyle = "#EEF";
-          brush.fillRect((x2-metrics.width)-5,1,metrics.width+2,11);
-          // Frame msg text
-          brush.fillStyle = "rgba(75,75,85,.9)";
-          brush.textAlign = "right"          
-          brush.fillText(fb.msg,x2-5, 9)
-        }
-      });
+      // 
+      // //Draw the frames
+      // brush.lineWidth = 1.0;
+      //       Ext.each(self.frameBreaks, function(fb){        
+      //         
+      //         x = Math.round((fb.x1-self.viewport.x1) * self.viewport.pixels / self.viewport.bases);
+      //         if(x%2!=0) x+=1;
+      //         if(x >= region.x1 && x <= region.x2)
+      //         {
+      //           // Draw the Frame break
+      //           brush.fillStyle = "rgba(75,75,85,.8)";
+      //           brush.fillRect(x,0,1,height);
+      //           brush.fillStyle = "rgba(75,75,85,.2)";
+      //           brush.fillRect(x-2,0,1,height);
+      //           // Text background
+      //           brush.fillStyle = "#EEF";
+      //           metrics = brush.measureText(fb.msg)
+      //           brush.fillRect(x+5,1,metrics.width+2,11);
+      //           // Frame msg text
+      //           brush.textAlign = "left";
+      //           brush.fillStyle = "rgba(75,75,85,.9)";
+      //           brush.fillText(fb.msg,x+5,9);
+      //         }
+      //         
+      //         x2 = Math.round((fb.x2-self.viewport.x1) * self.viewport.pixels / self.viewport.bases);
+      //         if(x2 >= region.x1 && x2 <= region.x2)
+      //         {
+      //           // Text Background
+      //           metrics = brush.measureText(fb.msg)
+      //           brush.fillStyle = "#EEF";
+      //           brush.fillRect((x2-metrics.width)-5,1,metrics.width+2,11);
+      //           // Frame msg text
+      //           brush.fillStyle = "rgba(75,75,85,.9)";
+      //           brush.textAlign = "right"          
+      //           brush.fillText(fb.msg,x2-5, 9)
+      //         }
+      //       });
   	};
 
   	function letterize(brush, sequence, x, y, w, h, container)
   	{
   		//var clean = "";
   		var length = sequence.length;
-  		var letterW = AnnoJ.bases2pixels(1);
+  		var letterW = self.viewport.pixels/self.viewport.bases ;
   		var half = length/2;
   		var readLength = half * letterW;
 
