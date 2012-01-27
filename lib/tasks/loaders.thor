@@ -169,6 +169,7 @@ class Db < Thor
             # bioentry
             bioentry = bio_db.bioentries.create(
             :taxon_version => taxon_version,
+            :taxon_id  => taxon_version.taxon_id,
             :name => entry_accession,
             :accession => entry_accession,
             :identifier => 0,
