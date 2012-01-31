@@ -35,7 +35,7 @@ module ApplicationHelper
     seq.to_formatted(hsh).html_safe
   end
   
-  # number line for location editor
+  # canvas 2d number line
   def number_line(start, width, options={})
     #use js 2d canvas to draw a number line
     height = options[:height] || 50
@@ -85,7 +85,7 @@ module ApplicationHelper
     new_object = f.object.class.reflect_on_association(association).klass.new
     partial = options[:partial] || association.to_s.singularize + "_fields"
     fields = f.fields_for(association, new_object, :child_index => "new_#{association}") do |builder|
-      render(partial, {:f => builder}.merge(options[:locals]) )
+      render(partial, {:f => builder}.merge(options[:locals]||{}) )
     end
       content_tag(:div,link_to_function(name, "add_fields(this, \"#{association}\", \"#{escape_javascript(fields)}\",'#{options[:render]}')", options), :class => "new-fields")
   end

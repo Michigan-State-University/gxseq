@@ -8,11 +8,19 @@ class Bam < Asset
     Bio::DB::Sam.new(:bam=>data.path,:fasta => "").tap{|b|b.open}
   end
   
+  # NOTE does NOT work with delayed_job background tasks
   def index_stats
     bam = open_bam
     bam.index_stats.tap{
       bam.close
     }    
+  end
+  
+  def target_info
+    bam = open_bam
+    bam.target_info.tap{
+      bam.close
+    }
   end
   
   def get_reads(left,right,seq)
@@ -152,10 +160,10 @@ class Bam < Asset
     bw = File.new(data.path+".bw_tmp", "w")
     chr = File.new(data.path+".chrom.sizes","w")
     
-    if index_stats.length == 0
+    if target_info.length == 0
       raise "File Error: No items found in index"
     end
-    index_stats.each do |accession,hsh|
+    target_info.each do |accession,hsh|
       next unless( hsh[:length] && hsh[:length]>0 && hsh[:mapped_reads] && hsh[:mapped_reads]>0)
       length = hsh[:length]
       puts "--Working on #{accession} - Length: #{hsh[:length]}"

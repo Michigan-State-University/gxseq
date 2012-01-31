@@ -12,10 +12,6 @@ CMD_PATH = ::Rails.root.to_s+"/lib/tasks/" unless defined? CMD_PATH
 # Set default accession_link for bioentries
 # TODO: store settings in database, allow admin configuration
 ACCESSION_LINK = "http://www.ncbi.nlm.nih.gov/sites/entrez?db=genome&cmd=search&term=" unless defined? ACCESSION_LINK
-# flag for remote_user timeout method. see devise.rb  application_controller.rb
-# unused - foo@dev only forces authentication for chrome, firefox, windows-safari.  No Difference: opera, mac-safari. Error: i.e.
-# APP_CONFIG[:force_url] = false
-#ActiveRecord::Base.include_root_in_json = false
 
 Squeel.configure do |config|
   # To load hash extensions (to allow for AND (&), OR (|), and NOT (-) against

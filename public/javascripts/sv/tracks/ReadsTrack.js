@@ -159,7 +159,6 @@ Ext.define("Sv.tracks.ReadsTrack",{
       })      
       win.show();
       win.loadData();
-      console.log(win);
     });
     
     //Reads Display for select event
@@ -192,8 +191,6 @@ Ext.define("Sv.tracks.ReadsTrack",{
         me.initialBases = me.bases;
         me.initialPixels = me.pixels;
         me.setRatio();
-        console.log(me.bases);
-        console.log(me.pixels);
         me.readData = new ReadsList();
         me.readCanvas = new Sv.painters.ReadsCanvas({});
         me.colorBases = false;

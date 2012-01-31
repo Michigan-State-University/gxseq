@@ -33,8 +33,8 @@ module ConsoleLogger
             color:#{color};
             overflow:auto;'
           >
-            <div style="width:#{self.console_log ? (self.console_log.console.split("\n").map(&:length).max) : 100}em">
-            #{(self.console_log ? self.console_log.console.gsub(/\n/,"<br/>").gsub(/\t/,"&nbsp;&nbsp;&nbsp;&nbsp;") : "")}
+            <div style="width:#{(self.console_log && self.console_log.console) ? (self.console_log.console.split("\n").map(&:length).max) : 100}em">
+            #{((self.console_log && self.console_log.console) ? self.console_log.console.gsub(/\n/,"<br/>").gsub(/\t/,"&nbsp;&nbsp;&nbsp;&nbsp;") : "")}
             </div>
           </div>
         HTML

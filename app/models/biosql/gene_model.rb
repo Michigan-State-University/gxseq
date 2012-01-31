@@ -299,7 +299,7 @@ class GeneModel < ActiveRecord::Base
       gene_model_count = 0      
       GeneModel.transaction do
         # new gene features
-        Gene.find_in_batches(:include => [[:qualifiers => :term],:locations], :conditions => "NOT EXISTS (select id from gene_models where gene_id=#{Gene.primary_key})") do |new_genes|        
+        Gene.find_in_batches(:batch_size=>250, :include => [[:qualifiers => :term],:locations], :conditions => "NOT EXISTS (select id from gene_models where gene_id=#{Gene.primary_key})") do |new_genes|        
           new_gene_locus = new_genes.map{|g|g.locus_tag.value}.join("', '")
           # cds lookup
           cds_by_locus = {}

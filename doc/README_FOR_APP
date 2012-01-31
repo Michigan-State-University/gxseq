@@ -1,2 +1,10 @@
-Use this README file to introduce your application and point to useful places in the API for learning more.
-Run "rake doc:app" to generate API documentation for your models, controllers, helpers, and libraries.
+Deployment Notes:
+
+Passenger and RVM -- DO NOT use setup_load_paths with an RVM + Passenger install. It will break the YAML parser setup of delayed_job.
+
+
+
+Common Errors:
+
+needLargeMem: trying to allocate 0 bytes -  samtools binary may need executable permission
+
