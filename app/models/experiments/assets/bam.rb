@@ -164,7 +164,7 @@ class Bam < Asset
       raise "File Error: No items found in index"
     end
     target_info.each do |accession,hsh|
-      next unless( hsh[:length] && hsh[:length]>0 && hsh[:mapped_reads] && hsh[:mapped_reads]>0)
+      next unless( hsh[:length] && hsh[:length]>0)
       length = hsh[:length]
       puts "--Working on #{accession} - Length: #{hsh[:length]}"
       bam.mpileup_text({:r => "#{accession}"},bed.path,com)
