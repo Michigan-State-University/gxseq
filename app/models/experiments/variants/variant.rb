@@ -42,7 +42,7 @@ class Variant < Experiment
     # store this experiments converted sequence
     this_sequence = self.get_sequence(start_pos,end_pos,bioentry_id)
     # grab all of the variant experiments
-    BioentriesExperiment.find_all_by_bioentry_id(bioentry_id).map(&:experiment).each do |variant|
+    BioentriesExperiment.includes(:experiment).where(:bioentry_id => bioentry_id).where(:experiment => {:type => 'Variant'}).map(&:experiment).each do |variant|
       next if variant == self #skip self
       # compute the variant sequence, compare to self and store if equal
       matching_variants << variant if  this_sequence == variant.get_sequence(start_pos,end_pos,bioentry_id)
