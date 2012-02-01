@@ -238,8 +238,13 @@ Ext.define("Sv.tracks.BaseTrack",{
              // when the dom item doesn't exist yet...
              //toolbar.insert(index, item);
              toolbar.on('enable', function(){
+               console.log("Inserting item at idx: "+index);
                this.insert(index,item);
-             });             
+             },
+             toolbar,
+             {
+               single : true
+             });
          };
              
          function isVisible()
