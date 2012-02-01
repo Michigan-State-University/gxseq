@@ -53,7 +53,8 @@ class ChipSeqsController < ApplicationController
 
    def show
       @chip_seq = ChipSeq.find(params[:id])
-          @bioentry = Bioentry.find(params[:entry_id] || @chip_seq.bioentries_experiments.first.bioentry_id)
+      entry_id = params[:entry_id] || params[:bioentry_id]
+      @bioentry = Bioentry.find(entry_id || @chip_seq.bioentries_experiments.first.bioentry_id)
       respond_to do |format|
         format.html {}
         format.xml { render :layout => false }
