@@ -1,6 +1,6 @@
 xml.instruct! :xml, :version  => "1.0", :encoding  => "UTF-8"
 xml.chart do
-  be = @chip_chip.bioentries_experiments.where(:bioentry_id => @bioentry.id).first #TODO FIXME this is temp for testing need to return all for display
+  be = @chip_chip.bioentries_experiments.where(:bioentry_id => @bioentry.id).first
   bioentry = be.bioentry
   bc = bioentry.length
   num=400
