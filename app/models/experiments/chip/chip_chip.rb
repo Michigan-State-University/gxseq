@@ -51,7 +51,7 @@ class ChipChip < Experiment
   end
 
   def single
-    self.show_negative == "false" ? "true" : "false"
+    self.show_negative == "No" ? "true" : "false"
   end
 
   # def wig_header
@@ -107,10 +107,11 @@ class ChipChip < Experiment
   def compute_peaks
     self.update_attribute(:state,"computing")
     bioentries_experiments.each do |be|
+      puts "Removing stored peaks for #{be.sequence_name}"
+      self.peaks.with_bioentry(be.bioentry_id).destroy_all
       puts "Computing peaks for #{be.sequence_name}"
-      puts "Removing all stored peaks"
-      self.peaks.destroy_all
-      set_peaks(be.bioentry_id, big_wig.extract_peaks(be.sequence_name))
+      new_peaks = big_wig.extract_peaks(be.sequence_name)
+      set_peaks(be.bioentry_id, new_peaks)
     end
     self.update_attribute(:state,"ready")
     puts "Done Computing peaks #{Time.now}"

@@ -16,6 +16,13 @@ class Bam < Asset
     }    
   end
   
+  def flagstat
+    bam = open_bam
+    bam.flagstat.tap{
+      bam.close
+    }
+  end
+  
   def target_info
     bam = open_bam
     bam.target_info.tap{
@@ -105,21 +112,14 @@ class Bam < Asset
         cnt_reg = /\d+/
         op_reg = /\w/
         scanner = StringScanner.new(set_item[0][5])
-        if set_item[0][3]=="448315"
-          logger.info "\n\n#{set_item.inspect}\n\n"
-        end
         while( cnt = scanner.scan(cnt_reg))
           cnt = cnt.to_i
           op = scanner.scan(op_reg)
           case op
           when "M","="# Match
-            #logger.info "\n\nseq before M#{cnt}:#{seq[0,idx]}|#{seq[idx,seq.length-idx]}\t#{idx}\n\n"
             idx+=cnt
-            #logger.info "\n\nseq after  M#{cnt}:#{seq[0,idx]}|#{seq[idx,seq.length-idx]}\t#{idx}\n\n"
           when "I","S","H" #Soft and hard clipping are removed, may need update
-            #logger.info "\n\nseq before I#{cnt}:#{seq[0,idx]}|#{seq[idx,seq.length-idx]}\t#{idx}\n\n"
             seq.slice!(idx,cnt)
-            #logger.info "\n\nseq after  I#{cnt}:#{seq[0,idx]}|#{seq[idx,seq.length-idx]}\t#{idx}\n\n"
           when "D"
             seq.insert(idx-1,"D"*cnt)
           when "N"
@@ -133,10 +133,10 @@ class Bam < Asset
       end
       
       # build return text  [name, start, length, strand, sequence]
-      seq_name = set_item[0][0]                               # sam_data: read name
-      start = set_item[0][3].to_i                                  # sam_data: 1-based mapping position
+      seq_name = set_item[0][0]                                 # sam_data: read name
+      start = set_item[0][3].to_i                               # sam_data: 1-based mapping position
       width = (set_item[2]-start)+1                             # inclusive width (calend - pos) + 1
-      strand = (set_item[0][1].to_i & 0x0010 > 0) ? '+' : '-' # sam_data bit flag for strand -- 0x10 SEQ being reverse complemented
+      strand = (set_item[0][1].to_i & 0x0010 > 0) ? '+' : '-'   # sam_data bit flag for strand -- 0x10 SEQ being reverse complemented
       
       reads << "[\"#{seq_name}\",#{set_item[0][3]},#{width},\"#{strand}\",\"#{seq}\"],"
     end
