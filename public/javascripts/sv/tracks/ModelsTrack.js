@@ -109,7 +109,7 @@ Ext.define('Sv.tracks.ModelsTrack',{
 			      width       : 350,
 			      queryDelay  : 1000,
 			      minChars    : 3,
-			      hideTrigger : true,
+			      triggerAction : 'query',
 			      pageSize    : 20,
 			      emptyText   : 'Search Gene Features...',
 			      listConfig  : {
