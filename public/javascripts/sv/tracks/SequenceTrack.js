@@ -3,7 +3,7 @@
  *	GC content
  *	six frame translation
  *	DNA
- * The display is rendered at one level: sequence
+ * The display is rendered at multiple levels: GC only, GC plus start/stop, Sequence plus Protein
  */
 Ext.define('Sv.tracks.SequenceTrack',{
 	extend : 'Sv.tracks.BrowserTrack',
@@ -420,7 +420,85 @@ Ext.define('Sv.tracks.SequenceTrack',{
 		var handlerList = [SixFrameClose, SixFrameFar, SixFrameOnly, GCContent, GCContentOnly];
 		//Data series labels
 		var labels = null;
+    
+    //Select Event
+    // enable
+	 	this.removeListener("selectStart",this.cancelSelectStart);
+    
+    this.on("selectEnd", function(startPos,endPos){
+      if(startPos <0) startPos=0;
+      //Grab some state information
+      // var bases = self.DataManager.views.requested.bases;
+      // var pixels = self.DataManager.views.requested.pixels;
+      //create the readsDisplay
+      //console.log(self.readsDisplay.create(startPos,endPos,bases,pixels));
+      var win = Ext.create('Sv.gui.SequenceWindow',{
+        startBase : startPos,
+        endBase : endPos,
+        title : startPos+" - "+endPos+" : "+self.name
+      })      
+      win.show();
+    });
+    
+    Ext.define('Sv.gui.SequenceWindow',{
+      extend:'Ext.Window',
+      x: 100,
+      y: 450,
+      width:425,
+      maxHeight:800,
+      maxWidth:1000,
+      minWidth:400,
+      height:300,
+      plain:true,
+      layout:'fit',
+      border:false,
+      closable:true,
+      startBase:0,
+      startBase:1,
+      items: [
+        {
+          xtype : 'panel',
+          itemId : 'bodyPanel',
+          autoScroll:true,
+        }
+      ],
+      initComponent : function(){
+        this.callParent(arguments);
+        var me = this;
+        me.loadData(function(response){
+          console.log(response)
+          me.getComponent('bodyPanel').update(response);
+        });        
+      },
+      loadData : function(successFunc){
+        var me = this;
+        Ext.Ajax.request({
+           url: self.data,
+           method: 'GET',
+           params: {
+             jrws: Ext.encode({
+               method: 'sequence',
+               param: {
+                 id: self.id,
+                 experiment: self.experiment,
+                 left: me.startBase,
+                 right: me.endBase,
+                 bioentry: self.bioentry
+               }
+             })
+           },
+           success: function(response)
+           { 
+             successFunc(response.responseText);
 
+           },
+           failure: function(message)
+           { 
+             successFunc('Request Sequence failed:'+ '(' + message + ')');
+           }
+         });
+      },
+    });
 		//Add series name to context menu (checkbox controls series visibility)
 		function addLabel(name)
 		{

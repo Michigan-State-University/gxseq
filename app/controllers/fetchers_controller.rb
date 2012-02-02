@@ -307,6 +307,10 @@ class FetchersController < ApplicationController
                  }
               }
            }
+        when 'sequence'
+          bioentry_id = param['bioentry']
+          biosequence = Biosequence.find_by_bioentry_id(bioentry_id)
+          render :partial => "biosequence/show", :locals => {:biosequence => biosequence, :start => param['left'], :stop => param['right']}
         when 'range'
           bioentry = param['bioentry']
           bioseq = Biosequence.find(:all, :conditions  => ["bioentry_id =  ?", bioentry]).first

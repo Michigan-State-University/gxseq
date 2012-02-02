@@ -148,9 +148,7 @@ Ext.define("Sv.tracks.ReadsTrack",{
       var bases = self.DataManager.views.requested.bases;
       var pixels = self.DataManager.views.requested.pixels;
       //create the readsDisplay
-      //console.log(self.readsDisplay.create(startPos,endPos,bases,pixels));
       var win = Ext.create('Sv.gui.ReadsWindow',{
-        id  : 'reads_win_'+startPos+"_"+endPos,
         startBase : startPos,
         endBase : endPos,
         bases : bases,
