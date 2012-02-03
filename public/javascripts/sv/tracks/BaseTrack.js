@@ -286,15 +286,20 @@ Ext.define("Sv.tracks.BaseTrack",{
     getTitle : function()      { return this.Toolbar.getTitle(); },
     setTitle : function(title) { this.Toolbar.setTitle(title);},
     //Control the width and height of the track
-    getWidth  : function()    { return this.Frame.ext.getWidth(w);  },
-    setWidth  : function(w) { this.Frame.ext.setWidth(w);         },
-    getHeight : function()  { return this.Frame.ext.getHeight(h); },
-    setHeight : function(h) {this.Frame.ext.setHeight(h);},  
-    getMinHeight : function() { return this.minHeight; },
-    getMaxHeight : function() { return this.maxHeight; },    
-    //Generic event handling
-    broadcast : function(type, data){
-     this.fireEvent('generic', type, data);
+    getX      : function()  { 
+      return this.Frame.ext.getX();
     },
-    receive : function(type, data){}
+    getY      : function() { return this.Frame.ext.getY();},
+    getWidth  : function()    { return this.Frame.ext.getWidth();  },
+    setWidth  : function(w) { this.Frame.ext.setWidth(w);         },
+    getHeight : function()  { return this.Frame.ext.getHeight(); },
+    setHeight : function(h) {this.Frame.ext.setHeight(h);},
+    getMinHeight : function() { return this.minHeight; },
+    getMaxHeight : function() { return this.maxHeight; },
+    doLayout : function() { this.Toolbar.toolbar.doLayout();}
+    // //Generic event handling
+    // broadcast : function(type, data){
+    //  this.fireEvent('generic', type, data);
+    // },
+    // receive : function(type, data){}
 });

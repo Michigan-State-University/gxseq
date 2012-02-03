@@ -9,10 +9,12 @@ AnnoJ.Tracks = function(userConfig)
 	tracks_body_div.setAttribute("ontouchstart", "this.handleTouchStart(event);")
 	tracks_body_div.setAttribute("ontouchmove", "this.handleTouchMove(event);")
 	tracks_body_div.setAttribute("ontouchend", "this.handleTouchEnd(event);")
+	
 	//Get our ext element
-    body = new Ext.Element(tracks_body_div);
+  body = new Ext.Element(tracks_body_div);
 
 	body.addCls('AJ_tracks');
+  
 	var defaultConfig = {
 		region         : 'center',
 		iconCls        : 'silk_bricks',
@@ -35,6 +37,8 @@ AnnoJ.Tracks = function(userConfig)
 		'dragged'       : true,
 		'dragModeSet'   : true
 	});
+	
+
 	
 	//Mouse object tracks mouse state for element
 	var mouse = {
@@ -432,10 +436,10 @@ AnnoJ.Tracks = function(userConfig)
 		
 		function bind(track)
 		{
-			box.setTop(track.ext.getY() - body.getY());
+			box.setTop(track.getY() - body.getY());
 			box.setLeft(0);
-			box.setWidth(track.ext.getWidth());
-			box.setHeight(track.ext.getHeight());
+			box.setWidth(track.getWidth());
+			box.setHeight(track.getHeight());
 						
 			height = box.getHeight();
 			
@@ -784,7 +788,7 @@ AnnoJ.Tracks = function(userConfig)
 			
 			if (dragMode == 'browse')
 			{
-			    hide();
+			  hide();
 				ext.setLeft(mouse.x - mouse.downX);
 				self.tracks.each(function(track)
 				{
@@ -860,7 +864,8 @@ AnnoJ.Tracks = function(userConfig)
     {
       Ext.each(active, function(track)
 			{
-			  track.Toolbar.toolbar.doLayout();
+			  //track.Toolbar.toolbar.doLayout();
+			  track.doLayout();
 		  });
     };
     
@@ -874,29 +879,31 @@ AnnoJ.Tracks = function(userConfig)
 			
 			Ext.each(active, function(track)
 			{
-				if (onscreen(track))
-				{
-					if (track.Syndicator.isSyndicated()) track.unmaskFrame();
-					enabled.push(track);
-				}
-				else
-				{
-					track.maskFrame('Track temporarily disabled');
-					disabled.push(track);
-				}
+        // if (onscreen(track))
+        // {
+        //  if (track.Syndicator.isSyndicated()) track.unmaskFrame();
+        //  enabled.push(track);
+        // }
+        // else
+        // {
+        //  track.maskFrame('Track temporarily disabled');
+        //  disabled.push(track);
+        // }
+				//track.unmaskFrame();
+				enabled.push(track);
 				track.setLocation(view);
 			});
 			//TODO : fix this, too tightly coupled
 			AnnoJ.resetHeight();
 		};
 		
-		//Determine whether or not a track is visible to the user
-		function onscreen(track)
-		{
-			if (body.getTop() > track.ext.getBottom()) return false;
-			if (body.getBottom() < track.ext.getTop()) return false;
-			return true;
-		};
+    // //Determine whether or not a track is visible to the user
+    // function onscreen(track)
+    // {
+    //  if (body.getTop() > track.ext.getBottom()) return false;
+    //  if (body.getBottom() < track.ext.getTop()) return false;
+    //  return true;
+    // };
 		
 		//Place a track under management of this object
 		function manage(track)
@@ -906,7 +913,7 @@ AnnoJ.Tracks = function(userConfig)
 			tracks.push(track);
 			
 			//Attach listeners to the track
-			track.on('generic', propagate);
+			//track.on('generic', propagate);
 			track.on('close', close);
 			track.on('browse', setLocation);
 			track.on('error', error);
@@ -938,13 +945,17 @@ AnnoJ.Tracks = function(userConfig)
 		function mouse2track(x,y)
 		{
 			var track = null;
-			
+			console.log(active)
 			Ext.each(active, function(item)
 			{
-				var x1 = item.ext.getX();
-				var x2 = x1 + item.ext.getWidth();
-				var y1 = item.ext.getY();
-				var y2 = y1 + item.ext.getHeight();
+				// var x1 = item.ext.getX();
+				// var x2 = x1 + item.ext.getWidth();
+				// var y1 = item.ext.getY();
+				// var y2 = y1 + item.ext.getHeight();
+				var x1 = item.getX();
+				var x2 = x1 + item.getWidth();
+				var y1 = item.getY();
+				var y2 = y1 + item.getHeight();
 				if (x >= x1 && x <= x2 && y >= y1 && y <= y2)
 				{
 					track = item;
@@ -977,28 +988,10 @@ AnnoJ.Tracks = function(userConfig)
 			else
 			{
 				track.appendFrameTo(body.dom);
-			}			
-			//Syndicate the track if necessary
-			if (!track.Syndicator.isSyndicated())
-			{				track.Syndicator.syndicate(
-				{
-					success : function()
-					{
-						track.setLocation(AnnoJ.getLocation());
-					},
-					failure : function()
-					{
-						track.maskFrame('Error: track failed to syndicate');
-						//AnnoJ.error("Track '"+track.getID()+"' failed to syndicate");
-						//close(track);
-					}
-				});
 			}
-			else
-			{
-				track.unmaskFrame();
-				track.setLocation(AnnoJ.getLocation());
-			}
+			
+			track.open();
+			
 			refresh();
 		};
         
@@ -1050,13 +1043,14 @@ AnnoJ.Tracks = function(userConfig)
 			close(track);
 		};
 		
-		//Propagate a message to all active and visible tracks
-		function propagate(type, data)
-		{
-			Ext.each(enabled, function(item) {
-				item.receive(type, data);
-			});
-		};
+		// Un-used
+    // //Propagate a message to all active and visible tracks
+    // function propagate(type, data)
+    // {
+    //  Ext.each(enabled, function(item) {
+    //    item.receive(type, data);
+    //  });
+    // };
 		
 		//Instruct all active tracks to update position
 		function setLocation(view)

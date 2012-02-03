@@ -15,8 +15,8 @@ end
 
 gem 'acts_as_api', '~>0.3'
 gem 'bio', '~> 1.4.2'
-gem 'bio-samtools', '~>0.4', :git => 'git://github.com/throwern/bioruby-samtools.git'
-#gem 'bio-samtools', '~>0.4', :path => '~/gems/bio-samtools'
+#gem 'bio-samtools', '~>0.4', :git => 'git://github.com/throwern/bioruby-samtools.git'
+gem 'bio-samtools', '~>0.4', :path => '~/gems/bioruby-samtools'
 gem 'composite_primary_keys', '=3.1.10', :path => 'vendor/gems/composite_primary_keys-3.1.10'
 gem 'daemons', '1.1.4'
 gem 'delayed_job', '~> 2'

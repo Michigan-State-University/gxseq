@@ -850,29 +850,30 @@ AnnoJ.Navigator = function()
 		]
 	});
 	
-    Toolbar.on('render', function()
-    {
-     //add handlers
-     //add Controls
-     this.un('render');
-     Controls.refreshControls();
-    });
-		
-		//listen for resize event to update slider component width
-		Toolbar.on('resize',function(){
-		  if(Controls.needsResize==true){
-		    Controls.updateSlider();
-		  }
-		  else{Controls.needsResize=true}
-		})
+  Toolbar.on('render', function()
+  {
+   //add handlers
+   //add Controls
+   this.un('render');
+   Controls.refreshControls();
+  });
+	
+	//listen for resize event to update slider component width
+	Toolbar.on('resize',function(){
+	  if(Controls.needsResize==true){
+	    Controls.updateSlider();
+	  }
+	  else{Controls.needsResize=true}
+	})
+  
 	var navContainer = new Ext.Container({
 		layout: 'anchor',
+		dock: 'top',
 		items:[
 			//titleBar, //will be inserted after syndication
 			Toolbar
 		]
 	});
-	
 	
 	this.Toolbar = Toolbar;
 	this.ext = navContainer;

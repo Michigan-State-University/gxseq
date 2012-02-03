@@ -417,6 +417,29 @@ Ext.define('Sv.tracks.BrowserTrack', {
 			this.setScale=Scaler.set;
 			this.getScale=Scaler.get;
     },
+    open : function(){
+      var me = this;
+      //Syndicate the track if necessary
+			if (!me.Syndicator.isSyndicated())
+			{
+			  me.Syndicator.syndicate({
+					success : function()
+					{
+						me.setLocation(AnnoJ.getLocation());
+					},
+					failure : function()
+					{
+						me.maskFrame('Error: track failed to syndicate');
+						//close(track);
+					}
+				});
+			}
+			else
+			{
+				me.unmaskFrame();
+				me.setLocation(AnnoJ.getLocation());
+			}
+    },
     close: function() {
         this.maskFrame('Track Closed');
         this.DataManager.clear();

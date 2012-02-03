@@ -96,6 +96,12 @@ var AnnoJ = (function()
 	//Build all the tracks
 	function buildTracks()
 	{
+	  //Create and add the RulerTrack
+	  var ruler = Ext.create("Sv.tracks.RulerTrack",{});
+	  GUI.Tracks.tracks.manage(ruler);
+	  GUI.Tracks.tracks.open(ruler);
+	  
+	  //Create user tracks, add to tree, open active tracks
 		GUI.TrackSelector.expand();
 		Ext.each(config.tracks, function(trackConfig, index)
 		{
@@ -187,11 +193,12 @@ var AnnoJ = (function()
 		var NavBar = new AnnoJ.Navigator();
 	
 		var Tracks = new AnnoJ.Tracks({
-			tbar : NavBar.ext,
+			//tbar : NavBar.ext,
 			tracks : config.tracks,
 			activeTracks : config.active
 		});
 		
+		Tracks.addDocked(NavBar.ext,0)
 		if (config.citation)
 		{
 			AboutBox.addCitation(config.citation);
@@ -252,9 +259,10 @@ var AnnoJ = (function()
 		NavBar.on('dragModeSet', Tracks.setDragMode);
 		Tracks.on('dragModeSet', NavBar.setDragMode);
 		
-        TrackSelector.on('openTrack', Tracks.tracks.open);
-        TrackSelector.on('moveTrack', Tracks.tracks.reorder);
-        TrackSelector.on('closeTrack', Tracks.tracks.close);
+    TrackSelector.on('openTrack', Tracks.tracks.open);
+    TrackSelector.on('moveTrack', Tracks.tracks.reorder);
+    TrackSelector.on('closeTrack', Tracks.tracks.close);
+    
 		InfoBox.hide();
 		Viewport.doLayout();
 		//Viewport.doComponentLayout();
