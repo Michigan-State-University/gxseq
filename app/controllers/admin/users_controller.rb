@@ -24,8 +24,28 @@ class Admin::UsersController < Admin::AdminController
   
   def create
     @roles = Role.all
-    #TODO Not Implemented
-    render :text  => "Not Implemented"
+    @user = User.new(params[:user])
+    if(@user.valid?)
+      if(@user.password.blank?)
+        @user.errors.add(:password, "cannot be blank")
+        render :action => :new
+        return
+      end
+      if(@user.password_confirmation.blank?)
+        @user.errors.add(:password_confirmation, "cannot be blank")
+        render :action => :new
+        return
+      end
+      if(@user.password_confirmation != @user.password)
+        @user.errors.add(:password, "must equal password confirmation")
+        render :action => :new
+        return
+      end
+      @user.save
+      redirect_to admin_users_path
+    else
+      render :action => :new
+    end
   end
 
   def update

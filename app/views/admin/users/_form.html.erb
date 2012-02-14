@@ -4,13 +4,13 @@
 <p><%= label_tag 'login' %><br/>
 <%= f.text_field :login %></p>
 
-<% unless @user.new_record? %>
+<%# unless @user.new_record? %>
   <p><%= label_tag 'password' %><br/>
     <%= f.password_field :password %></p>
 
   <p><%= label_tag 'password_confirmation', 'Confirm Password' %><br/>
   <%= f.password_field :password_confirmation %></p>
-<% end %>
+<%# end %>
 
 <p><%= f.label 'role_ids', 'Roles' %><br/>
 <%= f.select :role_ids, @roles.collect{|r| [r.name, r.id]},
