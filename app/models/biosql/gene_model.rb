@@ -292,8 +292,71 @@ class GeneModel < ActiveRecord::Base
     end
     # Create Gene Models
     begin
+
       total_new_genes = Gene.count(:conditions => "NOT EXISTS (select id from gene_models where gene_id=#{Gene.primary_key})")
-      l = "Creating #{total_new_genes} new genes: #{Time.now.strftime('%D %H:%M')}";puts l;logger.info "\n\n#{l}\n\n"
+      l = "Creating #{total_new_genes} new genes: #{Time.now.strftime('%D %H:%M')}";puts l#;logger.info "\n\n#{l}\n\n"
+
+      #check locus tags
+      new_genes_with_locus = Gene.all(:include => [:qualifiers => :term],:conditions => "NOT EXISTS (select id from gene_models where gene_id=seqfeature.#{Gene.primary_key}) AND term.name = 'locus_tag'").count
+      if(new_genes_with_locus != total_new_genes)
+        l = "#{total_new_genes - new_genes_with_locus} genes do not have a locus_tag! - checking for 'gene' annotations: #{Time.now.strftime('%D %H:%M')}";puts l
+        new_genes_with_gene = Gene.all(:include => [:qualifiers => :term],:conditions => "NOT EXISTS (select id from gene_models where gene_id=seqfeature.#{Gene.primary_key}) AND term.name = 'gene'").count
+        if(new_genes_with_gene == total_new_genes)
+          l = "Found 'gene' annotations for every Gene - checking cds and mrna: #{Time.now.strftime('%D %H:%M')}";puts l
+          new_mrna_with_gene = Mrna.all(:include => [:qualifiers => :term],:conditions => "NOT EXISTS (select id from gene_models where mrna_id=seqfeature.#{Mrna.primary_key}) AND term.name = 'gene'").count
+          new_cds_with_gene = Cds.all(:include => [:qualifiers => :term],:conditions => "NOT EXISTS (select id from gene_models where cds_id=seqfeature.#{Cds.primary_key}) AND term.name = 'gene'").count
+          puts "mrna: #{new_mrna_with_gene}"
+          puts "cds: #{new_cds_with_gene}"
+          printf " Create locus_tag's from 'gene' annotations?(Y/n):"
+          while (answer = gets.chomp)
+            if(answer=='n'||answer=='Y')
+              break
+            else
+              printf "choose 'Y' or 'n' : "
+            end
+          end
+          if(answer=='Y')
+            puts "Okay creating new locus_tag values"
+            Gene.transaction do 
+              ano_tag_ont_id = Ontology.find_or_create_by_name("Annotation Tags").id
+              locus_tag_term_id = Term.find_or_create_by_name_and_ontology_id('locus_tag', ano_tag_ont_id).id
+              puts "--Working on Genes"
+              Gene.find_in_batches(:include => [:qualifiers => :term],:conditions => "NOT EXISTS (select id from gene_models where gene_id=seqfeature.#{Gene.primary_key}) AND term.name = 'gene'") do |genes|
+                genes.each do |g|
+                  unless(g.gene)
+                    raise "Attribute error - #{g} has no gene defined"
+                  end
+                  Gene.connection.execute("INSERT INTO SEQFEATURE_QUALIFIER_VALUE (seqfeature_id, term_id,value,rank)
+                  VALUES(#{g.id},#{locus_tag_term_id},'#{g.gene}',1)")
+                end
+              end
+              puts "--Working on CDS"
+              Cds.find_in_batches(:include => [:qualifiers => :term],:conditions => "NOT EXISTS (select id from gene_models where gene_id=seqfeature.#{Gene.primary_key}) AND term.name = 'gene'") do |cds|
+                cds.each do |c|
+                  if(c.gene)
+                    Cds.connection.execute("INSERT INTO SEQFEATURE_QUALIFIER_VALUE (seqfeature_id, term_id,value,rank)
+                    VALUES(#{c.id},#{locus_tag_term_id},'#{c.gene}',1)")
+                  end
+                end
+              end
+              puts "--Working on mRNA"
+              Mrna.find_in_batches(:include => [:qualifiers => :term],:conditions => "NOT EXISTS (select id from gene_models where gene_id=seqfeature.#{Gene.primary_key}) AND term.name = 'gene'") do |mrna|
+                mrna.each do |m|
+                  if(m.gene)
+                    Mrna.connection.execute("INSERT INTO SEQFEATURE_QUALIFIER_VALUE (seqfeature_id, term_id,value,rank)
+                    VALUES(#{m.id},#{locus_tag_term_id},'#{m.gene}',1)")
+                  end
+                end
+              end
+              raise 'foobar'
+            end#transaction
+        else
+          l = "Found #{new_genes_with_gene} gene annotations and #{new_genes_with_locus} locus_tag annotations - You need to Fix this!: #{Time.now.strftime('%D %H:%M')}";puts l
+          raise "Format Error"
+        end
+        
+      end
+      
       gene_chunk = (total_new_genes/10.to_f).ceil
       new_gene_count = 0
       gene_model_count = 0      
