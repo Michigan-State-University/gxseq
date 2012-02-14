@@ -15,7 +15,7 @@ Ext.define("Sv.tracks.ReadsTrack",{
 	boxBlingLimit : 4,
 	pairedEnd : false,
 	readLength : 36,
-	readLimit : 5000,
+	readLimit : 1000,
   initComponent : function(){
     this.callParent(arguments);
     var self = this;
@@ -50,18 +50,124 @@ Ext.define("Sv.tracks.ReadsTrack",{
   			update_max_text();
   		},		
   	});
-  	    
+  	
+  	this.lookupItem = function(id,pos){
+  	  box = AnnoJ.getGUI().InfoBox;
+			box.show();
+			box.expand();
+			box.echo("<div class='waiting'>Loading...</div>");
+			box.setTitle("Read: "+id);
+			Ext.Ajax.request({
+				url         : self.data,
+				method      : 'GET',
+				requestJSON : false,
+				params : {
+					jrws : Ext.encode({
+					  method 	: 'describe',
+					  param  	: {
+					    id : id,
+					    bioentry : self.bioentry,
+					    experiment : self.experiment,
+					    pos : pos
+					  }
+					})
+				},
+				success  : function(response){
+					if (response.status == 200){
+	          var response_data = response.data;
+	          box.echo(response.responseText);
+					}
+					else{
+						box.echo("error:"+response.responseText);
+					}
+				},
+				failure  : function(message){
+					box.echo("Error: failed to retrieve gene information:<br/>"+message);
+				}
+			});
+  	};
+  	
+  	var readLimitSelect = Ext.create('Ext.form.field.ComboBox', {
+        fieldLabel : "Read Limit",
+        labelAlign : 'right',
+        hidden  : true,
+        store: [10000,5000,1000,500,100],
+        displayField: 'state',
+        typeAhead: true,
+        queryMode: 'local',
+        triggerAction: 'all',
+        selectOnFocus: true,
+        labelWidth:75,
+        width:150,
+        editable: false,
+        value: self.readLimit,
+        iconCls: 'no-icon',
+        listeners:{
+          scope: self,
+          'select': function(combo,records,opts){
+            this.readLimit = records[0].data.field1;
+            this.refresh();
+          }
+        }
+    });
+    
+  	var colorBasesCheck = Ext.create('Ext.form.field.Checkbox', {
+  	  fieldLabel : "Color Bases",
+      labelAlign : 'right',
+      hidden : true,
+      name : 'colorBasesFlag',
+      value : self.colorBases,
+      labelWidth : 75,
+      listeners:{
+        scope: self,
+        'change': function(checkbox,newVal,oldVal,opts){
+          this.colorBases = newVal;
+          this.refresh();
+        }
+      }
+  	});
+  	
     //add Max and Scale info to the toolbar
     var scale_text = new Ext.Toolbar.TextItem({text:"Scale:",hidden: !self.Toolbar.isVisible(),});
     var abs_max_text = new Ext.Toolbar.TextItem({text:"",hidden: !self.Toolbar.isVisible(),});
+    //Handler toggle button
+    var toggleHandlerBtn = Ext.create('Ext.button.Button',{
+      iconCls: "sequence_track",
+      listeners : {
+        click : {
+          fn : function(){
+            this.toggle();
+          }
+        }
+      },
+      toggle: function(){
+        if (handler == Reads){
+          handler = Histogram;
+          this.setIconCls("sequence_track");
+          self.refresh();
+          readLimitSelect.hide();
+          colorBasesCheck.hide();
+        }else{
+          handler = Reads;
+          this.setIconCls("silk_histogram");
+          self.refresh();
+          readLimitSelect.show();
+          colorBasesCheck.show();
+        }
+      }
+    });
     
     //update toolbar text
     function update_max_text(){
   	  abs_max_text.setText("Max Depth: "+self.absMax);
   	}
-  	
+  	  	
   	self.Toolbar.insert(4,scale_text);
   	self.Toolbar.insert(4,abs_max_text);
+  	self.Toolbar.insert(4,toggleHandlerBtn);
+  	self.Toolbar.insert(4,readLimitSelect);
+  	self.Toolbar.insert(4,colorBasesCheck);
+  	
   	
   	//Histogram mode
     var Histogram = (function()
@@ -135,233 +241,86 @@ Ext.define("Sv.tracks.ReadsTrack",{
  			 resizeCanvas : this.resizeCanvas,
  			 clearData : this.clearData,
  			 pruneData : this.pruneData,
- 			 setAbsMax : this.setAbsMax
+ 			 setAbsMax : this.setAbsMax,
+ 			 method : 'range'
      };
     })();
     
-    //enable select event
-	 	this.removeListener("selectStart",this.cancelSelectStart);
-	 	
-    this.on("selectEnd", function(startPos,endPos){
-      if(startPos <0) startPos=0;
-      //Grab some state information
-      var bases = self.DataManager.views.requested.bases;
-      var pixels = self.DataManager.views.requested.pixels;
-      //create the readsDisplay
-      var win = Ext.create('Sv.gui.ReadsWindow',{
-        startBase : startPos,
-        endBase : endPos,
-        bases : bases,
-        pixels: pixels,
-        title : startPos+" - "+endPos+" : "+self.name
-      })      
-      win.show();
-      win.loadData();
-    });
-    
-    //Reads Display for select event
-    
-    Ext.define('Sv.gui.ReadsWindow',{
-      extend:'Ext.Window',
-      x: 100,
-      y: 400,
-      width:525,
-      maxHeight:800,
-      maxWidth:1000,
-      minWidth:450,
-      height:400,
-      plain:true,
-      layout:'fit',
-      border:false,
-      closable:true,
-      //minimizable:true,
-      maximizable:true,
-      readLimit:5000,
-      startBase:1,
-      endBase:100,
-      bases:1,
-      pixels:1,
-      initComponent : function(){
-        
-        this.callParent(arguments);
-        var me = this;
-        //initialize
-        me.initialBases = me.bases;
-        me.initialPixels = me.pixels;
-        me.setRatio();
-        me.readData = new ReadsList();
-        me.readCanvas = new Sv.painters.ReadsCanvas({});
-        me.colorBases = false;
-        
-        //div setup
-        me.readContainer = new Ext.Element(document.createElement('DIV'));        
-        me.readContainer.addCls(self.clsAbove);
-       	me.readContainer.setStyle('position', 'relative');
-       	
-       	//window setup
-       	var combo = Ext.create('Ext.form.field.ComboBox', {
-            fieldLabel : "Read Limit",
-            labelAlign : 'right',
-            store: [10000,5000,1000,500,100],
-            displayField: 'state',
-            typeAhead: true,
-            queryMode: 'local',
-            triggerAction: 'all',
-            selectOnFocus: true,
-            labelWidth:75,
-            width:150,
-            editable: false,
-            value: me.readLimit,
-            iconCls: 'no-icon',
-            listeners:{
-              scope: me,
-              'select': function(combo,records,opts){
-                this.readLimit = records[0].data.field1;
-                this.refresh();
-              }
-            }
-        });
+    //Reads mode
+    var Reads = (function()
+  	{
+  		var dataA = new ReadsList();
+      var scaler = self.scaler;
 
-      	var colorBasesCheck = Ext.create('Ext.form.field.Checkbox', {
-      	  fieldLabel : "Color Bases",
-          labelAlign : 'right',
-          name : 'colorBasesFlag',
-          value : me.colorBases,
-          labelWidth : 75,
-          listeners:{
-            scope: me,
-            'change': function(checkbox,newVal,oldVal,opts){
-              this.colorBases = newVal;
-              this.refresh();
-            }
-          }
-      	});
-      	
-      	me.panelText = new Ext.Toolbar.TextItem();
-      	
-       	me.readPanel = Ext.create('Ext.panel.Panel', {
-          title: '',
-          contentEl: me.readContainer.dom,
-          autoScroll:true,
-          tbar : [
-            {
-              xtype: 'button',
-              iconCls : 'silk_zoom_in',
-        			tooltip : 'Zoom in',
-        			handler : function()
-        			{
-        			  me.zoomIn();
-      			  }
-            },
-            {
-              xtype: 'button',
-              iconCls : 'silk_zoom_out',
-        			tooltip : 'Zoom out',
-        			handler : function()
-        			{
-        			  me.zoomOut();
-      			  }
-            },            
-            colorBasesCheck,
-            combo,
-            '->',
-            me.panelText
-          ]
-        });
-        me.add(me.readPanel);
-        me.setWidth(me.canvasWidth+30);
-
-        //Canvas Set up
-        me.readCanvas.setContainer(me.readContainer.dom);
-        me.readCanvas.flipY();         
-      },
-      refresh : function(){
-        var me = this;
-        me.readData.clear();
-        me.loadData();
-      },
-      loadData : function(){
-        var me = this;
-        me.requestReads(me.startBase,me.endBase,function(response){
-          //parse the return
-          var msg = me.readData.parse( response.data );
-          me.panelText.setText(msg)
-          var max = me.readData.levelize();
-          //Setup Canvas data
-          me.readContainer.setHeight(Math.max(max*((me.readCanvas.boxHeight*me.readCanvas.scaler)+me.readCanvas.boxSpace),me.readPanel.getHeight()));
-          me.setCanvasData();
-          //paint
-          me.paintCanvas();          
-        });
-      },
-      setRatio: function(){
-        var me = this;
-        me.ratio = me.pixels / me.bases;
-        me.canvasWidth = (me.endBase-me.startBase) * me.ratio;
-      },
-      setCanvasData: function(){
-        var me = this;
-        me.setRatio();
-        me.readCanvas.colorBases = me.colorBases;
-        var subset = me.readData.subset2canvas(me.startBase, me.endBase, me.bases, me.pixels);
-        me.readContainer.setWidth(me.canvasWidth);
-        me.readCanvas.setViewport(me.startBase,me.endBase,me.bases,me.pixels);
-        me.readCanvas.setData(subset);
-      },
-      paintCanvas : function(){
-        var me = this;
-        me.readCanvas.clear();
-        me.readCanvas.paint();
-      },
-      zoomIn : function(){
-        var me = this;
-        //check boundary
-        if(me.bases==1 && me.pixels>=20) return;
-        //zoom in
-        me.bases==1 ? me.pixels++ : me.bases--;
-        //draw
-        me.setCanvasData();
-        me.paintCanvas();
-      },
-      zoomOut : function(){
-        var me = this;
-        //check boundary
-        if(me.pixels==me.initialPixels && me.bases==me.initialBases) return;
-        //zoom out
-        me.pixels==1 ? me.bases++ : me.pixels--;
-        //draw
-        me.setCanvasData();
-        me.paintCanvas();
-      },
-      requestReads : function(startPos,endPos,success){
-        var me = this;
-        Ext.Ajax.request({
-          url: self.data,
-          method: 'GET',
-          params: {
-            jrws: Ext.encode({
-              method: 'reads',
-              param: {
-                id: self.id,
-                experiment: self.experiment,
-                left: startPos,
-                right: endPos,
-                bioentry: self.bioentry,
-                read_limit : me.readLimit
-              }
-            })
-          },
-          success: function(response)
-          { 
-            success(Ext.JSON.decode(response.responseText));
-          },
-          failure: function(message)
-          { 
-            console.error('RequestReads failed for track ' + self.name + ' (' + message + ')');
-          }
-        });
+  		var canvasA = new Sv.painters.ReadsCanvas({
+  			scaler : self.scale,
+  			boxHeight : self.boxHeight,
+  			boxHeightMax : self.boxHeightMax,
+  			boxHeightMin : self.boxHeightMin,
+  			boxBlingLimit : self.boxBlingLimit,
+  			pairedEnd : self.pairedEnd,
+  			colorBases : self.colorBases
+  		});
+      
+      canvasA.flipY();
+      canvasA.setContainer(containerA.dom);
+  		canvasA.on('itemSelected', self.lookupItem);
+  		
+  		function parse(data,x1,x2)
+  		{
+  			var msg = dataA.parse(data);
+  			dataA.levelize();
+  			canvasA.addBreak(x1,x2,msg);			
+  		};
+      
+  		function paint(left, right, bases, pixels)
+  		{
+  			var subsetA = dataA.subset2canvas(left, right, bases, pixels);
+  			canvasA.setData(subsetA);        
+        canvasA.setViewport(left,right,bases,pixels);  			
+  			canvasA.colorBases = self.colorBases;
+  			canvasA.paint();
+  		};
+      
+      function getScaler(){
+        return scaler;
+      };
+      
+      function setScaler(s){
+        scaler = s;
+        canvasA.setScaler(scaler);
       }
-    });
+      this.rescale = function(f)
+      {
+        setScaler(f);
+             var f = getScaler();
+             canvasA.refresh();
+             scale_text.setText("Scale: "+f.toFixed(2));
+      };
+      this.clearCanvas = function(){canvasA.clear();};
+    	this.refreshCanvas = function(){canvasA.refresh(true);};
+    	this.resizeCanvas = function(){canvasA.refresh(true);};
+    	this.clearData = function(){dataA.clear();canvasA.clearBreaks();};
+    	this.pruneData = function(a,b){dataA.prune(a,b);};
+    	this.setAbsMax = function(){};
+  		return {
+  			dataA : dataA,
+  			canvasA : canvasA,
+  			parse : parse,
+  			paint : paint,
+        getScaler : getScaler,
+        setScaler : setScaler,
+  			clearCanvas : this.clearCanvas,
+  			rescale : this.rescale,
+  			refreshCanvas : this.refreshCanvas,
+  			resizeCanvas : this.resizeCanvas,
+  			clearData : this.clearData,
+  			pruneData : this.pruneData,
+  			//load : load,
+  			setAbsMax : setAbsMax,
+  			method : 'reads'
+  		};
+  	})();
     
   	//Data handling and rendering object
   	var handler = Histogram;
@@ -386,7 +345,7 @@ Ext.define("Sv.tracks.ReadsTrack",{
       handler.canvasA.setContainer(null);
       handler.setAbsMax(self.absMax);
       handler.canvasA.setContainer(containerA.dom);
-  		scale_text.setText("Scale: "+handler.getScaler())
+  		scale_text.setText("Scale: "+handler.getScaler());
   		for (var i=0; i<policies.length; i++)
   		{
   			if (ratio >= policies[i].min && ratio < policies[i].max)
@@ -427,6 +386,43 @@ Ext.define("Sv.tracks.ReadsTrack",{
   	this.parseData = function(data, x1, x2)
   	{
   		handler.parse(data, x1, x2);
+  	};
+  	this.requestFrame = function(frame,pos,policy){
+  	  Ext.Ajax.request({
+          url: self.data,
+          method: 'GET',
+          params: {
+              jrws: Ext.encode({
+                  method: handler.method,
+                  param: {
+                      id: self.id,
+                      experiment: self.experiment,
+                      left: pos.left,
+                      right: pos.right,
+                      bases: policy.bases,
+                      pixels: policy.pixels,
+                      bioentry: self.bioentry,
+                      read_limit : self.readLimit
+                  }
+              })
+          },
+          success: function(response)
+          {
+              response = Ext.JSON.decode(response.responseText);
+              self.DataManager.parse(response.data, frame);
+              self.DataManager.views.loading = null;
+              self.DataManager.state.busy = false;
+              self.setTitle(self.name);
+              self.DataManager.setLocation(self.DataManager.views.requested);
+          },
+          failure: function(message)
+          {
+              console.error('Failed to load data for track ' + self.name + ' (' + message + ')');
+              self.DataManager.views.loading = null;
+              self.DataManager.state.busy = false;
+              self.setTitle(self.name);
+          }
+      });
   	};
   }
 });

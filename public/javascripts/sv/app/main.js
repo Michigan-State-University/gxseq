@@ -339,7 +339,6 @@ var AnnoJ = (function()
 		return GUI;
 	};	
 	function resetHeight(){
-		//var total_height = GUI.Tracks.getFrameHeight();
 		total_height = GUI.NavBar.ext.getHeight()+2;
 		Ext.each(GUI.Tracks.tracks.active, function(t)
 		{
@@ -352,26 +351,40 @@ var AnnoJ = (function()
 		GUI.Viewport.setHeight(total_height);
 		GUI.Viewport.doLayout();
 	};
-	
-	 return {
-	 	ready           : true,
-	 	init            : init,
-		// alert           : alert,
-		// error           : error,
-		// warning         : warning,
-		// notice          : notice,
-		getTrack        : getTrack,
-		getActiveTracks : getActiveTracks,
-		getLocation     : getLocation,
-		setLocation     : setLocation,
-		pixels2bases    : pixels2bases,
-		bases2pixels    : bases2pixels,
-		xpos2gpos       : xpos2gpos,
-		gpos2xpos       : gpos2xpos,
-		getGUI          : getGUI,
-		resetHeight			: resetHeight,
-		Plugins         : {},
-		Helpers         : {},
-		postLayout			: postLayout
-	 };
+	function valueToSize(value, precision, divisor, sizes){    
+    var posttxt = 0;
+    if (value == 0) return '0';
+    while( value >= divisor ) { 
+        posttxt++;
+        value = value / divisor;
+    }
+    return value.toFixed(precision) + sizes[posttxt];
+  };
+	function numberToSize(number, precision) {
+    var sizes = ['', 'KB', 'MB', 'GB', 'TB'];
+    return valueToSize(number,precision,1000,sizes);
+  };
+  function bytesToSize(bytes, precision){
+    var sizes = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB'];
+    return valueToSize(bytes,precision,1024,sizes);
+  };
+  return {
+    ready           : true,
+    init            : init,
+    getTrack        : getTrack,
+    getActiveTracks : getActiveTracks,
+    getLocation     : getLocation,
+    setLocation     : setLocation,
+    pixels2bases    : pixels2bases,
+    bases2pixels    : bases2pixels,
+    xpos2gpos       : xpos2gpos,
+    gpos2xpos       : gpos2xpos,
+    getGUI          : getGUI,
+    resetHeight			: resetHeight,
+    Plugins         : {},
+    Helpers         : {},
+    postLayout			: postLayout,
+    numberToSize    : numberToSize,
+    bytesToSize     : bytesToSize
+  };
 })();

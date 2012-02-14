@@ -86,4 +86,8 @@ class ReSeq < Experiment
     self.show_negative == "false" ? "true" : "false"
   end
   
+  def find_read(read_id, chrom, pos)
+    bam.find_read(read_id, chrom, pos)
+  end
+  
 end

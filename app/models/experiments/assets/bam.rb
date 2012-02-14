@@ -37,6 +37,53 @@ class Bam < Asset
     }
   end
   
+  def find_read(read_id, chrom, pos)
+    bam = open_bam
+    read = nil
+    qlen = nil
+    calend = nil
+    fetchFunc = Proc.new do |bam_alignment,header|
+      data = Bio::DB::SAM::Tools.bam_format1(header,bam_alignment)      
+      sam_data = data.read_string.split("\t")
+      LibC.free data
+      if(sam_data[0]==read_id)
+        # parse extra information
+        al = Bio::DB::SAM::Tools::Bam1T.new(bam_alignment)
+        core = al[:core]
+        cigar = al[:data][core[:l_qname]]
+        calend = Bio::DB::SAM::Tools.bam_calend(core,cigar)
+        qlen = Bio::DB::SAM::Tools.bam_cigar2qlen(core,cigar)
+        read = sam_data
+        -1
+      else
+        0
+      end
+    end
+    
+    bam.fetch_with_function_raw(chrom,pos,pos+1,fetchFunc)
+    bam.close
+    if(read)
+      h={
+        :id => read_id,
+        :flag => read[1],        
+        :pos => read[3].to_i,
+        :mapq => read[4].to_i,
+        :cigar => read[5],
+        :mate_ref => read[6],
+        :mate_pos => read[7].to_i,
+        :tlen => read[8].to_i,
+        :seq => read[9],
+        :qual => read[10],
+        :tags => Hash[*((read[11,read.length-11]).collect{|t| a = t.split(":"); [a[0]+":"+a[1],a[2]]}.flatten)],
+        :qlen => qlen.to_i,
+        :calend => calend.to_i,
+        :sam  => read
+      }
+      return h
+    end
+    nil
+  end
+  
   def get_reads_text(left,right,seq,opts)
     
     bam = open_bam
@@ -101,6 +148,9 @@ class Bam < Asset
     # Run the C routine
     bam.fetch_with_function_raw(seq,left,right,fetchFunc)
     
+    cnt_reg = /\d+/
+    op_reg = /\D/
+    md_reg = /\d+|\D+/
     # process the reads array
     subset.each do |set_item|      
       seq,op = "",""
@@ -109,8 +159,7 @@ class Bam < Asset
         seq = set_item[0][9].upcase
         # interpolate cigar data
         # Matches are upper case, mismatches lower
-        cnt_reg = /\d+/
-        op_reg = /\w/
+
         scanner = StringScanner.new(set_item[0][5])
         while( cnt = scanner.scan(cnt_reg))
           cnt = cnt.to_i
@@ -121,15 +170,41 @@ class Bam < Asset
           when "I","S","H" #Soft and hard clipping are removed, may need update
             seq.slice!(idx,cnt)
           when "D"
-            seq.insert(idx-1,"D"*cnt)
+            seq.insert(idx,"D"*cnt)
           when "N"
-            seq.insert(idx-1,"-"*cnt)
+            seq.insert(idx,"-"*cnt)
             idx+=cnt
           when "X"
-            seq.insert(idx-1,seq.slice!(idx,cnt).downcase)
+            seq.insert(idx,seq.slice!(idx,cnt).downcase)
             idx+=cnt
           end
         end
+        # parse tags
+        idx=0
+        11.upto set_item[0].length-1 do |i|
+          case set_item[0][i].split(":")[0]
+          when 'MD'
+            md = set_item[0][i].split(":")[2]
+            scanner = StringScanner.new(md)
+            while(val = scanner.scan(md_reg))
+              if(val.match(cnt_reg))
+                # match - move on
+                idx+=val.to_i
+              else
+                if val =~ /\^/
+                  # deletion - handled by cigar
+                  idx+=val.length-1
+                else
+                  # mismatch - replace with downcase
+                  seq.insert(idx,seq.slice!(idx,val.length).downcase)
+                  idx+=val.length
+                end
+              end
+            end
+            
+          end
+        end
+        
       end
       
       # build return text  [name, start, length, strand, sequence]

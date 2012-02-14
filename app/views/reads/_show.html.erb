@@ -1,0 +1,36 @@
+
+<h1 class="pagetitle"><%= @read[:id] %></h1>
+<h2>Sequence - <%= @read[:qlen] %> bp<br/></h2>
+<table id="read_seq_qual" style="border:none">
+  <tr id="read_seq_row">
+    <td style="padding-right:3px">Base:</td>
+    <% @read[:qlen].times do |i| %>  
+      <td style="padding:2px"><%= @read[:seq][i] %></td>
+    <% end %>
+  </tr>
+  <tr>
+    <td>Qual:</td>
+    <% @read[:qlen].times do |i| %>  
+      <td style="padding:2px"><%= @read[:qual][i].ord %></td>
+    <% end %>
+  </tr>
+</table>
+<br/>
+<h2>Alignment:</h2>
+Bases Aligned: <%= (@read[:calend] - @read[:pos])+1 %> <sub>(<%= @read[:pos] %> - <%= @read[:calend] %>)</sub><br/>
+Mapping Quality: <%= @read[:mapq] %><br/>
+<% if @read[:tags]["NM:i"] %>
+  Edit Distance: <%= @read[:tags]["NM:i"] %><br/>
+<% end %>
+
+<% if @read[:tags]["NH:i"] %>
+  Number of alignments: <%= @read[:tags]["NH:i"] %><br/>
+<% end %>
+
+Cigar: <%= @read[:cigar] %><br/>
+<% if @read[:tags]["MD:Z"] %>
+  MD:<%= @read[:tags]["MD:Z"] %><br/>
+<% end %>
+<br/>
+<%#= @read[:sam] %>
+

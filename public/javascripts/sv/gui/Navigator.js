@@ -551,16 +551,7 @@ AnnoJ.Navigator = function()
 		});
 		
 		//Text item for showing the genome name
-		//var title = new Ext.Toolbar.TextItem('Awaiting syndication...');
 		var title = Ext.create('Ext.toolbar.TextItem',{text:'Awaiting syndication...'});
-		
-		
-        // var tip = new Ext.slider.Tip({
-        //          getText: function(thumb){
-        //                       pos = Navigator.getSides(thumb.value);
-        //              return String.format('{0}-{1}', (pos.g1 < 0) ? 0 : Math.round(pos.g1) , Math.round(pos.g2));
-        //          }
-        //      })
 		
 		//Slider for navigating the genome
 		var slider = new Ext.slider.Single({
@@ -618,9 +609,9 @@ AnnoJ.Navigator = function()
 		});
 		Ext.EventManager.addListener(window, 'keyup', function(event)
 		{
-            // if (event.getTarget().tagName == 'INPUT') return;
-            // if (event.getKey() != 16) return; //Shift Key
-            // dragMode.toggleSelected();
+        // if (event.getTarget().tagName == 'INPUT') return;
+        // if (event.getKey() != 16) return; //Shift Key
+        // dragMode.toggleSelected();
 		});
 		function setDragMode(mode)
 		{
@@ -691,9 +682,6 @@ AnnoJ.Navigator = function()
 			width         : 75,
 			allowNegative : false,
 			allowDecimals : false,
-			// grow          : true,
-			// growMin       : 50,
-			// growMax       : 180
 		});
 		jump.on('specialKey', function(config, event)
 		{

@@ -79,7 +79,8 @@ var ReadsList = function()
 				cls : node.value.cls,
 				sequence : node.value.sequence,
 				level : node.level,
-				strand : node.value.strand
+				strand : node.value.strand,
+				id : node.id
 			});
 			return true;
 		});

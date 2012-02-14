@@ -53,8 +53,10 @@
 .silk_disk           	{ background-image:url('../images/disk.png')!important;}
 .silk_email_go       	{ background-image:url('../images/email_go')!important;}
 .silk_emoticon_happy 	{ background-image:url('../images/emoticon_happy.png')!important;}
+.silk_eye             { background-image:url('../images/eye.png')!important;}
 .silk_folder			{ background-image:url('../images/folder.png')!important;}
 .silk_folder_edit		{ background-image:url('../images/folder_edit.png')!important;}
+.silk_histogram    	{ background-image:url('../images/histogram_btn.png')!important;}
 .silk_information    	{ background-image:url('../images/information.png')!important;}
 .silk_lightning      	{ background-image:url('../images/lightning.png')!important;}
 .silk_lock           	{ background-image:url('../images/lock.png')!important;}
@@ -537,12 +539,13 @@
   background-image:url('../images/bases/C.gif');
 }
 .G { 
-	background-color:rgb(140,140,140);
+/*  background-color:rgb(140,140,140);*/
+  background-color:rgb(240,190,50);
   background-image:url('../images/bases/G.gif');
 }
 .N { 
-	background-color:rgb(255,140,0);
-  background-image:url('../images/bases/N.gif');
+  background-color:rgb(255,140,0);
+  background-image:url('../images/bases/spacer.gif');
 }
 .base_spacer { 
 	background-color:rgb(255,255,255);	

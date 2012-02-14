@@ -41,23 +41,9 @@ class ReadsController < ApplicationController
           render :json => {:success => false}
           return
         end
-        #if(param['bases']>1)
-          #data = @@range_summary["#{param['left']}#{param['right']}#{param['bases']}#{be.sequence_name}"]||=experiment.summary_data(param['left'],param['right'],((param['right']-param['left'])/param['bases']),be.sequence_name).fill{|i| [param['left']+(i*param['bases']),data[i]]}
           data = experiment.summary_data(param['left'],param['right'],((param['right']-param['left'])/param['bases']),be.sequence_name)
           data = data.fill{|i| [param['left']+(i*param['bases']),data[i]]}
           render :text =>"{\"success\":true,\"data\":#{data.inspect}}"
-        # elsif(param['bases']==1)
-        #    #reads = @@range_reads["#{param['left']}#{param['right']}#{be.sequence_name}"]||=experiment.get_reads(param['left'],param['right'],be.sequence_name)          
-        #    if(param['pixels']==1)
-        #      reads_text = experiment.get_reads_text(param['left'],param['right'],be.sequence_name,{:include_seq => false, :read_limit => param['read_limit']})
-        #      render :text => "{\"success\":true,\"data\":{#{"\"notice\": \"#{reads_text[2]} of #{reads_text[1]} reads\","}\"line_above\":["+reads_text[0]+"]}}"
-        #    elsif(param['pixels']==100)             
-        #      reads_text = experiment.get_reads_text(param['left'],param['right'],be.sequence_name,{:include_seq => true, :read_limit => param['read_limit']})
-        #      render :text => "{\"success\":true,\"data\":{#{"\"notice\": \"#{reads_text[2]} of #{reads_text[1]} reads\","}\"line_above\":["+reads_text[0]+"]}}"
-        #    end
-        # else
-        #    render :text =>"{\"success\":false}"
-        # end
       when 'reads'
         bioentry = Bioentry.find(param['bioentry'])
         experiment = Experiment.find(param['experiment'])
@@ -66,15 +52,18 @@ class ReadsController < ApplicationController
           render :json => {:success => false}
           return
         end
-        # if(param['pixels']==1)
-        #  reads_text = experiment.get_reads_text(param['left'],param['right'],be.sequence_name,{:include_seq => false, :read_limit => param['read_limit']})
-        #  render :text => "{\"success\":true,\"data\":{#{"\"notice\": \"#{reads_text[2]} of #{reads_text[1]} reads\","}\"line_above\":["+reads_text[0]+"]}}"
-        # elsif(param['pixels']==100)             
          reads_text = experiment.get_reads_text(param['left'],param['right'],be.sequence_name,{:include_seq => true, :read_limit => param['read_limit']})
          render :text => "{\"success\":true,\"data\":{#{"\"notice\": \"#{reads_text[2]} of #{reads_text[1]} reads\","}\"line_above\":["+reads_text[0]+"]}}"
-        # else
-        #   render :text =>"{\"success\":false}"
+      when 'describe'
+        bioentry_id = Bioentry.find(param['bioentry'])
+        experiment = Experiment.find(param['experiment'])
+        pos = param['pos']
+        be = experiment.bioentries_experiments.with_bioentry(bioentry_id)[0]
+        @read = experiment.find_read(param['id'],be.sequence_name,pos)
+        # if(@read && @read[:pos] && @read[:calend])
+        #   @read[:ref_seq]=Bioentry.find(bioentry_id).biosequence.seq[@read[:pos]-1,(@read[:calend]-@read[:pos])+1]
         # end
+        render :partial => "reads/show"
       end
       
     end

@@ -150,7 +150,6 @@ AnnoJ.Tracks = function(userConfig)
 	
 	Ext.EventManager.addListener(window, 'mouseup', function(event)
 	{
-	    //console.log("mouseup")
 		if (event.button != 0) return;
 		if (!mouse.down) return;
 		mouse.down = false;
@@ -849,16 +848,16 @@ AnnoJ.Tracks = function(userConfig)
 		var focused = null;
 
 		//Add global listeners
-		// Ext.EventManager.addListener(body.dom, 'scroll', function()
-		// {
-		// 	clearTimeout(timer);
-		// 	timer = setTimeout(refresh, 100);
-		// });
-		// Ext.EventManager.addListener(window, 'resize', function()
-		// {
-		// 	clearTimeout(timer);
-		// 	timer = setTimeout(refresh, 100);
-		// });
+    // Ext.EventManager.addListener(body.dom, 'scroll', function()
+    // {
+    //   clearTimeout(timer);
+    //   timer = setTimeout(refresh, 100);
+    // });
+    // Ext.EventManager.addListener(window, 'resize', function()
+    // {
+    //   clearTimeout(timer);
+    //   timer = setTimeout(refresh, 100);
+    // });
 
     function doLayout()
     {
@@ -945,13 +944,8 @@ AnnoJ.Tracks = function(userConfig)
 		function mouse2track(x,y)
 		{
 			var track = null;
-			console.log(active)
 			Ext.each(active, function(item)
 			{
-				// var x1 = item.ext.getX();
-				// var x2 = x1 + item.ext.getWidth();
-				// var y1 = item.ext.getY();
-				// var y2 = y1 + item.ext.getHeight();
 				var x1 = item.getX();
 				var x2 = x1 + item.getWidth();
 				var y1 = item.getY();
@@ -975,7 +969,6 @@ AnnoJ.Tracks = function(userConfig)
 		function open(track, existing)
 		{
 			
-			//if (!isManaged(track) || !track.isLocked()) return;
 			if (!isManaged(track)) return;
 			if (isActive(track)) return;
 			active.push(track);
@@ -1096,19 +1089,21 @@ AnnoJ.Tracks = function(userConfig)
 			
 			Ext.each(tracks, function(track)
 			{
-				list.push({
-				  id : track.id,
-				  name : track.name,
-				  data : track.data,
-				  edit : track.edit,
-				  height : track.height,
-				  scale : track.scale,
-          showControls : track.showControls,
-          showAdd : track.showAdd,
-          single : track.single,
-          color_above : track.color_above,
-          color_below : track.color_below,
-				});
+			  if(track.id && track.name && track.data){
+			    list.push({
+  				  id : track.id,
+  				  name : track.name,
+  				  data : track.data,
+  				  edit : track.edit,
+  				  height : track.height,
+  				  scale : track.scale,
+            showControls : track.showControls,
+            showAdd : track.showAdd,
+            single : track.single,
+            color_above : track.color_above,
+            color_below : track.color_below,
+  				}); 
+			  }
 			});
 			return list;
 		};

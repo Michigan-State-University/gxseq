@@ -17,6 +17,11 @@ Ext.define('Sv.painters.ReadsCanvas',{
   initComponent: function(){
     var self = this;
     self.callParent(arguments);
+    
+    self.addEvents({
+			'itemSelected' : true
+		});
+		
   	//Set the data for this histogram from an array of points
   	this.setData = function(reads)
   	{
@@ -43,17 +48,17 @@ Ext.define('Sv.painters.ReadsCanvas',{
   		}
   	};
     
-    // //Add a new frameBreak
-    // this.addBreak = function(x1,x2,msg)
-    // {
-    //   self.frameBreaks.push({x1 : x1, x2 : x2, msg : msg})
-    // };
-    // //Clear frameBreaks
-    // this.clearBreaks = function()
-    // {
-    //   self.frameBreaks = [];
-    // };
-    // 
+    //Add a new frameBreak
+    this.addBreak = function(x1,x2,msg)
+    {
+      self.frameBreaks.push({x1 : x1, x2 : x2, msg : msg})
+    };
+    //Clear frameBreaks
+    this.clearBreaks = function()
+    {
+      self.frameBreaks = [];
+    };
+    
     // View ratio for rendering
     this.setViewport = function(x1,x2,bases,pixels)
     {
@@ -85,14 +90,24 @@ Ext.define('Sv.painters.ReadsCanvas',{
   		var y = 0;
   		var w = 0;
   		var e = 0;
+  		
   		var h = Math.round(self.boxHeight * scaler);
-
+      
   		if (h < self.boxHeightMin) h = self.boxHeightMin;
   		if (h > self.boxHeightMax) h = self.boxHeightMax;
   		
-  		//Levelize the reads and get the max visible level (used for a shortcut later)
-  		var maxLevel = Math.ceil(region.y2 / (h + ((scaler==0) ? 0 : self.boxSpace)));
-  		//var max = this.levelize(data,maxLevel);
+  		//JS will be too slow if too many divs are being drawn - use an array and innerHTML instead
+  		//create div we can use to alter innerHTML
+      var containerDiv = document.createElement('DIV');
+      containerDiv.style.width = width+"px";
+      containerDiv.style.height = height+"px";
+      containerDiv.style.left = "0px";
+      containerDiv.style.top = "0px";
+      containerDiv.style.position = "absolute";
+      container.appendChild(containerDiv);
+      
+  		var newDivs = [];
+  		
   		Ext.each(data, function(read)
   		{
   			//self.groups.add(read.cls);
@@ -106,9 +121,14 @@ Ext.define('Sv.painters.ReadsCanvas',{
   			y = read.level * (h + ((scaler==0) ? 0 : self.boxSpace));
   			y = flippedY ? y : height - 1 - y - h;
 
-  			//if (x + w < region.x1 || x > region.x2) return;
-  			//if (y + h < region.y1 || y > region.y2) return;
-
+  			if (x + w < region.x1 || x > region.x2) return;
+  			if (y + h < region.y1 || y > region.y2) return;
+        
+        if(w>15)
+        {
+          newDivs.push("<div id="+container.id+"_read_"+read.id+" data-id="+read.id+" style='width: "+w+"px; height: "+h+"px; left: "+x+"px; top: "+y+"px; cursor: pointer; position: absolute;'></div>");
+        }
+        
   			//Render slightly differently if paired end
         // if (self.pairedEnd)
         // {
@@ -118,61 +138,77 @@ Ext.define('Sv.painters.ReadsCanvas',{
         // }
         // else
         // {
-          brush.strokeStyle = "rgba(75,75,85,.8)";
-          brush.fillStyle = self.readColor;
-  				brush.fillRect(x, y, w, h);
-  				brush.strokeRect(x,y,w,h);
+        //brush.strokeStyle = "rgba(75,75,85,0.8)";
+        brush.fillStyle = self.readColor;
+  			brush.fillRect(x, y, w, h);
+  			//brush.strokeRect(x,y,w,h);
         // }
 
-  			if (read.sequence)
-  			{
-  				letterize(brush, read.sequence, x, y, w, h, container);
-  			}
+        if (w > 2 && read.sequence)
+        {
+         letterize(brush, read.sequence, x, y, w, h, container);
+        }
   		});
-      // 
-      // //Draw the frames
-      // brush.lineWidth = 1.0;
-      //       Ext.each(self.frameBreaks, function(fb){        
-      //         
-      //         x = Math.round((fb.x1-self.viewport.x1) * self.viewport.pixels / self.viewport.bases);
-      //         if(x%2!=0) x+=1;
-      //         if(x >= region.x1 && x <= region.x2)
-      //         {
-      //           // Draw the Frame break
-      //           brush.fillStyle = "rgba(75,75,85,.8)";
-      //           brush.fillRect(x,0,1,height);
-      //           brush.fillStyle = "rgba(75,75,85,.2)";
-      //           brush.fillRect(x-2,0,1,height);
-      //           // Text background
-      //           brush.fillStyle = "#EEF";
-      //           metrics = brush.measureText(fb.msg)
-      //           brush.fillRect(x+5,1,metrics.width+2,11);
-      //           // Frame msg text
-      //           brush.textAlign = "left";
-      //           brush.fillStyle = "rgba(75,75,85,.9)";
-      //           brush.fillText(fb.msg,x+5,9);
-      //         }
-      //         
-      //         x2 = Math.round((fb.x2-self.viewport.x1) * self.viewport.pixels / self.viewport.bases);
-      //         if(x2 >= region.x1 && x2 <= region.x2)
-      //         {
-      //           // Text Background
-      //           metrics = brush.measureText(fb.msg)
-      //           brush.fillStyle = "#EEF";
-      //           brush.fillRect((x2-metrics.width)-5,1,metrics.width+2,11);
-      //           // Frame msg text
-      //           brush.fillStyle = "rgba(75,75,85,.9)";
-      //           brush.textAlign = "right"          
-      //           brush.fillText(fb.msg,x2-5, 9)
-      //         }
-      //       });
-  	};
+      
+      //Draw the frames
+      brush.lineWidth = 1.0;
+      Ext.each(self.frameBreaks, function(fb){        
+        
+        x = Math.round((fb.x1-self.viewport.x1) * self.viewport.pixels / self.viewport.bases);
+        if(x%2!=0) x+=1;
+        if(x >= region.x1 && x <= region.x2)
+        {
+          // Draw the Frame break
+          brush.fillStyle = "rgba(75,75,85,.8)";
+          brush.fillRect(x,0,1,height);
+          brush.fillStyle = "rgba(75,75,85,.2)";
+          brush.fillRect(x-2,0,1,height);
+          // Text background
+          brush.fillStyle = "#EEF";
+          metrics = brush.measureText(fb.msg)
+          brush.fillRect(x+5,1,metrics.width+2,11);
+          // Frame msg text
+          brush.textAlign = "left";
+          brush.fillStyle = "rgba(75,75,85,.9)";
+          brush.fillText(fb.msg,x+5,9);
+        }
+        
+        x2 = Math.round((fb.x2-self.viewport.x1) * self.viewport.pixels / self.viewport.bases);
+        if(x2 >= region.x1 && x2 <= region.x2)
+        {
+          // Text Background
+          metrics = brush.measureText(fb.msg)
+          brush.fillStyle = "#EEF";
+          brush.fillRect((x2-metrics.width)-5,1,metrics.width+2,11);
+          // Frame msg text
+          brush.fillStyle = "rgba(75,75,85,.9)";
+          brush.textAlign = "right"          
+          brush.fillText(fb.msg,x2-5, 9)
+        }
+      });
+      
+      //Append all the html DIVs we created
+      containerDiv.innerHTML+=newDivs.join("\n");
 
+      //setup the click event
+      for(i=0;i<containerDiv.children.length;i++)
+        Ext.get(containerDiv.children[i]).addListener('mouseup', selectItem);
+      
+  	};
+    
+    function selectItem(event, srcEl, obj)
+		{
+			var el = Ext.get(srcEl);
+			var pos = self.viewport.x1 + Math.round((self.viewport.bases / self.viewport.pixels) * (event.getX()-Ext.get(self.getContainer()).getX()))
+			self.fireEvent('itemSelected', el.dom.getAttribute('data-id'),pos);
+		};
+		
   	function letterize(brush, sequence, x, y, w, h, container)
   	{
   		//var clean = "";
   		var length = sequence.length;
-  		var letterW = self.viewport.pixels/self.viewport.bases ;
+  		var letterW = self.viewport.pixels/self.viewport.bases;
+  		
   		var half = length/2;
   		var readLength = half * letterW;
 
@@ -193,6 +229,7 @@ Ext.define('Sv.painters.ReadsCanvas',{
 			  
 				switch (letter){
   				case '-': letter = 'base_spacer';break;
+  				case 'n': letter = 'base_spacer'; break;
   				case 'D': letter = 'base_deletion';break;
   				case 'a': letter = 'A_mis'; break;
   				case 't': letter = 'T_mis'; break;
@@ -202,10 +239,14 @@ Ext.define('Sv.painters.ReadsCanvas',{
   			//clean += letter;
 
   			var letterX = x + (i * letterW) //+ (i >= half ? w-2*readLength : 0);
-  			if (letterW < 5 || h < self.boxBlingLimit)
+  			if ((letterW < 5 || h < self.boxBlingLimit) && letter != 'base_spacer')
   			{
-  			  brush.fillStyle = self.readColor;
-  				brush.fillStyle = self.styles.get(letter).fill;
+  				if(fs = self.styles.get(letter).fill){
+  				  brush.fillStyle = fs;
+  				}else{
+  				  brush.fillStyle = self.readColor;
+  				};
+  				
   				brush.fillRect(letterX, y, letterW, h);
   			}
   			else
