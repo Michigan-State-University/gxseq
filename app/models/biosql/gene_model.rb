@@ -308,7 +308,7 @@ class GeneModel < ActiveRecord::Base
           puts "mrna: #{new_mrna_with_gene}"
           puts "cds: #{new_cds_with_gene}"
           printf " Create locus_tag's from 'gene' annotations?(Y/n):"
-          while (answer = gets.chomp)
+          while (answer = STDIN.gets.chomp)
             if(answer=='n'||answer=='Y')
               break
             else
