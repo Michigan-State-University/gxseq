@@ -348,8 +348,10 @@ class GeneModel < ActiveRecord::Base
                   end
                 end
               end
-              raise 'foobar'
             end#transaction
+          else
+            puts "Okay"
+          end
         else
           l = "Found #{new_genes_with_gene} gene annotations and #{new_genes_with_locus} locus_tag annotations - You need to Fix this!: #{Time.now.strftime('%D %H:%M')}";puts l
           raise "Format Error"
@@ -436,7 +438,7 @@ class GeneModel < ActiveRecord::Base
                   gene_model["start_pos"] = cds_data[1]
                   gene_model["end_pos"] = cds_data[2]
                 end
-        
+
                 # gene data
                 gene_model["bioentry_id"] = gene.bioentry_id
                 gene_model["locus_tag"] = gene.locus_tag.value
@@ -445,7 +447,7 @@ class GeneModel < ActiveRecord::Base
                 gene_model["strand"] = gene.locations.first.strand
                 fast_insert(gene_model)
                 gene_model_count +=1
-              end       
+              end
             else
               # there was no CDS,  do we even want these?
               gene_model = {}
