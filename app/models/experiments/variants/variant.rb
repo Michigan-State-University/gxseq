@@ -102,8 +102,9 @@ class Variant < Experiment
   
   # Method for returning altered base sequence using a window to apply sequence_variant diffs
   # This represents the strain/variant sequence in the given window
-  def get_sequence(start,stop,bioentry_id,sample)
-    bioentry = Bioentry.find(:first, :conditions => ["#{Bioentry.table_name}.#{Bioentry.primary_key}=?",bioentry_id])
+  # 
+  def get_sequence(start,stop,bioentry_id,sample=nil)
+    bioentry = Bioentry.find_by_bioentry_id(bioentry_id)
     return false unless bioentry
     #check boundaries
     start = 0 unless start >=0
@@ -113,7 +114,8 @@ class Variant < Experiment
     #storing the possible alt alleles
     alleles = []
     #Get the sequence_variants within start and stop on given entry
-    usable_variants = sequence_variants.find(:all,:conditions => ["pos between ? AND ? AND bioentry_id = ?",start,stop,bioentry_id], :order => "pos")
+    be = self.bioentries_experiments.find_by_bioentry_id(bioentry_id)
+    usable_variants = self.get_data(be.sequence_name,start,stop,{:sample => sample,:only_variants => true}).sort{|a,b|a.pos<=>b.pos}
     #Convert seq to array of indiv. bases
     seq_slice = bioentry.biosequence.seq[start-1,(stop-start)+1]
     if(seq_slice && seq_slice.length >=0)
@@ -132,7 +134,7 @@ class Variant < Experiment
         #we have previous alleles indicating this is the last in the series
         alleles << v.alt
         #get the IUB Code for the ambiguous nucleotide
-        alt = SequenceVariant::TO_IUB_CODE[alleles.sort]
+        alt = Variant::TO_IUB_CODE[alleles.sort]
         #clear out the alleles list
         alleles=[]        
       else
@@ -152,4 +154,42 @@ class Variant < Experiment
     return seq_a.join("")
   end
   
+  #For conversion from SNP using IUB codes
+  TO_IUB_CODE =	{
+    ['A'] => 'A',
+    ['C'] => 'C',
+    ['T'] => 'T',
+    ['G'] => 'G',
+    ['A','C'] => 'M', 
+    ['G','T'] => 'K',
+    ['C','T'] => 'Y', 
+    ['A','G'] => 'R', 
+    ['A','T'] => 'W', 
+    ['G','C']   => 'S',
+    ['A','G','T'] => 'D',
+    ['C','G','T'] => 'B',
+    ['A','C','T'] => 'H',
+    ['A','C','G'] => 'V',
+    ['A','C','G','T'] => 'N'
+  }
+  
+  IUB_CODE = {
+    'A' => ['A'],
+    'C' => ['C'],
+    'T' => ['T'],
+    'G' => ['G'],
+    'M' => ['A','C'], 
+    'K' => ['G','T'], 
+    'Y' => ['C','T'], 
+    'R' => ['A','G'], 
+    'W' => ['A','T'], 
+    'S' => ['G','C'],   
+    'D' => ['A','G','T'], 
+    'B' => ['C','G','T'],
+    'H' => ['A','C','T'],
+    'V' => ['A','C','G'],
+    'N' => ['A','C','G','T'] 
+  }
+    
+
 end

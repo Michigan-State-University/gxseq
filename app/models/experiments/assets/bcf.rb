@@ -62,7 +62,7 @@ class Bcf < Asset
           cnt +=1
           v2 = Bio::DB::SAM::Variant.new(bcf_p,hdr_p)
           v2.variant_type='Match'
-          v2.alt = "."
+          v2.alt = v2.ref
           variants[idx]=v2
         end
       end
