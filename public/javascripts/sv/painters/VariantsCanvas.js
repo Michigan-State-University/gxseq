@@ -7,7 +7,7 @@ Ext.define('Sv.painters.VariantsCanvas',{
 		boxHeightMax : 24,
 		boxHeightMin : 1,
 		boxBlingLimit : 5,
-		boxSpace : 1,
+		boxSpace : 4,
 		initComponent : function(){
 			this.callParent(arguments);
 			var self = this;
@@ -77,7 +77,7 @@ Ext.define('Sv.painters.VariantsCanvas',{
 					if (x + w < region.x1 || x > region.x2) return;
 					if (y + h < region.y1 || y > region.y2) return;
 		      
-		      self.paintBox(variant.cls, x, y, w, h-3);
+		      self.paintBox(variant.cls, x, y, w, h);
 		      
 		      if(w>5)
 					{
@@ -102,7 +102,14 @@ Ext.define('Sv.painters.VariantsCanvas',{
             newDivs.push("<div id=seq_variant_"+variant.id+" data-pos="+variant.pos+" style='width: "+w+"px; height: "+h+"px; left: "+x+"px; top: "+y+"px; cursor: pointer; position: absolute;'></div>");
             if (variant.seq)
             {
-              letterize(brush, variant.seq, x, y, w, h-3, container,variant.cls);
+              if(variant.cls =='match')
+              { brush.fillStyle="rgb(100,100,100)"
+                //brush.font="20px bold courier"
+                brush.fillText(".",x,y+h,w)
+                //brush.strokeText(variant.seq,x,y+(h-3),w)
+              }else{
+                letterize(brush, variant.seq, x, y, w, h, container,variant.cls);
+              }              
             }
           }
 				});
@@ -128,17 +135,17 @@ Ext.define('Sv.painters.VariantsCanvas',{
 		            {
 		                var letter = sequence.charAt(i);
                     
-                    if(cls=='match')
-                    {
-                      switch(letter)
-                      {
-                        case 'A': letter = 'p_A';break;
-		                    case 'T': letter = 'p_T';break;
-		                    case 'C': letter = 'p_C';break;
-		                    case 'G': letter = 'p_G';break;
-		                    default : letter = 'p_N';
-                      }
-                    }else{
+                    // if(cls=='match')
+                    // {
+                    //   switch(letter)
+                    //   {
+                    //     case 'A': letter = 'p_A';break;
+                    //                        case 'T': letter = 'p_T';break;
+                    //                        case 'C': letter = 'p_C';break;
+                    //                        case 'G': letter = 'p_G';break;
+                    //                        default : letter = 'p_N';
+                    //   }
+                    // }else{
   		                switch (letter)
   		                {
   		                    case 'A': letter = 'A_trans';break;
@@ -152,7 +159,7 @@ Ext.define('Sv.painters.VariantsCanvas',{
   		                    case 'g': letter = 'G_trans'; break;
   		                    default : letter = 'N_trans';
   		                }
-		                }
+		                //}
 		                //clean += letter;
 
 		                var letterX = x + (i * letterW) + (i >= half ? w-2*readLength : 0);
