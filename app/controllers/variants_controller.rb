@@ -157,9 +157,9 @@ class VariantsController < ApplicationController
     if(@variant.bcf)
       begin
         @variants = @variant.get_data(be.sequence_name,0,@bioentry.length,{:only_variants => true})
-        @variants = @variants.sort{|a,b| b.qual<=>a.qual}.paginate(:page => page, :per_page => 20)
       rescue
       end
     end
+    @variants = @variants.sort{|a,b| b.qual<=>a.qual}.paginate(:page => page, :per_page => 20)
   end
 end
