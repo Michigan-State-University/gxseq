@@ -1,6 +1,6 @@
 class VariantsController < ApplicationController
   require 'will_paginate/array'
-  before_filter :get_variants, :only => [:show, :graphics]
+  #before_filter :get_variants, :only => [:show, :graphics]
   
   ##custom actions - rjs
   def initialize_experiment
@@ -11,11 +11,11 @@ class VariantsController < ApplicationController
     end
   end
   
-  def graphics
-    @variant = Variant.find(params[:id], :include => :bioentries_experiments)
-    @bioentry = Bioentry.find(params[:bioentry_id] || @variant.bioentries_experiments.first.bioentry_id)
-    render :partial => "graphics", :layout => false
-  end
+  # def graphics
+  #   @variant = Variant.find(params[:id], :include => :bioentries_experiments)
+  #   @bioentry = Bioentry.find(params[:bioentry_id] || @variant.bioentries_experiments.first.bioentry_id)
+  #   render :partial => "graphics", :layout => false
+  # end
   
   def index
     query = (params[:query] || '').upcase
@@ -153,7 +153,13 @@ class VariantsController < ApplicationController
     page = params[:page] || 1
     @bioentry = Bioentry.find(params[:bioentry_id] || @variant.bioentries_experiments.first.bioentry_id)
     be = @variant.bioentries_experiments.find_by_bioentry_id(@bioentry.id)
-    @variants = @variant.get_data(be.sequence_name,0,@bioentry.length,{:only_variants => true})
-    @variants = @variants.sort{|a,b| b.qual<=>a.qual}.paginate(:page => page, :per_page => 20)
+    @variants = []
+    if(@variant.bcf)
+      begin
+        @variants = @variant.get_data(be.sequence_name,0,@bioentry.length,{:only_variants => true})
+        @variants = @variants.sort{|a,b| b.qual<=>a.qual}.paginate(:page => page, :per_page => 20)
+      rescue
+      end
+    end
   end
 end
