@@ -17,6 +17,13 @@ class Bcf < Asset
     }
   end
   
+  def sequence
+    b = open_bcf
+    seq = b.sequence
+    b.close
+    return seq
+  end
+  
   def samples
     b = open_bcf
     samples = b.samples

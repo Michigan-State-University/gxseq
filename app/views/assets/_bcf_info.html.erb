@@ -1,6 +1,9 @@
 <div class="asset_orange" style="color:black;width:35em;height:45em;overflow:scroll">
 	<div style="font-size:133%;padding-bottom:1em"><b>Info</b></div>
 	<div style="padding-left:1em">
+	  <h2>Sequence:</h2>
+	  <%= asset.sequence.to_sentence if asset.sequence %>
+	  <h2>Text:</h2>
 	  <%= asset.text.html_safe %>
 	</div>
 </div>
