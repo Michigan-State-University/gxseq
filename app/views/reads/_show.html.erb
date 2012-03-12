@@ -30,6 +30,8 @@ Mapping Quality: <%= @read[:mapq] %><br/>
 Cigar: <%= @read[:cigar] %><br/>
 <% if @read[:tags]["MD:Z"] %>
   MD:<%= @read[:tags]["MD:Z"] %><br/>
+<% else %>
+  MD: Not Present! Mismatches may not be rendered.
 <% end %>
 <br/>
 <%#= @read[:sam] %>

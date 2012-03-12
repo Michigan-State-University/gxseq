@@ -12,13 +12,12 @@ class Seqfeature < ActiveRecord::Base
   belongs_to :source_term, :class_name => "Term", :foreign_key =>"source_term_id"
   has_many :seqfeature_dbxrefs, :class_name => "SeqfeatureDbxref", :foreign_key => "seqfeature_id", :dependent  => :delete_all
   has_many :qualifiers, :include => :term, :class_name => "SeqfeatureQualifierValue", :order => "term.name,seqfeature_qualifier_value.rank", :inverse_of => :seqfeature, :dependent  => :delete_all
-  
+
   has_many :object_seqfeature_paths, :class_name => "SeqfeaturePath", :foreign_key => "object_seqfeature_id", :dependent  => :delete_all
   has_many :subject_seqfeature_paths, :class_name => "SeqfeaturePath", :foreign_key => "subject_seqfeature_id"
   has_many :object_seqfeature_relationships, :class_name => "SeqfeatureRelationship", :foreign_key => "object_seqfeature_id", :dependent  => :delete_all
   has_many :subject_seqfeature_relationships, :class_name => "SeqfeatureRelationship", :foreign_key => "subject_seqfeature_id"
   
-  #has_one :location, :foreign_key => :seqfeature_id
   has_many :locations, :dependent  => :delete_all
   scope :with_locus_tag, lambda { |locus_tag| 
     { :joins => [:qualifiers => [:term]], :conditions => {:qualifiers => {:value => locus_tag}}}
@@ -38,7 +37,7 @@ class Seqfeature < ActiveRecord::Base
   #has_many :notes, :class_name => "SeqfeatureQualifierValue", :order => "rank", :conditions => "trm_oid = #{Term.find_by_name("note").id}"
 
   ## CLASS METHODS
-  #Override STI. If the type is not defined, create a class for it.
+  #  Override STI. If the type is not defined, create a class for it.
   def self.find_sti_class(type_name)
     begin
       super(type_name)
@@ -47,29 +46,30 @@ class Seqfeature < ActiveRecord::Base
       Object.const_set(type_name.gsub(/\W/,"_").gsub(/_+/,"_"),Class.new(Seqfeature))
     end
   end
-   def self.find_all_by_locus_tag(locus="")
-      self.find(:all, 
-      :include => [:bioentry, :locations, :type_term, [:qualifiers => [:term]]], 
-      :order => "seqfeature.seqfeature_id ASC", 
-      :conditions => ["exists (
-         SELECT sqv.seqfeature_id
-         FROM seqfeature_qualifier_value sqv, term t 
-         WHERE sqv.seqfeature_id = seqfeature.seqfeature_id
-         AND sqv.term_id = t.term_id 
-         AND t.name = 'locus_tag' 
-         AND UPPER(sqv.value) = ?)", locus.upcase])
-   end
+  
+  def self.find_all_by_locus_tag(locus="")
+    self.find(:all, 
+    :include => [:bioentry, :locations, :type_term, [:qualifiers => [:term]]], 
+    :order => "seqfeature.seqfeature_id ASC", 
+    :conditions => ["exists (
+       SELECT sqv.seqfeature_id
+       FROM seqfeature_qualifier_value sqv, term t 
+       WHERE sqv.seqfeature_id = seqfeature.seqfeature_id
+       AND sqv.term_id = t.term_id 
+       AND t.name = 'locus_tag' 
+       AND UPPER(sqv.value) = ?)", locus.upcase])
+  end
 
-   def self.find_all_by_location(start=1, stop=2,bioentry_id=nil,types=[])
-     if types.empty?
-      self.find(:all, 
-      :include => [:locations, :type_term, [:qualifiers => [:term]]],
-      :order => "type_term_id",
-      :conditions => [
-        "seqfeature.bioentry_id = ?
-        AND location.start_pos < ?
-        AND location.end_pos > ?",bioentry_id,stop,start
-      ])
+  def self.find_all_by_location(start=1, stop=2,bioentry_id=nil,types=[])
+   if types.empty?
+    self.find(:all, 
+    :include => [:locations, :type_term, [:qualifiers => [:term]]],
+    :order => "type_term_id",
+    :conditions => [
+      "seqfeature.bioentry_id = ?
+      AND location.start_pos < ?
+      AND location.end_pos > ?",bioentry_id,stop,start
+    ])
     else
       self.find(:all, 
       :include => [:locations, :type_term, [:qualifiers => [:term]]],
@@ -81,65 +81,65 @@ class Seqfeature < ActiveRecord::Base
         AND location.end_pos > ?",types,bioentry_id,stop,start
       ])
     end       
-   end
+  end
 
-   ## INSTANCE METHODS
-   def find_related_by_locus_tag
-      return [self] if self.locus_tag.nil?
-      return Seqfeature.find_all_by_locus_tag(self.locus_tag.value)
+  ## INSTANCE METHODS
+  def find_related_by_locus_tag
+    return [self] if self.locus_tag.nil?
+    return Seqfeature.find_all_by_locus_tag(self.locus_tag.value)
+  end
+
+  def display_type
+   self.type_term.name
+  end
+
+  ### SQV types - allows for quick reference through eager load of :qualifiers
+  ['chromosome','organelle','plasmid','mol_type', 'locus_tag','gene','product','codon_start','protein_id','transcript_id'].each do |sqv|
+  define_method sqv.to_sym do
+    qualifiers.each do |q|
+        if q.term.name == sqv
+           return q
+        end
+     end
+     return nil
    end
-   
-   def display_type
-     self.type_term.name
-   end
-   
-   ### SQV types - allows for quick reference through eager load of :qualifiers
-   ['chromosome','organelle','plasmid','mol_type', 'locus_tag','gene','product','codon_start','protein_id','transcript_id'].each do |sqv|
-    define_method sqv.to_sym do
-      qualifiers.each do |q|
-          if q.term.name == sqv
-             return q
-          end
-       end
-       return nil
+  end
+
+  def db_xrefs
+   n = []
+   qualifiers.each do |q|
+     if q.term.name == 'db_xref'
+       n<< q
      end
    end
-   
-   def db_xrefs
-     n = []
-     qualifiers.each do |q|
-       if q.term.name == 'db_xref'
-         n<< q
-       end
-     end
-     return n    
-   end
-   
-   def notes
-     n = []
-     qualifiers.each do |q|
-       if q.term.name == 'note'
-         n<< q
-       end
-     end
-     return n  
-   end
+   return n    
+  end
 
-   def strand
-     self.locations ? self.locations.first.strand : 1
+  def notes
+   n = []
+   qualifiers.each do |q|
+     if q.term.name == 'note'
+       n<< q
+     end
    end
-   
-   def min_start
-     locations.map(&:start_pos).min
-   end
+   return n  
+  end
 
-   def max_end
-     locations.map(&:end_pos).max
-   end      
-   # default na_seq override for custom behavior (i.e. cds)
-   def na_seq
-     bioentry.biosequence.seq[min_start-1, (max_end-min_start)+1]
-   end
+  def strand
+   self.locations ? self.locations.first.strand : 1
+  end
+
+  def min_start
+   locations.map(&:start_pos).min
+  end
+
+  def max_end
+   locations.map(&:end_pos).max
+  end      
+  # default na_seq override for custom behavior (i.e. cds)
+  def na_seq
+   bioentry.biosequence.seq[min_start-1, (max_end-min_start)+1]
+  end
    
   def genbank_location
     text = ""
@@ -213,7 +213,7 @@ class Seqfeature < ActiveRecord::Base
         ])
       end
     end
-    logger.info "\n\n#{data}\n\n"
+
     return data
   end
   

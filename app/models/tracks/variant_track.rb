@@ -9,6 +9,7 @@ class VariantTrack < Track
       experiment: '#{experiment.id}',
       name  		: '#{name}',
       bioentry 	: '#{bioentry.id}',
+      sample    : '#{sample}',
       type  		: 'VariantTrack',
       data  		: '#{root_path}/variants/track_data',
       storeLocal: true,
@@ -17,7 +18,7 @@ class VariantTrack < Track
   end
   
   def name
-    experiment.name.gsub("\\","\\\\\\\\").gsub("'",%q(\\\'))
+    "#{experiment.name.gsub("\\","\\\\\\\\").gsub("'",%q(\\\'))}::#{sample.gsub("\\","\\\\\\\\").gsub("'",%q(\\\'))}"
   end
   
   def custom_config

@@ -3,7 +3,7 @@
  */
 Ext.define('Sv.painters.VariantsCanvas',{
     extend: 'Sv.painters.BoxesCanvas',
-		boxHeight : 8,
+		boxHeight : 15,
 		boxHeightMax : 24,
 		boxHeightMin : 1,
 		boxBlingLimit : 5,
@@ -64,6 +64,9 @@ Ext.define('Sv.painters.VariantsCanvas',{
 				var newDivs = [];
 				Ext.each(data, function(variant)
 				{
+          // if(variant.pos == 3939 || variant.pos == 3941){
+          //   console.log(variant)
+          // }
 					self.groups.add(variant.cls);
 					if (!self.groups.active(variant.cls)) return;
 					if (variant.level > maxLevel) return;
@@ -73,15 +76,35 @@ Ext.define('Sv.painters.VariantsCanvas',{
 					y = height-(variant.level * (h + self.boxSpace)) -h;
 					if (x + w < region.x1 || x > region.x2) return;
 					if (y + h < region.y1 || y > region.y2) return;
-		            self.paintBox(variant.cls, x, y, w, h);
-		            if(w>2)
+		      
+		      self.paintBox(variant.cls, x, y, w, h-3);
+		      
+		      if(w>5)
 					{
-		                newDivs.push("<div id=seq_variant_"+variant.id+" data-id="+variant.id+" style='width: "+w+"px; height: "+h+"px; left: "+x+"px; top: "+y+"px; cursor: pointer; position: absolute;'></div>");
-		            }
-		            if (variant.seq)
-		            {
-		                letterize(brush, variant.seq, x, y, w, h, container);
-		            }
+					  if(variant.cls == 'insertion')
+            {
+              // get the insertion pos              
+              if(variant.seq.length % 2 != 0)
+              {
+                var pos = (x+(w/2)) - (AnnoJ.bases2pixels(1) / 2)
+              }else{
+                var pos = (x+(w/2))
+              }
+              // draw the insertion point
+              brush.strokeStyle="rgb(100,100,100)"
+              brush.beginPath();
+              brush.moveTo(pos-3,y);
+              brush.lineTo(pos,y-3);
+              brush.lineTo(pos+3,y);
+              brush.closePath();
+              brush.stroke();
+            }
+            newDivs.push("<div id=seq_variant_"+variant.id+" data-pos="+variant.pos+" style='width: "+w+"px; height: "+h+"px; left: "+x+"px; top: "+y+"px; cursor: pointer; position: absolute;'></div>");
+            if (variant.seq)
+            {
+              letterize(brush, variant.seq, x, y, w, h-3, container,variant.cls);
+            }
+          }
 				});
 				//Append all the html DIVs we created
 		        containerDiv.innerHTML+=newDivs.join("\n");
@@ -92,9 +115,9 @@ Ext.define('Sv.painters.VariantsCanvas',{
 				return((h+self.boxSpace)*max);
 			};
 
-		    function letterize(brush, sequence, x, y, w, h, container)
+		    function letterize(brush, sequence, x, y, w, h, container,cls)
 		    {
-		        var clean = "";
+		        //var clean = "";
 		        var length = sequence.length;
 		        var letterW = AnnoJ.bases2pixels(1);
 		        var half = length/2;
@@ -104,21 +127,33 @@ Ext.define('Sv.painters.VariantsCanvas',{
 		            for (var i=0; i<length; i++)
 		            {
 		                var letter = sequence.charAt(i);
-
-		                switch (letter)
-		                {
-		                    case 'A': letter = 'A_trans';break;
-		                    case 'T': letter = 'T_trans';break;
-		                    case 'C': letter = 'C_trans';break;
-		                    case 'G': letter = 'G_trans';break;
-		                    case 'N': letter = 'N_trans';break;
-		                    case 'a': letter = 'A_trans'; break;
-		                    case 't': letter = 'T_trans'; break;
-		                    case 'c': letter = 'C_trans'; break;
-		                    case 'g': letter = 'G_trans'; break;
-		                    default : letter = 'N_trans';
+                    
+                    if(cls=='match')
+                    {
+                      switch(letter)
+                      {
+                        case 'A': letter = 'p_A';break;
+		                    case 'T': letter = 'p_T';break;
+		                    case 'C': letter = 'p_C';break;
+		                    case 'G': letter = 'p_G';break;
+		                    default : letter = 'p_N';
+                      }
+                    }else{
+  		                switch (letter)
+  		                {
+  		                    case 'A': letter = 'A_trans';break;
+  		                    case 'T': letter = 'T_trans';break;
+  		                    case 'C': letter = 'C_trans';break;
+  		                    case 'G': letter = 'G_trans';break;
+  		                    case 'N': letter = 'N_trans';break;
+  		                    case 'a': letter = 'A_trans'; break;
+  		                    case 't': letter = 'T_trans'; break;
+  		                    case 'c': letter = 'C_trans'; break;
+  		                    case 'g': letter = 'G_trans'; break;
+  		                    default : letter = 'N_trans';
+  		                }
 		                }
-		                clean += letter;
+		                //clean += letter;
 
 		                var letterX = x + (i * letterW) + (i >= half ? w-2*readLength : 0);
 
@@ -131,7 +166,7 @@ Ext.define('Sv.painters.VariantsCanvas',{
 			function selectItem(event, srcEl, obj)
 			{
 				var el = Ext.get(srcEl);
-				self.fireEvent('itemSelected', el.dom.getAttribute('data-id'));
+				self.fireEvent('itemSelected', el.dom.getAttribute('data-pos'));
 			};
 		}
 		

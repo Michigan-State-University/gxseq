@@ -1,38 +1,27 @@
-<div style="float:left;width:600px" class="clear" id="graphics_container">
-	<div style="float:right;width:150px;padding-right:1em"><span style="color:#777;">0 <span style="color:#444;font-size:105%">Variant Counts</span> >250</span><div style="width:150px;height:4px;
-		background-image: -webkit-gradient(linear, left bottom, right top, from(white), to(black));
-		background-image: -moz-linear-gradient(left center,white,black)"></div></div>
-	<table style="font-size:95%">
-		<tr>
-			<th style="text-align:center" width="57%">Sequence</th>
-			<th style="text-align:center">SNP</th>
-			<th style="text-align:center">Insertion</th>
-			<th style="text-align:center">Deletion</th>
-			<th style="text-align:center">Indel</th>
-		</tr>
-	<%# @variant.bioentries_experiments.each do |be| %>
-		<% b = @bioentry #be.bioentry %>
-		<tr>
-			<% t = "open #{b.display_name} in Sequence Viewer" %>
-			<td style="padding-top:1em"><%= link_to(b.display_info,b,:alt => t, :title => t,:popup => true) %></td>
-			<td style="padding-top:1em;text-align:center"><%= @variant.snps.with_bioentry(b.id).count%></td>
-			<td style="padding-top:1em;text-align:center"><%= @variant.insertions.with_bioentry(b.id).count%></td>
-			<td style="padding-top:1em;text-align:center"><%= @variant.deletions.with_bioentry(b.id).count%></td>
-			<td style="padding-top:1em;text-align:center"><%= @variant.indels.with_bioentry(b.id).count%></td>
-		</tr>
-		<tr>
-			<td colspan="5" style="border-bottom:1px solid darkgrey">
-				<div style="margin-bottom:5px;width:550px;height:5px;background-image: -webkit-gradient(linear, left bottom, right top, from(rgb(255,255,255)), 
-			 		<%= @variant.variant_counts(55,b.id).collect{|c| "color-stop(#{c.percent},rgb(#{255-[c.count.to_i,255].min},#{255-[c.count.to_i,255].min},#{255-[c.count.to_i,255].min}))" }.join(',') %>,
-					to(rgb(255,255,255)));
-					background-image: -moz-linear-gradient(left center,white,
-			 		<%= @variant.variant_counts(55,b.id).collect{|c| "rgb(#{255-[c.count.to_i,255].min},#{255-[c.count.to_i,255].min},#{255-[c.count.to_i,255].min}) #{(c.percent.to_f*100).to_i}%" }.join(',') %>,white);" >
-				</div>
-			</td>
-		</tr>
-	<%# end %>
-	</table>
+<div style="float:left;width:600px" id="graphics_container">
+  <%= @bioentry.display_info %>: View in <%= link_to( "Sequence Viewer",@bioentry,:popup => true) %><br/>
+  <div class="table">
+    <table class="listing">
+      <thead>  
+        <th>Type</th>
+        <th>Pos</th>
+        <th>Ref</th>
+        <th>Alt</th>
+        <th>Qual</th>
+      </thead>
+      <% @variants.each do |variant| %>
+        <tr>
+          <td><%= variant.variant_type %></td>
+          <td><%= link_to variant.pos, bioentry_url(@bioentry, :pos => variant.pos, :p => 5, :b => 1) %></td>
+          <td><%= variant.ref %></td>
+          <td><%= variant.alt %></td>
+          <td><%= variant.qual %></td>
+        </tr>
+      <% end %>
+    </table>
+    <div><div style='float:left'><%= will_paginate @variants %></div><div style="float:right"><%= pluralize(@variants.total_entries,"variant") %></div></div>
+  </div>
 
-  <%= select_tag :bioentry_id, options_from_collection_for_select(@variant.bioentries_experiments, :bioentry_id, :bioentry_short_name, @bioentry.id), :'data-onchange' => graphics_variant_url(@variant), :'data-with' => :bioentry_id, :'data-element' => 'graphics_container'%>
+  <%= select_tag :bioentry_id, options_from_collection_for_select(@variant.bioentries_experiments, :bioentry_id, :bioentry_short_name, @bioentry.id),:onChange => "window.location='#{url_for(@variant)}?bioentry_id='+this.options[this.selectedIndex].value"%>
 
 </div>

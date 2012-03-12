@@ -1,0 +1,44 @@
+<% @variants.each do |variant| %> 
+<h2><span style="font-size:120%"><%= variant.variant_type %></span> : <%= variant.pos %></h2><hr/>
+<table>
+  <tr><td>Ref:</td><td><%= variant.ref %></td></tr>
+  <tr><td>Alt:</td><td><%= variant.alt %></td></tr>
+  <tr><td>Qual:</td><td><%= variant.qual %></td></tr>
+  <tr><td>Filter:</td><td><%= variant.flt %></td></tr>
+  <tr><td>-</td></tr>
+  <tr><td><b>Info Tags</b></td></tr>
+  <% variant.info_tags.each do |key, val| %>
+    <tr><td><%= key %>:</td><td><%= val %></td></tr>
+  <% end %>
+  <tr><td>-</td></tr>
+  <tr><td><b>Genotypes</b></td></tr>
+  <tr><td colspan="2">
+    <table class="listing">
+      <tr>
+        <td>Sample</td>
+        <% variant.geno_fields.each do |g| %>
+          <td><%= g.format %></td>
+        <% end %>
+      </tr>
+      <% @experiment.samples.each_with_index do |sample,idx| %>
+        <tr>
+          <td><%= sample %></td>
+          <% variant.geno_fields.each do |g| %>
+            <% case g.format %>
+            <% when 'GT' %>
+              <td><%= "#{g.data[idx][0]}#{g.data[idx][1]}#{g.data[idx][2]}" %></td>
+            <% when 'PL' %>
+              <td><%= g.data[idx].join(",") %></td>
+            <% else %>
+              <td><%= g.data[idx] %></td>
+            <% end %>
+          <% end %>
+        </tr>
+      <% end %>
+    </table>
+
+  </td></tr>
+  
+</table>
+
+<% end %>

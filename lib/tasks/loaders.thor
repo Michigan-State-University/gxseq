@@ -86,7 +86,7 @@ class Db < Thor
           
           entry_count +=1
           entry_bioseq = entry.to_biosequence
-          puts "Working on entry #{entry_count}: #{(entry.definition.length > 75) ? entry.definition.length[0,74]+"..." : entry.definition}" if verbose
+          puts "Working on entry #{entry_count}: #{(entry.definition.length > 75) ? entry.definition[0,74]+"..." : entry.definition}" if verbose
 
           # Get Entry version
           if(entry.respond_to?(:version))

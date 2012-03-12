@@ -1,7 +1,7 @@
 class VariantsController < ApplicationController
-  #filter_access_to :all
-  #skip_before_filter :login_required, :only => :show
-
+  require 'will_paginate/array'
+  before_filter :get_variants, :only => [:show, :graphics]
+  
   ##custom actions - rjs
   def initialize_experiment
     @variant = Variant.find(params[:id])
@@ -10,13 +10,6 @@ class VariantsController < ApplicationController
       page.replace_html 'initialize_experiment', "Job Started. Refresh to view updates in the console."
     end
   end
-  
-  # def reload_assets
-  #   @variant = Variant.find(params[:id])
-  #   @variant.reload_data_from_assets
-  #   flash[:warning]="Reloading Variant Data"
-  #   redirect_to :action => :show
-  # end
   
   def graphics
     @variant = Variant.find(params[:id], :include => :bioentries_experiments)
@@ -59,12 +52,6 @@ class VariantsController < ApplicationController
   end
 
   def show
-    @variant = Variant.find(params[:id])
-    @bioentry = Bioentry.find(params[:bioentry_id] || @variant.bioentries_experiments.first.bioentry_id)
-    respond_to do |format|
-      format.html {}
-      format.xml { render :layout => false }
-    end
   end
 
   def edit
@@ -104,14 +91,15 @@ class VariantsController < ApplicationController
         render :json => {:success => true}
       when 'range'   
         variant = Variant.find(param['experiment'])
+        sample = param['sample']
         left = param['left']
         right = param['right']
         bioentry = Bioentry.find(param['bioentry'])
         bioentry_id = bioentry.id
-        data = {}
-        variant.sequence_variants.with_bioentry(bioentry_id).all(:conditions => ["pos < ? and pos > ?",right, left]).each do |v|
-          data[v.class.name.downcase.to_sym] ||=[]
-          data[v.class.name.downcase.to_sym] << [v.id.to_s,v.pos,v.ref.length,v.ref,v.alt,v.qual,v.depth]
+        be = variant.bioentries_experiments.find_by_bioentry_id(bioentry_id)
+        data = []
+        variant.get_data(be.sequence_name, left, right, {:sample => sample, :split_hets => true, :only_variants => (right-left>1000)}).sort{|a,b| a.variant_type <=>b.variant_type}.each do |v|  
+          data << [v.variant_type.downcase,"#{v.pos}#{v.ref.ord}#{v.alt.ord}",v.pos,v.ref.length,v.ref,v.alt,v.qual]
         end
         render :json => {
           :success => true,
@@ -120,8 +108,10 @@ class VariantsController < ApplicationController
       when 'describe'
         begin
           @bioentry = Bioentry.find(param['bioentry'])
-          @sequence_variant = SequenceVariant.find(param['id'])
-          render :partial => "sequence_variants/info.json"
+          @experiment = Experiment.find(param['experiment'])
+          be = @experiment.bioentries_experiments.find_by_bioentry_id(@bioentry.id)
+          @variants = @experiment.find_variants(be.sequence_name,param['pos'].to_i)
+          render :partial => "item"
         rescue
           render :json => {
             :success => false,
@@ -150,10 +140,20 @@ class VariantsController < ApplicationController
           :success => false
         }        
       end
-    rescue
-      logger.info "\n\nError with Variant->track_data:#{$!}\n\n"
+    rescue => e
+      logger.info "\n\nError with Variant->track_data:#{$!}#{e.backtrace.join("\n")}\n\n"
       render :json => {:success => false}
     end
   end
   
+  private
+  
+  def get_variants
+    @variant = Variant.find(params[:id])
+    page = params[:page] || 1
+    @bioentry = Bioentry.find(params[:bioentry_id] || @variant.bioentries_experiments.first.bioentry_id)
+    be = @variant.bioentries_experiments.find_by_bioentry_id(@bioentry.id)
+    @variants = @variant.get_data(be.sequence_name,0,@bioentry.length,{:only_variants => true})
+    @variants = @variants.sort{|a,b| b.qual<=>a.qual}.paginate(:page => page, :per_page => 20)
+  end
 end

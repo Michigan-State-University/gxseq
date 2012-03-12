@@ -144,48 +144,48 @@ Ext.define('Sv.painters.ReadsCanvas',{
   			//brush.strokeRect(x,y,w,h);
         // }
 
-        if (w > 2 && read.sequence)
+        if (read.sequence)
         {
          letterize(brush, read.sequence, x, y, w, h, container);
         }
   		});
       
-      //Draw the frames
-      brush.lineWidth = 1.0;
-      Ext.each(self.frameBreaks, function(fb){        
-        
-        x = Math.round((fb.x1-self.viewport.x1) * self.viewport.pixels / self.viewport.bases);
-        if(x%2!=0) x+=1;
-        if(x >= region.x1 && x <= region.x2)
-        {
-          // Draw the Frame break
-          brush.fillStyle = "rgba(75,75,85,.8)";
-          brush.fillRect(x,0,1,height);
-          brush.fillStyle = "rgba(75,75,85,.2)";
-          brush.fillRect(x-2,0,1,height);
-          // Text background
-          brush.fillStyle = "#EEF";
-          metrics = brush.measureText(fb.msg)
-          brush.fillRect(x+5,1,metrics.width+2,11);
-          // Frame msg text
-          brush.textAlign = "left";
-          brush.fillStyle = "rgba(75,75,85,.9)";
-          brush.fillText(fb.msg,x+5,9);
-        }
-        
-        x2 = Math.round((fb.x2-self.viewport.x1) * self.viewport.pixels / self.viewport.bases);
-        if(x2 >= region.x1 && x2 <= region.x2)
-        {
-          // Text Background
-          metrics = brush.measureText(fb.msg)
-          brush.fillStyle = "#EEF";
-          brush.fillRect((x2-metrics.width)-5,1,metrics.width+2,11);
-          // Frame msg text
-          brush.fillStyle = "rgba(75,75,85,.9)";
-          brush.textAlign = "right"          
-          brush.fillText(fb.msg,x2-5, 9)
-        }
-      });
+      // //Draw the frames
+      // brush.lineWidth = 1.0;
+      // Ext.each(self.frameBreaks, function(fb){        
+      //   
+      //   x = Math.round((fb.x1-self.viewport.x1) * self.viewport.pixels / self.viewport.bases);
+      //   if(x%2!=0) x+=1;
+      //   if(x >= region.x1 && x <= region.x2)
+      //   {
+      //     // Draw the Frame break
+      //     brush.fillStyle = "rgba(75,75,85,.8)";
+      //     brush.fillRect(x,0,1,height);
+      //     brush.fillStyle = "rgba(75,75,85,.2)";
+      //     brush.fillRect(x-2,0,1,height);
+      //     // Text background
+      //     brush.fillStyle = "#EEF";
+      //     metrics = brush.measureText(fb.msg)
+      //     brush.fillRect(x+5,1,metrics.width+2,11);
+      //     // Frame msg text
+      //     brush.textAlign = "left";
+      //     brush.fillStyle = "rgba(75,75,85,.9)";
+      //     brush.fillText(fb.msg,x+5,9);
+      //   }
+      //   
+      //   x2 = Math.round((fb.x2-self.viewport.x1) * self.viewport.pixels / self.viewport.bases);
+      //   if(x2 >= region.x1 && x2 <= region.x2)
+      //   {
+      //     // Text Background
+      //     metrics = brush.measureText(fb.msg)
+      //     brush.fillStyle = "#EEF";
+      //     brush.fillRect((x2-metrics.width)-5,1,metrics.width+2,11);
+      //     // Frame msg text
+      //     brush.fillStyle = "rgba(75,75,85,.9)";
+      //     brush.textAlign = "right"          
+      //     brush.fillText(fb.msg,x2-5, 9)
+      //   }
+      // });
       
       //Append all the html DIVs we created
       containerDiv.innerHTML+=newDivs.join("\n");
@@ -207,7 +207,7 @@ Ext.define('Sv.painters.ReadsCanvas',{
   	{
   		//var clean = "";
   		var length = sequence.length;
-  		var letterW = self.viewport.pixels/self.viewport.bases;
+  		var letterW = Math.max(self.viewport.pixels/self.viewport.bases);
   		
   		var half = length/2;
   		var readLength = half * letterW;
@@ -239,15 +239,15 @@ Ext.define('Sv.painters.ReadsCanvas',{
   			//clean += letter;
 
   			var letterX = x + (i * letterW) //+ (i >= half ? w-2*readLength : 0);
-  			if ((letterW < 5 || h < self.boxBlingLimit) && letter != 'base_spacer')
+  			if ((letterW < 5 || h < self.boxBlingLimit))
   			{
   				if(fs = self.styles.get(letter).fill){
-  				  brush.fillStyle = fs;
+  				  //brush.fillStyle = fs;
   				}else{
-  				  brush.fillStyle = self.readColor;
+  				  //brush.fillStyle = self.readColor;
   				};
   				
-  				brush.fillRect(letterX, y, letterW, h);
+  				//brush.fillRect(letterX, y, letterW, h);
   			}
   			else
   			{

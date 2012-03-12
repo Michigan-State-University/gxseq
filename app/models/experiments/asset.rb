@@ -5,7 +5,7 @@ class Asset < ActiveRecord::Base
   #validate  :check_data_format, :if => %q(self.data.file? && !self.validated), :on => :create
   validate  :check_data_format
   validates_presence_of :type
-  validates_inclusion_of :type, :in => %w( Wig BigWig MaqIndel MaqSnp Bam BamIndex), :on => :create, :message => "not available"
+  validates_inclusion_of :type, :in => %w(Bam Bcf BigWig Vcf Wig), :on => :create, :message => "not available"
   before_validation :initialize_attr
   
   has_attached_file :data, :path => ":rails_root/lib/data/experiments/:exp_class/:exp_id/:id/:filename_with_ext" 

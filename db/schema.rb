@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111118145837) do
+ActiveRecord::Schema.define(:version => 20120308164923) do
 
   create_table "assets", :force => true do |t|
     t.string   "type"
@@ -196,6 +196,7 @@ ActiveRecord::Schema.define(:version => 20111118145837) do
     t.string   "show_negative"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "taxon_version_id"
   end
 
   create_table "gene_models", :force => true do |t|
@@ -344,8 +345,7 @@ ActiveRecord::Schema.define(:version => 20111118145837) do
     t.datetime "updated_at"
   end
 
-  add_index "seqfeature_qualifier_value", ["seqfeature_id", "term_id", "rank"], :name => "sqv_idx_2", :unique => true
-  add_index "seqfeature_qualifier_value", ["seqfeature_id"], :name => "sqv_idx"
+  add_index "seqfeature_qualifier_value", ["seqfeature_id", "term_id", "value"], :name => "seqfeature_id", :unique => true, :length => {"seqfeature_id"=>nil, "term_id"=>nil, "value"=>100}
   add_index "seqfeature_qualifier_value", ["term_id"], :name => "sqv_idx_1"
   add_index "seqfeature_qualifier_value", ["value"], :name => "sqv_idx_3", :length => {"value"=>255}
 
@@ -406,15 +406,14 @@ ActiveRecord::Schema.define(:version => 20111118145837) do
     t.string   "node_rank",         :limit => 32
     t.integer  "genetic_code"
     t.integer  "mito_genetic_code"
-    t.integer  "left_value"
-    t.integer  "right_value"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "left_value"
+    t.integer  "right_value"
   end
 
-  add_index "taxon", ["left_value"], :name => "taxon_idx_1", :unique => true
   add_index "taxon", ["ncbi_taxon_id"], :name => "taxon_idx", :unique => true
-  add_index "taxon", ["right_value"], :name => "taxon_idx_2", :unique => true
+  add_index "taxon", ["node_rank"], :name => "node_rank_idx"
 
   create_table "taxon_name", :id => false, :force => true do |t|
     t.integer  "taxon_id",                 :null => false
@@ -429,7 +428,7 @@ ActiveRecord::Schema.define(:version => 20111118145837) do
   create_table "taxon_versions", :force => true do |t|
     t.integer  "taxon_id"
     t.integer  "species_id"
-    t.string   "scientific_name"
+    t.string   "name"
     t.string   "version"
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -533,6 +532,7 @@ ActiveRecord::Schema.define(:version => 20111118145837) do
     t.integer  "experiment_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "sample"
   end
 
   create_table "users", :force => true do |t|

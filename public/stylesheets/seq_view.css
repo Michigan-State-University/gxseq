@@ -468,7 +468,7 @@
 .insertion		{ background: url('../images/models/green.gif') repeat-x; }
 .snp					{ background: url('../images/models/blue.gif') repeat-x; }
 .indel				{ background: url('../images/models/purple.gif') repeat-x; }
-
+.match        { background: rgb(230,230,250);}
 /* Non Gene Model features*/
 .rep_origin 		{ background: url('../images/models/purple.gif') repeat-x; }
 .repeat_region 	{ background: url('../images/models/purple.gif') repeat-x; }
