@@ -7,6 +7,14 @@ GIT
       net-ldap (~> 0.2.2)
 
 GIT
+  remote: git://github.com/throwern/bioruby-samtools.git
+  revision: e29a4bc5b719117aa80deebd4cce2a7528c81b26
+  specs:
+    bio-samtools (0.4.2)
+      bio (>= 1.4.2)
+      ffi
+
+GIT
   remote: git://github.com/throwern/paper_trail.git
   revision: 1a9e4e85157d50324eeec16fd1a8770115e76411
   specs:
@@ -17,13 +25,6 @@ PATH
   remote: vendor/gems/composite_primary_keys-3.1.10
   specs:
     composite_primary_keys (3.1.10)
-
-PATH
-  remote: ~/gems/bioruby-samtools
-  specs:
-    bio-samtools (0.4.2)
-      bio (>= 1.4.2)
-      ffi
 
 GEM
   remote: http://rubygems.org/
