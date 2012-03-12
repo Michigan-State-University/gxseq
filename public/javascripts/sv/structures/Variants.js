@@ -9,13 +9,13 @@ var VariantsList = function()
     {
         if (!data) return;
 
-        // for (var name in data)
-        // {  		
-            Ext.each(data, function(datum)
+        for (var name in data)
+        {  		
+            Ext.each(data[name], function(datum)
             { 
                 if (datum.length != 7) return;				
                 var variant = {
-                    cls     : datum[0],
+                    cls     : name,
                     id      : datum[1] || '',
                     x       : parseInt(datum[2]) || 0,
                     w       : parseInt(datum[3]) || 1,
@@ -50,7 +50,7 @@ var VariantsList = function()
                     self.insert(node);
                 }
             });
-        // }
+        }
     };
 
     //Returns a collection of points for use with a histogram canvas

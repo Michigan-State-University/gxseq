@@ -1,6 +1,5 @@
 class FetchersController < ApplicationController
    include ActionView::Helpers::TextHelper
-   
   def metadata
     #syndication response
     jrws = JSON.parse(params[:jrws])
@@ -320,7 +319,7 @@ class FetchersController < ApplicationController
           render :partial => "biosequence/show", :locals => {:biosequence => biosequence, :start => param['left'], :stop => param['right']}
         when 'range'
           bioentry = param['bioentry']
-          bioseq = Biosequence.find(:all, :conditions  => ["bioentry_id =  ?", bioentry]).first
+          bioseq = Biosequence.find_by_bioentry_id(bioentry)
           left = param['left']
           right = param['right']
           length = right - left +1

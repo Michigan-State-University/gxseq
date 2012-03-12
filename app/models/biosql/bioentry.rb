@@ -72,7 +72,7 @@ class Bioentry < ActiveRecord::Base
   
   # convenience methods
   def length
-    biosequence.length
+    Biosequence.find_by_bioentry_id(self.id,:select => :length).length
   end
   
   def qualifiers

@@ -19,7 +19,10 @@
         </tr>
       <% end %>
     </table>
-    <div><div style='float:left'><%= will_paginate @variants %></div><div style="float:right"><%= pluralize(@variants.total_entries,"variant") %></div></div>
+    <div>
+      <div style='float:left'><%= will_paginate @variants %></div>
+      <div style="float:right"><%= (@variants.total_entries >= @limit ? '>=' : '') + pluralize(@variants.total_entries,"variant") %></div>
+    </div>
   </div>
 
   <%= select_tag :bioentry_id, options_from_collection_for_select(@variant.bioentries_experiments, :bioentry_id, :bioentry_short_name, @bioentry.id),:onChange => "window.location='#{url_for(@variant)}?bioentry_id='+this.options[this.selectedIndex].value"%>

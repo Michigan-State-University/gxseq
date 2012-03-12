@@ -95,11 +95,18 @@ class VariantsController < ApplicationController
         left = param['left']
         right = param['right']
         bioentry = Bioentry.find(param['bioentry'])
+        if(right-left>1000)
+          limit = 1000
+          ov = true
+        else
+          limit = 5000
+        end
         bioentry_id = bioentry.id
         be = variant.bioentries_experiments.find_by_bioentry_id(bioentry_id)
-        data = []
-        variant.get_data(be.sequence_name, left, right, {:sample => sample, :split_hets => true, :only_variants => (right-left>1000)}).sort{|a,b| a.variant_type <=>b.variant_type}.each do |v|  
-          data << [v.variant_type.downcase,"#{v.pos}#{v.ref.ord}#{v.alt.ord}",v.pos,v.ref.length,v.ref,v.alt,v.qual]
+        data = {}
+        variant.get_data(be.sequence_name, left, right, {:limit => limit, :sample => sample, :split_hets => true, :only_variants => ov}).sort{|a,b| a.variant_type <=>b.variant_type}.each do |v|  
+          data[v.variant_type.downcase] ||=[]
+          data[v.variant_type.downcase] << ['1',"#{v.pos}#{v.ref.ord}#{v.alt.ord}",v.pos,v.ref.length,v.ref,v.alt,v.qual]
         end
         render :json => {
           :success => true,
@@ -151,15 +158,17 @@ class VariantsController < ApplicationController
   def get_variants
     @variant = Variant.find(params[:id])
     page = params[:page] || 1
-    @bioentry = Bioentry.find(params[:bioentry_id] || @variant.bioentries_experiments.first.bioentry_id)
+    @bioentry = Bioentry.find((params[:bioentry_id] || @variant.bioentries_experiments.first.bioentry_id))
     be = @variant.bioentries_experiments.find_by_bioentry_id(@bioentry.id)
     @variants = []
+    @limit = 5000
     if(@variant.bcf)
       begin
-        @variants = @variant.get_data(be.sequence_name,0,@bioentry.length,{:only_variants => true})
-      rescue
+        @variants = @variant.get_data(be.sequence_name,0,@bioentry.length,{:only_variants => true, :limit => @limit})
+      rescue => e
+        logger.info "\n\n#{$!}\n\n#{e.backtrace}"
       end
     end
-    @variants = @variants.sort{|a,b| b.qual<=>a.qual}.paginate(:page => page, :per_page => 20)
+    @variants = @variants.sort{|a,b| b.qual<=>a.qual}.paginate(:page => page, :per_page => 50)
   end
 end
