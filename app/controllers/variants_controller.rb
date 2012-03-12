@@ -1,6 +1,6 @@
 class VariantsController < ApplicationController
   require 'will_paginate/array'
-  #before_filter :get_variants, :only => [:show, :graphics]
+  before_filter :get_variants, :only => [:show, :graphics]
   
   ##custom actions - rjs
   def initialize_experiment
