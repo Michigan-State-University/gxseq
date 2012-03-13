@@ -52,21 +52,26 @@ class Bcf < Asset
       end
       # store the variant(s)
       v = Bio::DB::SAM::Variant.new(bcf_p,hdr_p)
-      variants[idx] =  v
-      cnt +=1
-      # split heterozygous
-      if(split_hets && sample_idx && !only_variants)
+      # check gt info
+      if(sample_idx)
         gt = v.geno_fields.find{|g| g.format=='GT'}.data[sample_idx]
-        if((gt[0]!='0'&&gt[2]=='0')||(gt[0]=='0'&&gt[2]!='0'))
-          idx +=1
-          cnt +=1
-          v2 = Bio::DB::SAM::Variant.new(bcf_p,hdr_p)
-          v2.variant_type='Match'
-          v2.alt = v2.ref
-          variants[idx]=v2
+        if([['0','/','0'],['0','|','0']].include?(gt))
+          v.variant_type = 'Match'
+        end
+        # split heterozygous
+        if(split_hets && !only_variants)          
+          if((gt[0]!='0'&&gt[2]=='0')||(gt[0]=='0'&&gt[2]!='0'))
+            idx +=1
+            cnt +=1
+            v2 = Bio::DB::SAM::Variant.new(bcf_p,hdr_p)
+            v2.variant_type='Match'
+            v2.alt = v2.ref
+            variants[idx]=v2
+          end
         end
       end
-      
+      variants[idx] =  v
+      cnt +=1
     end    
     bcf.fetch_with_function_raw(seq,start,stop,fetch_function)
     bcf.close
