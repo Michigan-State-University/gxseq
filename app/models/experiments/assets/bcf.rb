@@ -61,12 +61,12 @@ class Bcf < Asset
         # split heterozygous
         if(split_hets && !only_variants)          
           if((gt[0]!='0'&&gt[2]=='0')||(gt[0]=='0'&&gt[2]!='0'))
-            idx +=1
-            cnt +=1
             v2 = Bio::DB::SAM::Variant.new(bcf_p,hdr_p)
             v2.variant_type='Match'
             v2.alt = v2.ref
             variants[idx]=v2
+            idx +=1
+            cnt +=1
           end
         end
       end
