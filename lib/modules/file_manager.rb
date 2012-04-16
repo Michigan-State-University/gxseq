@@ -25,7 +25,14 @@ class FileManager
   end
   
   def self.wig_to_bigwig(filein, fileout, chrom_file)
-    stdin, stdout, stderr = Open3.popen3("#{CMD_PATH}wigToBigWig -clip '#{filein}' '#{chrom_file}' '#{fileout}'")
+    fout = File.open("#{filein}.nohdr","w")
+    fin = File.open(filein,"r")
+    fin.each do |line|
+      if(line.match(/\d+\s+\d*\.{0,1}\d*$/))
+        fout.puts line
+      end
+    end
+    stdin, stdout, stderr = Open3.popen3("#{CMD_PATH}wigToBigWig -clip '#{fout}' '#{chrom_file}' '#{fileout}'")
     stderr.each do |e|
       puts e
     end
