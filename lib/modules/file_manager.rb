@@ -32,7 +32,7 @@ class FileManager
         fout.puts line
       end
     end
-    stdin, stdout, stderr = Open3.popen3("#{CMD_PATH}wigToBigWig -clip '#{fout}' '#{chrom_file}' '#{fileout}'")
+    stdin, stdout, stderr = Open3.popen3("#{CMD_PATH}wigToBigWig -clip '#{filein}.nohdr' '#{chrom_file}' '#{fileout}'")
     stderr.each do |e|
       puts e
     end
