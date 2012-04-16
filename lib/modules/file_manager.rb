@@ -28,7 +28,7 @@ class FileManager
     fout = File.open("#{filein}.nohdr","w")
     fin = File.open(filein,"r")
     fin.each do |line|
-      if(line.match(/^\d+\s+\d*\.{0,1}\d*$/))
+      if(line.match(/^\d+\s+\d*\.{0,1}\d*$/) || line.match(/(variableStep|fixedStep)\schrom=(.+?)($|\sspan=(\d+))/))
         fout.puts line
       end
     end
