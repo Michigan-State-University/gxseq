@@ -69,7 +69,7 @@ class Variant < Experiment
 
   def remove_asset_data
     puts "Removing all Asset Data - #{Time.now}"
-    bcf.destroy if vcf
+    bcf.destroy if vcf && bcf
     self.reload
   end
   
