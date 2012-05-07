@@ -16,22 +16,27 @@ var VariantsList = function()
                 if (datum.length != 7) return;				
                 var variant = {
                     cls     : name,
+                    allele  : datum[0],
                     id      : datum[1] || '',
                     x       : parseInt(datum[2]) || 0,
                     w       : parseInt(datum[3]) || 1,
                     ref     : datum[4],
                     alt     : datum[5],
                     qual    : parseInt(datum[6]) || 0
+                    
                 };
                 //setup the seq for display
                 variant.pos = variant.x
                 switch(variant.cls)
                 {
                     case 'deletion':
+                      if(variant.alt != ".")
+                      {
                         variant.seq = variant.ref.substring(variant.alt.length);
                         variant.x += variant.alt.length;
                         variant.w = variant.seq.length;
-                        break;
+                      }
+                      break;
                     case 'insertion':
                         variant.seq = variant.alt.substring(variant.ref.length);
                         variant.w = variant.seq.length
@@ -46,7 +51,7 @@ var VariantsList = function()
                 }
                 if (variant.id && variant.x && variant.ref)
                 {
-                    var node = self.createNode(variant.id, variant.x, variant.x + variant.w, variant);
+                    var node = self.createNode(variant.id, variant.x, variant.x + variant.w-1, variant);
                     self.insert(node);
                 }
             });
@@ -77,7 +82,9 @@ var VariantsList = function()
                     ref : node.value.ref,
                     alt : node.value.alt,
                     qual : node.value.qual,
-                    seq : node.value.seq
+                    seq : node.value.seq,
+                    allele : node.value.allele,
+                    level : node.level
                 });
                 return true;
             });

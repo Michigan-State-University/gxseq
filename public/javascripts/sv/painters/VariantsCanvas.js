@@ -12,11 +12,17 @@ Ext.define('Sv.painters.VariantsCanvas',{
 			this.callParent(arguments);
 			var self = this;
 			var data = [];
-
+			var max = 2;
 			self.addEvents({
 				'itemSelected' : true
 			});
-
+      
+      this.setMax = function(m)
+      {
+        //return the new height we want for rendering
+				max = m;
+      };
+      
 			//Set the data for this histogram from an array of points
 			this.setData = function(items)
 			{
@@ -33,14 +39,23 @@ Ext.define('Sv.painters.VariantsCanvas',{
 			this.paint = function()
 			{
 				this.clear();
-
+        var brush = this.getBrush();
+        var width = this.getWidth();
+				var height = this.getHeight();
+        //Draw midline
+				brush.strokeStyle="rgb(100,100,100)"
+        brush.beginPath();
+        brush.moveTo(0,height/2);
+        brush.lineTo(width,height/2);
+				brush.closePath();
+        brush.stroke();
+        
 				if (!data || data.length == 0) return;
 				var container = this.getContainer();
 				var canvas = this.getCanvas();
 				var region = this.getRegion();
-				var width = this.getWidth();
-				var height = this.getHeight();
-				var brush = this.getBrush();
+
+				
 				var scaler = this.getScaler();
 				var x = 0;
 				var y = 0;
@@ -59,57 +74,66 @@ Ext.define('Sv.painters.VariantsCanvas',{
 		        container.appendChild(containerDiv);
 
 				//Levelize the data and get the max visible level (used for a shortcut later)
-				var maxLevel = Math.ceil(region.y2 / (h + self.boxSpace));
-				var max = this.levelize(data,maxLevel);
+				//var maxLevel = Math.ceil(region.y2 / (h + self.boxSpace));
+				
+				
+
+        
 				var newDivs = [];
 				Ext.each(data, function(variant)
 				{
-          // if(variant.pos == 3939 || variant.pos == 3941){
-          //   console.log(variant)
-          // }
 					self.groups.add(variant.cls);
 					if (!self.groups.active(variant.cls)) return;
-					if (variant.level > maxLevel) return;
+					//if (variant.level > maxLevel) return;
 
 					w = variant.w;
 					x = variant.x;
-					y = height-(variant.level * (h + self.boxSpace)) -h;
+					if(variant.allele == "2"){
+            y =(variant.level) * (h+self.boxSpace)
+		        //y = 0//h+self.boxSpace
+		      }else{
+            y = height-(variant.level * (h + self.boxSpace))-h;
+					  //y = height-(h + self.boxSpace);
+				  }
 					if (x + w < region.x1 || x > region.x2) return;
 					if (y + h < region.y1 || y > region.y2) return;
+
+		      self.paintBox(variant.cls, x, y, w, h);		      
 		      
-		      self.paintBox(variant.cls, x, y, w, h);
-		      
-		      if(w>5)
+		      if(w>1)
 					{
-					  if(variant.cls == 'insertion')
+					  newDivs.push("<div id=seq_variant_"+variant.id+" data-pos="+variant.pos+" style='width: "+w+"px; height: "+h+"px; left: "+x+"px; top: "+y+"px; cursor: pointer; position: absolute;'></div>");
+            if(w > 4)
             {
-              // get the insertion pos              
-              if(variant.seq.length % 2 != 0)
+					    if(variant.cls == 'insertion')
               {
-                var pos = (x+(w/2)) - (AnnoJ.bases2pixels(1) / 2)
-              }else{
-                var pos = (x+(w/2))
+                // get the insertion pos
+                if(variant.seq.length % 2 != 0)
+                {
+                  var pos = (x+(w/2)) - (AnnoJ.bases2pixels(1) / 2)
+                }else{
+                  var pos = (x+(w/2))
+                }
+                // draw the insertion point
+                brush.strokeStyle="rgb(100,100,100)"
+                brush.beginPath();
+                brush.moveTo(pos-3,y);
+                brush.lineTo(pos,y-3);
+                brush.lineTo(pos+3,y);
+                brush.closePath();
+                brush.stroke();
               }
-              // draw the insertion point
-              brush.strokeStyle="rgb(100,100,100)"
-              brush.beginPath();
-              brush.moveTo(pos-3,y);
-              brush.lineTo(pos,y-3);
-              brush.lineTo(pos+3,y);
-              brush.closePath();
-              brush.stroke();
-            }
-            newDivs.push("<div id=seq_variant_"+variant.id+" data-pos="+variant.pos+" style='width: "+w+"px; height: "+h+"px; left: "+x+"px; top: "+y+"px; cursor: pointer; position: absolute;'></div>");
-            if (variant.seq)
-            {
-              if(variant.cls =='match')
-              { brush.fillStyle="rgb(100,100,100)"
-                //brush.font="20px bold courier"
-                brush.fillText(".",x,y+h,w)
-                //brush.strokeText(variant.seq,x,y+(h-3),w)
-              }else{
-                letterize(brush, variant.seq, x, y, w, h, container,variant.cls);
-              }              
+              if (variant.seq)
+              {
+                if(variant.cls =='match')
+                { brush.fillStyle="rgb(100,100,100)"
+                  //brush.font= 20+"px courier"
+                  brush.fillText(".",x,y+h,w)
+                 // brush.fillText(variant.seq,x,y+(h-3),w)
+                }else{
+                  letterize(brush, variant.seq, x, y, w, h, container,variant.cls);
+                }              
+              }
             }
           }
 				});
@@ -118,8 +142,8 @@ Ext.define('Sv.painters.VariantsCanvas',{
 		        //setup the click event
 		        for(i=0;i<containerDiv.children.length;i++)
 		           Ext.get(containerDiv.children[i]).addListener('mouseup', selectItem);
-				//return the new height we want for rendering
-				return((h+self.boxSpace)*max);
+         //return the new height we want for rendering
+ 				return((h+self.boxSpace)*(max+1)*2);
 			};
 
 		    function letterize(brush, sequence, x, y, w, h, container,cls)

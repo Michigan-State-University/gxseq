@@ -208,12 +208,19 @@ var RangeList = function()
 	};
 
 	//Levelize all items	
-	this.levelize = function()
+	this.levelize = function(userTest)
 	{
 		var inplay = new AnnoJ.Helpers.List();
 		var max = 0;
 	  for (var rangeNode=firstNode; rangeNode; rangeNode=rangeNode.next)
 		{
+      if(userTest)
+      {
+        if(userTest(rangeNode)){
+          continue;
+        }
+      }
+	    
       rangeNode.level = 0;
       var added = false;
       // check spots, insert if open
@@ -225,10 +232,10 @@ var RangeList = function()
                 inplay.insertBefore(node,rangeNode);
                 inplay.remove(node);
                 added = true;
-                max = Math.max(max, rangeNode.level);
                 break;
        }
        rangeNode.level ++;
+       max = Math.max(max, rangeNode.level);
       }
       
       //If no place was found to add the div, then add it to the end

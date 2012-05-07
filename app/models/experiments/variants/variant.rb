@@ -2,6 +2,7 @@ class Variant < Experiment
   has_many :variant_tracks, :foreign_key => "experiment_id", :dependent => :destroy
   has_one :bcf, :foreign_key => "experiment_id"
   has_one :vcf, :foreign_key => "experiment_id"
+  has_one :tabix_vcf, :foreign_key => "experiment_id"
   # has_many :sequence_variants, :foreign_key => "experiment_id", :dependent => :delete_all
   # has_many :snps, :foreign_key => "experiment_id"
   # has_many :indels, :foreign_key => "experiment_id"
@@ -9,7 +10,7 @@ class Variant < Experiment
   # has_many :insertions, :foreign_key => "experiment_id"
   
   def asset_types
-    {"bcf" => "Bcf", "vcf" => "Vcf"}
+    {"vcf" => "Vcf", "tabix-vcf" => "TabixVcf", "bcf" => "Bcf"}
   end  
   
   # def max_pos
@@ -25,20 +26,27 @@ class Variant < Experiment
   def load_asset_data
     puts "Loading asset data #{Time.now}"
     begin
+      if(assets.empty?)
+        puts "No assets found!"
+        update_attribute(:state, "error")
+        return nil
+      end
       if(bcf)
         load_bcf
-        update_attribute(:state, "complete")
       elsif(vcf)
         vcf.update_attribute(:state, "converting")
-        self.create_bcf(:data => vcf.create_bcf)
+        #self.create_bcf(:data => vcf.create_bcf)
+        self.create_tabix_vcf(:data => vcf.create_tabix_vcf)
         vcf.remove_temp_files
-        load_bcf
+        #load_bcf
+        load_tabix_vcf
         vcf.update_attribute(:state, "complete")
-        update_attribute(:state, "complete")
-      else
-        puts "No assets file found!"
-        update_attribute(:state, "error")
       end
+      if(tabix_vcf)
+        load_tabix_vcf
+      end
+      create_tracks
+      update_attribute(:state, "complete")
     rescue
       puts "Error running RNA-Seq load_assets:\n#{$!}"
       update_attribute(:state, "error")
@@ -46,17 +54,22 @@ class Variant < Experiment
   end
   
   def load_bcf
-    # test bcf open and create index
     puts "Starting load bcf for: #{self.bcf}"
     bcf.update_attribute(:state, "loading")
     bcf.create_index
     bcf.update_attribute(:state, "complete")
-    create_tracks
   end
   
+  def load_tabix_vcf
+    puts "Starting load bcf for: #{self.bcf}"
+    tabix_vcf.update_attribute(:state, "loading")
+    tabix_vcf.create_index
+    tabix_vcf.update_attribute(:state, "complete")
+  end
+
   def remove_asset_data
     puts "Removing all Asset Data - #{Time.now}"
-    bcf.destroy if bcf
+    #bcf.destroy if vcf
     self.reload
   end
   
@@ -69,7 +82,9 @@ class Variant < Experiment
   end
   
   def samples
-    if bcf
+    if tabix_vcf
+      tabix_vcf.samples
+    elsif bcf
       bcf.samples
     else
       []
@@ -77,11 +92,15 @@ class Variant < Experiment
   end
   
   def get_data(seq,start,stop,opts={})
-    bcf.get_data(seq,start,stop,opts)
+    if(tabix_vcf)
+      tabix_vcf.get_data(seq,start,stop,opts)
+    elsif(bcf)
+      bcf.get_data(seq,start,stop,opts)
+    end
   end
   
   def find_variants(seq,pos)
-    get_data(seq,pos,pos)
+    get_data(seq,pos,pos,{:raw => true})
   end
   
   # Method for searching other variants within a region for matching sequence

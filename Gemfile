@@ -30,7 +30,7 @@ gem 'paperclip', '~> 2.3'
 gem 'squeel', '~>0.9'
 gem 'thor', '~> 0.14.6'
 gem 'will_paginate', '~>3'
-
+gem 'bio-tabix'
 # Deploy with Capistrano
 # gem 'capistrano'
 

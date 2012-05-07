@@ -64,7 +64,6 @@ class Experiment < ActiveRecord::Base
   
   def taxon_version_id=(tv_id)    
     if(tv_id.to_i == self.taxon_version_id)
-      logger.info "\n\nTaxon Version UNCHANGED\n\n"
       return super(tv_id)
     end
     tv = TaxonVersion.find(tv_id)

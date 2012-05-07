@@ -16,7 +16,7 @@
         <% if f.object.new_record? %>
           <%= f.collection_select :taxon_version_id, @taxon_versions, :id, :name_with_version %>
         <% else %>
-          <%= f.collection_select :taxon_version_id, @taxon_versions, :id, :name_with_version, {}, :onchange => "$(bioentries_experiments_list).remove()" %>
+          <%= f.collection_select :taxon_version_id, @taxon_versions, :id, :name_with_version, {}, :onchange => "$('bioentries_experiments_list').remove()" %>
           <div id="bioentries_experiments_list">
             <% f.fields_for :bioentries_experiments do |be| %>
               <div class="nested-fields" style="clear:both">

@@ -95,18 +95,14 @@ class VariantsController < ApplicationController
         left = param['left']
         right = param['right']
         bioentry = Bioentry.find(param['bioentry'])
-        if(right-left>1000)
-          limit = 1000
-          ov = true
-        else
-          limit = 5000
-        end
+        limit = 5000
+        ov = (right-left>1000)
         bioentry_id = bioentry.id
         be = variant.bioentries_experiments.find_by_bioentry_id(bioentry_id)
         data = {}
-        variant.get_data(be.sequence_name, left, right, {:limit => limit, :sample => sample, :split_hets => true, :only_variants => ov}).sort{|a,b| a.variant_type <=>b.variant_type}.each do |v|  
-          data[v.variant_type.downcase] ||=[]
-          data[v.variant_type.downcase] << ['1',"#{v.pos}#{v.ref.ord}#{v.alt.ord}",v.pos,v.ref.length,v.ref,v.alt,v.qual]
+        variant.get_data(be.sequence_name, left, right, {:limit => limit, :sample => sample, :split_hets => true, :only_variants => ov}).each do |v|  
+          data[v[:type]] ||=[]
+          data[v[:type]] << [v[:allele],v[:id],v[:pos],v[:ref].length,v[:ref],v[:alt],v[:qual]]
         end
         render :json => {
           :success => true,
@@ -117,6 +113,7 @@ class VariantsController < ApplicationController
           @bioentry = Bioentry.find(param['bioentry'])
           @experiment = Experiment.find(param['experiment'])
           be = @experiment.bioentries_experiments.find_by_bioentry_id(@bioentry.id)
+          @position = param['pos']
           @variants = @experiment.find_variants(be.sequence_name,param['pos'].to_i)
           render :partial => "item"
         rescue
@@ -161,14 +158,13 @@ class VariantsController < ApplicationController
     @bioentry = Bioentry.find((params[:bioentry_id] || @variant.bioentries_experiments.first.bioentry_id))
     be = @variant.bioentries_experiments.find_by_bioentry_id(@bioentry.id)
     @variants = []
-    @limit = 5000
-    if(@variant.bcf)
-      begin
-        @variants = @variant.get_data(be.sequence_name,0,@bioentry.length,{:only_variants => true, :limit => @limit})
-      rescue => e
-        logger.info "\n\n#{$!}\n\n#{e.backtrace}"
-      end
+    @limit = 100000
+    begin
+      @variants = @variant.get_data(be.sequence_name,0,@bioentry.length,{:only_variants => true, :limit => @limit})
+    rescue => e
+      logger.info "\n\n#{$!}\n\n#{e.backtrace}"
     end
-    @variants = @variants.sort{|a,b| b.qual<=>a.qual}.paginate(:page => page, :per_page => 50)
+    @variants ||=[]
+    @variants = @variants.sort{|a,b| b[:qual].to_i<=>a[:qual].to_i}.paginate(:page => page, :per_page => 50)
   end
 end

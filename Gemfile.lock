@@ -65,6 +65,8 @@ GEM
     arel (2.0.10)
     bcrypt-ruby (2.1.4)
     bio (1.4.2)
+    bio-tabix (0.1.2)
+      ffi
     builder (2.1.2)
     cocaine (0.2.1)
     columnize (0.3.6)
@@ -158,6 +160,7 @@ DEPENDENCIES
   acts_as_api (~> 0.3)
   bio (~> 1.4.2)
   bio-samtools (~> 0.4)!
+  bio-tabix
   composite_primary_keys (= 3.1.10)!
   daemons (= 1.1.4)
   delayed_job (~> 2)

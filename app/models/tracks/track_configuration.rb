@@ -16,7 +16,9 @@ class TrackConfiguration < ActiveRecord::Base
       color_above: '#{color_above || '0'}',
       color_below: '#{color_below || '0'}',
       iconCls: '#{self.track.iconCls}',
+      #{track.respond_to?('sample') ? "sample: '#{self.track.sample}'," : ""}
       #{track.respond_to?('peaks') ? "peaks: #{self.track.peaks}" : 'peaks: false'}"
+
       
   end
   

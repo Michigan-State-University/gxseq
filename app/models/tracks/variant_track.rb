@@ -18,7 +18,7 @@ class VariantTrack < Track
   end
   
   def name
-    "#{experiment.name.gsub("\\","\\\\\\\\").gsub("'",%q(\\\'))}::#{sample.gsub("\\","\\\\\\\\").gsub("'",%q(\\\'))}"
+    "#{experiment.name.gsub("\\","\\\\\\\\").gsub("'",%q(\\\'))}"+(sample ? "::#{(sample).gsub("\\","\\\\\\\\").gsub("'",%q(\\\'))}" : '')
   end
   
   def custom_config

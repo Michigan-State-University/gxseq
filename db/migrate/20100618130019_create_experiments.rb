@@ -6,7 +6,7 @@ class CreateExperiments < ActiveRecord::Migration
         t.belongs_to :user
         t.string  :name
         t.string :type
-        t.string :description
+        t.string :description, :limit => 500
         t.string :file_name
         t.string :a_op
         t.string :b_op

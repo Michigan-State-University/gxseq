@@ -110,7 +110,7 @@ Ext.define('Sv.painters.BaseCanvas',{
   		canvas.width  = width;
   		canvas.height = height;
   		brush = canvas.getContext('2d');
-  		brush.clearRect(0, 0, width, height);
+  		//brush.clearRect(0, 0, width, height);
   	};
   	this.paintWedge = function(x,y,w,h,cls)
   	{	

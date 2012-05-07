@@ -163,7 +163,6 @@ Ext.define('Sv.tracks.VariantTrack',{
     this.removeListener("selectStart",this.cancelSelectStart);
     
        this.on("selectEnd", function(startPos,endPos){
-           //Really?  can this be done better...
            selectWindowForm.getComponent("fs").getComponent("select_start").setValue(startPos);
            selectWindowForm.getComponent("fs").getComponent("select_end").setValue(endPos);
            self.selectStart = startPos;
@@ -213,6 +212,17 @@ Ext.define('Sv.tracks.VariantTrack',{
     {
       var dataA = new VariantsList();
 
+
+
+      var canvasA = new Sv.painters.VariantsCanvas();
+      canvasA.setContainer(containerA.dom);
+      canvasA.on('itemSelected', self.lookupItem);
+      
+      function testAllele(node,num){
+
+        if(node && node.value) return (node.value.allele==num);
+      };
+      
       function parse(data)
       {
         for (var series in data)
@@ -220,19 +230,19 @@ Ext.define('Sv.tracks.VariantTrack',{
           addLabel(series);
         }
         dataA.parse(data,true);
+        var max1 = dataA.levelize(function(n){return testAllele(n,1);});
+        var max2 = dataA.levelize(function(n){return testAllele(n,2);});
+        console.log("m1:"+max1+"m2:"+max2)
+        canvasA.setMax(Math.max(max1,max2));
       };
-
-      var canvasA = new Sv.painters.VariantsCanvas();
-      canvasA.setContainer(containerA.dom);
-      canvasA.on('itemSelected', self.lookupItem);
-
+      
       function paint(left, right, bases, pixels)
       {
         var subsetA = dataA.subset2canvas(left, right, bases, pixels);
 
         canvasA.setData(subsetA);
         requested_pixels = canvasA.paint(); //paint and retrieve required canvas height
-        new_height = requested_pixels + 30+35; //add room for the toolbar plus
+        new_height = requested_pixels + 35; //add room for the toolbar
         //Match canvas height to requested height from painter
         if(self.getMaxHeight() >= new_height && new_height >= self.getMinHeight())
         {
@@ -288,7 +298,7 @@ Ext.define('Sv.tracks.VariantTrack',{
                    checked : true,
                    handler : function()
                    {
-                       handler.canvasA.groups.toggle(name, !this.checked);
+                       handler.canvasA.groups.toggle(name, this.checked);
                        handler.canvasA.refresh();
                    }
                })

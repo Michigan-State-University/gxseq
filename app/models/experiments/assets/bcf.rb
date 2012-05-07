@@ -50,32 +50,45 @@ class Bcf < Asset
           next if b_struct[:gi].get_pointer(8).read_array_of_uint8(b_struct[:n_smpl]).collect{|g| g & 63}.uniq == [0]
         end
       end
+      next if only_variants && b_struct[:alt] == b_struct[:ref] || b_struct[:alt] == '.'
+      
       # store the variant(s)
       v = Bio::DB::SAM::Variant.new(bcf_p,hdr_p)
       # check gt info
+      v1 = {}
+      v1[:allele]=1
+      v1[:pos]=v.pos
+      v1[:dbid]=v.tid
+      v1[:ref]=v.ref
+      v1[:alt]=v.alt
+      v1[:qual]=v.qual
+      v1[:id]="1_#{v1[:pos]}_#{v1[:ref]}_#{v1[:alt]}"
+      v1[:type]=v.variant_type.downcase
+      v1[:v]=v
       if(sample_idx)
         gt = v.geno_fields.find{|g| g.format=='GT'}.data[sample_idx]
-        if([['0','/','0'],['0','|','0']].include?(gt))
-          v.variant_type = 'Match'
-        end
+        v2 = v1.clone
+        if(gt[0]=='0')
+          v1[:type] = 'match'
+        end        
+        v2[:allele] = 2
+        v2[:id]="2_#{v1[:pos]}_#{v1[:ref]}_#{v1[:alt]}"
         # split heterozygous
-        if(split_hets && !only_variants)          
-          if((gt[0]!='0'&&gt[2]=='0')||(gt[0]=='0'&&gt[2]!='0'))
-            v2 = Bio::DB::SAM::Variant.new(bcf_p,hdr_p)
-            v2.variant_type='Match'
-            v2.alt = v2.ref
-            variants[idx]=v2
-            idx +=1
-            cnt +=1
-          end
+        # if(split_hets && !only_variants)          
+        #   if((gt[0]!='0'&&gt[2]=='0')||(gt[0]=='0'&&gt[2]!='0'))
+        if gt[2]=='0'
+          v2[:type]='match'
         end
+        #   end
+        # end
       end
-      variants[idx] =  v
+      
+      variants[idx] = [v1,v2]
       cnt +=1
     end    
     bcf.fetch_with_function_raw(seq,start,stop,fetch_function)
     bcf.close
-    return variants
+    return variants.flatten.compact
   end
   
   def sequence
