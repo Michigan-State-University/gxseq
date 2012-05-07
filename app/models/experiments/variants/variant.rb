@@ -48,7 +48,7 @@ class Variant < Experiment
       create_tracks
       update_attribute(:state, "complete")
     rescue
-      puts "Error running RNA-Seq load_assets:\n#{$!}"
+      puts "Error running Variant load_assets:\n#{$!}"
       update_attribute(:state, "error")
     end
   end
@@ -61,7 +61,7 @@ class Variant < Experiment
   end
   
   def load_tabix_vcf
-    puts "Starting load bcf for: #{self.bcf}"
+    puts "Starting load_tabix for: #{self.bcf}"
     tabix_vcf.update_attribute(:state, "loading")
     tabix_vcf.create_index
     tabix_vcf.update_attribute(:state, "complete")
@@ -69,7 +69,7 @@ class Variant < Experiment
 
   def remove_asset_data
     puts "Removing all Asset Data - #{Time.now}"
-    #bcf.destroy if vcf
+    bcf.destroy if vcf
     self.reload
   end
   
