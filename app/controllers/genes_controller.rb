@@ -93,7 +93,7 @@ class GenesController < ApplicationController
   def show
     @format = params[:fmt] || 'standard'    
     @variant_window = params[:v_win].to_i || 0
-    @variant_format = params[:v_fmt] || 'standard'
+    @variant_format = params[:v_fmt] || 'fasta'
     
     #grab the Gene for this locus
     begin

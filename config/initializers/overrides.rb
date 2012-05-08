@@ -9,8 +9,9 @@ begin
       per_row = hsh[:per_row] || 10
       rows = hsh[:rows] || 10
       delimiter = hsh[:delimiter] || "\n"
+      match = hsh[:match] || "."
       num_char = rows*per_row+(rows-1)
-      self.gsub(/(.{#{per_row}})/,"\\1 ").gsub(/(.{#{num_char}})(\s)/,"\\1#{delimiter}")
+      self.gsub(/((#{match}){#{per_row}})/,"\\1 ").gsub(/((#{match}|\s){#{num_char}})(\s)/,"\\1#{delimiter}")
     end
     def break_and_wrap_text(size=50,char="\n",ljust=0,justify_first=true)
       values=self.gsub(/(.{1,#{size}})( +|$)\n?|(.{1,#{size-1}})(,|;|:|-|=)|(.{#{size}})/,"\\1\\3\\4\\5\n").strip.split("\n")

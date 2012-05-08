@@ -122,7 +122,8 @@ class Variant < Experiment
   # Method for returning altered base sequence using a window to apply sequence_variant diffs
   # This represents the strain/variant sequence in the given window
   # 
-  def get_sequence(start,stop,bioentry_id,sample=nil)
+  def get_sequence(start,stop,bioentry_id,sample=nil,opts={})
+    color_html = opts[:html]
     bioentry = Bioentry.find_by_bioentry_id(bioentry_id)
     return false unless bioentry
     #check boundaries
@@ -139,6 +140,9 @@ class Variant < Experiment
     seq_slice = bioentry.biosequence.seq[start-1,(stop-start)+1]
     if(seq_slice && seq_slice.length >=0)
       seq_a = seq_slice.split("")
+      if(color_html)
+        seq_a.collect!{|s|"<span style='background:whitesmoke;'>#{s}</span>"}
+      end
     else
       return ""
     end
@@ -160,12 +164,26 @@ class Variant < Experiment
         #just a standard variant
         alt = v[:alt]
       end      
-      alt_size = ((v[:alt].nil? || v[:alt]=='.') ? 0 : v[:alt].size)
+      alt_size = (v[:alt].nil? ? 0 : v[:alt].size)
       ref_size = (v[:ref].nil? ? 0 : v[:ref].size)
       #get the array index for this variant
       p = ((v[:pos])-start)+offset
       #convert ref seq to alt seq
-      seq_a[p,v[:ref].size]=(alt.nil? ? [] : alt.split(""))
+      if(color_html)
+        if alt_size < ref_size
+          # deletion
+          a = (alt||[]).split("").collect{|s|"<span style='background:salmon;'>#{s}</span>"}
+        elsif alt_size > ref_size
+          # insertion
+          a = alt.split("").collect{|s|"<span style='background:lightgreen;'>#{s}</span>"}
+        elsif alt_size == ref_size
+          # snp
+          a = alt.split("").collect{|s|"<span style='background:lightblue;'>#{s}</span>"}
+        end
+        seq_a[p,v[:ref].size]=a
+      else
+        seq_a[p,v[:ref].size]=(alt.nil? ? [] : alt.split(""))
+      end
       #update the offset
       offset +=(alt_size - ref_size)
     end

@@ -79,11 +79,24 @@ class GeneModel < ActiveRecord::Base
     variants==1 ? locus_tag.to_s : (locus_tag.to_s+"."+rank.to_i.to_s)
   end
   
-  def variant_na_sequence(exp_id,window=0)
+  def variant_na_sequence(exp_id,opts={})
     return nil unless (v = Variant.find(exp_id))
+    window = opts[:window]||0
     start = self.start_pos-window
     stop = self.end_pos+window
-    v.get_sequence(start,stop,bioentry.id)
+    seq = ""
+    cds.locations.each do |l|
+      seq += v.get_sequence(l.start_pos,l.end_pos,bioentry.id,opts[:sample],opts)
+    end
+    return seq
+  end
+  
+  def cds_start
+    cds.locations.sort{|a,b|a.start_pos<=>b.start_pos}.first.start_pos
+  end
+  
+  def cds_end
+    cds.locations.sort{|a,b|a.end_pos<=>b.end_pos}.last.end_pos
   end
   
   #TODO  move to CDS feature
@@ -99,11 +112,11 @@ class GeneModel < ActiveRecord::Base
     end
   end
   
-  def variant_protein_sequence(exp_id,window=0)
+  def variant_protein_sequence(exp_id,opts={})
     if(cds)
       if(cds.codon_start)
         frame = ((strand.to_i == 1) ? cds.codon_start.value.to_i : cds.codon_start.value.to_i+3)
-        return Bio::Sequence::NA.new(variant_na_sequence(exp_id,window)).translate(frame, bioentry.taxon.genetic_code || 1)
+        return Bio::Sequence::NA.new(variant_na_sequence(exp_id,opts={})).translate(frame, bioentry.taxon.genetic_code || 1)
       else
         return "Unknown codon start for cds"
       end

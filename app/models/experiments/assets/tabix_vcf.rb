@@ -25,7 +25,8 @@ class TabixVcf < Tabix
   end
   
   def get_data(seq,start,stop,opts={})
-    
+    return [] if seq.blank?
+    t = Time.now
     # run the raw parent
     return super(seq,start,stop,opts) if opts[:raw]
     

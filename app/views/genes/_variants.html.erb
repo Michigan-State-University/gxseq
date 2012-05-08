@@ -15,38 +15,49 @@
 			<%= gene_model.display_name %> 
 		</h1>
 		<% variants.each do |variant| %>
-			<div class   = "border">
-				<% if @variant_format== 'standard' %>
-				<h2 style="font-size:200%"><%= variant.name %> - <span style="font-size:60%;"><%= truncate(variant.description,:length => 120) %></span></h2>
-				<table>
-					<% if (na_seq = gene_model.variant_na_sequence(variant.id,@variant_window)) %>
-					<tr class  = <%= cycle("odd","even") %>>
-						<td class = "keyword">Gene Length</td>
-						<td><%= na_seq.size %></td>
-					</tr>
-					<tr class  = <%= cycle("odd","even") %>>
-						<td class = "keyword">NA Sequence</td>
-						<% logger.info "\n\n#{na_seq}\n\n" %>
-						<td style = "font-family:'Courier';"><pre style="overflow-x:scroll"><%= formatted_sequence(na_seq,{:rows => 9, :delimiter => "<br/>"}) %></pre></td>
-					</tr>
-					<tr class  = <%= cycle("odd","even") %>>
-						<td class = "keyword">Protein Length</td>
-						<td><%= (p_seq = gene_model.variant_protein_sequence(variant.id,@variant_window)).size rescue 0 %></td>
-					</tr>
-					<tr class  = <%= cycle("odd","even") %>>
-						<td class = "keyword">Protein Sequence</td>
-						<td style = "font-family:'Courier';"><pre style="overflow-x:scroll"><%= formatted_sequence(p_seq,{:rows => 9, :delimiter => "<br/>"}) rescue ""%></pre></td>
-					</tr>
-					<% end %>
-				</table>
-				<% elsif @variant_format == 'fasta' %>
-				<h1 class    = "pagetitle" style="font-size:190%">
-					<%= variant.name %> 
-				</h1>
-				<pre style="font-size:110%;overflow-x:scroll">><%= @gene.name %> <%= @bioentry.display_name %> from <%= gene_model.start_pos - @variant_window %> to <%= gene_model.end_pos + @variant_window %><br/><%= formatted_sequence(gene_model.variant_na_sequence(variant.id,@variant_window),{:rows => 1,:per_row => 100,:delimiter => "<br/>"}) %>
-				</pre>
-				<% end %>
-			</div>
-		<% end %>
-	<% end %>
+		<% variant.samples.each do |sample| %>
+  			  <% unless variant.get_data(variant.sequence_name(@bioentry),gene_model.start_pos,gene_model.end_pos,{:only_variants => true, :limit => 1}).size > 0 %>
+  			    <div class  = "border">
+  			      <h2 style="font-size:200%"><%= variant.name %></h2>
+  			      No change
+  			    </div>
+  			    <% next %>
+  			  <% end %>
+  			  <div class  = "border">
+  				<% if @variant_format== 'standard' %>
+    				<h2 style="font-size:200%"><%= variant.name %> - <span style="font-size:60%;"><%= truncate(variant.description,:length => 120) %></span></h2>
+    				<table>
+    					<% if (na_seq = gene_model.variant_na_sequence(variant.id,{:window => @variant_window, :sample => sample})) %>
+    					<tr class  = <%= cycle("odd","even") %>>
+    						<td class = "keyword">Gene Length</td>
+    						<td><%= na_seq.size %></td>
+    					</tr>
+    					<tr class  = <%= cycle("odd","even") %>>
+    						<td class = "keyword">NA Sequence</td>
+    						<% logger.info "\n\n#{na_seq}\n\n" %>
+    						<td style = "font-family:'Courier';"><pre style="overflow-x:scroll"><%= formatted_sequence(na_seq,{:rows => 9, :delimiter => "<br/>"}) %></pre></td>
+    					</tr>
+    					<tr class  = <%= cycle("odd","even") %>>
+    						<td class = "keyword">Protein Length</td>
+    						<td><%= (p_seq = gene_model.variant_protein_sequence(variant.id,{:window => @variant_window, :sample => sample})).size rescue 0 %></td>
+    					</tr>
+    					<tr class  = <%= cycle("odd","even") %>>
+    						<td class = "keyword">Protein Sequence</td>
+    						<td style = "font-family:'Courier';"><pre style="overflow-x:scroll"><%= formatted_sequence(p_seq,{:rows => 9, :delimiter => "<br/>"}) rescue ""%></pre></td>
+    					</tr>
+    					<% end %>
+    				</table>
+  				<% elsif @variant_format == 'fasta' %>
+  				<h1 class    = "pagetitle" style="font-size:190%">
+  					<%= variant.name %> 
+  				</h1>
+  				<pre style="font-size:110%;overflow-x:scroll">><%= @gene.name %> <%= @bioentry.display_name %> from <%= gene_model.cds_start - @variant_window %> to <%= gene_model.cds_end + @variant_window %><br/><%= formatted_sequence(gene_model.variant_na_sequence(variant.id,{:window => @variant_window,:html => :true, :sample => sample}),{:rows => 10,:per_row => 10,:delimiter => "<br/>", :match => '<span\s\S*span>'}) %>
+  				</pre>
+  				<pre style="font-size:110%;overflow-x:scroll">><%= @gene.name %> <%= @bioentry.display_name %> from <%= gene_model.cds_start - @variant_window %> to <%= gene_model.cds_end + @variant_window %><br/><%= formatted_sequence(gene_model.variant_protein_sequence(variant.id,{:window => @variant_window, :sample => sample}),{:rows => 10,:per_row => 10,:delimiter => "<br/>"}) %>
+  				</pre>
+  				<% end %>
+  			</div>
+  		<% end #sample%>
+		<% end #variant%>
+	<% end #gene_model%>
 </div>

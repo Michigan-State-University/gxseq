@@ -104,6 +104,15 @@ class Experiment < ActiveRecord::Base
     "#{self.class.name}: #{display_name} - [#{bioentries.collect(&:species_name).join(",")}]"
   end
   
+  def sequence_name(bioentry)
+    if bioentry.respond_to?(:id)
+      id = bioentry.id
+    else
+      id = bioentry.to_i
+    end
+    bioentries_experiments.find_by_bioentry_id(id).sequence_name
+  end
+  
   def update_state_from_assets
     self.reload
     states = assets.collect(&:state).uniq

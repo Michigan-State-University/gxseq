@@ -155,12 +155,13 @@ class VariantsController < ApplicationController
   def get_variants
     @variant = Variant.find(params[:id])
     page = params[:page] || 1
-    @bioentry = Bioentry.find((params[:bioentry_id] || @variant.bioentries_experiments.first))
-    be = @variant.bioentries_experiments.find_by_bioentry_id(@bioentry)
+    @bioentry = Bioentry.find((params[:bioentry_id] || @variant.bioentries_experiments.first.bioentry))
+    be = @variant.bioentries_experiments.find_by_bioentry_id(@bioentry.id)
+    @sequence_name = be.sequence_name
     @variants = []
     @limit = 100000
     begin
-      @variants = @variant.get_data(be.sequence_name,0,@bioentry.length,{:only_variants => true, :limit => @limit})
+      @variants = @variant.get_data(@sequence_name,0,@bioentry.length,{:only_variants => true, :limit => @limit})
     rescue => e
       logger.info "\n\n#{$!}\n\n#{e.backtrace}"
     end

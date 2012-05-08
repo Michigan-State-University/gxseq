@@ -1,6 +1,7 @@
 <div style="float:left;width:600px" id="graphics_container">
   <%= select_tag :bioentry_id, options_from_collection_for_select(@variant.bioentries_experiments, :bioentry_id, :bioentry_short_name, @bioentry.id),:onChange => "window.location='#{url_for(@variant)}?bioentry_id='+this.options[this.selectedIndex].value"%>
-  <%= @bioentry.display_info %>: <br/><span style="float:right">View in <%= link_to( "Sequence Viewer",@bioentry,:popup => true) %><br/></span>
+  <%= @bioentry.display_info %>: <br/><span style="float:right">View in <%= link_to( "Sequence Viewer",
+  bioentry_url( @bioentry, :tracks => @variant.tracks.with_bioentry(@bioentry).map(&:id) ),:popup => true ) %><br/></span>
   <div class="table">
     <table class="listing">
       <thead>  
@@ -13,7 +14,7 @@
       <% @variants.each do |variant| %>
         <tr>
           <td><%= variant[:type] %></td>
-          <td><%= link_to variant[:pos], bioentry_url(@bioentry, :pos => variant[:pos], :p => 5, :b => 1) %></td>
+          <td><%= link_to variant[:pos], bioentry_url(@bioentry, :pos => variant[:pos], :p => 5, :b => 1,:tracks => @variant.tracks.with_bioentry(@bioentry).map(&:id)) %></td>
           <td><%= variant[:ref] %></td>
           <td><%= variant[:alt] %></td>
           <td><%= variant[:qual] %></td>

@@ -1,8 +1,8 @@
 class Track < ActiveRecord::Base
   belongs_to :bioentry
   has_many :track_configurations, :dependent => :destroy
-  scope :with_bioentry, lambda { |id|
-        { :conditions => { :bioentry_id => id } }
+  scope :with_bioentry, lambda { |item|
+        { :conditions => { :bioentry_id => (item.respond_to?(:id) ? item.id : item) } }
       }
   def name
     'Generic Track'
