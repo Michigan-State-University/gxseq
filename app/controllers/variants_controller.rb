@@ -155,8 +155,8 @@ class VariantsController < ApplicationController
   def get_variants
     @variant = Variant.find(params[:id])
     page = params[:page] || 1
-    @bioentry = Bioentry.find((params[:bioentry_id] || @variant.bioentries_experiments.first.bioentry_id))
-    be = @variant.bioentries_experiments.find_by_bioentry_id(@bioentry.id)
+    @bioentry = Bioentry.find((params[:bioentry_id] || @variant.bioentries_experiments.first))
+    be = @variant.bioentries_experiments.find_by_bioentry_id(@bioentry)
     @variants = []
     @limit = 100000
     begin

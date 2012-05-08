@@ -158,7 +158,7 @@ class Variant < Experiment
         alleles=[]        
       else
         #just a standard variant
-        alt = v.alt
+        alt = v[:alt]
       end      
       alt_size = ((v[:alt].nil? || v[:alt]=='.') ? 0 : v[:alt].size)
       ref_size = (v[:ref].nil? ? 0 : v[:ref].size)
