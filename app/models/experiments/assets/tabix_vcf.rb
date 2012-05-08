@@ -48,11 +48,11 @@ class TabixVcf < Tabix
         v1 = {}
         data = string.split("\t")
         v1[:allele]=1
-        v1[:pos]=data[1]
+        v1[:pos]=data[1].to_i
         v1[:dbid]=data[2]
         v1[:ref]=data[3]
         v1[:alt]=data[4]
-        v1[:qual]=data[5]
+        v1[:qual]=data[5].to_i
         v1[:id]="1_#{data[1]}_#{data[3]}_#{data[4]}"
         # decide variant type
         if v1[:ref].length == 1

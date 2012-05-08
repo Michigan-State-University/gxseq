@@ -165,6 +165,6 @@ class VariantsController < ApplicationController
       logger.info "\n\n#{$!}\n\n#{e.backtrace}"
     end
     @variants ||=[]
-    @variants = @variants.sort{|a,b| b[:qual].to_i<=>a[:qual].to_i}.paginate(:page => page, :per_page => 50)
+    @variants = @variants.sort{|a,b| b[:qual]<=>a[:qual]}.paginate(:page => page, :per_page => 50)
   end
 end
