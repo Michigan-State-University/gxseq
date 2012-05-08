@@ -134,7 +134,7 @@ class Variant < Experiment
     alleles = []
     #Get the sequence_variants within start and stop on given entry
     be = self.bioentries_experiments.find_by_bioentry_id(bioentry_id)
-    usable_variants = self.get_data(be.sequence_name,start,stop,{:sample => sample,:only_variants => true}).sort{|a,b|a.pos<=>b.pos}
+    usable_variants = self.get_data(be.sequence_name,start,stop,{:sample => sample,:only_variants => true}).reject{|a| a[:allele] != 1}.sort{|a,b|a[:pos]<=>b[:pos]}
     #Convert seq to array of indiv. bases
     seq_slice = bioentry.biosequence.seq[start-1,(stop-start)+1]
     if(seq_slice && seq_slice.length >=0)
@@ -145,13 +145,13 @@ class Variant < Experiment
     #Apply the changes
     usable_variants.each_with_index do |v,idx|
       #setup alternate sequence
-      if(usable_variants[idx+1] && usable_variants[idx+1].pos == v.pos)
+      if(usable_variants[idx+1] && usable_variants[idx+1][:pos] == v[:pos])
         #next variant has same position (multiple alleles)
-        alleles << v.alt
+        alleles << v[:alt]
         next      
       elsif(alleles.size > 0)
         #we have previous alleles indicating this is the last in the series
-        alleles << v.alt
+        alleles << v[:alt]
         #get the IUB Code for the ambiguous nucleotide
         alt = Variant::TO_IUB_CODE[alleles.sort]
         #clear out the alleles list
@@ -160,12 +160,12 @@ class Variant < Experiment
         #just a standard variant
         alt = v.alt
       end      
-      alt_size = (v.alt.nil? ? 0 : v.alt.size)
-      ref_size = (v.ref.nil? ? 0 : v.ref.size)
+      alt_size = ((v[:alt].nil? || v[:alt]=='.') ? 0 : v[:alt].size)
+      ref_size = (v[:ref].nil? ? 0 : v[:ref].size)
       #get the array index for this variant
-      p = ((v.pos)-start)+offset
+      p = ((v[:pos])-start)+offset
       #convert ref seq to alt seq
-      seq_a[p,v.ref.size]=(alt.nil? ? [] : alt.split(""))
+      seq_a[p,v[:ref].size]=(alt.nil? ? [] : alt.split(""))
       #update the offset
       offset +=(alt_size - ref_size)
     end
