@@ -388,15 +388,15 @@ Ext.define("Sv.tracks.ReadsTrack",{
   		handler.parse(data, x1, x2);
   	};
   	this.requestFormat = function(){
-  	  handler.method;
+  	  return handler.method;
   	}
-  	this.requestFrame = function(frame,pos,policy,successFunc,failureFunc){
+  	this.requestFrame = function(pos,policy,successFunc,failureFunc){
   	  Ext.Ajax.request({
           url: self.data,
           method: 'GET',
           params: {
               jrws: Ext.encode({
-                  method: handler.method,
+                  method: self.requestFormat(),
                   param: {
                       id: self.id,
                       experiment: self.experiment,

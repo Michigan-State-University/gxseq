@@ -372,16 +372,19 @@ Ext.define('Sv.tracks.BrowserTrack', {
       if(me.storeLocal){
        try{
          var keysArray = JSON.parse(localStorage.getItem('orderedKeys')) || []
-         if(keysArray.length >= 30)
+         if(keysArray.length >= 10)
          {
-           localStorage.removeItem(keysArray.shift())
+           localStorage.removeItem(keysArray.shift());
          }
          var idString = "request_"+me.id+"_"+pos.left+"_"+pos.right+"_"+policy.bases+"_"+policy.pixels+"_"+me.requestFormat();
-         keysArray.push(idString)
-         localStorage.setItem('orderedKeys',JSON.stringify(keysArray))         
+         keysArray.push(idString);
+         localStorage.setItem('orderedKeys',JSON.stringify(keysArray));
          localStorage.setItem(idString, JSON.stringify(response) );
        }
-       catch(e){}
+       catch(e){
+         //Probably a quota limit error. Remove the last item to make some room
+         localStorage.removeItem(keysArray.shift());
+       }
       }
       me.DataManager.setDataFrame(response.data,frame);
     },
@@ -399,7 +402,7 @@ Ext.define('Sv.tracks.BrowserTrack', {
           method: 'GET',
           params: {
               jrws: Ext.encode({
-                  method: 'range',
+                  method: me.requestFormat(),
                   param: {
                       id: me.id,
                       experiment: me.experiment,
@@ -423,7 +426,7 @@ Ext.define('Sv.tracks.BrowserTrack', {
       });
     },
     requestFormat : function(){
-      return 'sd';
+      return 'range';
     },
     open : function(){
       var me = this;

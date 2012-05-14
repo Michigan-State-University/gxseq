@@ -10,6 +10,7 @@ class ReadsTrack < Track
       type  		: 'ReadsTrack',
       data  		: '#{root_path}/reads/track_data',
       iconCls : '#{iconCls}',
+      storeLocal: true,
       height 	: 100"
   end
   
