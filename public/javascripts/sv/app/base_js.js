@@ -113,7 +113,7 @@ var BaseJS = (function()
 		if (params.requestJSON)
 		{
 			params.data = {
-				request : Ext.JSON.encode(params.data)
+				request : JSON.stringify(params.data)
 			};
 		}
 		params.data.authenticity_token = AnnoJ.config.auth_token
@@ -139,7 +139,7 @@ var BaseJS = (function()
 				if (params.receiveJSON)
 				{
 					try {
-						response = Ext.JSON.decode(response.responseText);
+						response = JSON.parse(response.responseText);
 					}
 					catch (ex) {
 						params.failure('Illegal JSON string: ' + response.responseText);

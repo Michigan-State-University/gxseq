@@ -27,7 +27,8 @@ var AnnoJ = (function()
 	var config = defaultConfig;
 	var GUI = {};
 	var height = 700;
-		
+	var self = this;
+	
 	function init()
 	{	
 		//Clear any localStorage
@@ -84,14 +85,30 @@ var AnnoJ = (function()
           buildTracks();
           progressBar.updateProgress(1.0, 'Finished');
           progressBar.hide();
-          GUI.NavBar.setLocation(config.location);
+          GUI.NavBar.fireEvent('browse', GUI.NavBar.getLocation());
+          //GUI.NavBar.setLocation(config.location);
         },
         failure : function(string)
         {
           progressBar.hide();
           Ext.MessageBox.alert('Error', 'Unable to load genomic metadata from address: ' + config.genome);
         }
-       });
+    });
+    
+    //bind key events
+  	Ext.EventManager.addListener(window, 'keyup', function(event){
+  		if (event.getTarget().tagName == 'INPUT') return;
+  		switch (event.getKey())
+  		{
+  			case event.B : GUI.Tracks.setDragMode('browse', true); break;
+  			case event.E : GUI.Tracks.setDragMode('select',true); break;
+  			case event.R : GUI.Tracks.setDragMode('resize', true); break;
+  			case event.S : GUI.Tracks.setDragMode('scale', true); break;
+  			case event.Z : GUI.Tracks.setDragMode('zoom', true); break;
+  			case event.U : GUI.NavBar.recallZoom(); break;
+  		}
+  	},this);
+  	
 	 };
 	//Build all the tracks
 	function buildTracks()
@@ -153,6 +170,7 @@ var AnnoJ = (function()
 		GUI.TrackSelector.active.expand();
 		GUI.TrackSelector.inactive.expand();
 		GUI.Viewport.doLayout();
+  	
 	};
 	
 	//Build the GUI
@@ -258,7 +276,10 @@ var AnnoJ = (function()
 		NavBar.on('browse', Tracks.tracks.setLocation);
 		NavBar.on('dragModeSet', Tracks.setDragMode);
 		Tracks.on('dragModeSet', NavBar.setDragMode);
-		
+    Tracks.on('refresh',function(){
+      resetHeight();
+      updateState();
+    });
     TrackSelector.on('openTrack', Tracks.tracks.open);
     TrackSelector.on('moveTrack', Tracks.tracks.reorder);
     TrackSelector.on('closeTrack', Tracks.tracks.close);
@@ -321,7 +342,9 @@ var AnnoJ = (function()
 	  return GUI.Tracks.tracks;
 	};
 	function setLocation(location) {
-		return GUI.NavBar.setLocation(location);
+		result = GUI.NavBar.setLocation(location);
+		updateState();
+		return result;
 	};
 	function pixels2bases(pixels) {
 		return GUI.NavBar.pixels2bases(pixels);
@@ -361,12 +384,22 @@ var AnnoJ = (function()
     return value.toFixed(precision) + sizes[posttxt];
   };
 	function numberToSize(number, precision) {
-    var sizes = ['', 'KB', 'MB', 'GB', 'TB'];
+    var sizes = ['', 'KB', 'MB', 'GB', 'TB', 'PB'];
     return valueToSize(number,precision,1000,sizes);
   };
   function bytesToSize(bytes, precision){
-    var sizes = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB'];
+    var sizes = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'];
     return valueToSize(bytes,precision,1024,sizes);
+  };
+  function updateState() {
+    loc = GUI.NavBar.getLocation();
+    newSearch = "?pos="+loc.position
+    newSearch += "&b="+loc.bases
+    newSearch += "&p="+loc.pixels
+    Ext.each(GUI.TrackSelector.getActiveIDs(), function(aid){
+      newSearch += "&tracks[]="+aid
+    });
+    window.history.replaceState("Data","Sequence Viewer",newSearch)
   };
   return {
     ready           : true,

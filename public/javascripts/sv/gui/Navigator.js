@@ -257,6 +257,7 @@ AnnoJ.Navigator = function()
 		//Object for managing the zoom selection
 		var Zoom = (function()
 		{
+		  
 			var defaultConfig = {
 				max : 100000,
 				min : 0.05,
@@ -265,6 +266,7 @@ AnnoJ.Navigator = function()
 				verbose : false
 			};
 			var config = defaultConfig;
+			var lastConfig = {};
 			var atMin = false;
 			var atMax = false;
 			
@@ -335,6 +337,13 @@ AnnoJ.Navigator = function()
 				};
 			};
 			
+			function getPrevious()
+			{
+			  return {
+			    bases : lastConfig.bases,
+			    pixels : lastConfig.pixels
+			  }
+			}
 			//Set a new zoom value
 			function set(bases, pixels)
 			{	
@@ -408,6 +417,13 @@ AnnoJ.Navigator = function()
 						pixels = f * Math.round(pixels/f);
 					}
 				}
+				
+				// store for recall
+				if((bases != config.bases) || (pixels != config.pixels)){
+				  lastConfig.bases = config.bases;
+				  lastConfig.pixels = config.pixels;
+			  }
+				
 				config.bases = bases;
 				config.pixels = pixels;	
 				location.bases = bases;
@@ -419,9 +435,11 @@ AnnoJ.Navigator = function()
 				scale : scale,
 				step : step,
 				set : set,
+				get : get,
+				getPrevious : getPrevious,
 				config : config,
 				atMax : function() { return atMax; },
-				atMin : function() { return atMin; }
+				atMin : function() { return atMin; },
 			};
 		})();
 		
@@ -530,7 +548,8 @@ AnnoJ.Navigator = function()
 			bases2pixels : bases2pixels,
 			xpos2gpos : xpos2gpos,
 			gpos2xpos : gpos2xpos,
-			getSides : getSides
+			getSides : getSides,
+			recallZoom : Zoom.recallZoom
 		};
 		
 	})();
@@ -632,19 +651,22 @@ AnnoJ.Navigator = function()
 			var bases  = parseInt(value.split(':')[0]);
 			var pixels = parseInt(value.split(':')[1]);
 			
+			var curLocation = Navigator.getLocation();
 			var location = Navigator.setLocation(
 			{
+			  position: curLocation.position,
 				bases : bases,
 				pixels : pixels
 			});
 			refreshControls();
-			self.fireEvent('browse', Navigator.getLocation());			
+			self.fireEvent('browse', Navigator.getLocation());
 		});
 		ratio.on('specialKey', function(config, event)
 		{
 			if (event.getKey() == event.ENTER)
 			{
 				this.fireEvent('blur');
+				document.activeElement.blur();
 			}
 		});
 		
@@ -682,6 +704,7 @@ AnnoJ.Navigator = function()
 			width         : 75,
 			allowNegative : false,
 			allowDecimals : false,
+			enableKeyEvents: true
 		});
 		jump.on('specialKey', function(config, event)
 		{
@@ -693,6 +716,7 @@ AnnoJ.Navigator = function()
 				});
 				refreshControls();
 				self.fireEvent('browse', Navigator.getLocation());
+				document.activeElement.blur();
 			}
 		});
 		
@@ -739,6 +763,13 @@ AnnoJ.Navigator = function()
 			}
 		});
 		
+		// revert to the last used zoom level
+		function recallZoom() {
+		  Navigator.setLocation(Navigator.Zoom.getPrevious());
+		  refreshControls();
+		  self.fireEvent('browse', Navigator.getLocation());
+		};
+		
 		//Update GUI Controls to match the state of the Navigator object
 		function refreshControls()
 		{
@@ -767,7 +798,6 @@ AnnoJ.Navigator = function()
 		};
 		
 		function updateSlider() {
-		  Controls.needsResize = false
 		  var view = Navigator.getLocation();
 		  //Get widths
       var tbItemWidth = 0
@@ -776,8 +806,9 @@ AnnoJ.Navigator = function()
         if(!item.el) return true;
         tbItemWidth += item.getWidth();
       });
-      tbItemWidth+=60; //static extra some padding isnt being counted
-      //set slider width
+      tbItemWidth+=60; //extra padding
+
+      // set slider width
       newSliderWidth = self.Toolbar.getWidth()-(tbItemWidth-sw)
       if(newSliderWidth < 100) newSliderWidth=100;
       slider.setWidth(newSliderWidth)
@@ -790,7 +821,6 @@ AnnoJ.Navigator = function()
           e.setWidth(newWidth+"px");
           slider.halfThumb = Math.floor(newWidth / 2);
       }
-      //set value
       slider.setValue(view.position);
 		};
 		
@@ -808,7 +838,8 @@ AnnoJ.Navigator = function()
 			refreshControls : refreshControls,
 			updateSlider : updateSlider,
 			setDragMode 		: setDragMode,
-			needsResize : needsResize
+			needsResize : needsResize,
+			recallZoom : recallZoom
 		};
 		
 	})();
@@ -848,10 +879,7 @@ AnnoJ.Navigator = function()
 	
 	//listen for resize event to update slider component width
 	Toolbar.on('resize',function(){
-	  if(Controls.needsResize==true){
 	    Controls.updateSlider();
-	  }
-	  else{Controls.needsResize=true}
 	})
   
 	var navContainer = new Ext.Container({
@@ -875,6 +903,7 @@ AnnoJ.Navigator = function()
 	this.setTitle  = Controls.setTitle;
 	this.setDragMode = Controls.setDragMode;
 	this.Controls = Controls;
+	this.recallZoom = Controls.recallZoom;
 };
 
 //Provide observability

@@ -232,7 +232,6 @@ Ext.define('Sv.tracks.VariantTrack',{
         dataA.parse(data,true);
         var max1 = dataA.levelize(function(n){return testAllele(n,1);});
         var max2 = dataA.levelize(function(n){return testAllele(n,2);});
-        console.log("m1:"+max1+"m2:"+max2)
         canvasA.setMax(Math.max(max1,max2));
       };
       
@@ -355,7 +354,7 @@ Ext.define('Sv.tracks.VariantTrack',{
     {
       handler.parse(data);
     };
-    this.requestFrame = function(frame,pos,policy){
+    this.requestFrame = function(pos,policy,successFunc,failureFunc){
   	  Ext.Ajax.request({
           url: self.data,
           method: 'GET',
@@ -377,18 +376,11 @@ Ext.define('Sv.tracks.VariantTrack',{
           success: function(response)
           {
               response = Ext.JSON.decode(response.responseText);
-              self.DataManager.parse(response.data, frame);
-              self.DataManager.views.loading = null;
-              self.DataManager.state.busy = false;
-              self.setTitle(self.name);
-              self.DataManager.setLocation(self.DataManager.views.requested);
+              successFunc(response);
           },
           failure: function(message)
           {
-              console.error('Failed to load data for track ' + self.name + ' (' + message + ')');
-              self.DataManager.views.loading = null;
-              self.DataManager.state.busy = false;
-              self.setTitle(self.name);
+            failureFunc(message);
           }
       });
   	};

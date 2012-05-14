@@ -312,87 +312,37 @@ Ext.define('Sv.tracks.BrowserTrack', {
                 views.loading = views.requested;
                 //convert to left  -- right
                 var pos = frame2pos(frame);
-                // LocalStorage Test, 5Mb limit too small!
-                // var ls;
-                // if(self.config.storeLocal){
-                //  ls = localStorage.getItem("track"+self.config.id+views.loading.assembly+pos.left+pos.right+policy.bases+policy.pixels)
-                // }
-                // if(ls)
-                // {
-                //  response = Ext.util.JSON.decode(ls)
-                //  if (views.loading.assembly != state.assembly)
-                //  {
-                //      state.assembly = views.loading.assembly;
-                //      clear();
-                //  }
-                //  parse(response.data, frame);
-                //  views.loading = null;
-                //  state.busy = false;
-                //  self.setTitle(self.config.name);
-                //  setLocation(views.requested);
-                // }
-                // else
-                // {
-                if(self.requestFrame){
-                  self.requestFrame(frame,pos,policy);
+                
+                // Check localStorage
+                if(self.storeLocal){
+                  try {
+                    var ls = localStorage.getItem("request_"+self.id+"_"+pos.left+"_"+pos.right+"_"+policy.bases+"_"+policy.pixels+"_"+self.requestFormat())
+                  } catch(e){}
                 }
-                else{ Ext.Ajax.request({
-                    url: self.data,
-                    method: 'GET',
-                    params: {
-                        jrws: Ext.encode({
-                            method: 'range',
-                            param: {
-                                id: self.id,
-                                experiment: self.experiment,
-                                //assembly : views.loading.assembly,
-                                left: pos.left,
-                                right: pos.right,
-                                bases: policy.bases,
-                                pixels: policy.pixels,
-                                bioentry: self.bioentry
-                            }
-                        })
-                    },
-                    success: function(response)
-                    {
-                        response = Ext.JSON.decode(response.responseText);
-                        // if(self.config.storeLocal){
-                        //  try{
-                        //  localStorage.setItem(
-                        //                          "track"+self.config.id+views.loading.assembly+pos.left+pos.right+policy.bases+policy.pixels,
-                        //                          Ext.util.JSON.encode(response)
-                        //                      );
-                        //  }
-                        //  catch(e){
-                        //      console.log("Local Storage limit exceeded")
-                        //  }
-                        // }
-                        // if (views.loading.assembly != state.assembly)
-                        // {
-                        //  state.assembly = views.loading.assembly;
-                        //  clear();
-                        // }
-                        parse(response.data, frame);
-                        views.loading = null;
-                        state.busy = false;
-                        self.setTitle(self.name);
-                        setLocation(views.requested);
-                    },
-                    failure: function(message)
-                    {
-                        console.error('Failed to load data for track ' + self.name + ' (' + message + ')');
-                        views.loading = null;
-                        state.busy = false;
-                        self.setTitle(self.name);
-                    }
-                });
-              }
+                if(ls)
+                {
+                  response = JSON.parse(ls);
+                  setDataFrame(response.data,frame);
+                }
+                else
+                {
+                  self.requestFrame( pos,policy,function(r){self.loadSuccess(r,frame,pos,policy)},function(r){self.loadFailure(r)} );
+                }
             };
-            //} //From localStorage above
+            
+            //Set the data returned by server
+            function setDataFrame(data,frame)
+            {
+              if(data) parse(data, frame);
+              views.loading = null;
+              state.busy = false;
+              self.setTitle(self.name);
+              if(data) setLocation(views.requested);
+            }
             return {
                 getLocation: getLocation,
                 setLocation: setLocation,
+                setDataFrame: setDataFrame,
                 getEdges: getEdges,
                 convertX: convertX,
                 convertG: convertG,
@@ -416,6 +366,64 @@ Ext.define('Sv.tracks.BrowserTrack', {
 			this.convertG=this.DataManager.convertG;
 			this.setScale=Scaler.set;
 			this.getScale=Scaler.get;
+    },
+    loadSuccess : function(response,frame,pos,policy){
+      var me = this;
+      if(me.storeLocal){
+       try{
+         var keysArray = JSON.parse(localStorage.getItem('orderedKeys')) || []
+         if(keysArray.length >= 30)
+         {
+           localStorage.removeItem(keysArray.shift())
+         }
+         var idString = "request_"+me.id+"_"+pos.left+"_"+pos.right+"_"+policy.bases+"_"+policy.pixels+"_"+me.requestFormat();
+         keysArray.push(idString)
+         localStorage.setItem('orderedKeys',JSON.stringify(keysArray))         
+         localStorage.setItem(idString, JSON.stringify(response) );
+       }
+       catch(e){}
+      }
+      me.DataManager.setDataFrame(response.data,frame);
+    },
+    loadFailure : function(message){
+      var me = this;
+      console.error('Failed to load data for track ' + me.name + ' (' + message + ')');
+      me.DataManager.setDataFrame(null,frame)
+    },
+    // requestFrame runs the ajax request for all data loads in the track
+    // Children may override requestFrame to customize behavior
+    requestFrame : function(pos,policy,successFunc,failureFunc){
+      var me = this;
+      Ext.Ajax.request({
+          url: me.data,
+          method: 'GET',
+          params: {
+              jrws: Ext.encode({
+                  method: 'range',
+                  param: {
+                      id: me.id,
+                      experiment: me.experiment,
+                      left: pos.left,
+                      right: pos.right,
+                      bases: policy.bases,
+                      pixels: policy.pixels,
+                      bioentry: me.bioentry
+                  }
+              })
+          },
+          success: function(response)
+          {
+              response = JSON.parse(response.responseText);
+              successFunc(response);
+          },
+          failure: function(message)
+          {
+            failureFunc(message);
+          }
+      });
+    },
+    requestFormat : function(){
+      return 'sd';
     },
     open : function(){
       var me = this;

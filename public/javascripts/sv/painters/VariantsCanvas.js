@@ -100,40 +100,42 @@ Ext.define('Sv.painters.VariantsCanvas',{
 
 		      self.paintBox(variant.cls, x, y, w, h);		      
 		      
-		      if(w>1)
-					{
-					  newDivs.push("<div id=seq_variant_"+variant.id+" data-pos="+variant.pos+" style='width: "+w+"px; height: "+h+"px; left: "+x+"px; top: "+y+"px; cursor: pointer; position: absolute;'></div>");
-            if(w > 4)
+					  
+          if(w > 4)
+          {
+				    if(variant.cls == 'insertion')
             {
-					    if(variant.cls == 'insertion')
+              // get the insertion pos
+              if(variant.seq.length % 2 != 0)
               {
-                // get the insertion pos
-                if(variant.seq.length % 2 != 0)
-                {
-                  var pos = (x+(w/2)) - (AnnoJ.bases2pixels(1) / 2)
-                }else{
-                  var pos = (x+(w/2))
-                }
-                // draw the insertion point
-                brush.strokeStyle="rgb(100,100,100)"
-                brush.beginPath();
-                brush.moveTo(pos-3,y);
-                brush.lineTo(pos,y-3);
-                brush.lineTo(pos+3,y);
-                brush.closePath();
-                brush.stroke();
+                var pos = (x+(w/2)) - (AnnoJ.bases2pixels(1) / 2)
+              }else{
+                var pos = (x+(w/2))
               }
-              if (variant.seq)
-              {
-                if(variant.cls =='match')
-                { brush.fillStyle="rgb(100,100,100)"
-                  //brush.font= 20+"px courier"
-                  brush.fillText(".",x,y+h,w)
-                 // brush.fillText(variant.seq,x,y+(h-3),w)
-                }else{
-                  letterize(brush, variant.seq, x, y, w, h, container,variant.cls);
-                }              
-              }
+              // draw the insertion point
+              brush.strokeStyle="rgb(100,100,100)"
+              brush.beginPath();
+              brush.moveTo(pos-3,y);
+              brush.lineTo(pos,y-3);
+              brush.lineTo(pos+3,y);
+              brush.closePath();
+              brush.stroke();
+            }
+            if (variant.seq)
+            {
+              if(variant.cls =='match')
+              { brush.fillStyle="rgb(100,100,100)"
+                //brush.font= 20+"px courier"
+                brush.fillText(".",x,y+h,w)
+                //brush.fillRect(x,y,w,y+h)
+               // brush.fillText(variant.seq,x,y+(h-3),w)
+              }else{
+                letterize(brush, variant.seq, x, y, w, h, container,variant.cls);
+              }              
+            }
+            if(w>=10)
+  					{
+              newDivs.push("<div id=seq_variant_"+variant.id+" data-pos="+variant.pos+" style='width: "+w+"px; height: "+h+"px; left: "+x+"px; top: "+y+"px; cursor: pointer; position: absolute;'></div>");
             }
           }
 				});

@@ -35,7 +35,8 @@ AnnoJ.Tracks = function(userConfig)
 		'dragCancelled' : true,
 		'dragEnded'     : true,
 		'dragged'       : true,
-		'dragModeSet'   : true
+		'dragModeSet'   : true,
+		'refresh'       : true
 	});
 	
 
@@ -119,7 +120,10 @@ AnnoJ.Tracks = function(userConfig)
 	    
 		if (event.button != 0) return;
 		if (event.target.tagName == 'INPUT') return;
+		// Stop the standard mousedown, but blur any focus
 		event.stopEvent();
+		document.activeElement.blur();
+		
 		mouse.drag = false;
 		mouse.down = true;
 		mouse.downX = mouse.x;
@@ -205,20 +209,7 @@ AnnoJ.Tracks = function(userConfig)
 	{
 		return dragMode;
 	};
-	Ext.EventManager.addListener(window, 'keyup', function(event)
-	{
-		if (event.getTarget().tagName == 'INPUT') return;
-
-		switch (event.getKey())
-		{
-			case 66: self.setDragMode('browse', true); break;
-			case 69: self.setDragMode('select',true); break;
-			case 82: self.setDragMode('resize', true); break;
-			case 83: self.setDragMode('scale', true); break;
-			case 90: self.setDragMode('zoom', true); break;
-		}
-	});
-		
+	
 	//The mouse label tracks the mouse as it moves around the screen
 	this.MouseLabel = (function()
 	{
@@ -892,8 +883,7 @@ AnnoJ.Tracks = function(userConfig)
 				enabled.push(track);
 				track.setLocation(view);
 			});
-			//TODO : fix this, too tightly coupled
-			AnnoJ.resetHeight();
+			self.fireEvent("refresh")
 		};
 		
     // //Determine whether or not a track is visible to the user

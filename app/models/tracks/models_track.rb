@@ -16,6 +16,7 @@ class ModelsTrack < Track
       data: '#{root_path}/fetchers/gene_models',
       edit: '#{root_path}/edits/model',
       height: 200,
+      storeLocal: true,
       iconCls: '#{iconCls}',
       showControls: true"
   end

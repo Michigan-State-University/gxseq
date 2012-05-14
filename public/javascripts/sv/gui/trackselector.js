@@ -400,7 +400,7 @@ Ext.define('Sv.gui.TrackSelector',{
     var list = [];      
     Ext.each(this.active.childNodes, function(child)
     {
-      list.push(child.track.config.id);
+      list.push(child.track.id);
     });
     return list;
   },

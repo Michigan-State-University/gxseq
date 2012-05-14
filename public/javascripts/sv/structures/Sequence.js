@@ -10,9 +10,18 @@ var SequenceList = function()
 	{
 		data=""
 		node = self.viewport.get().viewL
-		idx = start - node.x1
+		if(!node)return
+		
+		var idx = start - node.x1
 		for(i=0;i<length;i++){
-			data+=node.value.sequence.charAt(idx+i)
+		  idx = (start - node.x1) + i
+		  while(node.value.sequence.length < idx)
+		  {
+		    node=node.next;
+		    if(!node)return;
+		    idx = (start - node.x1) + i
+	    };
+			data+=node.value.sequence.charAt(idx)
 		}
 		return data;
 	};

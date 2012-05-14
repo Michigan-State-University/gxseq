@@ -1,7 +1,6 @@
 /*
  * Class for a Six Frame canvas
  */
-
 Ext.define('Sv.painters.SixFrameCanvas',{
 	extend: 'Sv.painters.BoxesCanvas',
 	boxHeight : 20,
@@ -9,7 +8,6 @@ Ext.define('Sv.painters.SixFrameCanvas',{
 	boxHeightMin : 1,
 	boxBlingLimit : 6,
 	boxSpace : 1,
-	pairedEnd : false,
 	showProteins : true,
 	showCodons : false,
 	initComponent : function(){
@@ -36,6 +34,7 @@ Ext.define('Sv.painters.SixFrameCanvas',{
 			var container = this.getContainer();
 			var canvas = this.getCanvas();
 			var region = this.getRegion();
+			if(!region) return;
 			var width = this.getWidth();
 			var height = this.getHeight();
 			var brush = this.getBrush();

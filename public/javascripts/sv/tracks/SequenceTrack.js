@@ -65,13 +65,13 @@ Ext.define('Sv.tracks.SequenceTrack',{
 
 			function parse(data)
 			{
-	            for (var series in data)
-	            {
-	              addLabel(series);
-	            }
-				dataA.parse_upper(data);
-				dataMid.parse(data);
-	            dataB.parse_lower(data);
+        for (var series in data)
+        {
+          addLabel(series);
+        }
+        dataA.parse_upper(data);
+        dataMid.parse(data);
+        dataB.parse_lower(data);
 			};
 
 
@@ -122,14 +122,14 @@ Ext.define('Sv.tracks.SequenceTrack',{
 			};
 
 			return {
-				dataA : dataA,
-				dataMid : dataMid,
-	      	    dataB : dataB,
-				canvasA : canvasA,
-				canvasMid : canvasMid,
-	      	    canvasB : canvasB,
-				parse : parse,
-				paint : paint
+        dataA : dataA,
+        dataMid : dataMid,
+        dataB : dataB,
+        canvasA : canvasA,
+        canvasMid : canvasMid,
+        canvasB : canvasB,
+        parse : parse,
+        paint : paint
 			};
 		})();
 
@@ -186,7 +186,9 @@ Ext.define('Sv.tracks.SequenceTrack',{
 
 			function paint(left, right, bases, pixels)
 			{
-
+        containerA.setStyle('height', '40%');
+	  		    containerMid.setStyle('height', '20%');
+	  		    containerB.setStyle('height', '40%');
 				var subsetA = dataA.subset2canvas_upper(left, right, bases, pixels);
 				var subsetMid = dataMid.subset2canvas(left, right, bases, pixels);
 				var subsetB = dataB.subset2canvas_lower(left, right, bases, pixels);
@@ -268,7 +270,9 @@ Ext.define('Sv.tracks.SequenceTrack',{
 				canvasA.setData(subsetA);
 	            canvasMid.setData(subsetMid);
 				canvasB.setData(subsetB);
-
+        containerA.setStyle('height', '40%');
+	  		    containerMid.setStyle('height', '20%');
+	  		    containerB.setStyle('height', '40%');
 				canvasA.paint();
 	            canvasMid.paint();
 				canvasB.paint();
@@ -466,7 +470,6 @@ Ext.define('Sv.tracks.SequenceTrack',{
         this.callParent(arguments);
         var me = this;
         me.loadData(function(response){
-          console.log(response)
           me.getComponent('bodyPanel').update(response);
         });        
       },
@@ -521,9 +524,9 @@ Ext.define('Sv.tracks.SequenceTrack',{
 						{
 							var i = 0;
 							while(i<handlerList.length){
-									handlerList[i].canvasA.groups.toggle(name, !this.checked);
-									handlerList[i].canvasMid.groups.toggle(name, !this.checked);
-									handlerList[i].canvasB.groups.toggle(name, !this.checked);
+									handlerList[i].canvasA.groups.toggle(name, this.checked);
+									handlerList[i].canvasMid.groups.toggle(name, this.checked);
+									handlerList[i].canvasB.groups.toggle(name, this.checked);
 									i++
 							};
 
@@ -613,6 +616,7 @@ Ext.define('Sv.tracks.SequenceTrack',{
 			handler.dataA.clear();
 	    handler.dataMid.clear();
 	    handler.dataB.clear();
+	    //this.Seqzoom.hide();
 		};
 
 		this.pruneData = function(a,b)
@@ -627,77 +631,80 @@ Ext.define('Sv.tracks.SequenceTrack',{
 			handler.parse(data);
 		};
 
-			//The mouse Seqzoom tracks the mouse as it moves around the screen
-			this.Seqzoom = (function()
-			{
-				var ext = Ext.get(document.createElement('DIV'));
-				var pageX;
-				var offset;
-				ext.addCls('AJ_mouse_label');
-				ext.appendTo(self.Canvas.ext);
-				// ext.on('mousemove', function(event)
-				// 	{
-				// 		offset = AnnoJ.bases2pixels(getEdges().g1);
-				// 		pageX = event.getPageX() - this.getX();
-				// 		updateView();
-				// 	},
-				// 	self.Canvas.ext
-				// );
-				// //Clear away the Seqzoom when we hover over something else (Mouseout fires too often because of the layered divs)
-				// containerA.on('mouseover', function(event){hide();});
-				// containerB.on('mouseover', function(event){hide();});
-				// //Attach to the mouse move event
-				// self.Canvas.ext.on('mousemove', function(event)
-				// 	{
-				// 			offset = AnnoJ.bases2pixels(getEdges().g1);
-				// 			pageX = event.getPageX() - this.getX();
-				// 			updateView();
-				// 	},
-				// 	self.Canvas.ext,
-				// 	{
-				// 		delegate : "."+self.clsMiddle
-				// 	}
-				// );
-
-				function updateView(){
-					setText('<div>' + handler.dataMid.get(AnnoJ.pixels2bases(pageX + offset)-3, 7) + '</div>');
-					show();
-					ext.setLeft(pageX - Math.round(ext.getWidth()/2));
-					ext.setTop((self.Canvas.ext.getHeight() / 2)-(self.boxHeight)/2);
-				};
-
-				function getEdges()
-				{
-					var half = Math.round(AnnoJ.pixels2bases(self.Canvas.ext.getWidth())/2);
-					var view = AnnoJ.getLocation();
-
-					return {
-						g1 : view.position - half,
-						g2 : view.position + half
-					};
-				};
-				function setText(text)
-				{
-					ext.update(text);
-				};
-
-				function show()
-				{
-					ext.setDisplayed(true);
-					ext.setLeft(pageX - Math.round(ext.getWidth()/2) + 2);
-					ext.setTop(ext.getHeight()/2);
-				}
-
-				function hide(){ext.setDisplayed(false);}
-				function setDisplayed(state){state ? show() : hide();};
-
-				return {
-					setText : setText,
-					setDisplayed : setDisplayed,
-					show : show,
-					hide : hide
-				};
-			})();
+      // //The mouse Seqzoom tracks the mouse as it moves around the screen
+      // this.Seqzoom = (function()
+      // {
+      //  var ext = Ext.get(document.createElement('DIV'));
+      //  var pageX;
+      //  var offset;
+      //  ext.addCls('AJ_mouse_label');
+      //  ext.appendTo(self.Canvas.ext);
+      //  //Movement over the text
+      //         ext.on('mousemove', function(event)
+      //           {
+      //             offset = AnnoJ.bases2pixels(getEdges().g1);
+      //             pageX = event.getPageX() - this.getX();
+      //             updateView();
+      //           },
+      //           self.Canvas.ext
+      //         );
+      //         //Clear away the Seqzoom when we hover over something else (Mouseout fires too often because of the layered divs)
+      //         containerA.on('mouseover', function(event){hide();});
+      //         containerB.on('mouseover', function(event){hide();});
+      //         //Attach to the mouse move event
+      //         //hidden movement over the canvas
+      //         self.Canvas.ext.on('mousemove', function(event)
+      //           {
+      //               offset = AnnoJ.bases2pixels(getEdges().g1);
+      //               pageX = event.getPageX() - this.getX();
+      //               updateView();
+      //           },
+      //           self.Canvas.ext,
+      //           {
+      //             delegate : "."+self.clsMiddle
+      //           }
+      //         );
+      // 
+      //  function updateView(){
+      //    if(!handler.dataMid||!handler.dataMid.get) return;
+      //    setText('<div>' + handler.dataMid.get(AnnoJ.pixels2bases(pageX + offset)-3, 7) + '</div>');
+      //    show();
+      //    ext.setLeft(pageX - Math.round(ext.getWidth()/2));
+      //    ext.setTop((self.Canvas.ext.getHeight() / 2)-(self.boxHeight)/2);
+      //  };
+      // 
+      //  function getEdges()
+      //  {
+      //    var half = Math.round(AnnoJ.pixels2bases(self.Canvas.ext.getWidth())/2);
+      //    var view = AnnoJ.getLocation();
+      // 
+      //    return {
+      //      g1 : view.position - half,
+      //      g2 : view.position + half
+      //    };
+      //  };
+      //  function setText(text)
+      //  {
+      //    ext.update(text);
+      //  };
+      // 
+      //  function show()
+      //  {
+      //    ext.setDisplayed(true);
+      //    ext.setLeft(pageX - Math.round(ext.getWidth()/2) + 2);
+      //    ext.setTop(ext.getHeight()/2);
+      //  }
+      // 
+      //  function hide(){ext.setDisplayed(false);}
+      //  function setDisplayed(state){state ? show() : hide();};
+      // 
+      //  return {
+      //    setText : setText,
+      //    setDisplayed : setDisplayed,
+      //    show : show,
+      //    hide : hide
+      //  };
+      // })();
 	},
 	
 });

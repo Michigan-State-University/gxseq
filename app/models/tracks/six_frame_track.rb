@@ -14,6 +14,7 @@ class SixFrameTrack < Track
       type  		: 'SequenceTrack',
       data  		: '#{root_path}/fetchers/genome',
       iconCls : '#{iconCls}',
+      storeLocal: true,
       height 	: 100"
   end
   

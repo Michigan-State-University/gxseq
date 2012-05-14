@@ -113,8 +113,8 @@ Ext.define('Sv.tracks.ModelsTrack',{
 			      pageSize    : 20,
 			      emptyText   : 'Search Gene Features...',
 			      listConfig  : {
-				      loadingText  : 'Searching...',
-				      getInnerTpl: function() {
+			      loadingText  : 'Searching...',
+			      getInnerTpl: function() {
 			        var tpl = '<div class="drop_list"><div style="float:left"><b>{type}:</b>({start}-{end})</div><div style="float:right"><b>{bioentry}</b></div><br/>'+
                     '{match}'+
                     '<span>{description}</span></div>';
@@ -149,7 +149,6 @@ Ext.define('Sv.tracks.ModelsTrack',{
                      {
                          window.location = record.data.reload_url+"/"+record.data.bioentry_id+"?tracks[]=models_track&gene_id="+record.data.id+"&pos="+record.data.start
                      }
-
                  }
             }
           });

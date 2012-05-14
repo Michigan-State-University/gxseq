@@ -387,7 +387,10 @@ Ext.define("Sv.tracks.ReadsTrack",{
   	{
   		handler.parse(data, x1, x2);
   	};
-  	this.requestFrame = function(frame,pos,policy){
+  	this.requestFormat = function(){
+  	  handler.method;
+  	}
+  	this.requestFrame = function(frame,pos,policy,successFunc,failureFunc){
   	  Ext.Ajax.request({
           url: self.data,
           method: 'GET',
@@ -409,18 +412,11 @@ Ext.define("Sv.tracks.ReadsTrack",{
           success: function(response)
           {
               response = Ext.JSON.decode(response.responseText);
-              self.DataManager.parse(response.data, frame);
-              self.DataManager.views.loading = null;
-              self.DataManager.state.busy = false;
-              self.setTitle(self.name);
-              self.DataManager.setLocation(self.DataManager.views.requested);
+              successFunc(response);
           },
           failure: function(message)
           {
-              console.error('Failed to load data for track ' + self.name + ' (' + message + ')');
-              self.DataManager.views.loading = null;
-              self.DataManager.state.busy = false;
-              self.setTitle(self.name);
+            failureFunc(message);
           }
       });
   	};

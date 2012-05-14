@@ -15,32 +15,19 @@ class BioentriesController < ApplicationController
   def show
     @bioentry = Bioentry.find(params[:id])
     
-    #possible config params
-    ##the feature_id will be used to lookup the given feature on load. It will NOT set the position.
+    # config params
+    # the feature_id will be used to lookup the given feature on load. It will NOT set the position.
     @feature_id = params[:feature_id]
     @gene_id = params[:gene_id]
-    ##position / zoom
+    # position
     @position = params[:pos]
+    # zoom
     @bases = params[:b]
     @pixels = params[:p]
-    ##tracks will be activated by type or id if they are not already in the layout
+    # tracks will be activated by type or id if no layout is provided
     @tracks_param = params[:tracks]
     
-    @add_tracks = []
-    if(@tracks_param && @tracks_param.is_a?(Array))
-      @tracks_param.each do |track|
-        if(track.is_a?(String) && @bioentry.respond_to?(track) && @bioentry.send(track))
-          @add_tracks << @bioentry.send(track).id
-        elsif(track.respond_to?('to_i') && @bioentry.tracks.find(track.to_i))
-          @add_tracks << @bioentry.tracks.find(track).id
-        end
-      end
-    end
-    
-    #default active track
-    @active_tracks = "['#{@bioentry.six_frame_track.id}','#{@bioentry.models_track.id}']"
-     
-    ## set layout
+    ## get layout id
     if(params[:default])
       current_user.preferred_track_layout=nil, @bioentry
       current_user.save!
@@ -52,19 +39,35 @@ class BioentriesController < ApplicationController
     else
       layout_id = current_user.preferred_track_layout(@bioentry)
     end
-    #if we have a layout_id find the layout and set the active tracks
-    if(layout_id)      
+    
+    # if we have a layout_id find the layout and set the active tracks
+    # otherwise check the parameters for track ids
+    # fallback on default tracks
+    if(layout_id)
       begin
         @layout = TrackLayout.find(layout_id)
         @active_tracks = @layout.active_tracks
       rescue
         @layout = nil
       end
-    end
-    #if we have tracks passed on the param make sure they are active
-    @add_tracks = @add_tracks.delete_if{|t|@active_tracks.match(/#{t}/)}
-    unless(@add_tracks.empty?)
-      @active_tracks.gsub!("]",",'#{@add_tracks.join("','")}']")
+    else
+      @param_track_ids = []
+      if(@tracks_param && @tracks_param.is_a?(Array))
+        @tracks_param.each do |track|
+          if(track.is_a?(String) && @bioentry.respond_to?(track) && @bioentry.send(track))
+            @param_track_ids << @bioentry.send(track).id
+          elsif(track.respond_to?('to_i') && @bioentry.tracks.find(track.to_i))
+            @param_track_ids << @bioentry.tracks.find(track).id
+          end
+        end
+      end
+      unless(@param_track_ids.empty?)
+        # use parameter tracks
+        @active_tracks = @param_track_ids.to_json
+      else
+        # use default
+        @active_tracks =[@bioentry.six_frame_track.id,@bioentry.models_track.id].to_json
+      end
     end
     render :layout => 'sequence_viewer'
   end
