@@ -20,7 +20,7 @@ class Seqfeature < ActiveRecord::Base
   
   has_many :locations, :dependent  => :delete_all
   scope :with_locus_tag, lambda { |locus_tag| 
-    { :joins => [:qualifiers => [:term]], :conditions => {:qualifiers => {:value => locus_tag}}}
+    { :joins => [:qualifiers => [:term]], :conditions => "upper(seqfeature_qualifier_value.value) = '#{locus_tag}'"}
   }
   accepts_nested_attributes_for :qualifiers, :allow_destroy => true, :reject_if => lambda { |q| (q[:id] && !q[:id].match(/\d,\d,\d/)) || (q[:id] && SeqfeatureQualifierValue.find(q[:id]).term.name =='locus_tag') }
   accepts_nested_attributes_for :locations, :allow_destroy => true
