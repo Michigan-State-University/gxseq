@@ -23,6 +23,19 @@ class Bcf < Asset
     # fetch function - expects pointers to Bcf1T and BcfHdrT
     # limits reads using a reservoir sampling algorithm
     fetch_function = lambda do |bcf_p, hdr_p|
+      b_struct = Bio::DB::SAM::Tools::Bcf::Bcf1T.new(bcf_p)
+      # skip invalid variants
+      if(b_struct[:n_gi] > 0)
+        if(sample_idx)
+          # skip sample with no data
+          next if (b_struct[:gi].get_pointer(8).get_uint8(sample_idx) >> 7 & 1) > 0
+        end
+        if(only_variants)
+          # test all gt tags. Need non-zero for alternate match
+          next if b_struct[:gi].get_pointer(8).read_array_of_uint8(b_struct[:n_smpl]).collect{|g| g & 63}.uniq == [0]
+        end
+      end
+      # reservoir sampling
       if limit 
         if variants.size < limit
           idx = cnt
@@ -37,18 +50,6 @@ class Bcf < Asset
         end
       else
         idx = cnt
-      end
-        #break if limit && variants.size >= limit
-      b_struct = Bio::DB::SAM::Tools::Bcf::Bcf1T.new(bcf_p)
-      if(b_struct[:n_gi] > 0)
-        if(sample_idx)
-          # skip sample with no data
-          next if (b_struct[:gi].get_pointer(8).get_uint8(sample_idx) >> 7 & 1) > 0
-        end
-        if(only_variants)
-          # test all gt tags. Need non-zero for alternate match
-          next if b_struct[:gi].get_pointer(8).read_array_of_uint8(b_struct[:n_smpl]).collect{|g| g & 63}.uniq == [0]
-        end
       end
       next if only_variants && b_struct[:alt] == b_struct[:ref] || b_struct[:alt] == '.'
       
