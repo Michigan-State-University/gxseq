@@ -149,21 +149,21 @@ class Variant < Experiment
     #Apply the changes
     usable_variants.each_with_index do |v,idx|
       #setup alternate sequence
-      if(usable_variants[idx+1] && usable_variants[idx+1][:pos] == v[:pos])
-        #next variant has same position (multiple alleles)
-        alleles << v[:alt]
-        next      
-      elsif(alleles.size > 0)
-        #we have previous alleles indicating this is the last in the series
-        alleles << v[:alt]
-        #get the IUB Code for the ambiguous nucleotide
-        alt = Variant::TO_IUB_CODE[alleles.sort]
-        #clear out the alleles list
-        alleles=[]        
-      else
+      # if(usable_variants[idx+1] && usable_variants[idx+1][:pos] == v[:pos])
+      #   #next variant has same position (multiple alleles)
+      #   alleles << v[:alt]
+      #   next      
+      # elsif(alleles.size > 0)
+      #   #we have previous alleles indicating this is the last in the series
+      #   alleles << v[:alt]
+      #   #get the IUB Code for the ambiguous nucleotide
+      #   alt = Variant::TO_IUB_CODE[alleles.sort]
+      #   #clear out the alleles list
+      #   alleles=[]        
+      # else
         #just a standard variant
         alt = v[:alt]
-      end      
+      #end      
       alt_size = (v[:alt].nil? ? 0 : v[:alt].size)
       ref_size = (v[:ref].nil? ? 0 : v[:ref].size)
       #get the array index for this variant
@@ -172,13 +172,13 @@ class Variant < Experiment
       if(color_html)
         if alt_size < ref_size
           # deletion
-          a = (alt||[]).split("").collect{|s|"<span style='background:salmon;'>#{s}</span>"}
+          a = (alt||'').split("").collect{|s|"<span title='Deletion&nbsp;-&nbsp;Ref:&nbsp;#{v[:ref]}&nbsp;Alt:&nbsp;#{v[:alt]}'style='background:salmon;'>#{s}</span>"}
         elsif alt_size > ref_size
           # insertion
-          a = alt.split("").collect{|s|"<span style='background:lightgreen;'>#{s}</span>"}
+          a = (alt||'').split("").collect{|s|"<span title='Insertion&nbsp;-&nbsp;Ref:&nbsp;#{v[:ref]}&nbsp;Alt:&nbsp;#{v[:alt]}'style='background:lightgreen;'>#{s}</span>"}
         elsif alt_size == ref_size
           # snp
-          a = alt.split("").collect{|s|"<span style='background:lightblue;'>#{s}</span>"}
+          a = (alt||'').split("").collect{|s|"<span title='Snp&nbsp;-&nbsp;Ref:&nbsp;#{v[:ref]}&nbsp;Alt:&nbsp;#{v[:alt]}'style='background:lightblue;'>#{s}</span>"}
         end
         seq_a[p,v[:ref].size]=a
       else

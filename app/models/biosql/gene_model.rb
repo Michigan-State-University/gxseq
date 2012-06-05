@@ -81,12 +81,20 @@ class GeneModel < ActiveRecord::Base
   
   def variant_na_sequence(exp_id,opts={})
     return nil unless (v = Variant.find(exp_id))
-    window = opts[:window]||0
+    window = (opts[:window] || 0).to_i
     start = self.start_pos-window
     stop = self.end_pos+window
     seq = ""
+    # start window
+    if(window>0)
+      seq += v.get_sequence(cds_start-window,cds_start-1,bioentry.id,opts[:sample],opts)
+    end
     cds.locations.each do |l|
       seq += v.get_sequence(l.start_pos,l.end_pos,bioentry.id,opts[:sample],opts)
+    end
+    # end window
+    if(window>0)
+      seq += v.get_sequence(cds_end+1,cds_end+window,bioentry.id,opts[:sample],opts)
     end
     return seq
   end
@@ -116,7 +124,7 @@ class GeneModel < ActiveRecord::Base
     if(cds)
       if(cds.codon_start)
         frame = ((strand.to_i == 1) ? cds.codon_start.value.to_i : cds.codon_start.value.to_i+3)
-        return Bio::Sequence::NA.new(variant_na_sequence(exp_id,opts={})).translate(frame, bioentry.taxon.genetic_code || 1)
+        return Bio::Sequence::NA.new(variant_na_sequence(exp_id,opts)).translate(frame, bioentry.taxon.genetic_code || 1)
       else
         return "Unknown codon start for cds"
       end
