@@ -133,7 +133,7 @@ Ext.define('Sv.painters.VariantsCanvas',{
                 letterize(brush, variant.seq, x, y, w, h, container,variant.cls);
               }              
             }
-            if(w>=10)
+            if((w>=5 && variant.cls != 'match') || w > 10)
   					{
               newDivs.push("<div id=seq_variant_"+variant.id+" data-pos="+variant.pos+" style='width: "+w+"px; height: "+h+"px; left: "+x+"px; top: "+y+"px; cursor: pointer; position: absolute;'></div>");
             }
