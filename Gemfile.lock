@@ -61,6 +61,8 @@ GEM
       activemodel (>= 3.0.0)
       activesupport (>= 3.0.0)
       rack (>= 1.1.0)
+    annotate (2.5.0.pre1)
+      rake
     archive-tar-minitar (0.5.2)
     arel (2.0.10)
     bcrypt-ruby (2.1.4)
@@ -160,6 +162,7 @@ PLATFORMS
 DEPENDENCIES
   activerecord-oracle_enhanced-adapter
   acts_as_api (~> 0.3)
+  annotate (>= 2.5.0.pre1)
   bio (~> 1.4.2)
   bio-samtools (~> 0.4)!
   bio-tabix (= 0.1.3)

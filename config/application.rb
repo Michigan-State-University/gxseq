@@ -22,8 +22,8 @@ module GenomeSuite
       #{config.root}/app/models/experiments/assets
       #{config.root}/app/models/tracks
       #{config.root}/lib/modules
+      #{config.root}/lib/modules/exp
     ]
-    
     # Exception Notifier Gem
     config.middleware.use ::ExceptionNotifier,
       :email_prefix => "GenomeSuite-Errors:",

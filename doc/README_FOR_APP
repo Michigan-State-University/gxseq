@@ -1,8 +1,5 @@
 Deployment Notes:
 
-Passenger and RVM -- DO NOT use setup_load_paths with an RVM + Passenger install. It will break the YAML parser setup of delayed_job.
-
-
 
 Common Errors:
 

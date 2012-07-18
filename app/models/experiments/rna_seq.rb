@@ -3,6 +3,10 @@ class RnaSeq < Experiment
   has_one :bam, :foreign_key => "experiment_id"
   has_one :big_wig, :foreign_key => "experiment_id"
   
+  def asset_types
+    {"Bam" => "Bam"}
+  end
+  
   def load_asset_data
     puts "Loading asset data #{Time.now}"
     begin
@@ -71,10 +75,6 @@ class RnaSeq < Experiment
     bioentries_experiments.each do |be|
       be.update_attribute(:abs_max, self.max(be.sequence_name)) rescue (logger.info "\n\nError Setting abs_max for experiment: #{self.inspect}\n\n")
     end
-  end
-  
-  def asset_types
-    {"Bam" => "Bam"}
   end
   
   ##Track Config

@@ -11,7 +11,7 @@ group :development, :test do
   gem 'mysql2', '~> 0.2.0'
   gem 'railroady'
   gem 'ruby-debug19'
-
+  gem 'annotate', ">=2.5.0.pre1"
 end
 
 gem 'acts_as_api', '~>0.3'

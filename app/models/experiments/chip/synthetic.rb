@@ -6,7 +6,7 @@ class Synthetic < Experiment
   validates_presence_of :a_components
   validates_presence_of :b_components
   after_save :set_abs_max
-  has_many :peaks, :foreign_key => "experiment_id"
+  has_peaks
   
   ##Specialized methods
   def update_assets

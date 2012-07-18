@@ -1,4 +1,5 @@
 class BigWig < Asset
+  # TODO: document this class
   def check_data_format
     #self.validated = true
     if (self.data.queued_for_write[:original])
@@ -53,14 +54,18 @@ class BigWig < Asset
     end
     return a || 0
   end
-  # def get_base_counts(start,stop,bases,chrom,type="max")
-  #   base_counts = `#{CMD_PATH}bigWigSummary -type=#{type} '#{data.path}' #{chrom} #{start} #{stop} #{(stop-start)/bases}`.chomp.split("\t")
-  # end
 
   def summary_data(start,stop,count,chrom,type="max")
     base_counts = `#{CMD_PATH}bigWigSummary -type=#{type} '#{data.path}' #{chrom} #{start} #{stop} #{count}`.chomp.split("\t")
   end
 
+  # smooth this data returning a new file_handle. Calls the C bigWigSmooth utility
+  # hash options:
+  # - :window => The rolling window size [250]
+  # - :cutoff => The inflection cutoff for 'probe' smoothing. Inflection points will be identified above this cutoff.
+  # - :type  => The smoothing type:
+  # --- 'avg' : rolling window average using window size
+  # --- 'probe' : rolling window inflection point count using window size and cutoff
   def get_smoothed_data(hsh={})
     #setup options
     {:window => 250,:type => 'avg'}.merge!(hsh.delete_if{|k,v| v.blank?})
@@ -83,11 +88,15 @@ class BigWig < Asset
       puts "error opening bigwig smooth output\n#{$!}"
       logger.info "\nerror opening bigwig smooth output\n#{$!}\n"
     end
-
   end
-
+  # Find peaks in the data using a cutoff to identify ranges and inflection points.
+  # hash options:
+  # - :remove => boolean flag for removing existing peaks [false]
+  # - :z => cutoff multiplier. number of standard deviations above the mean [3]
+  # - :c => manual cutoff. The actual value used for range start/end. Overrides z if not 0 [0]
+  # - :peak_max => total couunt of peaks allowed. If surpassed, z (or c) is multiplied by 2 and the process re-starts [100]
   def extract_peaks(chrom,opt={})
-    #naive simple peak detection using constant cutoff, window defines data amount pulled from chipseq for each loop #TODO refactor/optimize
+    # window defines data amount pulled from bigwig for each loop #TODO refactor/optimize
     #~ 1min / 10mb
     window = 1000000 #amount of data to request from bigwig in each chunk
     #values=[]
@@ -98,10 +107,15 @@ class BigWig < Asset
     bc = chrom_length(chrom)
     opt[:error] ||= 0.00001
     opt[:z] ||= 3
+    opt[:c] ||= 0
     first = true
     pos=0
     puts "Extracting peak data from chrom=(#{chrom}) #{Time.now}"
-    cutoff = (summary_data(0,bc,1,chrom,'std')[0].to_f*opt[:z])+summary_data(0,bc,1,chrom,'mean')[0].to_f #z std_deviations from the mean
+    if opt[:c] != 0
+      cutoff = opt[:c]
+    else
+      cutoff = (summary_data(0,bc,1,chrom,'std')[0].to_f*opt[:z])+summary_data(0,bc,1,chrom,'mean')[0].to_f #z std_deviations from the mean
+    end
     puts "Cutoff set to: #{cutoff.inspect}"
     puts "Identifying peak ranges"
     while(pos<((bc / window)+1) )
