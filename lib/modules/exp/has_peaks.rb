@@ -71,7 +71,7 @@ module Exp
         begin
           Experiment.transaction do
             data.each do |d|
-              unless (d.size == 4 && d[0].kind_of?(Integer) && d[1].kind_of?(Integer) && d[2].respond_to?("to_i") && (d[2].to_i > 0)  && d[3].kind_of?(Integer))
+              unless (d.size == 4 && d[0].kind_of?(Integer) && d[1].kind_of?(Integer) && d[2].respond_to?("to_f") && d[3].kind_of?(Integer))
                 e= "Error invalid format #{d.inspect}";puts e;logger.info "\n\n#{e}\n\n";next
               end
               unless d[0]<d[1]
