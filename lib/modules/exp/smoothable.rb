@@ -49,4 +49,3 @@ module Exp
     end    
   end
 end
-Experiment.send :include, Exp::Smoothable

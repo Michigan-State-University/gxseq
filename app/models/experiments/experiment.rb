@@ -1,4 +1,6 @@
 class Experiment < ActiveRecord::Base
+  include Exp::HasPeaks
+  include Exp::Smoothable
   belongs_to :user
   belongs_to :taxon_version
   has_many :bioentries_experiments, :dependent => :destroy
