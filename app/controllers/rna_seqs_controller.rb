@@ -22,6 +22,7 @@ class RnaSeqsController < ApplicationController
 
   def create
     @rna_seq = RnaSeq.new(params[:rna_seq])
+    @rna_seq.user = current_user
     @taxon_versions = TaxonVersion.order('name asc')
     begin
       if @rna_seq.valid?

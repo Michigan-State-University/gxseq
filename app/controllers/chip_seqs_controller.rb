@@ -30,6 +30,7 @@ class ChipSeqsController < ApplicationController
 
    def create
       @chip_seq = ChipSeq.new(params[:chip_seq])
+      @chip_seq.user = current_user
       @taxon_versions = TaxonVersion.order('name asc')
       begin
         if @chip_seq.valid?

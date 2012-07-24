@@ -22,6 +22,7 @@ class ReSeqsController < ApplicationController
 
   def create
     @re_seq = ReSeq.new(params[:re_seq])
+    @re_seq.user = current_user
     @taxon_versions = TaxonVersion.order('name asc')
     begin
       if @re_seq.valid?

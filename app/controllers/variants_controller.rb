@@ -30,6 +30,7 @@ class VariantsController < ApplicationController
 
   def create
     @variant = Variant.new(params[:variant])
+    @variant.user = current_user
     @taxon_versions = TaxonVersion.order('name asc')
     begin
       if @variant.valid?
