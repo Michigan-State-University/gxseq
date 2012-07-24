@@ -96,14 +96,14 @@ class BigWig < Asset
   # - :c => manual cutoff. The actual value used for range start/end. Overrides z if not 0 [0]
   # - :peak_max => total couunt of peaks allowed. If surpassed, z (or c) is multiplied by 2 and the process re-starts [100]
   def extract_peaks(chrom,opt={})
-    # window defines data amount pulled from bigwig for each loop #TODO refactor/optimize
+    # window defines data amount pulled from bigwig for each loop
     #~ 1min / 10mb
     window = 1000000 #amount of data to request from bigwig in each chunk
     #values=[]
     above_cutoff=false
     peaks=[]
     peak_count=0
-    peak_max=opt[:peak_max] || 500
+    peak_max=opt[:peak_max] || 100
     bc = chrom_length(chrom)
     opt[:error] ||= 0.00001
     opt[:z] ||= 3

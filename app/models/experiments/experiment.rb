@@ -11,7 +11,7 @@ class Experiment < ActiveRecord::Base
   has_many :components
   has_many :tracks
   validates_presence_of :user
-  #validates_presence_of :assets
+  validates_presence_of :assets
   validates_presence_of :name
   validates_uniqueness_of :name, :scope => [:taxon_version_id,:type], :message => " has already been used"
   validates_length_of :name, :maximum => 35, :on => :create, :message => "must be less than 35 characters"
