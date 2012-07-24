@@ -3,10 +3,11 @@ class ChipChip < Experiment
   has_many :histogram_tracks, :foreign_key => "experiment_id", :dependent => :destroy
   #asset types
   has_one :big_wig, :foreign_key => "experiment_id"
-  has_one :wig, :foreign_key => "experiment_id"
-  
+  has_one :wig, :foreign_key => "experiment_id"  
   after_save :set_abs_max
-  
+  has_peaks
+  smoothable
+
   ##Specialized Methods
   def asset_types
     {"bigWig" => "BigWig", "wig" => "Wig"}

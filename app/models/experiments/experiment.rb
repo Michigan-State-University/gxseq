@@ -102,12 +102,12 @@ class Experiment < ActiveRecord::Base
 ## Initialization / Callback Methods
 
   # before validating set the reverse association for assets. Otherwise nested validation fails
-  # TODO test new rails 3 reverse association for nested attributes
+  # TODO: test new rails 3 reverse association for nested attributes
   def initialize_assets
     assets.each { |a| a.experiment = self }
   end
   
-  # TODO needs doc!
+  # TODO: needs doc!
   def initialize_bioentries
   end
   
