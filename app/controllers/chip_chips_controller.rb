@@ -30,6 +30,7 @@ class ChipChipsController < ApplicationController
 
   def create
     @chip_chip = ChipChip.new(params[:chip_chip])
+    @chip_chip.user = current_user
     @taxon_versions = TaxonVersion.order('name asc')
     begin
       if @chip_chip.valid?
