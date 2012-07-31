@@ -27,12 +27,7 @@ class RnaSeqsController < ApplicationController
     begin
       if @rna_seq.valid?
         @rna_seq.save
-        if((w=@rna_seq.assets.map(&:warnings).flatten).empty?)
-          flash[:notice]="Experiment created succesfully"
-        else
-          flash[:warning]="#{w.join("<br/>")}"
-          @rna_seq.puts "#{w.join("\n")}"
-        end
+        flash[:notice]="Experiment created succesfully"
         redirect_to :action => :index #@rna_seq
       else
         render :action => :new
@@ -63,12 +58,7 @@ class RnaSeqsController < ApplicationController
     @rna_seq = RnaSeq.find(params[:id])
     @taxon_versions = TaxonVersion.order('name asc')
     if @rna_seq.update_attributes(params[:rna_seq])        
-      if((w=@rna_seq.assets.map(&:warnings).flatten).empty?)
-        flash[:notice] = 'mRNA-Seq was successfully updated.'
-      else
-        flash[:warning]="#{w.join("<br/>")}"
-        @rna_seq.puts "#{w.join("\n")} #{Time.now}"
-      end
+      flash[:notice] = 'mRNA-Seq was successfully updated.'
       redirect_to(@rna_seq)
     else
       render :action => "edit"

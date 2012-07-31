@@ -18,13 +18,6 @@ class ChipChip < Experiment
     self.update_attribute(:state,"saving")
     unless(self.big_wig)
       create_big_wig_from_wig
-      # raise StandardError, "No wig found!" unless self.wig
-      # chr = self.get_chrom_file
-      # f = wig.data.path+"_bw"
-      # FileManager.wig_to_bigwig!(wig.data.path, f, chr.path)
-      # self.big_wig = bw = assets.new(:type => "BigWig", :data => File.open(f))
-      # bw.save!
-      # FileUtils.rm(f)
     end
     # compute associated data
     self.update_attribute(:state,"computing")

@@ -2,43 +2,27 @@ class Asset < ActiveRecord::Base
   require "open3"
   belongs_to :experiment
   validates_presence_of :experiment
-  #validate  :check_data_format, :if => %q(self.data.file? && !self.validated), :on => :create
-  validate  :check_data_format
   validates_presence_of :type
-  validates_inclusion_of :type, :in => %w(Bam Bcf BigWig Vcf Wig Tabix VcfTabix), :on => :create, :message => "not available"
-  before_validation :initialize_attr
+  validates_inclusion_of :type, :in => %w(Bam Bcf BigWig Vcf Wig Tabix VcfTabix Txt), :on => :create, :message => "not available"
   
   has_attached_file :data, :path => ":rails_root/lib/data/experiments/:exp_class/:exp_id/:id/:filename_with_ext" 
   validates_attachment_presence :data
   has_paper_trail :ignore => [:state]
   has_console_log
   
-  attr_accessor :warnings
-  attr_accessor :validated
-  
-  def initialize_attr
-    self.warnings = []
-    #self.validated = false
-  end
-  
-  def full_filename
-    #return the interpolated filename
-    name = File.basename(data.path)
-  end
-  
+  #returns the filename
   def filename
-    #return the interpolated filename
     name = File.basename(data.path)
-    if(name.length > 20)
-      return "#{name[0,12]}..#{name[-7,7]}"
+  end
+  
+  #returns the truncated filename
+  def truncated_filename(pre=12,post=7,join="..")
+    name = File.basename(data.path)
+    if(name.length > pre+post+join.size)
+      return "#{name[0,pre]}..#{name[-post,post]}"
     else
       return name
     end
-  end
-  
-  #parse the file format, return (boolean 'valid', array 'error strings')
-  def check_data_format
-    #validation performed by sublcasses
   end
  
   #allow assignment to STI type from form

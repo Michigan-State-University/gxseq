@@ -89,7 +89,7 @@ class Experiment < ActiveRecord::Base
     begin
       raise StandardError, "No wig found!" unless self.wig
       f = wig.data.path+"_bw"
-      FileManager.wig_to_bigwig!(wig.data.path, f, get_chrom_file.path)
+      FileManager.wig_to_bigwig(wig.data.path, f, get_chrom_file.path)
       self.big_wig = bw = assets.new(:type => "BigWig", :data => File.open(f))
       bw.save!
       FileUtils.rm(f)

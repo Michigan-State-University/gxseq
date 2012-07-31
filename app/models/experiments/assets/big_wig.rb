@@ -1,64 +1,42 @@
 class BigWig < Asset
-  # TODO: document this class
-  def check_data_format
-    #self.validated = true
-    if (self.data.queued_for_write[:original])
-      data_path = self.data.queued_for_write[:original].path
-    else
-      data_path = data.path
-    end
-    logger.info "\n\n\n\n#{CMD_PATH}validateFiles -type=bigWig '#{data_path}' -chromInfo=#{experiment.get_chrom_file.path}\n\n\n\n"
-    stdin, stdout, stderr = Open3.popen3("#{CMD_PATH}validateFiles -type=bigWig '#{data_path}' -chromInfo=#{experiment.get_chrom_file.path}")
-    stderr.each do |e|
-      e = e.chomp.gsub(data_path,"").gsub("\t",'')
-      self.warnings << e unless (e=~/Abort/ or e.gsub(/\s/, '').blank?)
-    end
+  def open_bw
+    @bw ||=Bio::Ucsc::BigWig.open(data.path)
   end
-
-  def info(opts="")
-    FileManager.bigwig_info(data.path,opts)
+  
+  def info(opts={})
+    open_bw.info(opts)
   end
 
   def bases_covered
-    info("| grep basesCovered | cut -f 2 -d ' '").gsub(/,/,"").to_i
+    open_bw.bases_covered
   end
 
-  def min(chrom='')
-    stat('min',chrom)
+  def min(chrom=nil)
+    open_bw.min(chrom)
   end
 
-  def max(chrom='')
-    stat('max',chrom)
+  def max(chrom=nil)
+    open_bw.max(chrom)
   end
 
-  def mean(chrom='')
-    stat('mean',chrom)
+  def mean(chrom=nil)
+    open_bw.mean(chrom)
   end
 
-  def standard_deviation(chrom='')
-    stat('std',chrom)
+  def standard_deviation(chrom=nil)
+    open_bw.std_dev(chrom)
   end
 
   def chrom_length(chrom)
-    FileManager.bigwig_info(data.path, " -chroms | grep #{chrom} | cut -f 3 -d ' '").to_i
+    open_bw.chrom_length(chrom)
   end
-
-  def stat(type,chrom='')
-    if(chrom.empty?)
-      a = info("| grep #{type} | cut -f 2 -d ' '").to_f
-    else
-      total = chrom_length(chrom)
-      if(total and total.is_a?(Integer) and total > 0)
-        a = summary_data(0,total,1,chrom,type)[0].to_f
-      end
-    end
-    return a || 0
+  # Returns data summary from the specified chromosome and region.
+  # supported types are [max,min,mean,std,coverage]
+  def summary_data(start,stop,count,chrom,type="max",opts={})
+    # TODO: convert all 'type' references to opts[:type] for bigwig summary
+    opts[:type]||=type
+    open_bw.summary(chrom,start,stop,count,opts)    
   end
-
-  def summary_data(start,stop,count,chrom,type="max")
-    base_counts = `#{CMD_PATH}bigWigSummary -type=#{type} '#{data.path}' #{chrom} #{start} #{stop} #{count}`.chomp.split("\t")
-  end
-
   # smooth this data returning a new file_handle. Calls the C bigWigSmooth utility
   # hash options:
   # - :window => The rolling window size [250]
@@ -66,27 +44,22 @@ class BigWig < Asset
   # - :type  => The smoothing type:
   # --- 'avg' : rolling window average using window size
   # --- 'probe' : rolling window inflection point count using window size and cutoff
-  def get_smoothed_data(hsh={})
-    #setup options
-    {:window => 250,:type => 'avg'}.merge!(hsh.delete_if{|k,v| v.blank?})
-    hsh[:file_path] ||= Tempfile.new("#{hsh[:filename] || self.experiment.name+'_smoothed'}").path
+  def get_smoothed_data(opts={})
+    window = opts[:window] || 250
+    type = opts[:type] || 'avg'
+    file_path = Tempfile.new(opts[:filename]||self.experiment.name+'_smoothed').path
+    cutoff = opts[:cutoff] if type=='probe'
     #run smoothing tool
     begin
-      stdin, stdout, stderr = Open3.popen3("#{CMD_PATH}bigWigSmooth #{data.path}  '#{hsh[:file_path]}' -type=#{hsh[:type]} -window=#{hsh[:window]} #{hsh[:cutoff].blank? ? '' : "-cutoff=#{hsh[:cutoff]}"}")
-      stderr.each do |e|
-        raise e unless e.chomp.blank?
-      end
+      open_bw.smooth({:type => type,:window => window,:cutoff => cutoff})
     rescue
-      puts "Error running bigwig smooth\n#{$!}"
-      logger.info "\nError running bigwig smooth\n#{$!}\n"
+      s = "Error running bigwig smooth\n#{$!}"; puts s ; logger.info s
     end
-
     #return file handle
     begin
       return File.open(hsh[:file_path])
     rescue
-      puts "error opening bigwig smooth output\n#{$!}"
-      logger.info "\nerror opening bigwig smooth output\n#{$!}\n"
+      s = "error opening bigwig smooth output\n#{$!}"; puts s ; logger.info s
     end
   end
   # Find peaks in the data using a cutoff to identify ranges and inflection points.

@@ -31,7 +31,9 @@ gem 'paperclip', '~> 2.3'
 gem 'squeel', '~>0.9'
 gem 'thor', '~> 0.14.6'
 gem 'will_paginate', '~>3'
-gem 'bio-tabix', '0.1.3'
+gem 'bio-tabix', '~>0.1'
+gem 'bio-ucsc-util', '0.1.0', :path => '~/gems/bio-ucsc-util'
+
 # Deploy with Capistrano
 # gem 'capistrano'
 

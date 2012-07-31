@@ -1,7 +1,4 @@
 Deployment Notes:
 
-
-Common Errors:
-
-needLargeMem: trying to allocate 0 bytes -  samtools binary may need executable permission
+If connecting to an ldap database do not forget to setup config/ldap.yml
 

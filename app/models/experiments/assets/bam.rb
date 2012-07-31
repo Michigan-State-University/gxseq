@@ -1,9 +1,6 @@
 class Bam < Asset
   require 'strscan'
   
-  def check_data_format
-  end
-  
   def open_bam    
     Bio::DB::Sam.new(:bam=>data.path,:fasta => "").tap{|b|b.open}
   end

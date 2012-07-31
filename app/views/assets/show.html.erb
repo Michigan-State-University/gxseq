@@ -1,4 +1,4 @@
-<h1 class="pagetitle"><%= @asset.full_filename %></h1>
+<h1 class="pagetitle"><%= @asset.filename %></h1>
 <%= render :partial => "experiments/sidebar" %>
 <div style="float:left">
 <%= render :partial => "#{@asset.class.name.underscore}_details", :locals => {:asset => @asset} rescue
