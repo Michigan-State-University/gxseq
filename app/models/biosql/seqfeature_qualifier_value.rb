@@ -33,6 +33,10 @@ class SeqfeatureQualifierValue < ActiveRecord::Base
     value
   end
   
+  def display_data
+    "#{name} - #{value}"
+  end
+  
   def self.db_xref_id
     @db_xref_id ||= (Term.find_or_create_by_name_and_ontology_id("db_xref",Ontology.find_or_create_by_name("Annotation Tags").id).id)
   end

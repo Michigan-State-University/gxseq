@@ -9,14 +9,14 @@
 </div>
 
 <div id="variants_text" class="clear">
-	<% variants  = @bioentry.variants %>	
+	<% variants  = @gene.bioentry.variants %>	
 	<% @gene.gene_models.each do |gene_model| %>
 		<h1 class    = "pagetitle" style="font-size:190%">
 			<%= gene_model.display_name %> 
 		</h1>
 		<% variants.each do |variant| %>
 		<% variant.samples.each do |sample| %>
-  			  <% unless variant.get_data(variant.sequence_name(@bioentry),gene_model.start_pos,gene_model.end_pos,{:only_variants => true, :limit => 1}).size > 0 %>
+  			  <% unless variant.get_data(variant.sequence_name(@gene.bioentry),gene_model.start_pos,gene_model.end_pos,{:only_variants => true, :limit => 1}).size > 0 %>
   			    <div class  = "border">
   			      <h2 style="font-size:200%"><%= variant.name %></h2>
   			      No change
@@ -51,9 +51,9 @@
   				<h1 class    = "pagetitle" style="font-size:190%">
   					<%= variant.name %> 
   				</h1>
-  				<pre style="font-size:110%;overflow-x:scroll">><%= @gene.name %> <%= @bioentry.display_name %> from <%= gene_model.cds_start - @variant_window %> to <%= gene_model.cds_end + @variant_window %><br/><%= formatted_sequence(gene_model.variant_na_sequence(variant.id,{:window => @variant_window,:html => true, :sample => sample}),{:rows => 10,:per_row => 10,:delimiter => "<br/>", :match => '<span\s\S*span>'}) %>
+  				<pre style="font-size:110%;overflow-x:scroll">><%= @gene.name %> <%= @gene.bioentry.display_name %> from <%= gene_model.cds_start - @variant_window %> to <%= gene_model.cds_end + @variant_window %><br/><%= formatted_sequence(gene_model.variant_na_sequence(variant.id,{:window => @variant_window,:html => true, :sample => sample}),{:rows => 10,:per_row => 10,:delimiter => "<br/>", :match => '<span\s\S*span>'}) %>
   				</pre>
-  				<pre style="font-size:110%;overflow-x:scroll">><%= @gene.name %> <%= @bioentry.display_name %> from <%= gene_model.cds_start - @variant_window %> to <%= gene_model.cds_end + @variant_window %><br/><%= formatted_sequence(gene_model.variant_protein_sequence(variant.id,{:window => @variant_window, :sample => sample}),{:rows => 10,:per_row => 10,:delimiter => "<br/>"}) %>
+  				<pre style="font-size:110%;overflow-x:scroll">><%= @gene.name %> <%= @gene.bioentry.display_name %> from <%= gene_model.cds_start - @variant_window %> to <%= gene_model.cds_end + @variant_window %><br/><%= formatted_sequence(gene_model.variant_protein_sequence(variant.id,{:window => @variant_window, :sample => sample}),{:rows => 10,:per_row => 10,:delimiter => "<br/>"}) %>
   				</pre>
   				<% end %>
   			</div>

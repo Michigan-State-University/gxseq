@@ -1,7 +1,6 @@
 class GeneModel < ActiveRecord::Base
-  # created from an aggregation of seqfeature data
-  # Dependent on Location, Seqfeature(Gene, CDS) and SeqfeatureQualifierValue(locus_tag)
-
+  # de-normalization of seqfeature data
+  # Dependent on Location, Seqfeature(Gene, CDS) and SeqfeatureQualifierValue(locus_tag). Incorporates Seqfeature(Mrna) if exists
   belongs_to :gene, :inverse_of => :gene_models
   belongs_to :mrna, :inverse_of => :gene_model
   belongs_to :cds, :inverse_of => :gene_model
@@ -20,7 +19,7 @@ class GeneModel < ActiveRecord::Base
   before_validation :initialize_associations
   
   has_paper_trail :meta => {
-    :parent_id => Proc.new { |gm| gm.bioentry_id },
+    :parent_id => Proc.new { |gm| gm.gene_id },
     :parent_type => "Gene"
   }
   acts_as_api
@@ -79,6 +78,10 @@ class GeneModel < ActiveRecord::Base
     variants==1 ? locus_tag.to_s : (locus_tag.to_s+"."+rank.to_i.to_s)
   end
   
+  def display_data
+    "#{locus_tag}:#{gene_name}: #{start_pos}..#{end_pos} #{strand == 1 ? '->' : '<-'}"
+  end
+  
   def variant_na_sequence(exp_id,opts={})
     return nil unless (v = Variant.find(exp_id))
     window = (opts[:window] || 0).to_i
@@ -107,7 +110,7 @@ class GeneModel < ActiveRecord::Base
     cds.locations.sort{|a,b|a.end_pos<=>b.end_pos}.last.end_pos
   end
   
-  #TODO  move to CDS feature
+  #TODO: move to CDS feature
   def na_sequence
     if(cds)
       seq = ""

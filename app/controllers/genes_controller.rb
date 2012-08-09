@@ -91,27 +91,34 @@ class GenesController < ApplicationController
   end
   
   def show
-    @format = params[:fmt] || 'standard'    
-    @variant_window = [(params[:v_win].to_i || 0),1000].min
-    @variant_format = params[:v_fmt] || 'fasta'
-    
-    #grab the Gene for this locus
+    @format = params[:fmt] || 'standard'
     begin
-      @gene = Gene.find(params[:id], :include => [:locations,[:bioentry => [:taxon_version]],[:gene_models => [:cds => [:locations, [:qualifiers => :term]],:mrna => [:locations, [:qualifiers => :term]]]],[:qualifiers => :term]])
-      @locus = @gene.locus_tag.value.upcase
-    rescue
-      @locus = params[:id].upcase
-      @gene = Gene.with_locus_tag(@locus).includes(:locations, [:bioentry => [:taxon_version]],[:gene_models => [:cds => [:locations, [:qualifiers => :term]],:mrna => [:locations, [:qualifiers => :term]]]],[:qualifiers => :term]).first
-    end
-    
-    #check for other genes with the same locus_tag
-    @genes = Gene.with_locus_tag(@locus)    
-    #Find related features (by locus tag until we have a parent<->child relationship)
-    @features = Seqfeature.where(:bioentry_id => @gene.bioentry_id).with_locus_tag(@locus) if @gene  
-    if(@gene)
-      @bioentry = @gene.bioentry
+    case @format
+    when 'variants'
+      @gene = Gene.find(params[:id])
+      @variant_window = [(params[:v_win].to_i || 0),1000].min
+      @variant_format = params[:v_fmt] || 'fasta'
+    when 'standard'
+      # test the id parameter for non numeric characters
+      if(params[:id]=~/^\d+$/)
+        @gene = Gene.find(params[:id], :include => [:locations,[:bioentry => [:taxon_version]],[:gene_models => [:cds => [:locations, [:qualifiers => :term]],:mrna => [:locations, [:qualifiers => :term]]]],[:qualifiers => :term]])
+      else
+        @gene = Gene.with_locus_tag(params[:id]).first
+      end
       setup_graphics_data
-    end   
+      #check for other genes with the same locus_tag
+      @genes = Gene.with_locus_tag( @gene.locus_tag.value)
+    when 'genbank'
+      @gene = Gene.find(params[:id])
+      #Find related features (by locus tag until we have a parent<->child relationship)
+      @features = Seqfeature.where(:bioentry_id => @gene.bioentry_id).with_locus_tag(@gene.locus_tag.value)
+    when 'history'
+      @gene = Gene.find(params[:id])
+      @changelogs = Version.order('created_at desc').where(:parent_id => @gene.id).where(:parent_type => 'Gene')
+    end
+    rescue
+      @gene = nil
+    end
   end
   
   def edit

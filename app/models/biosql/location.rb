@@ -1,10 +1,9 @@
 class Location < ActiveRecord::Base
   set_table_name "location"
-  #has_paper_trail #must be defined before set_primary_key 
   set_primary_key :location_id
   has_paper_trail :meta => {
-    :parent_id => Proc.new { |l| l.seqfeature.id },
-    :parent_type => Proc.new { |l| l.seqfeature.class.sti_name }
+    :parent_id => Proc.new { |l| l.seqfeature.respond_to?(:gene_model) ? l.seqfeature.gene_model.gene_id : l.seqfeature.id},
+    :parent_type => Proc.new { |l| l.seqfeature.respond_to?(:gene_model) ? 'Gene' : l.seqfeature.class.name}
   }
   belongs_to :seqfeature, :foreign_key => :seqfeature_id
   belongs_to :dbxref, :class_name => "Dbxref"
@@ -36,6 +35,10 @@ class Location < ActiveRecord::Base
       end  
     end
     
+  end
+  
+  def display_data
+    "#{term.name} : #{to_s} #{strand == 1 ? '->' : '<-'}"
   end
   
   protected

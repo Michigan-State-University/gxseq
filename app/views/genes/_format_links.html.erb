@@ -1,33 +1,12 @@
-<% has_variants = (@bioentry.variants.size > 0) %>
-<div style="float:right;<%= @format=='standard' ? "" : "display:none" %>" id="standard_format_link">
+<div style="float:right;" id="format_links">
 	<h2>
-		Standard 
-		| 
-		<%= link_to_function "Genbank", "$('genbank_format_link').show();$('standard_format_link').hide();$('genbank_format').show();$('standard_format').hide();$('variants_format_link').hide();$('variants_format').hide();" %>
-		<% if has_variants %>
-		|
-		<%= link_to_function "Variants", "$('variants_format_link').show();$('variants_format').show();$('genbank_format_link').hide();$('standard_format_link').hide();$('genbank_format').hide();$('standard_format').hide()" %>
+		<%= link_to_unless @format=='standard', "Standard", gene_path(@gene, :fmt => 'standard') %>
+    | <%= link_to_unless @format=='genbank', "Genbank", gene_path(@gene, :fmt => 'genbank') %>
+		<% if @gene.bioentry.variants.size > 0 %>
+		| <%= link_to_unless @format=='variants', "Variants", gene_path(@gene, :fmt => 'variants') %>
 		<% end %>
-	</h2>
-</div>
-
-<div style="float:right;<%= @format=="genbank" ? "" : "display:none" %>" id="genbank_format_link">
-	<h2>
-		<%= link_to_function "Standard", "$('standard_format_link').show();$('genbank_format_link').hide();$('standard_format').show();$('genbank_format').hide();$('variants_format_link').hide();$('variants_format').hide();draw_canvas();" %> 
-		| 
-		Genbank
-		<% if has_variants %>
-		| 
-		<%= link_to_function "Variants", "$('variants_format_link').show();$('variants_format').show();$('genbank_format_link').hide();$('standard_format_link').hide();$('genbank_format').hide();$('standard_format').hide()" %>
+		<% if false #TODO: add expression page %>
+		| <%= link_to_unless @format=='expression', "Expression", gene_path(@gene, :fmt => 'expression') if false%>
 		<% end %>
-	</h2>
-</div>
-<div style="float:right;<%= @format=='variants' ? "" : "display:none" %>" id="variants_format_link">
-	<h2>
-		<%= link_to_function "Standard", "$('standard_format_link').show();$('genbank_format_link').hide();$('standard_format').show();$('genbank_format').hide();$('variants_format_link').hide();$('variants_format').hide();draw_canvas();" %>
-		|
-		<%= link_to_function "Genbank", "$('genbank_format_link').show();$('standard_format_link').hide();$('genbank_format').show();$('standard_format').hide();$('variants_format_link').hide();$('variants_format').hide();" %>
-		|
-		Variants
-	</h2>
+		| <%= link_to_unless @format=='history', "History", gene_path(@gene, :fmt => 'history') %>
 </div>

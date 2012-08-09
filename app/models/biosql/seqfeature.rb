@@ -1,10 +1,10 @@
 class Seqfeature < ActiveRecord::Base
   set_table_name "seqfeature"
   set_primary_key :seqfeature_id
-  # has_paper_trail :meta => {
-  #   :parent_id => Proc.new { |seqfeature| seqfeature.bioentry_id },
-  #   :parent_type => "Bioentry"
-  # }
+  has_paper_trail :meta => {
+    :parent_id => Proc.new { |seqfeature| seqfeature.respond_to?(:gene_model) ? seqfeature.gene_model.gene_id : '' },
+    :parent_type => Proc.new { |seqfeature| seqfeature.respond_to?(:gene_model) ? "Gene" : '' }
+  }
   set_sequence_name "SEQFEATURE_SEQ"
   set_inheritance_column :display_name
   belongs_to :bioentry
@@ -20,7 +20,7 @@ class Seqfeature < ActiveRecord::Base
   
   has_many :locations, :dependent  => :delete_all
   scope :with_locus_tag, lambda { |locus_tag| 
-    { :joins => [:qualifiers => [:term]], :conditions => "upper(seqfeature_qualifier_value.value) = '#{locus_tag}'"}
+    { :joins => [:qualifiers => [:term]], :conditions => "upper(seqfeature_qualifier_value.value) = '#{locus_tag.upcase}'"}
   }
   accepts_nested_attributes_for :qualifiers, :allow_destroy => true, :reject_if => lambda { |q| (q[:id] && !q[:id].match(/\d,\d,\d/)) || (q[:id] && SeqfeatureQualifierValue.find(q[:id]).term.name =='locus_tag') }
   accepts_nested_attributes_for :locations, :allow_destroy => true
@@ -92,7 +92,10 @@ class Seqfeature < ActiveRecord::Base
   def display_type
    self.type_term.name
   end
-
+  
+  def display_data
+    "#{type}:"
+  end
   ### SQV types - allows for quick reference through eager load of :qualifiers
   ['chromosome','organelle','plasmid','mol_type', 'locus_tag','gene','product','codon_start','protein_id','transcript_id'].each do |sqv|
   define_method sqv.to_sym do
