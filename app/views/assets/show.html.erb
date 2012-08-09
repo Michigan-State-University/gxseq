@@ -1,15 +1,42 @@
-<h1 class="pagetitle"><%= @asset.filename %></h1>
+<h1 class="pagetitle"><%= @asset.type %> : <%= @asset.id %></h1>
 <%= render :partial => "experiments/sidebar" %>
-<div style="float:left">
-<%= render :partial => "#{@asset.class.name.underscore}_details", :locals => {:asset => @asset} rescue
-    render :partial => "details", :locals => {:asset => @asset}
+<div style="float:right">
+<%= render :partial => "#{@asset.class.name.underscore}_card", :locals => {:asset => @asset} rescue
+    render :partial => "card", :locals => {:asset => @asset}
 %>
 </div>
-<div style="float:left;padding-left:1em">
+<div style="float:left">
+  <p>
+    <b>Original Filename:</b>
+    <%= @asset.filename %>
+  </p>
+  <p>
+    <b>File Size:</b>
+    <%= number_to_human_size(@asset.data_file_size) %>
+  </p>
+  <p>
+    <b>Created By:</b>
+    <%= @asset.creator ? (link_to @asset.creator.display_name, profile_user_url(@asset.creator)) : 'Unknown'.html_safe %> <i><%= @asset.created_at %></i>
+  </p>
+  <p>
+    <b>Last Updated:</b>
+    <%= @asset.updated_at %>
+  </p>
+  <p>
+    <b>State:</b>
+    <%= @asset.state %>
+  </p>
+  <p>
+    <b>Attached to:</b>
+    <%= link_to "#{@asset.experiment.name} : #{@asset.experiment.type}", @asset.experiment  if @asset.experiment %><br/>
+  </p>
+</div>
+<div style="clear:both;float:left">
 <%= render :partial => "#{@asset.class.name.underscore}_info", :locals => {:asset => @asset} rescue
     render :partial => "info", :locals => {:asset => @asset}
 %>
 </div>
-<div style="float:right">
+<div style="clear:both;float:left;margin-top:1em">
+  <div style="font-size:133%;padding-bottom:1em"><b>Console</b></div>
 	<%= @asset.web_console({:width => 400}).html_safe %>
 </div>

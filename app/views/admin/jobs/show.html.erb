@@ -1,0 +1,52 @@
+<%= render :partial => "admin/sidebar", :locals => {:active => 'jobs'} %>
+
+<% content_for :top_bar do -%>
+  <h1 class="pagetitle">Job: <%= @job.id %></h1>
+<% end -%>
+
+<% content_for :item_bar do -%>
+  <%= link_to "Back To Jobs", admin_jobs_path, :class => "button" %>
+  <%= link_to "Retry", retry_admin_job_path(@job), :method => 'post', :confirm => "Retry this Job?", :class => "button" %>
+<% end -%>
+
+<p>
+  <b>Method:</b>
+  ::<%= YAML.load(@job.handler).object.class.name rescue '' %>:<%= YAML.load(@job.handler).object.id rescue ''%> <%= YAML.load(@job.handler).method_name.to_s.gsub("_without_delay",'').gsub("_"," ") rescue ''%>
+</p>
+<p>
+  <b>Submitter:</b>
+  <%= link_to @job.user.display_name, profile_user_path(job.user) if @job.user rescue 'Unknown User' %>
+</p>
+<p>
+  <b>Queue</b>
+  <%= @job.queue.nil? ? 'default' : @job.queue %>
+</p>
+<p>
+  <b>Completed:</b>
+  <%= @job.completed_at.strftime('%D %m:%M %p') if @job.completed_at%>
+</p>
+<p>
+  <b>Created:</b>
+  <%= @job.created_at.strftime('%b %d %H:%M') if @job.created_at%>
+</p>
+<p>
+  <b>Locked:</b>
+  <%= @job.locked_at.strftime('%b %d %H:%M') if @job.locked_at%>
+</p>
+<p>
+  <b>Locked By:</b>
+  <%= @job.locked_by %>
+</p>
+<p>
+  <b>Attempts:</b>
+  <%= @job.attempts %>
+</p>
+<p>
+  <b>Serialized:</b><br/>
+  <%= text_area_tag 'job_handler', @job.handler,  {:disabled => true, :rows => 20,:cols => 150} %>
+</p>
+<p>
+  <b>Last Error:</b><br/>
+  <%= text_area_tag  'job_last_error', @job.last_error,  {:disabled => true, :rows => 15,:cols => 150}%>
+</p>
+<td>

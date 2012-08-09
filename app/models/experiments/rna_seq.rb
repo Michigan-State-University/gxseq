@@ -2,6 +2,7 @@ class RnaSeq < Experiment
   has_many :reads_tracks, :foreign_key => "experiment_id", :dependent => :destroy
   has_one :bam, :foreign_key => "experiment_id"
   has_one :big_wig, :foreign_key => "experiment_id"
+  smoothable
   
   def asset_types
     {"Bam" => "Bam"}
@@ -33,7 +34,6 @@ class RnaSeq < Experiment
     puts "Removing all asset data #{Time.now}"
     begin
       bam.remove_temp_files
-      big_wig.destroy if big_wig
       bam.destroy_index if bam
     rescue
       puts "Error running RNA-Seq remove asset data:\n#{$!}"

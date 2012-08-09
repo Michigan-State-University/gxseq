@@ -32,7 +32,12 @@ class UserController < ApplicationController
       end
     end
   end
-
+  
+  # public profile view
+  def profile
+    
+  end
+  
   private
     def find_user
       @user = User.find(params[:id])

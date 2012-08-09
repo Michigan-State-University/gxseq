@@ -2,11 +2,9 @@ class ExperimentsController < ApplicationController
   
   def asset_details
     begin
-      if((params[:exp_id] && @experiment = Experiment.find(params[:exp_id])) || (params[:id] && @experiment = Experiment.find(params[:id])))
+      if params[:exp_id] && @experiment = Experiment.find(params[:exp_id])
         if(asset = @experiment.big_wig)
-          render :partial => "assets/big_wig_details", :locals => {:asset => asset}
-        else
-          render :text => "<span style='color:red;'>No Big Wig found!</span>"
+          render :partial => "experiments/assets", :locals => {:experiment => @experiment}
         end
       else
         render :text => "No experiment Found!?"

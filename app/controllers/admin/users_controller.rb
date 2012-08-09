@@ -1,7 +1,6 @@
 class Admin::UsersController < Admin::AdminController
   before_filter :find_user, :except => [:index,:new, :create, :logout]
   before_filter :load_data, :only => [:edit, :new, :create, :update]
-  before_filter :check_auth, :except => [:sign_out]
   
   # render index.html
   def index
@@ -68,15 +67,10 @@ protected
   end
   
   def load_data
-    if current_user && current_user.is_admin?
-      @default = Role.find_by_name("user")
-      @roles = Role.all
-    end
+    @default_role = Role.find_by_name("user")
+    @roles = Role.all
   end
-  
-  def check_auth
-    redirect_to(root_path) unless current_user.is_admin?
-  end
+
 end
 
 

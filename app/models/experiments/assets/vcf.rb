@@ -11,7 +11,7 @@ class Vcf < Asset
   def remove_temp_files
     d = Dir.new(File.dirname(data.path))
     d.each do |f|
-      File.delete(d.path+"/"+f) if( f.match(self.full_filename) && f.match(/\.bcf$|\.bgzf$/) )
+      File.delete(d.path+"/"+f) if( f.match(self.filename) && f.match(/\.bcf$|\.bgzf$/) )
     end
   end
 end

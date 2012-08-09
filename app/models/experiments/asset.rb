@@ -10,6 +10,11 @@ class Asset < ActiveRecord::Base
   has_paper_trail :ignore => [:state]
   has_console_log
   
+  def creator
+    who_id = versions.last.whodunnit
+    who_id ? User.find(versions.last.whodunnit) : nil
+  end
+    
   #returns the filename
   def filename
     name = File.basename(data.path)

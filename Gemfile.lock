@@ -26,11 +26,6 @@ PATH
   specs:
     composite_primary_keys (3.1.10)
 
-PATH
-  remote: ~/gems/bio-ucsc-util
-  specs:
-    bio-ucsc-util (0.1.0)
-
 GEM
   remote: http://rubygems.org/
   specs:
@@ -73,6 +68,8 @@ GEM
     bcrypt-ruby (2.1.4)
     bio (1.4.2)
     bio-tabix (0.1.3)
+      ffi
+    bio-ucsc-util (0.1.0)
       ffi
     builder (2.1.2)
     cocaine (0.2.1)
@@ -171,7 +168,7 @@ DEPENDENCIES
   bio (~> 1.4.2)
   bio-samtools (~> 0.4)!
   bio-tabix (~> 0.1)
-  bio-ucsc-util (= 0.1.0)!
+  bio-ucsc-util
   composite_primary_keys (= 3.1.10)!
   daemons (= 1.1.4)
   delayed_job (~> 3)

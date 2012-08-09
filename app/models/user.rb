@@ -15,6 +15,11 @@ class User < ActiveRecord::Base
   preference :track_path, :string
   preference :track_layout, :string
   
+  # name used for public display
+  def display_name
+    login
+  end
+  
   def has_role?(role)
     @user_roles ||= roles.collect(&:name)
     @user_roles.include?(role) || @user_roles.include?('admin')

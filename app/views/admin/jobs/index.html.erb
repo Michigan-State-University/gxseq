@@ -1,0 +1,64 @@
+<% render :partial => "admin/sidebar" %>
+
+<% content_for :top_bar do -%>
+  <h1 class="pagetitle">Background Jobs</h1>
+<% end -%>
+
+<% content_for :item_bar do -%>
+  <div style="float:right">
+    <%= form_tag admin_jobs_path, :method => :get do %>
+    <div style="float:left;">
+      Time:<br/>
+      <%= select_tag :time, options_for_select({'Past Hour' => 1, 'Past day' => 24,'Past week' => 168, 'Past month' => 720}, params[:time]),{:include_blank => 'Any'}%>
+    </div>
+    <div style="float:left;">
+      User:<br/>
+      <%= select_tag :user, options_from_collection_for_select(@job_users,:id,:display_name,params[:user]),{:include_blank => 'Any'}%>
+    </div>
+    <div style="float:left;">
+      Status:<br/>
+      <%= select_tag :status, options_for_select(['incomplete','pending','failed','complete','all'], params[:status])%>
+    </div>		
+    <div style="float:right;padding-left:1em"><%= submit_tag "Go", :class => "button"%></div>		
+    <% end %>
+  </div>
+<% end -%>
+
+<div class="table">
+<table class="listing">
+  <thead>
+    <th class="top">Method</th>
+    <th class="top"><%= sort_link "ID",'ID'%></th>    
+    <th class="top"><%= sort_link "User",'users.login'%></th>
+    <th class="top"><%= sort_link "Queue",'queue'%></th>
+    <th class="top"><%= sort_link "Completed",'completed_at'%></th>
+    <th class="top"><%= sort_link "Created",'created_at'%></th>    
+    <th class="top"><%= sort_link "Locked",'locked_at'%></th>
+    <th class="top"><%= sort_link "Locked By",'locked_by'%></th>
+    <th class="top"><%= sort_link "Attempts",'attempts'%></th>
+    <th class="top"><%= sort_link "Failed",'failed_at'%></th>
+    <th class="top">Last Error</th>
+    <th class="top">Options</th>
+  </thead>
+
+<% @jobs.each do |job| %>
+  <tr>
+    <td>::<%= YAML.load(job.handler).object.class.name rescue '' %>:<%= YAML.load(job.handler).object.id rescue ''%><br/><%= YAML.load(job.handler).method_name.to_s.gsub("_without_delay",'').gsub("_"," ") rescue ''%> </td>
+    <td><%= link_to job.id, admin_job_path(job) %></td>
+    <td><%= link_to job.user.display_name, profile_user_path(job.user) if job.user rescue 'user error' %></td>
+    <td><%= job.queue.nil? ? 'default' : job.queue %></td>
+    <td><%= job.completed_at.strftime('%D %m:%M %p') if job.completed_at%></td>
+    <td><%= job.created_at.strftime('%b %d %H:%M') if job.created_at%></td>
+    <td><%= job.locked_at.strftime('%b %d %H:%M') if job.locked_at%></td>
+    <td><%= job.locked_by %></td>
+    <td><%= job.attempts %></td>
+    <td><%= job.failed_at.strftime('%D %m:%M %p') if job.failed_at%></td>
+    <td style="text-align:left"><%= job.last_error.nil? ? "" : truncate(job.last_error) %></td>
+    <td>
+      <%= link_to "Delete", admin_job_path(job), :method => 'delete', :confirm => "Delete Job?\n This is permanent"%>
+      <%= link_to "Retry", retry_admin_job_path(job), :method => 'post', :confirm => "Retry this Job?"%>
+    </td>
+  </tr>
+<% end %>
+</table>
+</div>

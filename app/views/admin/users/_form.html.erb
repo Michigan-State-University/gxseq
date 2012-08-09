@@ -14,5 +14,5 @@
 
 <p><%= f.label 'role_ids', 'Roles' %><br/>
 <%= f.select :role_ids, @roles.collect{|r| [r.name, r.id]},
-  {:selected => @user.new_record? ? @default.id : @user.roles.collect{|r| r.id}},
+  {:selected => @user.new_record? ? @default_role.id : @user.roles.collect{|r| r.id}},
   {:multiple => true, :size => 3} %></p>

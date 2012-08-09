@@ -15,6 +15,10 @@ class BioentriesExperiment < ActiveRecord::Base
     bioentry.short_name
   end
   
+  def bioentry_display_name
+    bioentry.display_name
+  end
+  
   def name
     'Experiment Sequence'
   end

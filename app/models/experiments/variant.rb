@@ -3,26 +3,11 @@ class Variant < Experiment
   has_one :bcf, :foreign_key => "experiment_id"
   has_one :vcf, :foreign_key => "experiment_id"
   has_one :tabix_vcf, :foreign_key => "experiment_id"
-  # has_many :sequence_variants, :foreign_key => "experiment_id", :dependent => :delete_all
-  # has_many :snps, :foreign_key => "experiment_id"
-  # has_many :indels, :foreign_key => "experiment_id"
-  # has_many :deletions, :foreign_key => "experiment_id"
-  # has_many :insertions, :foreign_key => "experiment_id"
   
   def asset_types
     {"vcf" => "Vcf", "tabix-vcf" => "TabixVcf", "bcf" => "Bcf"}
   end  
   
-  # def max_pos
-  #   SequenceVariant.find(:first, :order => "pos desc").pos
-  # end
-  
-  # def variant_counts(num,bioentry_id)
-  #   return [] unless num.is_a?(Integer) and num > 0
-  #   return [] unless bioentry = Bioentry.find(bioentry_id)
-  #   piece = (bioentry.length/num).floor
-  #   SequenceVariant.find_by_sql("SELECT (FLOOR(pos/#{piece})*#{piece})/#{bioentry.length} as percent, FLOOR(pos/#{piece})*#{piece} as pos, COUNT(*) as count FROM sequence_variants where bioentry_id = #{bioentry.id} AND experiment_id = #{self.id} GROUP BY FLOOR(pos/#{piece})*#{piece}")
-  # end
   def load_asset_data
     puts "Loading asset data #{Time.now}"
     begin
@@ -33,17 +18,14 @@ class Variant < Experiment
       end
       if(bcf)
         load_bcf
+      elsif(tabix_vcf)
+        load_tabix_vcf
       elsif(vcf)
         vcf.update_attribute(:state, "converting")
-        #self.create_bcf(:data => vcf.create_bcf)
         self.create_tabix_vcf(:data => vcf.create_tabix_vcf)
         vcf.remove_temp_files
-        #load_bcf
         load_tabix_vcf
         vcf.update_attribute(:state, "complete")
-      end
-      if(tabix_vcf)
-        load_tabix_vcf
       end
       create_tracks
       update_attribute(:state, "complete")
@@ -82,6 +64,7 @@ class Variant < Experiment
   end
   
   def samples
+    begin
     if tabix_vcf
       tabix_vcf.samples
     elsif bcf
@@ -89,18 +72,28 @@ class Variant < Experiment
     else
       []
     end
+    rescue 
+      []
+    end
   end
   
   def get_data(seq,start,stop,opts={})
+  begin
     if(tabix_vcf)
       tabix_vcf.get_data(seq,start,stop,opts)
     elsif(bcf)
       bcf.get_data(seq,start,stop,opts)
     end
+  rescue 
+    []
+  end
   end
   
   def find_variants(seq,pos)
-    get_data(seq,pos,pos,{:raw => true})
+    begin
+      get_data(seq,pos,pos,{:raw => true})
+    rescue []
+    end
   end
   
   # Method for searching other variants within a region for matching sequence

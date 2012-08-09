@@ -260,7 +260,7 @@ class Bam < Asset
   def remove_temp_files
     d = Dir.new(File.dirname(data.path))
     d.each do |f|
-      File.delete(d.path+"/"+f) if( f.match(self.full_filename) && f.match(/\.bw_tmp$|\.bed_tmp$|\.bed_srt_tmp$|\.chrom\.sizes$/) )
+      File.delete(d.path+"/"+f) if( f.match(self.filename) && f.match(/\.bw_tmp$|\.bed_tmp$|\.bed_srt_tmp$|\.chrom\.sizes$/) )
     end
   end
   
@@ -274,7 +274,7 @@ class Bam < Asset
   def index_file
     d = Dir.new(File.dirname(data.path))
     d.each do |f|
-      if( f.match(self.full_filename) && f.match('bai') )
+      if( f.match(self.filename) && f.match('bai') )
         return File.open(d.path+"/"+f)
       end
     end
@@ -284,7 +284,7 @@ class Bam < Asset
   def destroy_index
     d = Dir.new(File.dirname(data.path))
     d.each do |f|
-      File.delete(d.path+"/"+f) if( f.match(self.full_filename) && f.match(/\.bai$/) )
+      File.delete(d.path+"/"+f) if( f.match(self.filename) && f.match(/\.bai$/) )
     end
   end
   

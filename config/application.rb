@@ -20,9 +20,9 @@ module GenomeSuite
       #{config.root}/app/models/experiments/chip
       #{config.root}/app/models/experiments/variants
       #{config.root}/app/models/experiments/assets
+      #{config.root}/app/models/experiments/modules
       #{config.root}/app/models/tracks
       #{config.root}/lib/modules
-      #{config.root}/lib/modules/exp
     ]
     # Exception Notifier Gem
     config.middleware.use ::ExceptionNotifier,

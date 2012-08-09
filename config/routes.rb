@@ -102,12 +102,20 @@ GenomeSuite::Application.routes.draw do
   ##Accounts
   devise_for :users
   resources :user, :controller => 'user' do
-    post 'update_track_node', :on => :member
+    member do
+      post 'update_track_node'
+      get 'profile'
+    end
   end
   
   namespace :admin do
-    root :controller => "admin", :action => "index"
+    root :controller => "jobs", :action => "index"
     resources :users
     resources :roles
+    resources :jobs do
+      member do
+        post 'retry'
+      end
+    end
   end
 end

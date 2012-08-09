@@ -1,29 +1,31 @@
-class ChipSeq < Experiment
+class ChipChip < Experiment
+  has_many :peaks, :foreign_key => "experiment_id"
   has_many :histogram_tracks, :foreign_key => "experiment_id", :dependent => :destroy
+  #asset types
   has_one :big_wig, :foreign_key => "experiment_id"
-  has_one :wig, :foreign_key => "experiment_id"
-  after_save :set_abs_max, :on => :update
+  has_one :wig, :foreign_key => "experiment_id"  
+  after_save :set_abs_max
   has_peaks
   smoothable
-  
+
   ##Specialized Methods
   def asset_types
     {"bigWig" => "BigWig", "wig" => "Wig"}
   end  
   
   def load_asset_data
-    # check for big_wig, create it if missing
+    # check for big_wig; create it
     self.update_attribute(:state,"saving")
-    unless(self.big_wig)
-      create_big_wig_from_wig
-    end
+    create_big_wig_from_wig unless self.big_wig
+    # compute associated data
+    self.update_attribute(:state,"computing")
+    compute_peaks
     self.update_attribute(:state,"ready")
   end
   
-  # do nothing don't even destroy the big_wig we create
   def remove_asset_data
   end
-
+  
   def create_tracks
     self.bioentries_experiments.each do |be|
       histogram_tracks.create(:bioentry => be.bioentry) unless histogram_tracks.any?{|t| t.bioentry_id == be.bioentry_id}
@@ -31,16 +33,16 @@ class ChipSeq < Experiment
   end
 
   def summary_data(start,stop,num,chrom)
-    self.big_wig ? big_wig.summary_data(start,stop,num,chrom).map(&:to_f) : []
+    big_wig.summary_data(start,stop,num,chrom).map(&:to_f)
   end
 
   ##Track Config
   def iconCls
-    "chip_seq_track"
+    "chip_chip_track"
   end
 
   def single
-    "true"
+    self.show_negative == "No" ? "true" : "false"
   end
 
   ##Class Specific
@@ -56,9 +58,9 @@ class ChipSeq < Experiment
     bioentries_experiments.each do |be|
       be.update_attribute(:abs_max, self.max(be.sequence_name)) rescue (logger.info "\n\nError Setting abs_max for experiment: #{self.inspect}\n\n")
     end
-  end
-
+  end 
 end
+
 
 # == Schema Information
 #

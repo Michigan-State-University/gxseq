@@ -1,6 +1,6 @@
 class Experiment < ActiveRecord::Base
-  include Exp::HasPeaks
-  include Exp::Smoothable
+  include HasPeaks
+  include Smoothable
   belongs_to :user
   belongs_to :taxon_version
   has_many :bioentries_experiments, :dependent => :destroy
@@ -22,7 +22,6 @@ class Experiment < ActiveRecord::Base
   accepts_nested_attributes_for :assets, :allow_destroy => true
   
   before_validation :initialize_assets, :on => :create
-  before_validation :initialize_bioentries, :on => :create
   before_create 'self.state = "pending"'
   after_save :create_tracks
   after_create :initialize_experiment
@@ -106,10 +105,16 @@ class Experiment < ActiveRecord::Base
   def initialize_assets
     assets.each { |a| a.experiment = self }
   end
-  
-  # TODO: needs doc!
-  def initialize_bioentries
+
+  # process asset data
+  # Run immediately after create
+  def initialize_experiment
+    puts "Initializing Experiment #{Time.now}"
+    self.remove_asset_data
+    self.load_asset_data
+    puts "Finished Initialization #{Time.now}"
   end
+  handle_asynchronously :initialize_experiment  
   
   # Virtual Method Override - When the tv_id is set re-create the habtm for each sequence in the list.
   def taxon_version_id=(tv_id)    
@@ -124,31 +129,28 @@ class Experiment < ActiveRecord::Base
     
     super(tv_id)
   end
-  # process asset data
-  # Run immediately after create
-  def initialize_experiment
-    puts "Initializing Experiment #{Time.now}"
-    self.remove_asset_data
-    self.load_asset_data
-    puts "Finished Initialization #{Time.now}"
-  end
-  handle_asynchronously :initialize_experiment  
-  
   
 ## Convienence Methods
 
   def display_name
     self.name
   end
-
-  def display_info
-    "#{display_name} - [#{bioentries.collect(&:species_name).join(",")}]"
-  end
-
-  def detailed_display_info
-    "#{self.class.name}: #{display_name} - [#{bioentries.collect(&:species_name).join(",")}]"
+  
+  def taxon_version_name
+    taxon_version.name_with_version if taxon_version
   end
   
+  def display_info
+    "#{display_name} - #{taxon_version_name}"
+  end
+
+  def typed_display_name
+    "#{self.class.name}: #{display_name}"
+  end
+  
+  def typed_display_info
+    "#{self.class.name}: #{display_info}"
+  end
   # return the sequence name for a bioentry or bioentry_id
   def sequence_name(bioentry)
     if bioentry.respond_to?(:id)

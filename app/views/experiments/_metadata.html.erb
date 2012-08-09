@@ -2,7 +2,7 @@
 	<% unless experiment.description.blank? %>
 	<p>
 		<b>Description:</b><br/>
-		<%= experiment.description.gsub(/\n/, "<br/>")  %>
+		<%= experiment.description.gsub(/\n/, "<br/>").html_safe  %>
 	</p>
 	<% end %>
 

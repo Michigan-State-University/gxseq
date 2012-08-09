@@ -47,6 +47,48 @@ rescue
   raise StandardError
 end
 
+## DelayedJob
+##
+
+# add current_user to jobs and setup papertrail whodunnit
+class Delayed::Backend::ActiveRecord::Job
+  ## Setup the methods to save current_user into delayed_jobs
+  before_create :set_user
+  belongs_to :user
+  def set_user
+    self.user_id = self.class.whodunnit
+  end
+  # ripped from PaperTrail module
+  # - Thread-safe hash to hold PaperTrail's data.
+  def self.delayed_job_session_store
+    Thread.current[:delayed_job] ||= {}
+  end
+  def self.whodunnit=(value)
+    delayed_job_session_store[:user]=value
+  end
+  def self.whodunnit
+    delayed_job_session_store[:user]
+  end
+  
+  ## Setup papertrail whodunnit within background jobs - 'become' user for tracking
+  def invoke_job
+    PaperTrail.whodunnit = self.user_id
+    super
+  end
+  
+  ## Override the destroy function of jobs so we can keep them around
+  def destroy(permanent=false)
+    permanent ? super() : (self.completed_at = self.class.db_time_now; self.save)
+  end
+  # stop processing of completed jobs
+  class << self
+    def ready_to_run_with_completed_at(worker_name, max_run_time)
+      ready_to_run_without_completed_at(worker_name, max_run_time).where('completed_at IS NULL')
+    end
+    alias_method_chain :ready_to_run, :completed_at
+  end
+end
+
 ## Bio-SQL
 ##
 begin

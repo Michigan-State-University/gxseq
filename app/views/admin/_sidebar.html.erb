@@ -1,11 +1,11 @@
 <% content_for :sidebar do -%>
 	<h3>Admin Tasks</h3>
 	<ul class="nav">
-		<li><%= link_to "Users", admin_users_path %></li>
-		<li><%= link_to "Roles", admin_roles_path %></li>
-		<%# if RAILS_ENV == 'development' %>
-			<li><%#= link_to "Authorization Rules", authorization_rules_path %></li>
-		<%# end %>
+	  <% active ||='' %>
+		<li><%= link_to "Users", admin_users_path,:class => "#{'active' if active== 'users'}" %></li>
+		<li><%= link_to "Roles", admin_roles_path,:class => "#{'active' if active== 'roles'}" %></li>
+    <li><%= link_to "Jobs", admin_jobs_path,:class => "#{'active' if active== 'jobs'}" %></li>
+    <li><%= link_to "Searches", admin_jobs_path,:class => "#{'active' if active== 'jobs'}" %></li>
 	</ul>
 
 <% end %>

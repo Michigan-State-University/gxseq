@@ -80,7 +80,11 @@ class Bioentry < ActiveRecord::Base
   end
   
   def display_info
-    "#{species_name} #{taxon_version.species_id==taxon_version.taxon_id ? '' : " > "+taxon_version.name} - #{taxon_version.version} : #{display_name}"
+    "#{species_name} #{version_info} : #{display_name}"
+  end
+  
+  def version_info
+    "#{taxon_version.species_id==taxon_version.taxon_id ? '' : " > "+taxon_version.name} - #{taxon_version.version}"
   end
   
   def display_name
