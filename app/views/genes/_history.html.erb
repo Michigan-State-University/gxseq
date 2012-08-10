@@ -11,7 +11,7 @@
 	  </thead>
 		<% @changelogs.each do |version| %>
 			<tr>
-				<td><%= version.item.class.name %></td>
+				<td><%= version.item.name rescue version.item.class.name %></td>
 				<td><%= version.next ? version.next.reify.display_data : version.item.display_data %></td>
 				<td><%= version.reify ? version.reify.display_data : '' %></td>
 				<td><%= User.find(version.terminator).display_name rescue nil %></td>

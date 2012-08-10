@@ -165,9 +165,7 @@ class Seqfeature < ActiveRecord::Base
     end
     return text
   end
-  
-  
-  
+
   def initialize_associations
     #qualifiers.each{|q|q.seqfeature = self}
     if type_term_id.nil? && display_name

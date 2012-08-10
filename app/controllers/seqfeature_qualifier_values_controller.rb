@@ -30,7 +30,7 @@ class SeqfeatureQualifierValuesController < ApplicationController
     respond_to do |wants|
       if @seqfeature_qualifier_value.save
         flash[:notice] = 'SeqfeatureQualifierValue was successfully created.'
-        wants.html { redirect_to( :controller => :genes, :action => :show , :id => (@seqfeature_qualifier_value.seqfeature.id) ) }
+        wants.html { redirect_to( :controller => :genes, :action => :show , :id => (@seqfeature_qualifier_value.seqfeature.respond_to?(:gene_model) ? @seqfeature_qualifier_value.seqfeature.gene_model.gene_id : @seqfeature_qualifier_value.seqfeature.id) ) }
       else
         wants.html { render :action => "new" }
       end
@@ -42,7 +42,7 @@ class SeqfeatureQualifierValuesController < ApplicationController
     respond_to do |wants|
       if @seqfeature_qualifier_value.update_attributes(params[:seqfeature_qualifier_value])
         flash[:notice] = 'SeqfeatureQualifierValue was successfully updated.'
-        wants.html { redirect_to( :controller => :genes, :action => :show , :id => (@seqfeature_qualifier_value.seqfeature.id) ) }
+        wants.html { redirect_to( :controller => :genes, :action => :show , :id => (@seqfeature_qualifier_value.seqfeature.respond_to?(:gene_model) ? @seqfeature_qualifier_value.seqfeature.gene_model.gene_id : @seqfeature_qualifier_value.seqfeature.id) ) }
       else
         wants.html { render :action => "edit" }
       end

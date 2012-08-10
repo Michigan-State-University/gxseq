@@ -13,8 +13,8 @@ class SeqfeatureQualifierValue < ActiveRecord::Base
   before_validation :update_rank
   
   has_paper_trail :meta => {
-    :parent_id => Proc.new { |sqv| sqv.seqfeature.id },
-    :parent_type => Proc.new { |sqv| sqv.seqfeature.class.sti_name }
+    :parent_id => Proc.new { |l| l.seqfeature.respond_to?(:gene_model) ? l.seqfeature.gene_model.gene_id : l.seqfeature.id },
+    :parent_type => Proc.new { |l| l.seqfeature.respond_to?(:gene_model) ? 'Gene' : l.seqfeature.class.name }
   }
   
   def <=>(o)
@@ -34,7 +34,7 @@ class SeqfeatureQualifierValue < ActiveRecord::Base
   end
   
   def display_data
-    "#{name} - #{value}"
+    value
   end
   
   def self.db_xref_id
