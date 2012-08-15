@@ -16,6 +16,7 @@ class Sequence < Thor
     division = options[:division]
     molecule_type = options[:molecule_type]
     source_name = options[:source_name]
+    test_only = options[:test_only]
     entry_count = 0
     seq_key_terms = {}
     anno_tag_terms = {}
@@ -279,7 +280,7 @@ class Sequence < Thor
           end
         end#End Transaction
       rescue 'NotSaved'
-        puts "\nNot Saved - Test only flag set"
+        puts "\n\t...Not Saved - Test only flag set"
       rescue  => e
         puts "\n***** There was an error loading entry #{entry_count}. *****\n#{$!}#{verbose ? e.backtrace.inspect : ""}"
         bad_count +=1
