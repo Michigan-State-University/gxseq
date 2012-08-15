@@ -14,13 +14,6 @@ GIT
       bio (>= 1.4.2)
       ffi
 
-GIT
-  remote: git://github.com/throwern/paper_trail.git
-  revision: 1a9e4e85157d50324eeec16fd1a8770115e76411
-  specs:
-    paper_trail (2.2.9)
-      rails (~> 3)
-
 PATH
   remote: vendor/gems/composite_primary_keys-3.1.10
   specs:
@@ -87,9 +80,11 @@ GEM
     erubis (2.6.6)
       abstract (>= 1.0.0)
     exception_notification (2.4.1)
+    fattr (2.2.1)
     ffi (1.0.11)
-    formtastic (2.1.1)
-      actionpack (~> 3.0)
+    formtastic (2.2.1)
+      actionpack (>= 3.0)
+    highline (1.6.13)
     i18n (0.5.0)
     json (1.6.5)
     linecache19 (0.5.12)
@@ -102,7 +97,13 @@ GEM
     mime-types (1.17.2)
     mysql2 (0.2.11)
     net-ldap (0.2.2)
+    nokogiri (1.5.5)
+    options (2.3.0)
+      fattr
     orm_adapter (0.0.6)
+    paper_trail (2.6.3)
+      activerecord (~> 3.0)
+      railties (~> 3.0)
     paperclip (2.7.0)
       activerecord (>= 2.3.0)
       activesupport (>= 2.3.2)
@@ -111,6 +112,10 @@ GEM
     polyamorous (0.5.0)
       activerecord (~> 3.0)
     polyglot (0.3.3)
+    pr_geohash (1.0.0)
+    progress_bar (0.4.0)
+      highline (~> 1.6.1)
+      options (~> 2.3.0)
     rack (1.2.5)
     rack-mount (0.6.14)
       rack (>= 1.0.0)
@@ -134,6 +139,8 @@ GEM
     rake (0.9.2.2)
     rdoc (3.12)
       json (~> 1.4)
+    rsolr (1.0.8)
+      builder (>= 2.1.2)
     ruby-debug-base19 (0.11.25)
       columnize (>= 0.3.1)
       linecache19 (>= 0.5.11)
@@ -149,6 +156,13 @@ GEM
       activerecord (~> 3.0)
       activesupport (~> 3.0)
       polyamorous (~> 0.5.0)
+    sunspot (1.3.3)
+      pr_geohash (~> 1.0)
+      rsolr (~> 1.0.7)
+    sunspot_rails (1.3.3)
+      nokogiri
+      sunspot (= 1.3.3)
+    sunspot_solr (1.3.3)
     thor (0.14.6)
     treetop (1.4.10)
       polyglot
@@ -176,14 +190,17 @@ DEPENDENCIES
   devise (~> 1.3.4)
   devise_ldap_authenticatable!
   exception_notification (~> 2.4.1)
-  formtastic (~> 2)
+  formtastic (~> 2.2.1)
   mysql2 (~> 0.2.0)
-  paper_trail (= 2.2.9)!
+  paper_trail (~> 2)
   paperclip (~> 2.3)
+  progress_bar
   railroady
   rails (= 3.0.9)
   ruby-debug19
   ruby-oci8
   squeel (~> 0.9)
+  sunspot_rails
+  sunspot_solr
   thor (~> 0.14.6)
   will_paginate (~> 3)

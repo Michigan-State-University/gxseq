@@ -1,6 +1,7 @@
 class Taxon < ActiveRecord::Base
   set_table_name "taxon"
   set_primary_key :taxon_id
+  has_and_belongs_to_many :biodatabases
   belongs_to :parent, :class_name => "Taxon", :foreign_key => "parent_taxon_id"
   has_many :bioentries, :through => :taxon_versions, :order => :description
   has_many :taxon_names

@@ -13,17 +13,17 @@
 <% end %>
 
 <% content_for :item_bar do -%>
-	With this Form you can add Genes and Gene Models to the database. First you must choose a Taxonomy and Sequence. For more information please read the Create Gene section of the <%= link_to 'gene details', details_genes_path %> page.
+	With this Form you can add gene models to the database. To get started, choose a Species and Sequence. For more information please read the New Gene section of the <%= link_to 'gene details', details_genes_path %> page.
 <% end %>
 
 <%= render :partial => 'taxon_form' %>
 <br/><br/>
 <div id="bioentry_field">	
-	<% if(@taxon) %>
+	<% if(@taxon_version) %>
 		<%= render :partial => 'bioentry_form' %>
 	<% end%>	
 	<div id="form_field">
-		<% if(@taxon && @bioentry) %>
+		<% if(@taxon_version && @bioentry) %>
 			<%= render :partial => 'form' %>
 		<% end %>
 	</div>

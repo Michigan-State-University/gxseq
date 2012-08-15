@@ -31,6 +31,35 @@ class ToolsController < ApplicationController
   def details
   end
   
+  def expression_viewer
+    # grab the taxon versions that have rna_seq experiments
+    @taxon_versions = TaxonVersion.order(:name).includes(:experiments).where("experiments.type = 'RnaSeq'")
+    begin
+      @taxon_version = TaxonVersion.find(params[:taxon_version_id]) if params[:taxon_version_id]
+      # limiting to experiments with counts is slow on mysql
+      #@experiment_options = @taxon_version.rna_seqs.includes(:feature_counts).where("feature_counts.count is not null") if @taxon_version
+      @experiment_options = @taxon_version.rna_seqs if @taxon_version
+      
+    rescue
+    end
+  end
+  
+  def advanced_expression_viewer
+  
+  end
+  
+  def expression_results
+    @search = Gene.search do
+      keywords params[:keywords], :fields => [:qualifier_values], :highlight => true
+      facet(:display_name)
+      facet(:type_term_id)
+      with(:type_term_id, params[:type_term_ids]) unless params[:type_term_ids].blank?
+      with(:locus_tag, params[:locus_tag]) unless params[:locus_tag].blank?
+      paginate(:page => params[:page])
+    end
+    @search = []
+  end
+  
   def variant_genes
     @taxon_versions = TaxonVersion.all
     @variants, @variant_genes = [],[]

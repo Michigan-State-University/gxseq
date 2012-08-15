@@ -32,10 +32,10 @@
 	</thead>
   	<% @species.each_with_index do |s, s_idx| %>
 		<% id = s_idx + 1  %>
-			<tr id="<%= id %>" class="one" onclick="toggleRows(document.getElementById('a_<%= id %>'));return false">
+			<tr id="<%= id %>" class="one">
 				<td width="55%">
 				 	<div class="tier1">
-						<a id="a_<%= id %>" name="<%= id %>"href="#<%= id %>" onclick="toggleRows(this);return false"></a>
+						<a id="a_<%= id %>" class="folder-open" name="<%= id %>"href="#<%= id %>" onclick="toggleRows(this);return false"></a>
 						<%= s.scientific_name.name %>
 					</div>
 				</td>
@@ -45,10 +45,10 @@
 			<% s.species_versions.each_with_index do |t, t_idx| %>
 			<% next if t.send(exp_type+'s').empty? %>
 			<% id = "#{s_idx + 1}-#{t_idx + 1}" %>			
-				<tr id="<%= id %>" style="display:none" class="two" onclick="toggleRows(document.getElementById('a_<%= id %>'));return false">
+				<tr id="<%= id %>" style="display:none" class="two">
 					<td>
 						<div class="tier2">
-							<a id="a_<%= id %>" name="<%= id %>" href="#<%= id %>" onclick="toggleRows(this);return false"></a>
+							<a id="a_<%= id %>" class="arrow-open" name="<%= id %>" href="#<%= id %>" onclick="toggleRows(this);return false"></a>
 							<%= t==s ? "Generic Strain" : t.name_with_version %>
 						</div>
 					</td>
@@ -69,11 +69,9 @@
 						<td>
 							<div style="float:right;">
 								<span style="float:left;padding-right:1em;font-size:80%;color:darkblue"><%= exp.state.camelize unless (exp.state.nil? || exp.state == "ready" || exp.state == 'complete') %></span>
-								<!-- <div style="float:left"><%#= button_to "Update", edit_chip_seq_path(exp) if exp.state == 'ready'%></div>	 -->
 								<div style="float:left"><%= link_to image_tag("page_white_edit.png",:alt => "Edit Experiment", :style => "border:0px"), send("edit_#{exp_type}_path",exp) unless exp.state == 'loading'%></div>						
 								<% if current_user.is_admin? || current_user.owns?(exp)%>
 									<div style="float:right;padding-left:1em;"><%= link_to image_tag("delete.png",:alt => "Delete Experiment",:style => "border:0px"), send("#{exp_type}_path",exp), :method => 'delete', :confirm => "Remove experiment: #{exp.name}? \n Action cannot be undone." %></div>
-									<!-- <div style="float:right;padding-left:1em;"><%#= button_to "Delete", chip_seq_path(exp), :method => 'delete', :confirm => "Remove experiment: #{exp.name}? \n Action cannot be undone." %></div> -->
 								<% end %>
 							</div>
 						</td>						

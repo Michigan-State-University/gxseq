@@ -4,6 +4,7 @@
 		<%= f.input :start_pos %>
 		<%= f.input :end_pos %>
 		<%= f.select :strand, {"3'<-5'" => -1,"3'->5'" => 1} if show_strand %>
+		<%= logger.info "\n\n#{f.object}\n\n" %>
 		<%= f.hidden_field :id, :value => f.object.id unless f.object.new_record? %>
 		<%= link_to_remove_fields image_tag("delete.png",:alt => "Remove Location"), f%>
 	<% end %>

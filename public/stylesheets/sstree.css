@@ -1,9 +1,21 @@
   .folder {
-    background: url(../images/folder.png) no-repeat;	
+    background: url(../images/folder.png) no-repeat;
+    cursor:pointer;
     float: left; height: 16px; width: 16px; padding-right: 3px
   }
   .folder-open {
     background: url(../images/folder-open.png) no-repeat;
+    cursor:pointer;
+    float: left; height: 16px; width: 16px; padding-right: 3px
+  }
+  .arrow {
+    background: url(../images/arrow_closed.png) no-repeat;
+    cursor:pointer;
+    float: left; height: 16px; width: 16px; padding-right: 3px
+  }
+  .arrow-open {
+    background: url(../images/arrow_open.png) no-repeat;
+    cursor:pointer;
     float: left; height: 16px; width: 16px; padding-right: 3px
   }
   .tier1 {
@@ -69,11 +81,11 @@ table.sstree {
 table.sstree td {border:none;}
 table.sstree tr.one {border-top:1px solid rgb(215,215,215); border-bottom:1px solid rgb(200,200,200)}
 table.sstree tr.one td{background-color:rgb(210,210,210);font:italic bold 12px/30px Georgia, serif;}
-table.sstree tr.one:hover td{background-color:rgb(210,210,220);cursor:pointer;}
+/*table.sstree tr.one:hover td{background-color:rgb(210,210,220);cursor:pointer;}*/
 table.sstree tr.one td.hovered{background-color:rgb(210,210,220);cursor:pointer;}
 table.sstree tr.two {border-top:1px solid rgb(220,220,220); border-left:2px solid white;border-bottom:1px solid rgb(210,210,210)}
 table.sstree tr.two td{background-color:rgb(225,225,225);}
-table.sstree tr.two:hover td{background-color:rgb(225,225,235);cursor:pointer;}
+/*table.sstree tr.two:hover td{background-color:rgb(225,225,235);cursor:pointer;}*/
 table.sstree tr.two td.hovered{background-color:rgb(225,225,235);cursor:pointer;}
 table.sstree tr.three {border-left:4px solid white;border-bottom:1px solid rgb(225,225,225);}
 table.sstree tr.three td{background-color:rgb(240,240,240);}

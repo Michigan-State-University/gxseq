@@ -5,4 +5,4 @@
 # Use the database for sessions instead of the cookie-based default,
 # which shouldn't be used to store highly confidential information
 # (create the session table with "rails generate session_migration")
-GenomeSuite::Application.config.session_store :active_record_store, :key => 'genome_suite_yeast_beta_session'
+GenomeSuite::Application.config.session_store :active_record_store, :key => 'genome_suite_session'

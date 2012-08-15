@@ -1,9 +1,27 @@
 class Gene < Seqfeature
   has_many :gene_models
-  accepts_nested_attributes_for :gene_models, :allow_destroy => true
-  validates_associated :gene_models
   before_validation :initialize_associations
+  validates_associated :gene_models
   validate :check_locus_tag
+  accepts_nested_attributes_for :gene_models, :allow_destroy => true
+  
+  searchable(:include => [:bioentry,:type_term,:qualifiers]) do
+    text :qualifier_values, :stored => true do
+      qualifiers.map{|q|"#{q.name}: #{q.value}"}
+    end
+    text :locus_tag, :stored => true do
+     locus_tag.value if locus_tag
+    end
+    string :sequence_name do
+      bioentry.display_name
+    end
+    string :species_name do
+      bioentry.species_name
+    end
+    string :version_name do
+      bioentry.version_info
+    end
+  end
   
   def self.find_by_locus_tag(locus="")
     self.find_all_by_locus_tag(locus).first
@@ -11,6 +29,10 @@ class Gene < Seqfeature
   
   def self.find_all_by_locus_tag(locus="")
     Gene.joins(:qualifiers=>:term).where(:term=>{:name=>'locus_tag'}).where(:qualifiers=>{:value=>locus}).includes(:bioentry, :locations, :type_term, :qualifiers=>:term)
+  end
+  
+  def self.find_all_with_locus_tags(locus)
+    Gene.joins(:qualifiers=>:term).where(:term=>{:name=>'locus_tag'}).where{qualifiers.value.in(locus)}.includes(:bioentry, :locations, :type_term, :qualifiers=>:term)
   end
   
   def representative_gene_model

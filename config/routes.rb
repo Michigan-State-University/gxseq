@@ -12,14 +12,16 @@ GenomeSuite::Application.routes.draw do
   match 'sitemap' => 'help#sitemap', :as => :sitemap
 
   ##genome
-  resources :bioentries do 
+  resources :bioentries do
     get 'tracks'
   end
+  
   resources :genes do
     get 'details', :on => :collection
   end
   resources :gene_models  
   resources :locations
+  resources :seqfeatures
   resources :seqfeature_qualifier_values
   resources :taxon_versions
   
@@ -77,16 +79,6 @@ GenomeSuite::Application.routes.draw do
       get 'graphics'
     end
   end
-  resources :tools do
-    collection do
-      get 'details'
-      get 'smooth'
-      post 'smooth'
-      get 'variant_genes'
-      post 'variant_genes'
-    end
-  end
-  
   resources :variants do
     collection do
       get 'details'
@@ -96,6 +88,20 @@ GenomeSuite::Application.routes.draw do
     member do
       get 'initialize_experiment'
       get 'graphics'
+    end
+  end
+  
+  ##Tools
+  resources :tools do
+    collection do
+      get 'details'
+      get 'smooth'
+      post 'smooth'
+      # get 'variant_genes'
+      # post 'variant_genes'
+      get 'expression_viewer'
+      get 'advanced_expression_viewer'
+      get 'expression_results'
     end
   end
   

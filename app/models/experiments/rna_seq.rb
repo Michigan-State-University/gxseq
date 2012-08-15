@@ -1,7 +1,9 @@
 class RnaSeq < Experiment
   has_many :reads_tracks, :foreign_key => "experiment_id", :dependent => :destroy
+  has_many :feature_counts, :foreign_key => "experiment_id", :dependent => :destroy
   has_one :bam, :foreign_key => "experiment_id"
   has_one :big_wig, :foreign_key => "experiment_id"
+  
   smoothable
   
   def asset_types

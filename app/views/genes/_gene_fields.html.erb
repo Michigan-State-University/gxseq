@@ -1,0 +1,10 @@
+<h2><%= link_to_add_fields image_tag("add.gif", :alt => "Add Field", :style => "margin-left:6em;margin-bottom:-1em"), f, :qualifiers %> Attributes</h2>
+<%= f.semantic_fields_for :qualifiers do |q| %>
+	<%= render :partial => 'qualifier_fields', :locals => {:f => q} %>
+<% end %>
+<%= f.semantic_fields_for :locations do |l| %>
+	<%= render :partial  => 'location_fields', :locals => {:f => l,:show_strand => show_strand ||=nil} %>
+<% end %>
+<% if f.object.new_record? %>
+  <%= f.hidden_field :source_term_id, :value => @seq_src_term_id %>
+<% end %>

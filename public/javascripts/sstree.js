@@ -2,14 +2,21 @@ function toggleRows(elm) {
  var rows = document.getElementsByTagName("TR");
  var newDisplay = "none";
  var thisID = elm.parentNode.parentNode.parentNode.id + "-";
- elm.style.backgroundImage = "url(images/folder.png)";
+ if(elm.className.match(/folder/))
+  elm.style.backgroundImage = "url(images/folder.png)";
+ else
+  elm.style.backgroundImage = "url(images/arrow_closed.png)";
+  
  // Are we expanding or contracting? If the first child is hidden, we expand
   for (var i = 0; i < rows.length; i++) {
    var r = rows[i];
    if (matchStart(r.id, thisID, true)) {
     if (r.style.display == "none") {
-	  newDisplay = "table-row"; //Netscape and Mozilla
-     elm.style.backgroundImage = "url(images/folder-open.png)";
+      newDisplay = "table-row"; //Netscape and Mozilla
+      if(elm.className.match(/folder/))
+       elm.style.backgroundImage = "url(images/folder-open.png)";
+      else
+       elm.style.backgroundImage = "url(images/arrow_open.png)";
     }
     break;
    }
@@ -24,7 +31,10 @@ function toggleRows(elm) {
      var tier = cell.getElementsByTagName("DIV")[0];
      var folder = tier.getElementsByTagName("A")[0];
      if (folder.getAttribute("onclick") != null) {
- 			folder.style.backgroundImage = "url(images/folder.png)";
+     if(folder.className.match(/folder/))
+      folder.style.backgroundImage = "url(images/folder.png)";
+     else
+      folder.style.backgroundImage = "url(images/arrow_closed.png)";
      }
    }
  }

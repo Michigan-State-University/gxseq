@@ -8,7 +8,7 @@
 <% end %>
 
 <% content_for :body_onload do -%>
-	<%= "document.getElementById('sstree-sequence').onselectstart = function() { return(false); };" %>
+	<%#= "document.getElementById('sstree-sequence').onselectstart = function() { return(false); };" %>
 <% end %>
 
 <% content_for :top_bar do %>
@@ -29,9 +29,10 @@
 <% end %>
 
 <p>
-   Each species in the database is displayed below. Click the arrow next to an entry to list all of its sequence, or use the text field to search on name and description. Then, select a result to display the Sequence Viewer and load the entry. To view more detailed information about each species select the list icon. <%= image_tag("table.png") %>	 
+   Each species in the database is displayed below. Click the arrow next to an entry to list all of its sequence, or use the text field to search on name and description. Then, select a result to display the Sequence Viewer and load the entry. To view a tabular list of sequence for a species select the list icon. <%= image_tag("table.png") %>	
 </p>
 <br/>
+
 <div class="table" id="sstree-sequence">
 <table class="listing sstree">
 	<thead >
@@ -42,7 +43,7 @@
 	</thead>
 	<% @bioentry_species.each_with_index do |species, species_idx| %>
 	<% id = species_idx + 1  %>
-	<tr id="<%= id %>" class="one" onclick="toggleRows(document.getElementById('a_<%= id %>'));return false">
+	<tr id="<%= id %>" class="one">
 		<td colspan="2">
 			<div class="tier1">
 				<a id="a_<%= id %>" style="width:32px;height:32px" class="folder-open" name="<%= id %>"href="#<%= id %>" onclick="toggleRows(this);return false"></a>

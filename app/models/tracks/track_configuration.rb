@@ -2,24 +2,24 @@ class TrackConfiguration < ActiveRecord::Base
   belongs_to :track_layout
   belongs_to :track
   belongs_to :user
-  
+  # TODO: refactor this
   def config
-    " id: '#{self.track.id}',
-      name: '#{name.gsub("\\","\\\\\\\\").gsub("'",%q(\\\'))}',
-      bioentry: '#{self.track_layout.bioentry.id}',
-      data: '#{data || 'false'}',
-      edit: '#{edit || 'false'}',
+    " id: '#{track.id}',
+      name: '#{track.name}',
+      bioentry: '#{track.bioentry.id}',
+      source: '#{track.source}',
+      data: '#{track.data || 'false'}',
+      edit: '#{track.edit || 'false'}',
       height: #{height || 50},
-      single: #{single || 'false'},
+      single: #{track.single || 'false'},
       showControls: #{showControls || 'true'},
       showAdd: #{showAdd || 'false'},
       color_above: '#{color_above || '0'}',
       color_below: '#{color_below || '0'}',
-      iconCls: '#{self.track.iconCls}',
-      #{track.respond_to?('sample') ? "sample: '#{self.track.sample}'," : ""}
-      #{track.respond_to?('peaks') ? "peaks: #{self.track.peaks}" : 'peaks: false'}"
-
-      
+      iconCls: '#{track.iconCls}',
+      #{track.respond_to?('sample') ? "sample: '#{track.sample}'," : ""}
+      #{track.respond_to?('peaks') ? "peaks: #{track.peaks}" : 'peaks: false'}
+    "
   end
   
   def track_config

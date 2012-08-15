@@ -35,6 +35,8 @@ class Bioentry < ActiveRecord::Base
   has_many :tracks, :dependent => :destroy
   has_many :peaks
   
+  #has_many :models_tracks # TODO: allow multiple sources
+  #has_many :generic_feature_tracks# TODO: allow multiple sources
   has_one :models_track
   has_one :six_frame_track
   has_one :protein_sequence_track
@@ -46,17 +48,14 @@ class Bioentry < ActiveRecord::Base
   acts_as_api
   
   ## Class Methods
-  
+    
   def self.all_taxon
-    #Bioentry.includes(:taxon).all.collect(&:taxon).uniq
-    #Taxon.joins(:bioentries).select("distinct #{Taxon.table_name}.taxon_id,version")
     TaxonVersion.all.collect(&:taxon).uniq
   end
   
   def self.all_species
     Bioentry.includes(:taxon).all.collect(&:taxon).uniq.collect(&:species).uniq
   end
-  
   
   ## Instance Methods
   

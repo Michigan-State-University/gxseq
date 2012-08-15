@@ -4,6 +4,7 @@ allenv: &ALLENV
   admin_user: admin
   admin_pass: secret
   use_remote_user: true
+  create_from_remote_user: true
   timeout: 60
   
 production:

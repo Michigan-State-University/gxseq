@@ -27,40 +27,47 @@ class Term < ActiveRecord::Base
   has_many :term_relationship_predicates, :class_name => "TermRelationship", :foreign_key =>"predicate_term_id"
   has_many :term_relationship_objects, :class_name => "TermRelationship", :foreign_key =>"object_term_id"
   has_many :seqfeature_paths, :class_name => "SeqfeaturePath"
-  
+  # ontology terms
   def self.annotation_tags
-    if( o = Ontology.find_by_name("Annotation Tags"))
-      return Term.where(:ontology_id => o.id)
-    else
-      return nil
-    end
+    Term.where(:ontology_id => ano_tag_ont_id)
   end
-  
-  def self.denormalize
-    begin
-      puts "Updating Location -> term_id"
-      Term.connection.execute("update location set term_id = (select seqfeature.type_term_id from seqfeature where seqfeature.seqfeature_id = location.seqfeature_id)")      
-      puts "Updating Seqfeature -> display_name"
-      Term.transaction do
-        terms = {}
-        Term.all.each do |term|
-          terms[term.term_id.to_s]=term.name.downcase.camelize
-        end
-        Seqfeature.connection.select_all("SELECT seqfeature_id, type_term_id FROM seqfeature").each do |feature|
-          Seqfeature.connection.execute("UPDATE seqfeature set display_name = '#{terms[feature["type_term_id"].to_s]}' where seqfeature_id = #{feature["seqfeature_id"]}")
-        end
-      end
-      puts "Done"
-      return true
-    rescue
-      puts $!
-      return false
-    end
+  def self.source_tags
+    Term.where(:ontology_id => seq_src_ont_id)
   end
-   
-  def display_name
-    name
+  def self.seqfeature_tags
+    Term.where(:ontology_id => seq_key_ont_id)
   end
+  # Default ontology setup
+  def self.seq_src_ont_id
+    Ontology.find_or_create_by_name("SeqFeature Sources").id
+  end
+  def self.seq_key_ont_id
+    Ontology.find_or_create_by_name("SeqFeature Keys").id
+  end
+  def self.ano_tag_ont_id
+    Ontology.find_or_create_by_name("Annotation Tags").id
+  end
+  # def self.denormalize
+  #   begin
+  #     puts "Updating Location -> term_id"
+  #     Term.connection.execute("update location set term_id = (select seqfeature.type_term_id from seqfeature where seqfeature.seqfeature_id = location.seqfeature_id) where term_id is null")      
+  #     puts "Updating Seqfeature -> display_name"
+  #     Term.transaction do
+  #       Seqfeature.where('display_name is null').includes(:type_term).each do |feature|
+  #         feature.update_attribute(:display_name,feature.type_term.name.downcase.camelize)
+  #       end
+  #     end
+  #     puts "Done"
+  #     return true
+  #   rescue
+  #     puts $!
+  #     return false
+  #   end
+  # end
+  #  
+  # def display_name
+  #   name
+  # end
 end
 
 

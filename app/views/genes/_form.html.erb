@@ -11,9 +11,9 @@
 		<div class="border">
 		
 		<%= form.inputs "Gene", :class => "border_white", :id => 'gene_qualifiers' do %>
-			<%= form.semantic_errors :locations %>
+			<%= form.semantic_errors :location %>
 			<%= form.semantic_errors :locus_tag %>
-			<%= render :partial => 'seqfeature_fields', :locals => {:f => form, :show_strand => true}%>
+			<%= render :partial => 'gene_fields', :locals => {:f => form, :show_strand => true}%>
 		<% end %>
 		</div> 
 		<h1 class="pagetitle">Gene Model(s)</h1>
@@ -27,8 +27,8 @@
 		<% end %>
 		<!-- Submit -->
 		
-		<%= form.buttons do %>
-			<%= form.commit_button :button_html => { :disable_with => 'Wait...' , :class => "button"} %>
+		<%= form.actions do %>
+			<%= form.action :submit, :as => :button %>
 		<% end %>
 		
 	<% end %>

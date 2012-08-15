@@ -96,7 +96,7 @@ Devise.setup do |config|
   # config.remember_across_browsers = true
 
   # If true, extends the user's remember period when remembered via cookie.
-  # config.extend_remember_period = false
+  config.extend_remember_period = true
 
   # If true, uses the password salt as remember token. This should be turned
   # to false if you are not using database authenticatable.
@@ -118,7 +118,9 @@ Devise.setup do |config|
   # ==> Configuration for :timeoutable
   # The time you want to timeout the user session without activity. After this
   # time the user will be asked for credentials again. Default is 30 minutes.
-  config.timeout_in = (APP_CONFIG[:timeout].nil? ? 60.minutes : APP_CONFIG[:timeout].minutes)
+  if APP_CONFIG[:timeout]
+    config.timeout_in = APP_CONFIG[:timeout].minutes
+  end
 
   # ==> Configuration for :lockable
   # Defines which strategy will be used to lock an account.

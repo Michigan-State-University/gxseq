@@ -31,7 +31,31 @@ class Seqfeature < ActiveRecord::Base
   
   before_validation :initialize_associations
   
-
+  searchable(:include => [:bioentry,:type_term,:qualifiers]) do
+    
+    text :qualifier_values, :stored => true do
+      qualifiers.map{|q|q.value}
+    end
+    # TODO: convert locus_tag to text
+    # text :locus_tag, :stored => true do
+    #  locus_tag.value if locus_tag
+    # end
+    string :display_name
+    string :locus_tag, :stored => true do
+      locus_tag.value if locus_tag
+    end
+    string :sequence_name do
+      bioentry.display_name
+    end
+    string :species_name do
+      bioentry.species_name
+    end
+    string :version_name do
+      bioentry.version_info
+    end
+    integer :type_term_id, :references => Term
+  end
+  
   
   #TODO : convert this to a real class with STI on the SQV table
   #has_many :notes, :class_name => "SeqfeatureQualifierValue", :order => "rank", :conditions => "trm_oid = #{Term.find_by_name("note").id}"

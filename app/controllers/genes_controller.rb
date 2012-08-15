@@ -52,7 +52,7 @@ class GenesController < ApplicationController
       format.js{
         if(@gene)
           render :partial => "form"
-        elsif(@taxon)
+        elsif(@taxon_version)
           render :partial => "bioentry_form"
         else
           render :text  => "No Data"
@@ -64,12 +64,12 @@ class GenesController < ApplicationController
   def create
     begin
       @taxons = Bioentry.all_taxon
-      @taxon_versions = TaxonVersion.all
+      @taxon_versions = TaxonVersion.order(:name)
       @gene = Gene.new(params[:gene])
       
       @bioentry = @gene.bioentry
-      @taxon = @gene.bioentry.taxon
-      @bioentries = @taxon.bioentries
+      @taxon_version = @gene.bioentry.taxon_version
+      @bioentries = @taxon_version.bioentries
       @annotation_terms = Term.annotation_tags.order(:name).reject{|t|t.name=='locus_tag'}
       seq_src_ont_id = Ontology.find_or_create_by_name("SeqFeature Sources").id
       @seq_src_term_id = Term.find_or_create_by_name_and_ontology_id("EMBL/GenBank/SwissProt",seq_src_ont_id).id
@@ -148,24 +148,26 @@ class GenesController < ApplicationController
   private
   
   def new_gene_data
-    @taxon = @bioentry = nil
-    @taxons = Bioentry.all_taxon
-    @taxon_versions = TaxonVersion.all
+    @taxon_version = @bioentry = nil
+    @taxon_versions = TaxonVersion.order(:name)
     seq_src_ont_id = Ontology.find_or_create_by_name("SeqFeature Sources").id
     @seq_src_term_id = Term.find_or_create_by_name_and_ontology_id("EMBL/GenBank/SwissProt",seq_src_ont_id).id
     begin
-    if(params[:taxon_id] && @taxon = Taxon.find(params[:taxon_id]))
-      @bioentries = @taxon.bioentries
+    if(params[:taxon_version_id] && @taxon_version = TaxonVersion.find(params[:taxon_version_id]))
+      @bioentries = @taxon_version.bioentries
       
       if(params[:bioentry_id]&& @bioentry = Bioentry.find(params[:bioentry_id]))
         @gene = Gene.new(:bioentry_id => @bioentry.id)
-        # add the first blank gene model. 
-        # If no attributes/features are defined it will not be saved
+        # add the first blank gene model.
         @gene.gene_models.build
         # Add the locus_tag qualifier. This is required for all genes
         q = @gene.qualifiers.build
         q.term = Term.find_by_name('locus_tag')
         q.term_id = q.term.id
+        # Add the blank location
+        @gene.locations.build
+        logger.info "\n\n#{@gene.location}\n\n"
+        logger.info "\n\nAHHHHHHHHHHHHHHHHHHHHHHHHH\n\n\n\n\n\n\n\n"
         # get the annotation terms
         @annotation_terms = Term.annotation_tags.order(:name).reject{|t|t.name=='locus_tag'}
       end

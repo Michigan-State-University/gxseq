@@ -1,8 +1,9 @@
 class BioentriesController < ApplicationController
 
   def index
+    @bioentry_species = Taxon.in_use_species.includes(:scientific_name, :taxon_versions => [:taxon => [:taxon_names]],:condition)
     respond_to do |wants|
-      wants.html {@bioentry_species = Taxon.in_use_species.includes(:scientific_name, :taxon_versions => [:taxon => [:taxon_names]])}
+      wants.html {}
     end
   end
   
