@@ -98,7 +98,7 @@ class Biosequence < ActiveRecord::Base
         puts "\t\tFound existing for #{desc} so removing"
         self.gc_file.destroy
       end
-      puts "\t\tCreating new for #{desc}"
+      puts "\t\tCreating new GC file for #{desc}"
       # Write out GC data in Wig format
 	    wig_file = File.open("tmp/#{self.bioentry_id}_gc_data.txt", 'w')
 	    wig_file.write("track type=wiggle_0 name=GC content\nvariableStep chrom=#{bioentry_id} span=1\n")
@@ -110,7 +110,7 @@ class Biosequence < ActiveRecord::Base
 	    chrom_file.flush	    
 	    # Attach new empty BigWig file
 	    big_wig_file = File.open("tmp/#{self.bioentry_id}_gc.bw","w+")
-	    self.gc_file = GcFile.new(:data  => big_wig_file )
+	    self.gc_file = GcFile.new(:data => big_wig_file )
 	    self.save!	    
 	    # Write out the BigWig data
 	    FileManager.wig_to_bigwig(wig_file.path, self.gc_file.data.path, chrom_file.path)

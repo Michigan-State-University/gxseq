@@ -16,6 +16,7 @@ class FileManager
         fout.puts line
       end
     end
+    fout.flush
     Bio::Ucsc::Util.wig_to_big_wig("#{filein}.nohdr",chrom_file,fileout)
   end
   
