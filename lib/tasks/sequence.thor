@@ -1,4 +1,7 @@
-class Db::Sequence < Thor
+class Sequence < Thor
+  ENV['RAILS_ENV'] ||= 'development'
+  require File.expand_path('config/environment.rb')
+  
   desc 'load FILE','Load genomic sequence into the database'
   method_options :namespace => 'Genomes', :verbose => false, :version => 1, :source_name => "EMBL/GenBank/SwissProt", :test_only => false
   method_option :taxon_name
@@ -175,8 +178,8 @@ class Db::Sequence < Thor
                 # link reference to bioentry
                 bioentry.bioentry_references.create(
                 :reference_id => new_reference.id,
-                :start_pos => reference.sequence_position.split('-')[0],
-                :end_pos => reference.sequence_position.split('-')[1],
+                :start_pos => reference.sequence_position ? reference.sequence_position.split('-')[0] : 0,
+                :end_pos => reference.sequence_position ? reference.sequence_position.split('-')[1] : bioentry.length,                
                 :rank => bioentry.bioentry_references.size + 1
                 )
               end

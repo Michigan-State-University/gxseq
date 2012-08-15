@@ -1,4 +1,6 @@
-class Db::Taxonomy < Thor
+class Taxonomy < Thor
+  ENV['RAILS_ENV'] ||= 'development'
+  require File.expand_path('config/environment.rb')
   require 'net/ftp'
   require 'zlib'
   desc 'load',"Load ncbi taxonomy data into the database"

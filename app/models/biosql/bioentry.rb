@@ -44,7 +44,7 @@ class Bioentry < ActiveRecord::Base
   
   
   scope :with_version, lambda { |v| where("version = ?",v) }
-  has_paper_trail :version_method_name => 'reified_version'
+  has_paper_trail :version => 'paper_trail_version', :versions => 'paper_trail_versions'
   acts_as_api
   
   ## Class Methods

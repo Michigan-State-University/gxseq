@@ -1,4 +1,7 @@
-class Db::Expression < Thor
+class Expression < Thor
+  ENV['RAILS_ENV'] ||= 'development'
+  require File.expand_path('config/environment.rb')
+
   desc 'load',"Load feature counts into the database"
   method_options %w(verbose -v) => false, %w(multiple -m) => false, %w(experiment -e) => :required, :existing => 'raise'
   def load(input_file)
