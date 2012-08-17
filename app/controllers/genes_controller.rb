@@ -166,11 +166,12 @@ class GenesController < ApplicationController
         q.term_id = q.term.id
         # Add the blank location
         @gene.locations.build
-        logger.info "\n\n#{@gene.location}\n\n"
-        logger.info "\n\nAHHHHHHHHHHHHHHHHHHHHHHHHH\n\n\n\n\n\n\n\n"
         # get the annotation terms
         @annotation_terms = Term.annotation_tags.order(:name).reject{|t|t.name=='locus_tag'}
+        logger.info "\n\n#{@annotation_terms}\n\n"
       end
+    else
+      @bioentries = []
     end
     rescue
     end

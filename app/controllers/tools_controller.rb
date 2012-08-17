@@ -49,15 +49,15 @@ class ToolsController < ApplicationController
   end
   
   def expression_results
-    @search = Gene.search do
-      keywords params[:keywords], :fields => [:qualifier_values], :highlight => true
-      facet(:display_name)
-      facet(:type_term_id)
-      with(:type_term_id, params[:type_term_ids]) unless params[:type_term_ids].blank?
-      with(:locus_tag, params[:locus_tag]) unless params[:locus_tag].blank?
-      paginate(:page => params[:page])
+    begin
+      @search = Gene.search do
+        keywords params[:keywords], :fields => [:qualifier_values], :highlight => true
+        with(:locus_tag, params[:locus_tag]) unless params[:locus_tag].blank?
+        paginate(:page => params[:page])
+      end
+    rescue
+      @search = []
     end
-    @search = []
   end
   
   def variant_genes

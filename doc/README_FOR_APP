@@ -2,3 +2,7 @@ Deployment Notes:
 
 If connecting to an ldap database do not forget to setup config/ldap.yml
 
+-Common Errors:
+-
+-needLargeMem: trying to allocate 0 bytes -  samtools binary may need executable permission
+-
