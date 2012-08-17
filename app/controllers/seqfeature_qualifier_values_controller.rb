@@ -2,10 +2,6 @@ class SeqfeatureQualifierValuesController < ApplicationController
 
   before_filter :find_seqfeature_qualifier_value, :only => [:show, :edit, :update, :destroy]
   
-  active_scaffold :seqfeature_qualifier_values do |config|
-    config.actions = [:show]
-  end
-  
   # GET /seqfeature_qualifier_values
   def index
     @seqfeature_qualifier_values = SeqfeatureQualifierValue.all

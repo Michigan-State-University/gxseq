@@ -239,7 +239,7 @@ class Bam < Asset
       next unless( hsh[:length] && hsh[:length]>0)
       length = hsh[:length]
       puts "--Working on #{accession} - Length: #{hsh[:length]}"
-      bam.mpileup_text({:r => "#{accession}"},bed.path,com)
+      bam.mpileup_text({:r => "'#{accession}'"},bed.path,com)
       # write chrom.sizes data
       chr.puts "#{accession} #{length}"
     end

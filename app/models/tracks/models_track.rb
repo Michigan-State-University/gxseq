@@ -12,7 +12,7 @@ class ModelsTrack < Track
       name: '#{self.name}',
       showAdd: true,
       bioentry: '#{self.bioentry.id}',
-      source: '#{self.source}
+      source: '#{self.source_term_id}',
       type: '#{self.class.name}',
       data: '#{root_path}/fetchers/gene_models',
       edit: '#{root_path}/edits/model',
