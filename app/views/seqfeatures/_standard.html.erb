@@ -1,0 +1,52 @@
+<div class="clear">
+  <!-- Graphic Gene-->
+	<div class="border" style="overflow:hidden">
+	  <%= number_line(@view_start, @canvas_width, {:height => 40,:per_pixel => (@bases/@pixels.to_f)}) %>
+		<%= "#{@bases}:#{@pixels}" %>
+		<%= render :partial => 'graphic' %>
+	</div>
+	
+	<!-- Attributes -->
+	<% @ontologies.each do |ont| %>
+  	<div class="border">
+      <h2> <%= ont.name %> </h2>
+      <table>
+    	  <% @seqfeature.qualifiers.with_ontology(ont.id).each do |qual| %>
+    	    <tr class=<%= cycle("odd","even") %>>
+            <td class="keyword"><%= qual.name  %></td>
+            <td><%= qual.value.html_safe %></td>
+          </tr>
+    	  <% end %>
+    	</table>
+	  </div>
+	<% end %>
+  <!-- Location -->
+  <div class="border">
+    <h2>Location(s)</h2>
+    <table>
+      <tr class=<%= cycle("odd","even") %>>
+        <td class="keyword">Start Position</td>
+        <td><%= @seqfeature.min_start %></td>
+      </tr>
+      <tr class=<%= cycle("odd","even") %>>
+        <td class="keyword">End Position</td>
+        <td><%= @seqfeature.max_end %></td>
+      </tr>
+    </table>
+  </div>
+  <!-- Sequence -->
+  <div class="border">
+    <h2>Sequence: <%= @seqfeature.na_sequence ? @seqfeature.na_sequence.size : 0 %>bp</h2>
+    <table>
+      <tr class='odd'>
+        <td style="font-family:'Courier';"><pre style="overflow-x:scroll"><%= formatted_sequence(@seqfeature.na_sequence,{:rows => 10, :delimiter => "\n"}) %></pre></td>
+      </tr>
+    </table>
+    <h2>Protein: <%= @seqfeature.protein_sequence ? @seqfeature.protein_sequence.size : 0 %>aa</h2>
+    <table>
+      <tr class='odd'>
+        <td style="font-family:'Courier';"><pre style="overflow-x:scroll"><%= formatted_sequence(@seqfeature.protein_sequence,{:rows => 10, :delimiter => "\n"}) %></pre></td>
+      </tr>
+    </table>
+  </div>
+</div>

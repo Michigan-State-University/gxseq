@@ -7,13 +7,19 @@
 	<% end %>
 
 	<p>
-		<b>Created by:</b><br/>
+		<b>Created by:</b>
 		<%= experiment.user.login unless experiment.user.nil?%>
 	</p>
 	<p>
-		<%= experiment.created_at.strftime("Uploaded on %m/%d/%Y at %I:%M%p") %>
+	  <b>Uploaded on:</b>
+		<%= experiment.created_at.strftime("%m/%d/%Y at %I:%M%p") %>
 	</p>
-
+	<% if experiment.group %>
+    <p>
+  	  <b>Group:</b>
+  		<%= link_to experiment.group.name, experiment.group %>
+  	</p>
+	<% end %>
 </div>
 
 

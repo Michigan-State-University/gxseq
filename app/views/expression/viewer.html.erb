@@ -1,0 +1,47 @@
+<% content_for :top_bar do -%>
+  <h1 class="pagetitle">Expression Viewer</h1>
+<% end -%>
+
+<%= render :partial => "tools/sidebar", :locals => {:active => "expression"} %>
+
+<% content_for :item_bar do -%>
+<% end -%>
+<p>
+	This tool allows you to explore expression data from RNA-Seq experiments. To get started select a Species and the experiment(s) you are interested in. More details can be found <%= link_to "here", details_tools_path %>.
+</p>
+<% if @taxon_versions.empty? %>
+  <p style='font-style:italic;color:darkred'>
+    It looks like you don't have access to any expression data right now. Make sure you are a member of a group that has RNA-Seq samples with count data.
+  </p>
+<% end %>
+<%= form_tag expression_viewer_path, :method => :get do %>
+<div style="float:left">
+  Sequence:<br/>
+  <%= select_tag :taxon_version_id, options_from_collection_for_select(@taxon_versions, :id, :name_with_version, @taxon_version.try(:id)),{:onchange => "this.form.submit()"} %>
+</div>
+
+<div style="float:left">
+  <% if @feature_types && @feature_types.facet(:type_term_id) && @feature_types.facet(:type_term_id).rows && @feature_types.facet(:type_term_id).rows.size > 1 %>
+  Feature:<br/>
+  <%= select_tag :type_term_id, options_for_select(@feature_types.facet(:type_term_id).rows.map{|row| ["#{row.instance.name} - #{row.count}",row.value] },@type_term_id),{:onchange => "this.form.submit()"} %>
+  <% end %>
+</div>
+
+<br style="clear:both"/>
+
+<% end -%>
+<br/><br/>
+<div id="form_field">
+  <div id='viewer_form'>
+    Select Experiments for matrix or: <%= link_to "Build Ratio",'#',:onclick => "$('advanced_viewer_form').toggle();$('viewer_form').toggle()" %>
+	<% if @experiment_options %>
+		<%= render :partial => 'viewer_form', :locals => {:experiment_options => @experiment_options, :taxon_version => @taxon_version, :type_term_id => @type_term_id} %>
+	<% end %>
+	</div>
+	<div id='advanced_viewer_form' style='display:none'>
+	  Select experiments for ratio or: <%= link_to "Build Matrix",'#',:onclick => "$('advanced_viewer_form').toggle();$('viewer_form').toggle()" %>
+	  <% if @experiment_options %>
+	  <%= render :partial => 'advanced_viewer_form', :locals => {:experiment_options => @experiment_options, :taxon_version => @taxon_version, :type_term_id => @type_term_id} %>
+	  <% end %>
+	</div>
+</div>

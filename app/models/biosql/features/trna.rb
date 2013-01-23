@@ -1,5 +1,5 @@
 class Trna < Seqfeature
-  def display_name
+  def name
     "tRNA"
   end
 end

@@ -1,5 +1,5 @@
 <% if bioentry %>
 <pre>
-<%= bioentry.genbank_header.html_safe %><%= bioentry.source_features[0].to_genbank.html_safe if bioentry.source_features[0] %>
+<%=bioentry.genbank_header.html_safe %><%=bioentry.source_features[0].to_genbank.html_safe if bioentry.source_features[0] %>
 </pre>
 <% end %>

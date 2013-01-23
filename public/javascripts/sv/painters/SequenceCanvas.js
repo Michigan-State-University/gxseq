@@ -69,13 +69,17 @@ Ext.define('Sv.painters.SequenceCanvas',{
 				if (x + w < region.x1 || x > region.x2) {
 					return;
 				}
-					for (var i=left; i<=right; i++)
+				if(letterW > 2){
+				  for (var i=left; i<=right; i++)
 					{
 						var letter = read.sequence.charAt(i);
 						var letterX = x + (i * letterW);
 						//self.paintWedge(letterX, 0, 1, y, 'line');
 						self.paintBox(letter, letterX, y, letterW, h);
 					};
+				}else{
+				  
+				}
 			});
 		};
 	}

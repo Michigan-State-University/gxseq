@@ -1,0 +1,6 @@
+<% content_for :top_bar do -%>
+  <h1 class="pagetitle">Editing: <%= @term.name %></h1>
+<% end -%>
+<%= render :partial => 'admin/sidebar', :locals => {:active => 'term'} %>
+
+<%= render 'form' %>

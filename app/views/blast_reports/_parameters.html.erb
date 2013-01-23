@@ -1,0 +1,36 @@
+<div id="blast_alignment" class="blast_alignment" style="display:none; position:absolute; top:0px; left:0px;"></div>
+<div class="smallcard" style="border-color:#CCC">
+  <table class="listing">
+    <thead>
+      <th colspan='2' style='text-align:center'>
+        Blast Run Parameters
+      </th>
+    </thead>
+    <tr>
+  		<td class="head">Database</td>
+  		<td class="odd"><%= @blast_run.blast_database.name %></td>
+  	</tr>
+    <!-- <tr>
+      <td class="head">Origin</td>
+      <td class="odd"><%#= @blast_run.db %></td>
+    </tr> -->
+  	<tr>
+  		<td class="head">Program</td>
+  		<td class="odd"><%= @blast_run.program %></td>
+  	</tr>
+  	<tr>
+  		<td class="head">Version</td>
+  		<td class="odd"><%= @blast_run.version %></td>
+  	</tr>
+  	<tr>
+  		<td class="head">Taxonomy</td>
+  		<td class="odd"><%= @blast_run.taxon_version.taxon.scientific_name.name %></td>
+  	</tr>
+  	<% @blast_run.parameters.each do |key,value| %>
+    	<tr>
+    		<td class="head"><%= key %></td>
+    		<td class="odd"><%= value %></td>
+    	</tr>
+    <% end %>
+  </table>
+</div>

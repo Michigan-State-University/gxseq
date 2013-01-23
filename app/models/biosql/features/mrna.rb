@@ -1,7 +1,7 @@
 class Mrna < Seqfeature
   # do not autosave or we will infinite loop, gene_model auto-saves mrna and cds
   has_one :gene_model, :inverse_of => :mrna, :autosave => false
-  def display_name
+  def name
     'mRNA'
   end
   def display_type

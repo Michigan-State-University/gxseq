@@ -1,0 +1,26 @@
+<div class="table">
+  <table class="listing">
+    <thead>
+      <th>Type</th>
+      <th>Name</th>
+      <th>Description</th>
+      <th>Options</th>
+    </thead>
+    <% @samples.each do |sample| %>
+      <tr>
+        <td><%= sample.type %></td>
+        <td><%= link_to sample.name, sample %></td>
+        <td><%= sample.description %></td>
+        <td>
+          <%= link_to "View", sample %>
+          <% if can? :update, sample %>
+            | <%= link_to "Edit", edit_experiment_path(sample) %>
+          <% end %>
+          <% if can? :destroy, sample %>
+            | <%= link_to "Remove", sample, :method => :delete, :confirm => "Permanently remove #{sample.name}?\nThis CANNOT be undone" %>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </table>
+</div>

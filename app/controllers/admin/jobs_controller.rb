@@ -1,7 +1,11 @@
 class Admin::JobsController < Admin::AdminController
   def index
-    c = params[:c]||'created_at'
-    d = params[:d]||'desc'
+    sort_col = params[:c]||'created_at'
+    if params[:d] && (params[:d].upcase == 'UP' || params[:d].upcase == 'ASC')
+      sort_dir = 'ASC'
+    else
+      sort_dir = 'DESC'
+    end
     params[:status]||='incomplete'
     @jobs = Delayed::Job.scoped
     if(params[:queue])
@@ -25,10 +29,10 @@ class Admin::JobsController < Admin::AdminController
     when 'all'
     end
     
-    @jobs = @jobs.order("#{c} #{d}")
+    @jobs = @jobs.includes(:user).order("#{sort_col} #{sort_dir}")
     @jobs = @jobs.paginate(:page => params[:page])
     
-    @job_users = Delayed::Job.select('distinct user_id').where('user_id is not null').collect{|d| User.find(d.user_id) rescue nil}.compact.sort{|a,b|a.display_name<=>b.display_name}
+    @job_users = Delayed::Job.select('distinct user_id').where('user_id is not null').collect{|d| User.find(d.user_id) rescue nil}.compact.sort{|user1,user2|user1.display_name<=>user2.display_name}
   end
   
   def show

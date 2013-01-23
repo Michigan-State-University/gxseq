@@ -2,62 +2,97 @@
 <% content_for :top_bar do -%>
   <h1 class="pagetitle">Feature Listing</h1>
 <% end -%>
-<% content_for :item_bar do -%>
-  <div style="float:right">
-    <% form_tag seqfeatures_path, :method => :get do %>
-      Search: <%= text_field_tag "keywords",params[:keywords] %>
+<% content_for :item_bar do %>
+<!-- Filter / Search items here -->
+	<div style="float:left">
+		<%= link_to "Advanced Search",'#',:onclick => "$('advanced_search').toggle();", :class => "button" %>
+	</div>
+	<div style="float:right">
+	  <% form_tag seqfeatures_path, :method => :get do %>
+	    Search:<br/>
+      <%= text_field_tag "keywords",params[:keywords] %>
       <%= submit_tag 'Go' %>
+	  <% end %>
+	</div>
+	<br/ style="clear:both">
+	<div id='advanced_search' style="<%= params[:advanced_search] ? '' : 'display:none' %>">
+	  <br/>
+	  <hr/>
+	  <br/>
+  	<% form_tag seqfeatures_path, :method => :get do %>
+  	  <%= hidden_field :advanced_search, true %>
+      <div style="float:left">
+        Keywords:<br/>
+        <%= text_field_tag "keywords",params[:keywords], :size => 50 %><br/>
+        <br/>
+        Taxonomy:<br/>
+        <%= select_tag 'taxon_version_id', options_for_select(@taxon_versions.collect{|s| [s.name_with_version,s.id]},params[:taxon_version_id]), {:include_blank => "No Filter"} %><br/>
+        <br/>
+        Type:<br/>
+        <%= select_tag 'type_term_id', options_for_select(@search.facet(:type_term_id).rows.collect{|s| ["#{s.instance.try(:name)} (#{s.count})",s.value]},params[:type_term_id]), {:include_blank => "No Filter"} %><br/>
+        <br/>
+        <div style="float:left;margin-right:1em">
+          Location:<br/>
+          <%= text_field_tag "start_pos",params[:start_pos], :size => 10 %>
+          TO
+          <%= text_field_tag "end_pos",params[:end_pos], :size => 10 %><br/>
+        </div>
+        <div style="float:left;margin-right:1em">
+          Strand:<br/>
+          <%= select_tag 'strand', options_for_select(@search.facet(:strand).rows.collect{|s| ["#{s.value.to_i > 0 ? 'Forward (5\' -> 3\')' : 'Reverse (3\' -> 5\')'} (#{s.count})",s.value]},params[:strand]), {:include_blank => "No Filter"} %><br/>
+        </div>
+      </div>
+      <div style="clear:both">
+        <br/>
+        <%= submit_tag 'Search' %>
+      </div>
     <% end -%>
-    Or setup an <a href="#" onclick="$('advanced_search').toggle()">advanced search</a>
   </div>
-  <div style="<%=  params[:advanced_search] ? '' : 'display:none'%>" id="advanced_search">
-    <h2 class="pagetitle">Advanced Search</h2>
-    <% form_tag seqfeatures_path, :method => :get do %>
-      <%= hidden_field :advanced_search, true %>
-      
-      <h3>Scope by Type</h3>
-      <ul class="facet">
-        <% @search.facet(:type_term_id).rows.sort{|a,b| b.count<=>a.count}.each do |row| %>
-          <%= check_box_tag("type_term_ids[]",row.value,params[:type_term_ids]) %> <%= row.instance ? row.instance.name : '?' %>(<%= row.count %>)<br/>
-        <% end %>
-      </ul>
-      <h3>Match these fields:</h3>
-      Locus Tag: <%= text_field_tag "locus_tag",params[:locus_tag] %><br/>
-      
-      <h3></h3>
-      Any Keywords:  <%= text_field_tag "keywords",params[:keywords] %><br/>
-      <%= submit_tag 'Search', :style => "float:right", :class => "button" %>
-    <% end %>
+<% end %>
+
+<% if @search.nil? %>
+  No Results Found...
+<% else %>
+  <div class="pagination">
+    <span style="float:left"><%= will_paginate(@search.hits) %></span>
+    <span style="float:right;margin-right:2em"><%= number_with_delimiter(@search.total) %> Matching Results</span>
   </div>
-<% end -%>
 
-
-
-<div class="pagination">
-  <%= will_paginate(@search.hits) %>
-</div>
-
-<div class="table">
-  <table class="listing">
-    <thead>
-      <th>Type</th>
-      <th>Locus</th>
-      <th>Species</th>
-      <th>Version</th>
-      <th>Sequence</th>
-      <th>Keyword Match</th>
-      <th>Score</th>
-    </thead>
-    <% @search.each_hit_with_result do |hit,feature| %>
+  <div class="table">
+    <table class="listing">
+      <thead>
+        <th style="white-space:nowrap;width:10em"><%= sort_link "Locus", 'locus_tag' %></th>
+        <th style="white-space:nowrap"><%= sort_link "Type", 'type_term_id' %></th>
+        <th style="white-space:nowrap">Attributes</th>
+        <th style="white-space:nowrap"><%= sort_link "Start Pos", 'start_pos' %></th>
+        <th style="white-space:nowrap"><%= sort_link "End Pos", 'end_pos' %></th>
+        <th style="white-space:nowrap"><%= sort_link "Strand", 'strand' %></th>
+        <th style="white-space:nowrap"><%= sort_link "Taxon", 'taxon_version_name_with_version' %></th>
+        <th>Options</th>
+      </thead>
+      <% @search.each_hit_with_result do |hit,feature| %>
       <tr>
-        <td><%= feature.type_term.name %></td>
-        <td><%= hit.stored(:locus_tag) %></td>
-        <td><%= feature.bioentry.species_name %></td>
-        <td><%= feature.bioentry.version_info%></td>
-        <td><%= feature.bioentry.display_name %></td>
-        <td><%= hit.highlight(:qualifier_values).format { |fragment| content_tag(:b, fragment) }.html_safe if hit.highlight(:qualifier_values)%></td>
-        <td><%= hit.score %></td>
+        <td>
+          <%= highlight_result(hit,:locus_tag_text) %>
+          <% if can? :edit, feature %>
+            <%= link_to( image_tag('comment_edit.png'), edit_seqfeature_path(feature.id), :class => 'popupbox', :'data-form' => "edit_seqfeature_#{feature.id}", :'data-post_to' => seqfeature_path(feature.id), :'data-update_id' => "#{feature.id}_definition", :'data-update_from' => request.fullpath+'&seqfeature_id='+feature.id.to_s) %>
+          <% end %>
+          <%= link_to(image_tag(Array(hit.stored(:favorite_user_ids)).include?(current_user.id) ? 'star.png' : 'star_gray.png'), toggle_favorite_seqfeature_path(feature.id), {:class => 'favorite',:id => "favorite_#{feature.id}",:remote => true}) %>
+        </td>
+        <td><%= feature.display_name %></td>
+        <td id='<%= feature.id %>_definition'><%= render :partial => 'hit_definition', :locals => {:hit => hit, :feature => feature} %></td>
+        <td><%= highlight_result(hit,:start_pos) %></td>
+        <td><%= highlight_result(hit,:end_pos) %></td>
+        <td><%= (hit.stored(:strand) > 0 ? '<span style="color:green">F</span>' : '<span style="color:darkred">R</span>').html_safe if hit.stored(:strand) %></td>
+        <td style="white-space:nowrap"><%= highlight_result(hit,:taxon_version_name_with_version_text) %></td>
+        <td style="white-space:nowrap">
+          <%= link_to 'Details', seqfeature_path(feature) %>
+          |
+          <%= link_to 'View', bioentry_path(feature.bioentry_id,{:pos => feature.min_start}) %>
+        </td>
       </tr>
-    <% end %>
-  </table>
-</div>
+      <% end %>
+    </table>
+  </div>
+<% end %>
+<%= render :partial => "ext_update_form" %>

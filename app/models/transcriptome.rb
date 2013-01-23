@@ -1,0 +1,2 @@
+class Transcriptome < TaxonVersion
+end

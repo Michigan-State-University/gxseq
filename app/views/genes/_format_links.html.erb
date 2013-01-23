@@ -1,12 +1,30 @@
 <div style="float:right;" id="format_links">
 	<h2>
-		<%= link_to_unless @format=='standard', "Standard", gene_path(@gene, :fmt => 'standard') %>
-    | <%= link_to_unless @format=='genbank', "Genbank", gene_path(@gene, :fmt => 'genbank') %>
+		<%= link_to_unless @format=='standard', "Standard", gene_path(@gene, :fmt => 'standard') do |name| 
+        "<u style='font-size:120%'>#{name}</u>".html_safe
+      end %>
+    | <%= link_to_unless @format=='genbank', "Genbank", gene_path(@gene, :fmt => 'genbank') do |name| 
+        "<u style='font-size:120%'>#{name}</u>".html_safe
+      end %>
 		<% if @gene.bioentry.variants.size > 0 %>
-		| <%= link_to_unless @format=='variants', "Variants", gene_path(@gene, :fmt => 'variants') %>
+		| <%= link_to_unless @format=='variants', "Variants", gene_path(@gene, :fmt => 'variants') do |name| 
+        "<u style='font-size:120%'>#{name}</u>".html_safe
+      end %>
 		<% end %>
-		<% if false #TODO: add expression page %>
-		| <%= link_to_unless @format=='expression', "Expression", gene_path(@gene, :fmt => 'expression') if false%>
+		<% if @gene.feature_counts.count>0 %>
+		| <%= link_to_unless @format=='expression', "Expression", gene_path(@gene, :fmt => 'expression') do |name| 
+        "<u style='font-size:120%'>#{name}</u>".html_safe
+      end %>
 		<% end %>
-		| <%= link_to_unless @format=='history', "History", gene_path(@gene, :fmt => 'history') %>
+		<% if @gene.blast_reports.count > 0 %>
+		| <%= link_to_unless @format=='blast', "Blast", gene_path(@gene, :fmt => 'blast') do |name| 
+        "<u style='font-size:120%'>#{name}</u>".html_safe
+      end %>
+		<% end %>
+		| <%= link_to_unless @format=='history', "History", gene_path(@gene, :fmt => 'history') do |name| 
+        "<u style='font-size:120%'>#{name}</u>".html_safe
+      end %>
+		| <%= link_to_unless @format=='edit', "Edit", edit_gene_path(@gene), :fmt => 'edit' do |name| 
+        "<u style='font-size:120%'>#{name}</u>".html_safe
+      end %>
 </div>

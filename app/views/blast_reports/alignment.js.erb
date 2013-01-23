@@ -1,0 +1,3 @@
+//Element.hide('blast_alignment');
+$("blast_alignment").update("<%=escape_javascript(render :partial => 'alignment', :locals=>{:report=>@report,:hit=>@hit})%>");
+new Effect.Appear("blast_alignment");

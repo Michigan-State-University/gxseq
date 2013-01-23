@@ -1,16 +1,45 @@
 <%= render :partial => "sidebar", :locals => {:active => "about"} %>
-<h1 class="pagetitle">About</h1>
+<% content_for :top_bar do -%>
+  <h1 class="pagetitle">About the Genome Suite</h1>
+<% end -%>
 <p>
-	This system is supported by the Great Lakes Bioenergy Research Center. It is being actively developed by the IIT team. If you have any questions or need assistance with the site please contact the site administrator.
+	This application was created for the <%= link_to 'Great Lakes Bioenergy Research Center',"http://www.glbrc.org" %>
+</p>
+<p>
+	The project started with a goal to help researchers interact with genomes and has expanded to include data analysis from high throughput experiments. It is actively developed and maintained by the IIT team as we work on new and improved methods for exploring these large data sets.
+</p>
+
+<!-- <h2 class="smalltitle">For Developers</h2>
+<p>
+  The Genome Suite has several major components unified within a single Ruby on Rails application. TODO: The code can be found at...
+</p>
+<p>
+  <h3>Sequence Viewer</h3>
+</p>
+<p>
+  <h3>Expression Viewer</h3>
+</p>
+<p>
+  <h3>BioSql</h3>
+</p> -->
+
+<h2 class="title">Acknowledgements</h2>
+
+<p>
+  <h3>AnnoJ</h3>
+  The original project started with an exploration of the Anno-J (<%= link_to "www.annoj.org",'http://www.annoj.org/' %>) javascript based genome browser by J. Tonti-filippini. We had the pleasure of meeting and working with Julian and would like to thank him for his help and support.
 </p>
 
 <p>
-	
+  <h3>Bomhof Integrated</h3>
+  We would also like to thank Drew Bomhof (<%= link_to "Bomhof Integrated", 'http://www.bomhofintegrated.com/' %>) for his consulting support and advice. Drew helped incorporate the javascript codebase into Rails and designed several new tracks within the Sequence Viewer.
 </p>
 
-<h2 class="pagetitle">Acknowledgements</h2>
+
 <p>
-	
+  <h3>Icons</h3>
+  Most of the icons used throughout this application are from the free silk set by <%= link_to "famfamfam", 'http://www.famfamfam.com/lab/icons/silk/' %>. However, the icons used to differentiate sample types are original artwork graciously provided by GLBRC team member Shane Cantu.
 </p>
+
 
 

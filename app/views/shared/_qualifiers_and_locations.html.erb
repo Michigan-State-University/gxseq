@@ -1,0 +1,24 @@
+<h2>
+  <%= link_to_add_fields image_tag("add.gif", :alt => "Add Field", :style => "margin-left:6em;margin-bottom:-1em"), f, :qualifiers,
+  :partial => 'seqfeature_qualifier_values/fields' %>
+  Attributes
+</h2>
+<%= f.semantic_fields_for :qualifiers do |q| %>
+	<%= render :partial => 'seqfeature_qualifier_values/fields', :locals => {:f => q} %>
+<% end %>
+<% unless @skip_locations %>
+  <% if defined? add_location and add_location%>
+    <h2>
+      <%= link_to_add_fields image_tag("add.gif", :alt => "Add Location", :style => "margin-left:6em;margin-bottom:-1em"), f, :locations,
+        :partial => 'locations/fields' %>
+      Locations
+    </h2>
+  <% end %>
+  <%= f.semantic_fields_for :locations do |l| %>
+  	<%= render :partial  => 'locations/fields', :locals => {:f => l,:show_strand => show_strand ||=nil} %>
+  <% end %>
+<% end %>
+<% if f.object.new_record? %>
+  <% #TODO: add source choice to new seqfeature %>
+  <%= f.hidden_field :source_term_id, :value => (@seq_src_term_id||Term.source_tags.first) %>
+<% end %>

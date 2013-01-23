@@ -12,7 +12,7 @@ class CreateRoles < ActiveRecord::Migration
     add_index :roles_users, :user_id
     
     Role.create(
-      :name => "user"
+      :name => "member"
     )
     Role.create(
       :name => "guest"

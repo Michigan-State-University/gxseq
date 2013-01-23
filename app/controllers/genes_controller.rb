@@ -1,78 +1,88 @@
 class GenesController < ApplicationController
+  #autocomplete :taxon_version, :id
+  autocomplete :bioentry, :id, :full => true
+  authorize_resource :class => "GeneModel"
+  skip_authorize_resource :only => [:autocomplete_bioentry_id]
+  
   before_filter :get_gene_data, :only => [:edit, :update]
   before_filter :new_gene_data, :only => [:new]
-  def index   
-    @genes = GeneModel.scoped
-    # query string
-    unless(params[:q].blank?)
-      q = "%#{params[:q].upcase}%"
-      # we are matching locus_tag and gene_name with the search
-      @genes = @genes.where{ (upper(locus_tag) =~ q) | (upper(gene_name) =~ q)}
-    end
-    # paging
-    unless(params[:paging]=='false')
-      page = params[:page] || 1
-      per_page = params[:limit] || params[:per_page] || @per_page
-      @genes = @genes.paginate(:page => page, :per_page => per_page)
-    end
-    # sorting - because we display association data we need to sort on association columns
-    if(params[:sort] && (sort=JSON.parse(params[:sort])) )
-      sort.each do |s|
-        if(s['property'] && s['direction'])
-          case s['property']
-          when 'sequence_name'
-            # virtual attribute, not sortable
-          when 'sequence_version'
-            @genes = @genes.joins{bioentry}.order("bioentry.version #{s['direction']}")
-          when 'sequence_taxon'
-            @genes = @genes.joins{bioentry.taxon.scientific_name}.order("taxon_name.name #{s['direction']}")
-          when 'sequence_species'
-            # needs proper 'species' relation, not sortable
-            #@genes = @genes.joins{bioentry.taxon.species.scientific_name}.order("taxon_name.name #{s['direction']}")
-          else
-            @genes = @genes.order("#{s['property']} #{s['direction']}")
+  def index
+    # Defaults
+    params[:page]||=1
+    params[:c]||='taxon_version_name_with_version'
+    order_d = (params[:d]=='down' ? 'desc' : 'asc')
+    @presence_items = presence_items = ['gene_name','function','product']
+    # Filter setup
+    @taxon_versions = TaxonVersion.accessible_by(current_ability).includes(:taxon => :scientific_name).order('taxon_name.name')
+    # Find minimum set of id ranges accessible by current user. Set to -1 if no items are found. This will force empty search results
+    authorized_id_set = GeneModel.accessible_by(current_ability).select_ids.to_ranges
+    authorized_id_set=[-1] if authorized_id_set.empty?
+    # Begin block
+    @search = GeneModel.search do
+      # Auth      
+      any_of do |any_s|
+        authorized_id_set.each do |id_range|
+          any_s.with :id, id_range
+        end
+      end
+      # Text Keywords
+      if params[:keywords]
+        keywords params[:keywords], :highlight => true
+      end
+      # Presence Filters
+      presence_items.each do |presence_item|
+        case params[(presence_item+'_present').to_sym]
+        when 't'
+          all_of do
+            without presence_item.to_sym, nil
+          end
+        when 'f'
+          all_of do
+            with presence_item.to_sym, nil
           end
         end
       end
-    end
-    respond_to do |format|
-      format.html{}
-      format.json {
-        render :json => {
-          :total_entries => @genes.total_entries,
-          :gene_models => @genes.as_api_response(:listing)
-        }
-      }
+      # Filters
+      with :taxon_version_id, params[:taxon_version_id] unless params[:taxon_version_id].blank?
+      with :strand, params[:strand] unless params[:strand].blank?
+      unless params[:start_pos].blank?
+        any_of do
+          with(:start_pos).greater_than(params[:start_pos])
+          with(:end_pos).greater_than(params[:start_pos])
+        end
+      end
+      unless params[:end_pos].blank?
+        any_of do
+          with(:start_pos).less_than(params[:end_pos])
+          with(:end_pos).less_than(params[:end_pos])
+        end
+      end
+      # Sort
+      order_by params[:c].to_sym, order_d
+      # Paging 
+      paginate(:page => params[:page], :per_page => 50)
+      facet :strand
     end
   end
   
   def new
     respond_to do |format|
       format.html{}
-      format.js{
-        if(@gene)
-          render :partial => "form"
-        elsif(@taxon_version)
-          render :partial => "bioentry_form"
-        else
-          render :text  => "No Data"
-        end
-      }
     end
   end
   
   def create
     begin
       @taxons = Bioentry.all_taxon
-      @taxon_versions = TaxonVersion.order(:name)
+      @taxon_versions = TaxonVersion.accessible_by(current_ability).order(:name)
       @gene = Gene.new(params[:gene])
       
       @bioentry = @gene.bioentry
       @taxon_version = @gene.bioentry.taxon_version
       @bioentries = @taxon_version.bioentries
       @annotation_terms = Term.annotation_tags.order(:name).reject{|t|t.name=='locus_tag'}
-      seq_src_ont_id = Ontology.find_or_create_by_name("SeqFeature Sources").id
-      @seq_src_term_id = Term.find_or_create_by_name_and_ontology_id("EMBL/GenBank/SwissProt",seq_src_ont_id).id
+      seq_src_ont_id = Term.seq_src_ont_id
+      @seq_src_term_id = Term.default_source_term.id
       if(@gene.valid?)
         Gene.transaction do
           @gene.save
@@ -111,17 +121,21 @@ class GenesController < ApplicationController
     when 'genbank'
       @gene = Gene.find(params[:id])
       #Find related features (by locus tag until we have a parent<->child relationship)
-      @features = Seqfeature.where(:bioentry_id => @gene.bioentry_id).with_locus_tag(@gene.locus_tag.value)
+      @features = @gene.find_related_by_locus_tag
     when 'history'
       @gene = Gene.find(params[:id])
-      @changelogs = Version.order('created_at desc').where(:parent_id => @gene.id).where(:parent_type => 'Gene')
+      @changelogs = Version.order('id desc').where(:parent_id => @gene.id).where(:parent_type => 'Gene')
+    when 'expression'
+      @gene = Gene.find(params[:id])
     end
-    rescue
+    rescue => e
+      logger.info "\n\n#{e.backtrace}\n\n"
       @gene = nil
     end
   end
   
   def edit
+    @format = 'edit'
   end
   
   def update
@@ -149,14 +163,17 @@ class GenesController < ApplicationController
   
   def new_gene_data
     @taxon_version = @bioentry = nil
-    @taxon_versions = TaxonVersion.order(:name)
-    seq_src_ont_id = Ontology.find_or_create_by_name("SeqFeature Sources").id
-    @seq_src_term_id = Term.find_or_create_by_name_and_ontology_id("EMBL/GenBank/SwissProt",seq_src_ont_id).id
+    @taxon_versions = TaxonVersion.includes(:taxon => :scientific_name).order('taxon_name.name').accessible_by(current_ability)
+    # TODO: refactor this! Ontology doesn't belong here... Should prabably be selected...
+    @seq_src_term_id = Term.default_source_term.id
     begin
-    if(params[:taxon_version_id] && @taxon_version = TaxonVersion.find(params[:taxon_version_id]))
+      params[:taxon_version_id]||=params[:genes][:taxon_version_id] rescue nil
+      params[:bioentry_id]||=params[:genes][:bioentry_id] rescue nil
+      @gene = Gene.new
+    if(params[:taxon_version_id] && @taxon_version = TaxonVersion.accessible_by(current_ability).find(params[:taxon_version_id]))
       @bioentries = @taxon_version.bioentries
-      
-      if(params[:bioentry_id]&& @bioentry = Bioentry.find(params[:bioentry_id]))
+      params[:bioentry_id]=@bioentries.first.id if @bioentries.count ==1
+      if(params[:bioentry_id] && @bioentry = Bioentry.accessible_by(current_ability).find(params[:bioentry_id]))
         @gene = Gene.new(:bioentry_id => @bioentry.id)
         # add the first blank gene model.
         @gene.gene_models.build
@@ -168,7 +185,6 @@ class GenesController < ApplicationController
         @gene.locations.build
         # get the annotation terms
         @annotation_terms = Term.annotation_tags.order(:name).reject{|t|t.name=='locus_tag'}
-        logger.info "\n\n#{@annotation_terms}\n\n"
       end
     else
       @bioentries = []
@@ -185,8 +201,9 @@ class GenesController < ApplicationController
       @locus = @gene.locus_tag.value.upcase
       @bioentry = @gene.bioentry
       @annotation_terms = Term.annotation_tags.order(:name).reject{|t|t.name=='locus_tag'}      
-      seq_src_ont_id = Ontology.find_or_create_by_name("SeqFeature Sources").id
-      @seq_src_term_id = Term.find_or_create_by_name_and_ontology_id("EMBL/GenBank/SwissProt",seq_src_ont_id).id
+      seq_src_ont_id = Term.seq_src_ont_id
+      #TODO: Document seqfeature 'Source' uses and options for expansion
+      @seq_src_term_id = Term.default_source_term.id
     rescue
       logger.error "\n\n#{$!}\n\n#{caller.join("\n")}\n\n"
     end

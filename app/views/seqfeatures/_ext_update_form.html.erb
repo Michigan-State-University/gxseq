@@ -1,0 +1,81 @@
+<% content_for :head do %>
+  <%= render :partial => "common/extjs_css" %>
+  <%= render :partial => "common/extjs" %>
+  <%= stylesheet_link_tag 'formtastic_overrides' %>
+<% end %>
+
+<script type='text/javascript'>
+
+Ext.onReady(function(){
+  Ext.select('a.popupbox').on('click', function(e) {
+    var link = this;
+    e.stopEvent();
+    var panel = Ext.create('Ext.panel.Panel', {
+      html: 'loading annotations <%= image_tag("loading.gif") %>',
+      minHeight: 350,
+      loader: {
+        url: link.href,
+        scripts: true,
+        autoLoad: true,
+      }
+    });
+    var win = Ext.create('Ext.window.Window', {
+      title: 'Edit Feature',
+      renderTo: document.body,
+      width: 750,
+      resizable: false,
+      x: e.browserEvent.x,
+      y: e.browserEvent.y,
+      items: [ panel ],
+      buttons: [
+        {
+          text: 'Submit',
+          scope: link,
+          handler: function(){
+            Ext.Ajax.request({
+              url: link.getAttribute('data-post_to'),
+              form: link.getAttribute('data-form'),
+              method:'POST',
+              success: function(response, opts) {
+                if(response.responseText=='success')
+                {
+                  //Get updated text and insert into view
+                  var item = Ext.get(link.getAttribute('data-update_id'))
+                  item.update('<%= image_tag("loading.gif") %>');
+                  Ext.Ajax.request({
+                    url: link.getAttribute('data-update_from'),
+                    method:'GET',
+                    success: function(response,opts){
+                      item.update(response.responseText);
+                    }
+                  });
+                  //Close the window
+                  win.close();
+                }else{
+                  panel.update(response.responseText)
+                }
+              },
+              failure:function(res,opt) {
+                panel.update("Whoops! Something is wrong and we've been notified. Contact the Site Admin for more information");
+              }
+            });
+            panel.update('Saving changes..');
+          }
+        },
+        {
+          text: 'Cancel',
+          handler: function(){
+            win.close();
+          }
+        }
+      ]
+    });
+    win.show();
+    //Update the layout onclick
+    Ext.getBody().on('click', function(){
+      win.doLayout();
+    });
+
+  });
+});
+</script>

@@ -1,0 +1,41 @@
+<% report = @blast_report.report %>
+<div class="pagination">
+  <span style="float:right;margin-right:2em"><%= number_with_delimiter(report.hits.length) %> Hits</span>
+</div>
+
+<div class="table">
+  <table class="listing" style="clear:both" width="100%">
+  	<thead>
+  		<th>Accession</th>
+  		<th>Definition</th>
+  		<th>Score</th>
+  		<th>E-value</th>
+  		<th>Options</th>
+  	</thead>
+  	<tbody>
+  		<% if report.message %>
+  			<%= report.message %>
+  		<% end %>
+			<% report.hits.each_with_index do |hit,idx| %>
+				<tr class="<%= cycle('odd','even') %>">
+					<td>
+					  <%= link_to (hit.accession), @blast_report.blast_database.link_ref + hit.accession %>
+					</td>
+					<td style='text-align:left'>
+						<%= params[:incoming_query] ? highlight(hit.definition, params[:incoming_query]) : hit.definition %>				
+					</td>
+					<td>
+						<%= hit.hsps.inject(0){|sum,hsp| sum+=hsp.score} %>
+					</td>
+					<td>
+						<%= hit.evalue %>
+					</td>
+					<td>
+						<%= link_to "[Alignment]",alignment_blast_report_path(@blast_report.id, :hit_accession => hit.accession), :remote => true %>
+					</td>
+				</tr>
+			<% end %>
+  	</tbody>
+  </table>
+  <span class='citation'><%#=TODO: Do we have to include blast reference? @blast_run.reference %></span>
+</div>

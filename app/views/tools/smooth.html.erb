@@ -14,6 +14,7 @@
 <% form_tag(:action => "smooth") do %>
 
   <%= label_tag :experiment %><br/>
+  <% #TODO: Update this selection list to be ChIP only and possibly a sample search not dropdown %>
   <%= select_tag(:experiment_id, "<option>-Select the experiment to smooth</option>".html_safe +
   options_from_collection_for_select(@experiments,:id,:typed_display_info), :'data-onchange' => asset_details_experiments_url, :'data-with' => 'exp_id', :'data-element' => :exp_info )%>
   <br/><br/>

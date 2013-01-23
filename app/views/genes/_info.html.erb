@@ -5,7 +5,7 @@
   <tr><td>Location:</td><td> <%=@gene_model.start_pos.to_i%>,<%=@gene_model.end_pos.to_i%></td></tr>
   <tr><td>Strand:</td><td> <%=@gene.locations.first.strand==1 ? "Forward" : "Reverse"%> </td></tr>
   <%if @gene.gene%><tr><td>Gene:</td><td> <%=@gene.name%><%end%>
-  <%unless @gene.gene_synonyms.blank?%><tr> <td>Synonyms:</td><td> <%=@gene.gene_synonyms.map(&:value).uniq.to_sentence %> </td></tr> <%end%>
+  <%unless @gene.gene_synonym %><tr> <td>Synonyms:</td><td> <%= @gene.gene_synonym %> </td></tr> <%end%>
   <%if @gene.product%><tr><td> Product:</td><td> <%=@gene.product.value%> </td></tr> <%end%>
   <% @gene.notes.each do |n|%>
     <tr><td>Note:</td><td><%=truncate(n.value,:length=>50)%></td></tr>

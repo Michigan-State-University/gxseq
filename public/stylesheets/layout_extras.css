@@ -73,6 +73,35 @@
 	margin:5px;
 }
 
+.card {
+	margin-left:2em;
+	background:#fff;
+	border: 3px solid rgb(185,185,185);
+	border-radius: 7px;
+	-moz-border-radius: 7px;
+	-webkit-border-radius: 7px;
+	-moz-box-shadow: 3px 7px 9px #555;
+	-webkit-box-shadow: 3px 7px 9px #655566;
+	box-shadow: 3px 7px 9px #555;
+	padding:5px;
+	margin:5px;
+}
+
+.smallcard {
+  font-size:80%;
+	margin-left:1em;
+	background:#fff;
+	border: 2px solid rgb(185,185,185);
+	border-radius: 6px;
+/*  -moz-border-radius: 6px;
+  -webkit-border-radius: 6px;
+  -moz-box-shadow: 3px 6px 8px #555;
+  -webkit-box-shadow: 3px 6px 8px #655566;
+  box-shadow: 3px 6px 8px #555;*/
+	padding:4px;
+	margin:4px;
+}
+
 /* Some extra styles*/
 h1.pagetitle {margin:0 0 0.4em 0; padding:0 0 2px 0; border-bottom:solid 7px #c3c4c7; color:#345; font-weight:bold; font-size:220%;}
 h1.pagetitle a {color:rgb(75,75,75);}
@@ -80,7 +109,7 @@ h2.title {margin:1 0 0.4em 0; padding:0 0 2px 0; border-bottom:solid 4px #c3c4c7
 h2.title a {color:rgb(75,75,75);text-decoration:none;color:rgb(75,75,75)}
 h2.title a:hover {cursor:pointer;color:rgb(75,75,75)}
 h2.smalltitle {margin:1 0 0.4em 0; padding:0 0 2px 0; border-bottom:solid 4px #c3c4c7; color:#445; font-weight:bold; clear:both;font-size:120%;width:150px}
-h3 {clear:both; margin:0em 0 0.5em 0;}
+h3 {clear:both; margin:0em 0 0.5em 0; color:#434447}
 /*error notice*/
 #errorExplanation{
   width: 700px;
@@ -334,3 +363,44 @@ cursor: default;
   height: 1%; }
 *:first-child + html .digg_pagination {
   overflow: hidden; }
+
+
+.blast_alignment {
+  border:           outset black 2px;
+  width:            700px;
+  padding:          4px;
+  background-color: #FFFFFF;
+}
+table.blast_report td {
+  font-size: 80%;
+}
+table.blast_report th {
+  padding: .25em;
+  font-weight: bold;
+  text-align: center;
+}
+table.blast_report td.odd {
+	background:#EEE;
+}
+table.blast_report td.even {
+	background:#FFFFCC;
+}	
+/*table.blast_report td.head {
+    background-color: #006633;
+    font-size:        80%;
+    font-weight:      bold;
+    color:            #FFFFFF;
+}*/
+table.blast_report td.subhead {
+    background-color: #648FAB;
+    font-size:        80%;
+    font-weight:      bold;
+    color:            #FFFFFF;
+}
+tr.alignment {
+  font-family: Courier New, monospace;
+  font-size: 1.4em;
+}
+tr.alignment pre {
+  margin:0px;
+}

@@ -268,7 +268,7 @@ class CreateBiosqlDb < ActiveRecord::Migration
       t.column :ontology_id, :integer, :limit => 10, :null => false
       t.timestamps
     end
-    add_index(:term, [:identifier], :unique => true, :name => :term_idx)
+    #add_index(:term, [:identifier], :unique => true, :name => :term_idx)
     add_index(:term, [:name, :ontology_id, :is_obsolete], :unique => true, :name => :term_idx_1)
     add_index(:term, [:name], :name => :term_idx_2)
     

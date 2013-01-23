@@ -1,5 +1,5 @@
 class MiscRna < Seqfeature
-  def display_name
+  def name
     "miscRNA"
   end
 end

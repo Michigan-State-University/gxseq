@@ -1,7 +1,6 @@
 class CreateExperiments < ActiveRecord::Migration
   def self.up
       create_table :experiments, :force => true do |t|
-        t.belongs_to :bioentry
         t.belongs_to :taxon_version
         t.belongs_to :user
         t.string  :name

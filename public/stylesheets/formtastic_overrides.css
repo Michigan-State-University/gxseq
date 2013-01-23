@@ -18,21 +18,24 @@
 }
 .formtastic li {
 	float:left;
-	width:70%;
+	width:60%;
 }
 
 .formtastic .smalltext{
-	width:20%;
+	width:25%;
 }
 
 .formtastic textarea {
  	height:50px;
-	width:70%;
+	width:50%;
 	max-width:100%;
 }
 
+.formtastic .stringish li {
+  max-width:60%;
+}
 .formtastic .stringish input {
-  max-width:50%;
+  max-width:60%;
 }
 
 .formtastic .input {
@@ -51,7 +54,6 @@ margin-bottom:0em;
 	font-weight:bold;
 	padding-top:5px;
 	padding-bottom:20px;
-	padding-left:3px;
 	border:none;
 	background: #ffbd3e;
 	background: -webkit-gradient(

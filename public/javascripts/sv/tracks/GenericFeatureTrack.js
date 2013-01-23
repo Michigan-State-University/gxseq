@@ -38,7 +38,7 @@ Ext.define('Sv.tracks.GenericFeatureTrack',{
 			{
 				containerA.setStyle('height', '49%');
 				containerB.setStyle('height', '49%');
-		        containerA.setStyle('borderBottom', 'dotted black 1px');
+		    containerA.setStyle('borderBottom', 'dotted black 1px');
 			}
 			containerA.appendTo(self.Canvas.ext);
 			containerB.appendTo(self.Canvas.ext);

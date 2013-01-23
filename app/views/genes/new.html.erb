@@ -1,7 +1,12 @@
 <% content_for :head do -%>
 	<%= stylesheet_link_tag 'formtastic', 'formtastic_overrides' %>
-	<%= render :partial => "common/extjs_css" %>
-	<%= render :partial => "common/extjs" %>
+  <%= stylesheet_link_tag 'jquery-ui-1.9.2' %>
+  <%= javascript_include_tag "jquery-latest.min.js" %>
+  <%= javascript_include_tag "jquery-ui-1.9.2.js" %>
+  <%= javascript_include_tag "autocomplete-rails.js" %>
+  <%# TODO: Remove extjs here if not needed %>
+	<%#= render :partial => "common/extjs_css" %>
+	<%#= render :partial => "common/extjs" %>
 <% end -%>
 
 <% content_for :sidebar do %>
@@ -16,15 +21,43 @@
 	With this Form you can add gene models to the database. To get started, choose a Species and Sequence. For more information please read the New Gene section of the <%= link_to 'gene details', details_genes_path %> page.
 <% end %>
 
-<%= render :partial => 'taxon_form' %>
 <br/><br/>
-<div id="bioentry_field">	
-	<% if(@taxon_version) %>
-		<%= render :partial => 'bioentry_form' %>
-	<% end%>	
-	<div id="form_field">
-		<% if(@taxon_version && @bioentry) %>
-			<%= render :partial => 'form' %>
-		<% end %>
-	</div>
+
+<%# TODO: Finish updates to gene model create form %>
+<%#= form_tag new_gene_path, :method => :get do %>
+  <%#= select_tag :taxon_version_id,
+    options_from_collection_for_select(@taxon_versions, :id, :name_with_version, params[:taxon_version_id]),
+    {:include_blank => "Select one...",:onchange => 'if (b=document.getElementById("bioentry_select")){b.selectedIndex = -1};this.form.submit()'}
+  %>
+  <!-- <%# if(@taxon_version) %>
+    <%#= select_tag :bioentry_id,
+      options_from_collection_for_select(@bioentries, :bioentry_id, :display_info, params[:bioentry_id]),
+      {:include_blank => "Select one...",:onchange => 'this.form.submit()',:id => 'bioentry_select'}
+    %>
+  <%# end%> -->
+<%# end %>
+
+
+  <% semantic_form_for @gene do |f| -%>
+  
+    <%#= f.input :taxon_version_id, :label => "Taxonomy", :as => :autocomplete, :url => autocomplete_taxon_version_id_path%>
+    <%= select_tag :taxon_version_id,
+      options_from_collection_for_select(@taxon_versions, :id, :name_with_version, params[:taxon_version_id]),
+      {:include_blank => "Select one...",:onchange => 'if (b=document.getElementById("bioentry_select")){b.selectedIndex = -1};this.form.submit()'}
+    %>
+    <%# if(@taxon_version) %>
+      <%= f.input :bioentry_id, :label => "Sequence", :as => :autocomplete, :url => autocomplete_bioentry_id_genes_path%>
+    <%# end %>
+    <%= f.actions do %>
+      <%= f.action :submit, :label => "Select", :button_html => {:class => 'button'} %>
+    <% end %>
+    
+  <% end -%>
+
+
+<div id="form_field">
+	<% if(@taxon_version && @bioentry) %>
+		<%= render :partial => 'form' %>
+	<% end %>
 </div>
+

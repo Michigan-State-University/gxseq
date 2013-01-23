@@ -1,38 +1,16 @@
 class Gene < Seqfeature
-  has_many :gene_models
+  has_many :gene_models, :inverse_of => :gene
   before_validation :initialize_associations
   validates_associated :gene_models
   validate :check_locus_tag
   accepts_nested_attributes_for :gene_models, :allow_destroy => true
-  
-  searchable(:include => [:bioentry,:type_term,:qualifiers]) do
-    text :qualifier_values, :stored => true do
-      qualifiers.map{|q|"#{q.name}: #{q.value}"}
-    end
-    text :locus_tag, :stored => true do
-     locus_tag.value if locus_tag
-    end
-    string :sequence_name do
-      bioentry.display_name
-    end
-    string :species_name do
-      bioentry.species_name
-    end
-    string :version_name do
-      bioentry.version_info
-    end
-  end
-  
+    
   def self.find_by_locus_tag(locus="")
     self.find_all_by_locus_tag(locus).first
   end
   
   def self.find_all_by_locus_tag(locus="")
     Gene.joins(:qualifiers=>:term).where(:term=>{:name=>'locus_tag'}).where(:qualifiers=>{:value=>locus}).includes(:bioentry, :locations, :type_term, :qualifiers=>:term)
-  end
-  
-  def self.find_all_with_locus_tags(locus)
-    Gene.joins(:qualifiers=>:term).where(:term=>{:name=>'locus_tag'}).where{qualifiers.value.in(locus)}.includes(:bioentry, :locations, :type_term, :qualifiers=>:term)
   end
   
   def representative_gene_model
@@ -43,31 +21,8 @@ class Gene < Seqfeature
     'Gene'
   end
   
-  def display_name
-    self.gene.nil? ? "-" : self.gene.value
-  end
-  
   def name
     self.gene.nil? ? locus_tag.value : self.gene.value
-  end
-  
-  def function
-     qualifiers.each do |q|
-        if q.term.name == 'function'
-           return q
-        end
-     end
-     return nil
-  end
-  
-  def gene_synonyms
-    a = []
-     qualifiers.each do |q|
-        if q.term.name == 'gene_synonym'
-           a<<q
-        end
-     end
-     return a
   end
   
   def possible_starts(padding=300)
@@ -92,15 +47,11 @@ class Gene < Seqfeature
   end
   
   def initialize_associations
-    logger.info "\n\nStart validating GENE\n\n"
     self.gene_models.each{|gm| gm.gene=self; gm.bioentry=self.bioentry}
-    logger.info "\n\n Before Super\n\n"
     super
-    logger.info "\n\n-done validating GENE\n\n"
   end
   
   def check_locus_tag
-    logger.info "\n\nCHECKING LOCUS TAG = GENE\n\n"
     if(self.locus_tag)
       if(self.locus_tag.value.match(/\s/))
         self.errors.add("locus_tag", "cannot have white space")

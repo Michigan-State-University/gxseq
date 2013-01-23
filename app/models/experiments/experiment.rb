@@ -3,6 +3,7 @@ class Experiment < ActiveRecord::Base
   include Smoothable
   belongs_to :user
   belongs_to :taxon_version
+  belongs_to :group
   has_many :bioentries_experiments, :dependent => :destroy
   #has_many through is ignoring the set_primary_key definition. Need to fix this!
   #has_many :bioentries, :through => :bioentries_experiments
@@ -129,15 +130,14 @@ class Experiment < ActiveRecord::Base
     
     super(tv_id)
   end
-  
-## Convienence Methods
 
-  def display_name
-    self.name
-  end
-  
+## Convienence Methods
   def taxon_version_name
     taxon_version.name_with_version if taxon_version
+  end
+  
+  def display_name
+    self.name
   end
   
   def display_info
@@ -160,7 +160,6 @@ class Experiment < ActiveRecord::Base
     end
     bioentries_experiments.find_by_bioentry_id(id).sequence_name
   end
-  
   # return the chrom name for a bioentry ... duplication? TODO Fix duplication
   def get_chrom(bioentry_id)
     be = self.bioentries_experiments.where(:bioentry_id=>bioentry_id).first
@@ -176,7 +175,7 @@ class Experiment < ActiveRecord::Base
   def summary_data(start,stop,num,chrom)
   end
   # Builds new tracks to represent asset data
-  # TODO - can this be removed?
+  # TODO - can this be removed, using the experiment for track info instead? Are there any samples with >1 track per sequence
   def create_tracks
   end
   # Enables parsing / processing asset data on load

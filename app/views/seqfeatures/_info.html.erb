@@ -1,16 +1,22 @@
-<b>Feature: <%=@generic.display_name %></b>&nbsp;&nbsp;
+<b>Feature: <%=@seqfeature.display_name %></b>&nbsp;&nbsp;
 <hr/>
+<div style="float:right"><%= link_to "more details...", seqfeature_path(@seqfeature), :target => @seqfeature.id %></div>
 <table>
-  <tr><td>Strand:</td><td> <%=@generic.locations.first.strand ? "Forward" : "Reverse"%> </td></tr>
+  <tr><td>Strand:</td><td> <%=@seqfeature.locations.first.strand ? "Forward" : "Reverse"%> </td></tr>
   <tr>
-	<td>Locations:</td>
-	<td> 
-		<% @generic.locations.each do |location|%>
-			(<%= location.start_pos  %>..<%= location.end_pos %>)<br/>
-		<% end %>
-	</td>
- </tr>
-  <% @generic.qualifiers.each do |qualifier|%>
-    <tr><td><%= qualifier.term.name.capitalize %>:</td><td><%=truncate(qualifier.value,:length=>50)%></td></tr>
-  <%end%>
+    <td>Locations:</td>
+    <td> 
+    <% @seqfeature.locations.each do |location|%>
+    (<%= location.start_pos  %>..<%= location.end_pos %>)<br/>
+    <% end %>
+  </td>
+  </tr>
+  <% @ontologies.each do |ont| %>
+    <% next unless @seqfeature.qualifiers.with_ontology(ont.id).length > 0%>
+    <tr></tr>
+    <tr><td><b><%= ont.name %></b></td></tr>
+    <% @seqfeature.qualifiers.with_ontology(ont.id).each do |qualifier|%>
+      <tr><td><%= qualifier.term.name.capitalize %>:</td><td><%=truncate(qualifier.value,:length=>50)%></td></tr>
+    <% end %>
+  <% end %>
 </table>

@@ -1,9 +1,9 @@
 module BioentriesHelper
   
   ## Work in progress
-  ## Need to clean up the storage of this data
-  ## Need to trim down to basic init configuration only 
-  ## All other data should be requested by the js app
+  ##TODO: Need to clean up the storage of this data
+  ##TODO: Need to trim down to basic init configuration only 
+  ##TODO: All other data should be requested by the js app
   
   def build_genome_gui(bioentry)
     text = "<script type='text/javascript'>\nAnnoJ.config = {\ntracks : ["
@@ -11,7 +11,7 @@ module BioentriesHelper
     #grab all of the tracks for the genome
     all_tracks = bioentry.tracks
     
-    #caved custom configs
+    #saved custom configs
     if(@layout)
       #remove any tracks that have a custom config from the list
       all_tracks -= @layout.track_configurations.collect{|tc|tc.track}
@@ -28,11 +28,10 @@ module BioentriesHelper
       {#{track.config},\npath:'#{current_user.preferred_track_path(track) || track.path}'},\n"
     end
     
-    
     text += "],\n"
     text += "renderTo : 'center-column',\n"
     text += "active : #{@active_tracks},\n"
-    text += "genome :  '#{root_path}fetchers/metadata',\n"
+    text += "genome :  '#{root_path}bioentries/metadata',\n"
 		text += "bioentry  :  '#{@bioentry.id}',\n"
 		text += "gene_id : '#{@gene_id}',\n" if(@gene_id)
 		text += "feature_id : '#{@feature_id}',\n" if(@feature_id)

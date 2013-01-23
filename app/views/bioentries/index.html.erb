@@ -1,156 +1,96 @@
 <% content_for :head do %>
-	<%= stylesheet_link_tag 'sstree' %>
 	<%= render :partial => "common/extjs" %>
-	<%= render :partial => "common/extjs_css_gray" %>
-	<%= render :partial => "common/svjs_css" %>
-	<%= javascript_include_tag 'sstree' %>
-	
 <% end %>
+<%= render :partial => "sidebar", :locals => {:active => "search"} %>
 
-<% content_for :body_onload do -%>
-	<%#= "document.getElementById('sstree-sequence').onselectstart = function() { return(false); };" %>
-<% end %>
+<% content_for :top_bar do -%>
+  <h1 class="pagetitle">Search Sequence</h1>
+<% end -%>
 
-<% content_for :top_bar do %>
-	<!-- Header here -->
-	<h1 class="pagetitle">Sequence</h1>
-<% end %>
-
-<% content_for :item_bar do %>
-	<!-- Filter / Search items here -->
-	<div style="float:left">
-		<%#= link_to "Upload Sequence", send("new_bioentry_path"), :class => "button" %>
-	</div>
-<% end %>
-
-<% content_for :sidebar do %>
-	<!-- Sidebar / Links / Notices here -->
-	<%= render :partial => "sidebar", :locals => {:active => 'listing'} %>
-<% end %>
-
-<p>
-   Each species in the database is displayed below. Click the arrow next to an entry to list all of its sequence, or use the text field to search on name and description. Then, select a result to display the Sequence Viewer and load the entry. To view a tabular list of sequence for a species select the list icon. <%= image_tag("table.png") %>	
-</p>
-<br/>
-
-<div class="table" id="sstree-sequence">
-<table class="listing sstree">
-	<thead >
-		<th style="border:none;text-align:left" width="5%">Species</th>
-		<th style="border:none;text-align:left" width="30%">Taxon</th>
-		<th style="border:none;text-align:left" width="10%">Version</th>
-		<th style="border:none" width="55%">Sequence</th>
-	</thead>
-	<% @bioentry_species.each_with_index do |species, species_idx| %>
-	<% id = species_idx + 1  %>
-	<tr id="<%= id %>" class="one">
-		<td colspan="2">
-			<div class="tier1">
-				<a id="a_<%= id %>" style="width:32px;height:32px" class="folder-open" name="<%= id %>"href="#<%= id %>" onclick="toggleRows(this);return false"></a>
-				<%= species.scientific_name.name %>
-			</div>
-		</td>
-		<td></td><td></td>
-	</tr>
-			<% species.species_versions.each_with_index do |t_version, v_idx| %>
-				<% id = "#{species_idx + 1}-#{v_idx + 1}" %>
-				<tr id="<%= id %>" class="item">
-					<td colspan="2"style="text-align:center">
-					  <div class="tier4">
-					    <a name="<%= id %>" href="#<%= id %>" ></a>
-					  </div>
-					  <%= t_version.name %>
-					</td>
-					<td style="text-align:left">
-						<%= t_version.version %>
-					</td>
-					<td style="text-align:left">
-              <% unless t_version.bioentries.blank? %>
-					      <%= remote_search(t_version.id,"taxon_versions.json","taxon_version_#{t_version.id}_search") %>
-					    <% end %>
-					    <%= link_to image_tag("table.png", :style => "padding:0px 1px 0px 5px"), t_version, :target => :blank %> 
-					    (<%= t_version.bioentries.count %>)     
-					</td>
-				</tr>
-		<% end %>
-	<% end %>
-</table>
+<% content_for :item_bar do -%>
+  <div>
+    <%= link_to "Download Fasta", bioentries_path(
+      :taxon_version => params[:taxon_version],
+      :biodatabase => params[:biodatabase],
+      :taxon_type => params[:taxon_type],
+      :keywords => params[:keywords],
+      :c => params[:c],
+      :d => params[:d],
+      :format => 'fasta'
+    ), :class => "button", :confirm => "Depending on the volume of data available, it may take several minutes to complete your request. The File will be streamed to you as it is generated. Click OK to continue." %>
+  </div>
+  <div>
+    <%= link_to "Download Genbank", bioentries_path(
+      :taxon_version => params[:taxon_version],
+      :biodatabase => params[:biodatabase],
+      :taxon_type => params[:taxon_type],
+      :keywords => params[:keywords],
+      :c => params[:c],
+      :d => params[:d],
+      :format => 'genbank'
+    ), :class => "button", :confirm => "Depending on the volume of data available, it may take several minutes to complete your request. The File will be streamed to you as it is generated. Click OK to continue." %>
+  </div>
+<% end -%>
+<div>
+  <% form_tag bioentries_path, :method => :get do %>
+    <div style="float:left">
+      Filter by Taxonomy:<br/>
+      <%= select_tag 'taxon_version', options_for_select(@taxon_versions.collect{|s| [s.name_with_version,s.id]},params[:taxon_version]), {:include_blank => "No Filter", :onchange => "this.form.submit()"} %>
+    </div>
+    <% if @biodatabases.size > 1 %>
+    <div style="float:left">
+      Filter by Database:<br/>
+      <%= select_tag 'biodatabase', options_for_select(@biodatabases.collect{|b| [b.name,b.id]},params[:biodatabase]), {:onchange => "this.form.submit()"} %>
+    </div>
+    <% end %>
+    <div style="float:left">
+      Filter by Type:<br/>
+      <%= select_tag 'taxon_type', options_for_select(['Genome','Transcriptome'],params[:taxon_type]), {:include_blank => "No Filter", :onchange => "this.form.submit()"} %>
+    </div>
+    <div style="float:right">
+      Search:<br/>
+      <%= text_field_tag "keywords",params[:keywords] %>
+      <%= submit_tag 'Go' %>
+    </div>
+  <% end -%>
 </div>
-<script type="text/javascript">
+<br/ style="clear:both"><br/>
+<% if @search.nil? %>
+  No Results Found...
+<% else %>
+  <div class="pagination">
+    <span style="float:left"><%= will_paginate(@search.hits) %></span>
+    <span style="float:right;margin-right:2em"><%= number_with_delimiter(@search.total) %> Matching Results</span>
+  </div>
 
-Ext.onReady(function(){
-  //Define Model
-  Ext.define('GeneSearchResult',{
-    extend : 'Ext.data.Model',
-    fields: [
-    {name: 'id', type:'int'},
-    {name: 'accession', type:'string'},
-    {name: 'name', type: 'string'},
-    {name: 'length', type: 'int'},
-    {name: 'reload_url',type:'string'}
-    ]
-  });
-  
-  // Add search boxes to each row
-  items = document.getElementsByClassName('remote_search');
-  Ext.each(items,function(){
-    renderSearchBox(this.readAttribute('data-item'),this.readAttribute('data-url'),this.id)
-  })
-  
-});      
-
-function renderSearchBox(taxon_version_id, searchURL,searchDiv,searchString){
-  var ds = Ext.create('Ext.data.Store',{
-    model: 'GeneSearchResult',
-    pageSize : 10,
-    proxy : {
-      type : 'ajax',
-      url : searchURL,
-      reader:{
-        type : 'json',
-        root : 'rows',
-        totalProperty : 'count',
-        id : 'id'
-      },
-      extraParams : {
-        taxon_version_id  : taxon_version_id
-      }
-    },
-
-  });
-
-  var search = new Ext.form.ComboBox(
-    {
-      store       : ds,
-      valueField  : 'id',
-      width       : 300,
-      queryDelay  : 500,
-      minChars    : 1,
-      hideTrigger : false,
-      pageSize    : 10,
-      renderTo    : searchDiv,
-      emptyText   : searchString,
-      listConfig  : {
-        loadingText  : 'Searching...',
-        getInnerTpl: function() {
-          return '<div class="drop_list"><div style="float:left"><b>{accession}:</b>({length})</div><div style="float:right"><b>{name}</b></div><br/></div>'
-        }
-      },			
-      listeners : {
-
-        beforequery:function(queryEvent){
-          //Hack fix for missing query param: http://www.sencha.com/forum/showthread.php?134592-EXTJSIV-2470-4.0.1-ComboBox-not-issuing-queryParam-on-paging-requests
-          queryEvent.combo.store.proxy.extraParams.query = queryEvent.combo.getValue();
-        },
-        change:function(combo){
-          combo.store.currentPage = 1;
-        },
-        select : function(box, items)
-        {
-          record = items[0] //we only allow single selection
-          window.open(record.data.reload_url+"/"+record.data.id,record.data.id+"_sequence")
-        }
-      }
-    });
-  }
-</script>
+  <div class="table">
+    <table class="listing">
+      <thead>
+        <th style="white-space:nowrap"><%= sort_link "Species", 'species_name' %></th>
+        <th style="white-space:nowrap"><%= sort_link "Taxon", 'taxon_version_name' %></th>
+        <th style="white-space:nowrap"><%= sort_link "Version", 'version' %></th>
+        <th style="white-space:nowrap"><%= sort_link "Description", 'description' %></th>
+        <th style="white-space:nowrap"><%= sort_link "Type", 'sequence_type' %></th>
+        <th style="white-space:nowrap"><%= sort_link "Sequence", 'sequence_name' %></th>
+        <th style="white-space:nowrap"><%= sort_link "Accession", 'accession' %></th>
+        <th>Options</th>
+      </thead>
+      <% @search.hits.each do |hit| %>
+      <tr>
+        <td><%= highlight_result(hit,:species_name_text) %></td>
+        <td><%= highlight_result(hit,:taxon_version_name_text) %></td>
+        <td><%= highlight_result(hit,:version_text) %></td>
+        <td><%= highlight_result(hit,:description_text) %></td>
+        <td><%= highlight_result(hit,:sequence_type_text) %></td>
+        <td><%= highlight_result(hit,:sequence_name_text) %></td>
+        <td><%= highlight_result(hit,:accession_text) %></td>
+        <td style="white-space:nowrap">
+          <%= link_to 'View', bioentry_path(hit.stored(:id)) %>
+          |
+          <%= link_to 'Details', bioentry_path(hit.stored(:id), :fmt => 'genbank') %>
+        </td>
+      </tr>
+      <% end %>
+    </table>
+  </div>
+<% end %>

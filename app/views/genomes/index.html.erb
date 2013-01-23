@@ -1,0 +1,23 @@
+<% content_for :head do %>
+	<%= stylesheet_link_tag 'sstree' %>
+	<%= render :partial => "common/extjs" %>
+	<%= javascript_include_tag 'sstree' %>
+<% end %>
+
+<% content_for :top_bar do %>
+	<!-- Header here -->
+	<h1 class="pagetitle">Genomes</h1>
+<% end %>
+
+<% content_for :item_bar do %>
+	<!-- Filter / Search items here -->
+	<div style="float:left">
+	</div>
+<% end %>
+
+<% content_for :sidebar do %>
+	<!-- Sidebar / Links / Notices here -->
+	<%= render :partial => "bioentries/sidebar", :locals => {:active => 'genome'} %>
+<% end %>
+<br/>
+<%= render :partial => "taxon_versions/species_list", :locals => {:species => @species} %>

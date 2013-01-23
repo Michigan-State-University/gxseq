@@ -9,7 +9,7 @@
 </div>
 
 <div id="variants_text" class="clear">
-	<% variants  = @gene.bioentry.variants %>	
+	<% variants = @gene.bioentry.variants %>	
 	<% @gene.gene_models.each do |gene_model| %>
 		<h1 class    = "pagetitle" style="font-size:190%">
 			<%= gene_model.display_name %> 

@@ -1,7 +1,0 @@
-<ul class="nested-fields">
-	<%= f.inputs "CDS", :class => "border_white" do %>
-		<%= link_to_remove_fields image_tag("delete.png",:alt => "Remove CDS"), f, :style => "float:right;margin-top:-2.25em;"%>
-		<div class="gene_model_cds_qualifiers">
-			<%= render :partial => 'seqfeature_fields', :locals => {:f => f}%>
-		</div>
-	<% end %>

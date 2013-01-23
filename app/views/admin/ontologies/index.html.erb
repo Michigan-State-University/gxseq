@@ -1,0 +1,52 @@
+<% content_for :top_bar do %>
+  <h1 class="pagetitle">Ontology</h1>
+<% end %>
+
+<%= render :partial => "admin/sidebar", :locals => {:active => 'ontology'} %>
+
+<% content_for :item_bar do %>
+<%= link_to 'New Ontology', new_admin_ontology_path, :class => 'button' %>
+<div style="float:right">
+  <%= form_tag admin_ontologies_path, :method => :get do %>
+
+    <div style="float:right">
+      <label>
+        <input type="text" name="query"/>
+      </label>
+      <label>
+        <input type="submit" name="Submit" value="Search" class="button" />
+      </label>
+    </div>
+  <% end %>
+</div>
+Adding/Removing requires a restart to take effect
+<% end %>
+
+<div class="table">
+  <table class="listing">
+    <thead>
+      <th width="20%"><%= sort_link "ID", :id %></th>
+      <th width="20%"><%= sort_link "Name", :name %></th>
+      <th width="20%"><%= sort_link "Definition", :definition %></th>
+      <th width="20%">Terms</th>
+      <th width="12%"><%= sort_link "Created", :created_at %></th>
+      <th width="12%"><%= sort_link "Updated", :updated_at %></th>
+      <th>Options</th>
+    </thead>
+  
+    <% for ont in @ontologies %>
+      <tr>
+        <td><%= ont.id %></th>
+        <td><%= ont.name %></th>
+        <td><%= ont.definition %></th>
+        <td><%= link_to ont.terms.size, admin_terms_path(:ontology_id => ont.id) %></t>
+        <td class="style3"><%= ont.created_at.strftime('%b %d \'%y') %></td>
+        <td class="style3"><%= ont.updated_at.strftime('%b %d \'%y') %></td>
+        <td>
+          <%= link_to '[Edit]', edit_admin_ontology_path(ont) %>
+          <%= link_to '[Remove]', admin_ontology_path(ont), :method => :delete %>
+        </td>
+      </tr>
+    <% end %>
+  </table>
+</div>

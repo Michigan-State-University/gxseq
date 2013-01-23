@@ -25,10 +25,10 @@ module GenesHelper
     end
     return html
   end
-  
-  def cleanup_sqv_ids(hash)
-    "qualifiers[#{hash.first[0]}][#{hash.first[1].split(',').join('_')}]"
-  end
+  # 
+  # def cleanup_sqv_ids(hash)
+  #   "qualifiers[#{hash.first[0]}][#{hash.first[1].split(',').join('_')}]"
+  # end
   
   def text_area_size(rows,str)
     max = (str.size > 250 ? 250 : str.size)

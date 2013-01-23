@@ -3,20 +3,28 @@ class Sequence < Thor
   require File.expand_path('config/environment.rb')
   
   desc 'load FILE','Load genomic sequence into the database'
-  method_options :namespace => 'Genomes', :verbose => false, :version => 1, :source_name => "EMBL/GenBank/SwissProt", :test_only => false
-  method_option :taxon_name
+  method_options :database => 'Public', :verbose => false, :version => 1, :source_name => "EMBL/GenBank/SwissProt"
+  method_options :transcriptome => false, :add_entry_feature => nil
+  method_option :species
+  method_option :strain
   method_option :division
   method_option :molecule_type
   def load(input_file)
     # setup
     version = options[:version]
-    namespace = options[:namespace]
+    database = options[:database]
     verbose = options[:verbose]
     taxon_name = options[:taxon_name]
     division = options[:division]
     molecule_type = options[:molecule_type]
     source_name = options[:source_name]
     test_only = options[:test_only]
+    is_transcriptome = options[:transcriptome]
+    entry_feature = options[:add_entry_feature]
+    species = options[:species]
+    strain = options[:strain]
+    species_id=options[:species_id]
+    strain_id = options[:strain_id]
     entry_count = 0
     seq_key_terms = {}
     anno_tag_terms = {}
@@ -36,18 +44,18 @@ class Sequence < Thor
     end
     # Check file format
     supported_file_types= ['genbank','fasta']
-    file_type = data.dbclass.name.gsub(/Bio::/,'').downcase
+    file_type = data.dbclass.name.gsub(/Bio::/,'').downcase.gsub(/format/,'')
     unless(supported_file_types.include?(file_type))
-      raise "Unsupported file type #{file_type}\nPlease provide a #{supported_file_types.to_sentence(:last_word_connector => ' or ')}"
+      raise "Unsupported file type #{file_type}\nPlease provide a #{supported_file_types.to_sentence(:last_word_connector => ' or ', :two_words_connector => ' or ')}"
     end
     # Setup namespace and source term
-    bio_db = Biodatabase.find_or_create_by_name(namespace)
+    bio_db = Biodatabase.find_or_create_by_name(database)
     seq_src_term = Term.find_or_create_by_name_and_ontology_id(source_name,Term.seq_src_ont_id)
-    # Loop through each of the entries we receive from FlatFile iterator
-    data.each do |entry|
-      # Put this all in a transaction, just in case. We don't want partial bioentries
-      begin
-        Biodatabase.transaction do
+    # Put this all in a transaction, just in case. We don't want partial bioentries
+    begin
+      Biodatabase.transaction do
+        # Loop through each of the entries we receive from FlatFile iterator
+        data.each do |entry|
           # Getting an empty entry at end of file so we skip it here          
           next if(entry.accession.blank? && entry.definition.blank? && entry.seq.length == 0 && entry.features.size == 0)          
           #create the accesion for this sequence based on accession, entry_id, and locus          
@@ -65,13 +73,15 @@ class Sequence < Thor
             entry_version = 1
           end
           # Get Taxon
-          taxon = get_entry_taxonomy(entry,taxon_name)
-          bio_db.taxons << taxon
+          species_taxon, strain_taxon = get_entry_taxonomy(entry,{:species => species,:strain => strain,:species_id => species_id,:strain_id => strain_id})
           # Get Taxon Version
-          taxon_version = TaxonVersion.find_or_create_by_version_and_taxon_id(version, taxon.id)
-          taxon_version.species_id ||= taxon.species.id
-          taxon_version.name ||= taxon.name
-          taxon_version.save!
+          if(is_transcriptome)
+            taxon_version = Transcriptome.find_or_create_by_version_and_species_id_and_taxon_id(version,species_taxon.id,strain_taxon.id)
+          else
+            taxon_version = Genome.find_or_create_by_version_and_species_id_and_taxon_id(version,species_taxon.id,strain_taxon.id)
+          end
+          # link Biodatabase
+          bio_db.taxons << species_taxon unless bio_db.taxons.include?(species_taxon)
           
           # get Division
           unless(entry_division = division || (entry.respond_to?(:division) ? entry.division : nil))
@@ -98,10 +108,26 @@ class Sequence < Thor
             raise "*** No division could be found\n"
           end
           
+          # get alphabet
+          unless(alphabet = entry_bioseq.molecule_type || molecule_type)
+            puts "\tDNA - Genomic DNA: Sequence derived directly from the DNA of an organism. Note: The DNA sequence of an rRNA gene has this molecule type, as does that from a naturally-occurring plasmid."
+            puts "\tRNA - Genomic RNA: Sequence derived directly from the genomic RNA of certain organisms, such as viruses."
+            puts "\tpRNA - Precursor RNA: An RNA transcript before it is processed into mRNA, rRNA, tRNA, or other cellular RNA species."
+            puts "\tmRNA - mRNA[cDNA]: A cDNA sequence derived from mRNA."
+            puts "\trRNA - Ribosomal RNA: A sequence derived from the RNA in ribosomes. This should only be selected if the RNA itself was isolated and sequenced. If the gene for the ribosomal RNA was sequence, select Genomic DNA."
+            puts "\ttRNA - Transfer RNA: A sequence derived from the RNA in a transfer RNA, for example, the sequence of a cDNA derived from tRNA."
+            puts "\tother - Other-Genetic: A synthetically derived sequence including cloning vectors and tagged fusion constructs."
+            puts "\tcRNA - RNA: A sequence derived from complementary RNA transcribed from DNA, mainly used for viral submissions."
+            puts "\ttransRNA: A sequence derived from any transcribed RNA not listed above."
+            puts "\ttmRNA - Tranfer-messenger RNA: A sequence derived from transfer-messenger RNA, which acts as a tRNA first and then an mRNA that encodes a peptide tag. If the gene for the tmRNA was sequenced, use genomic DNA."
+            puts "\tncRNA - ncRNA: A sequence derived from other non-coding RNA not specified"
+            raise "*** No molecule type found\n"
+          end
+          
           # Check for existing entry
           unless(bioentry = Bioentry.find_by_taxon_version_id_and_biodatabase_id_and_accession_and_version(taxon_version.id,bio_db.id,entry_accession,entry_version))
             # bioentry
-            bioentry = bio_db.bioentries.create(
+            bioentry = bio_db.bioentries.new(
             :taxon_version => taxon_version,
             :taxon_id  => taxon_version.taxon_id,
             :name => entry_accession,
@@ -111,16 +137,39 @@ class Sequence < Thor
             :description => entry.definition,
             :version => entry_version
             )
-            bioentry.update_attribute(:identifier, bioentry.id) #use our own internal id for bioentry->identifier
-            
             # biosequence
-            bioseq = bioentry.create_biosequence(
+            bioseq = bioentry.build_biosequence(
             :version => entry_version,
-            :length => entry.length,
-            :alphabet => entry_bioseq.molecule_type || (molecule_type || (raise "A molecule type could not be found. Please supply molecule_type=")),
+            :length => entry_bioseq.length,
+            :alphabet => alphabet,
             :seq  => entry.seq.upcase
             )
-
+            # entry and bioseq are built and then saved to allow indexer lookup of bioseq in callback
+            bioentry.save!
+            #use our own internal id for bioentry->identifier
+            bioentry.update_attribute(:identifier, bioentry.id)
+            # New Entry Feature?
+            if(entry_feature)
+              type_term_id = Term.find_or_create_by_name_and_ontology_id(entry_feature,Term.seq_key_ont_id).id
+              new_seqfeature_id=Seqfeature.fast_insert(
+                :bioentry_id => bioentry.id,
+                :type_term_id => type_term_id,
+                :source_term_id => seq_src_term.id,
+                :rank => 1,
+                :display_name => entry_feature.downcase.camelize
+              )
+              Location.fast_insert(
+                :seqfeature_id => new_seqfeature_id,
+                :start_pos => 1,
+                :end_pos => entry_bioseq.length,
+                :strand => 1,
+                :rank => 1,
+                :term_id => type_term_id
+              )
+              locus_term_id = Term.find_or_create_by_name_and_ontology_id('locus_tag', Term.ano_tag_ont_id).id
+              base.connection.execute("INSERT INTO SEQFEATURE_QUALIFIER_VALUE (seqfeature_id,term_id,value,rank)
+              VALUES(#{new_seqfeature_id},#{locus_term_id},'#{entry_accession}',1)")
+            end
             # comment(s)
             if(entry_bioseq.comments.kind_of?(Array) && !entry_bioseq.comments.empty?)
               entry_bioseq.comments.each do |c|
@@ -135,10 +184,9 @@ class Sequence < Thor
               :rank => bioentry.comments.size + 1
               )
             end
-
             # bioentry dblinks
             b_dbx_rank = 1
-            if(entry.gi && entry.gi.to_i > 0)        
+            if(entry.gi && entry.gi.to_i > 0)
               new_xref= Dbxref.create(
               :dbname => "GI",
               :accession => entry.gi.gsub(/g|G|i|I\:/, "").to_i,
@@ -275,18 +323,13 @@ class Sequence < Thor
             puts "Skipping Existing : #{entry.accession} (#{entry.length}) - #{entry.definition} - version:#{bioentry.version} features:#{bioentry.seqfeatures.count} references:#{bioentry.bioentry_references.count}" if verbose
             bad_count+=1
           end#End this bioentry
-          if test_only
-            raise "NotSaved"
-          end
-        end#End Transaction
-      rescue 'NotSaved'
-        puts "\n\t...Not Saved - Test only flag set"
-      rescue  => e
-        puts "\n***** There was an error loading entry #{entry_count}. *****\n#{$!}#{verbose ? e.backtrace.inspect : ""}"
-        bad_count +=1
-      end
-      entry = nil
-    end#End Bioentry loop
+          entry = nil
+        end#End Bioentry loop
+      end#End Transaction
+    rescue  => e
+      puts "\n***** There was an error loading entry #{entry_count}. *****\n#{$!}#{verbose ? e.backtrace.join("\n") : ""}"
+      bad_count +=1
+    end
     # report entry count
     total_count = entry_count - bad_count
     if ( total_count == 0)
@@ -327,41 +370,76 @@ class Sequence < Thor
     return entry_accession
   end
   # compare the entry against taxon in the database. Try to find an existing match. Create a new taxonomy if none found
-  def get_entry_taxonomy(entry,taxon_name=nil)
-    if(taxon_name)
-      if(tn = TaxonName.find_by_name(taxon_name) )
-        taxon = tn.taxon
-      end
-    elsif(entry.respond_to?(:organism))
-      taxon_name = entry.organism
-      if(tn = TaxonName.find_by_name(taxon_name) )
-        taxon = tn.taxon
-      elsif(entry.features.first.feature=='source' && (source_taxon_match = entry.features.first.qualifiers.collect{|q| (q.qualifier=='db_xref' && (m = q.value.match(/taxon:(\d+)/))) ? m : nil}.compact).any?  && ( t = Taxon.find_by_ncbi_taxon_id(source_taxon_match.first[1]) ))
-        taxon = t
-      end
-    else
-      raise "Could not infer taxonomy for: #{entry.accession}.You must supply taxon_name="
+  def get_entry_taxonomy(entry,opts={})
+    # setup user supplied species
+    species_taxon = nil
+    if(opts[:species])
+      species_taxon = (t = TaxonName.find_by_name(opts[:species])) ? t.taxon : create_taxon(opts[:species])
+    elsif(opts[:species_id])
+      species_taxon = TaxonName.find(opts[:species_id]).taxon
     end
-    unless(taxon)
-      puts "No taxon found for #{taxon_name} - Creating new entry."
-      begin
-        # try to create so we can continue
-        unless (Taxon.count > 0)
-          puts "*** The taxonomy tree is empty. You should load it before running this script. You have 5 seconds to press ctl-c before I continue...***"
-          sleep 5
-          parent = Taxon.create(:node_rank  => "species", :genetic_code => '1', :mito_genetic_code  => '0')
-          parent.taxon_names.create(:name => taxon_name, :name_class => "scientific name") 
-        else
-          # Make the new taxon
-          parent = Taxon.create(:node_rank  => "species", :genetic_code => '1', :mito_genetic_code  => '0')
-          parent.taxon_names.create(:name => taxon_name, :name_class => "scientific name")
+    # setup user supplied strain/variety
+    strain_taxon = nil
+    if(opts[:strain])
+      strain_taxon = (t = TaxonName.find_by_name(opts[:strain])) ? t.taxon : create_taxon(opts[:strain],'varietas')
+    elsif(opts[:strain_id])
+      strain_taxon = TaxonName.find(opts[:strain_id]).taxon
+    else
+    # strain not supplied - look for organism
+    if(entry.respond_to?(:organism))
+      if(tn = TaxonName.find_by_name(entry.organism) )
+        strain_taxon = tn.taxon
+      else
+        t = nil
+        entry.source_features.find do |source|
+          unless (results = source.qualifiers.select{|q| q.qualifier=='db_xref' && q.value.match(/taxon/)}.collect{|q| Taxon.find_by_ncbi_taxon_id(q.value.match(/taxon:(\d+)/)[1])}).empty?
+            t = results.first
+            true
+          end
+          false
         end
-        taxon = parent
-      rescue
-        raise "Error creating taxon\n#{$!}"
+        strain_taxon = t
       end
+    end
+    end
+    # species not supplied
+    if species_taxon.nil?
+      # strain supplied - If the strain/varietas is above species rank, the taxonomy will be 'unknown'
+      if strain_taxon
+        species_taxon = strain_taxon.species || Taxon.unknown
+      # species and strain not set ...
+      else
+        raise "Could not infer taxonomy for: #{entry.accession}.You must supply strain_name= and/or species_name=. If unknown use: --species_name='Unidentified'"
+      end
+    # species supplied - check strain
+    else
+      strain_taxon ||= species_taxon
+    end
+    # check for ancestry
+    unless species_taxon.parent_taxon_id
+      species_taxon.update_attribute(:parent_taxon_id,Taxon.root.taxon_id)
+    end
+    unless strain_taxon.parent_taxon_id
+      strain_taxon.update_attribute(:parent_taxon_id,species_taxon.taxon_id)
+    end
+    return species_taxon,strain_taxon
+  end
+  
+  def create_taxon(taxon_name, node_rank='species')
+    puts "No taxon found for #{taxon_name} - Creating new entry."
+    begin
+      # try to create so we can continue
+      unless (Taxon.count > 0)
+        response = "*** The taxonomy tree is empty. You should load it before running this script with - 'thor taxonomy:load'  Type 'yes' to continue:"
+        unless response == 'yes'
+          exit 0
+        end
+      end
+      taxon = Taxon.create(:node_rank  => node_rank, :genetic_code => '1', :mito_genetic_code  => '1', :non_ncbi => 1)
+      taxon.taxon_names.create(:name => taxon_name, :name_class => "scientific name")
+    rescue
+      puts "Error creating taxon\n#{$!}"
     end
     return taxon
   end
-  
 end

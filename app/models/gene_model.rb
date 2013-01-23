@@ -38,7 +38,86 @@ class GeneModel < ActiveRecord::Base
     t.add 'bioentry.taxon.name', :as => :sequence_taxon
     t.add 'bioentry.taxon.species.name', :as => :sequence_species
   end
+  
+  # Sunspot search definition
+  searchable(:include => [[:bioentry => :taxon_version], [:cds => :product_assoc], [:mrna => :function_assoc], [:gene => [:product_assoc, :function_assoc]]]) do
+    text :locus_tag_text, :stored => true do
+      locus_tag
+    end
+    text :display_name_text, :stored => true do
+      display_name
+    end
+    text :gene_name_text, :stored => true do 
+      gene_name
+    end
+    text :function_text, :stored => true do
+      function
+    end
+    text :product_text, :stored => true do
+      product
+    end
+    string :protein_id
+    string :transcript_id
+    string :display_name
+    string :gene_name
+    string :locus_tag
+    string :function
+    string :product
     
+    integer :id, :stored => true
+    integer :start_pos, :stored => true
+    integer :end_pos, :stored => true
+    integer :strand, :stored => true
+    integer :rank, :stored => true
+    integer :taxon_version_id do
+      bioentry.taxon_version_id
+    end
+    ## Sequence data
+    # Taxon Version
+    text :taxon_version_name_with_version_text, :stored => true do
+     bioentry.taxon_version.name_with_version
+    end
+    # Species/Strain
+    text :species_name_text, :stored => true do
+     bioentry.taxon_version.species.scientific_name.name rescue 'No Species'
+    end
+    text :taxon_name_text, :stored => true do
+     bioentry.taxon_version.taxon.scientific_name.name rescue 'No Taxon'
+    end
+    # Sequence
+    text :sequence_name_text, :stored => true do
+      bioentry.display_name
+    end
+    ## Filtering
+    # Taxon Version
+    string :taxon_version_name_with_version do
+     bioentry.taxon_version.name_with_version
+    end
+    # Species/Strain
+    string :species_name do
+     bioentry.taxon_version.species.scientific_name.name rescue 'No Species'
+    end
+    string :taxon_name do
+     bioentry.taxon_version.taxon.scientific_name.name rescue 'No Taxon'
+    end
+    # Sequence
+    string :sequence_name do
+      bioentry.display_name
+    end
+  end
+  
+  # Convenience method for Re-indexing a subset of features
+  def self.reindex_all_by_id(gene_model_ids,batch_size=100)
+    puts "Re-indexing #{gene_model_ids.length} entries"
+    progress_bar = ProgressBar.new(gene_model_ids.length)
+    gene_model_ids.each_slice(100) do |id_batch|
+      Sunspot.index GeneModel.includes([:bioentry => :taxon_version],[:cds => :product_assoc], [:mrna => :function_assoc], [:gene => [:product_assoc, :function_assoc]]).where{id.in(my{id_batch})}
+      Sunspot.commit
+      progress_bar.increment!(id_batch.length)
+    end
+    Sunspot.commit
+  end
+  
   # For use in limiting query results
   def self.seqfeature_types
     ["Gene","Cds","Mrna"]
@@ -74,12 +153,22 @@ class GeneModel < ActiveRecord::Base
     hsh
   end
   
+  def function
+    a = [gene.try(:function_assoc).try(:value),mrna.try(:function_assoc).try(:value)].compact
+    a.empty? ? nil : a.join(';')
+  end
+  
+  def product
+    a = [gene.try(:product_assoc).try(:value),cds.try(:product_assoc).try(:value)].compact
+    a.empty? ? nil : a.join(';')
+  end
+  
   def display_name
     variants==1 ? locus_tag.to_s : (locus_tag.to_s+"."+rank.to_i.to_s)
   end
   
   def display_data
-    "#{locus_tag}:#{gene_name}: #{start_pos}..#{end_pos} #{strand == 1 ? '->' : '<-'}"
+    "#{locus_tag}.#{rank}:#{gene_name}: #{start_pos}..#{end_pos} #{strand == 1 ? '->' : '<-'}"
   end
   
   def variant_na_sequence(exp_id,opts={})
@@ -299,7 +388,7 @@ class GeneModel < ActiveRecord::Base
     end
     return data
   end
-  
+  # TODO: GeneModel creation needs a refactor badly. Perhaps using seqfeature relationship tables
   # Pull together the gene model information
   # Gene Models include:
   ## Gene Seqfeature
@@ -503,38 +592,34 @@ class GeneModel < ActiveRecord::Base
   end
   
   def initialize_associations
-    logger.info "\n\nstart init gene model\n\n"
     # cds
-      if(cds)
-        cds.gene_model = self unless cds.gene_model
-        cds.bioentry = self.bioentry
-        self.transcript_id = self.cds.transcript_id
-        self.start_pos = cds.locations.map(&:start_pos).min
-        self.end_pos = cds.locations.map(&:end_pos).max
-      end
-      # mrna
-      if(mrna)
-        mrna.gene_model = self unless mrna.gene_model
-        mrna.bioentry = self.bioentry
-        self.protein_id = self.mrna.protein_id
-        self.start_pos = mrna.locations.map(&:start_pos).min
-        self.end_pos = mrna.locations.map(&:end_pos).max
-      end    
-      # rank
-      if !self.rank || self.rank==0
-        self.rank = ((self.gene.gene_models.map(&:rank).compact.max)||0) + 1
-      end
-      logger.info "\n\ndone set rank\n\n"
-      # fall back position
-      self.start_pos = gene.locations.map(&:start_pos).min unless self.start_pos
-      self.end_pos = gene.locations.map(&:end_pos).max unless self.end_pos
-      # attributes
-      self.gene_name = self.gene.gene.value if self.gene.gene
-      self.variants = self.gene.gene_models.size
-      self.locus_tag = self.gene.locus_tag.value
-      self.strand = self.gene.strand
-      logger.info "\n\ndone init gene model\n\n"
-      debugger
+    if(cds)
+      cds.gene_model = self unless cds.gene_model
+      cds.bioentry = self.bioentry
+      self.transcript_id = self.cds.transcript_id
+      self.start_pos = cds.locations.map(&:start_pos).min
+      self.end_pos = cds.locations.map(&:end_pos).max
+    end
+    # mrna
+    if(mrna)
+      mrna.gene_model = self unless mrna.gene_model
+      mrna.bioentry = self.bioentry
+      self.protein_id = self.mrna.protein_id
+      self.start_pos = mrna.locations.map(&:start_pos).min
+      self.end_pos = mrna.locations.map(&:end_pos).max
+    end    
+    # rank
+    if !self.rank || self.rank==0
+      self.rank = ((self.gene.gene_models.map(&:rank).compact.max)||0) + 1
+    end
+    # fall back position
+    self.start_pos = gene.locations.map(&:start_pos).min unless self.start_pos
+    self.end_pos = gene.locations.map(&:end_pos).max unless self.end_pos
+    # attributes
+    self.gene_name = self.gene.gene.value if self.gene.gene
+    self.variants = self.gene.gene_models.size
+    self.locus_tag = self.gene.locus_tag.value
+    self.strand = self.gene.strand
     end
 end
 # == Schema Information

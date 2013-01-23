@@ -1,0 +1,9 @@
+<% content_for :top_bar do -%>
+  <h1 class="pagetitle">Create Ontology</h1>
+<% end -%>
+
+<%= render :partial => 'admin/sidebar', :locals => {:active => 'ontology'} %>
+<% content_for :item_bar do %>
+  Adding/Removing requires a restart to take effect
+<% end %>
+<%= render 'form' %>

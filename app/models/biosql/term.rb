@@ -1,13 +1,8 @@
 class Term < ActiveRecord::Base
   set_primary_key :term_id
   set_table_name "term"
-  belongs_to :type_term, :class_name => "Term", :foreign_key => "type_term_id"
-  belongs_to :source_term, :class_name => "Term", :foreign_key => "source_term_id"
   belongs_to :ontology, :class_name => "Ontology"
   has_one :location, :class_name  => "Location"
-  if(note = Term.find_by_name("note"))
-    has_many :notes, :class_name => "SeqfeatureQualifierValue", :order => "rank", :conditions => "term_id = #{note.id}"
-  end
   has_many :qualifiers, :class_name => "SeqfeatureQualifierValue", :order  => "term_id, rank"
   has_many :dbxref_qualifier_values, :class_name => "DbxrefQualifierValue"
   has_many :bioentry_qualifer_values, :class_name => "BioentryQualifierValue"
@@ -39,35 +34,44 @@ class Term < ActiveRecord::Base
   end
   # Default ontology setup
   def self.seq_src_ont_id
-    Ontology.find_or_create_by_name("SeqFeature Sources").id
+    @seq_src_id ||= Ontology.find_or_create_by_name("SeqFeature Sources").id
   end
   def self.seq_key_ont_id
-    Ontology.find_or_create_by_name("SeqFeature Keys").id
+    @seq_key_id ||= Ontology.find_or_create_by_name("SeqFeature Keys").id
   end
   def self.ano_tag_ont_id
-    Ontology.find_or_create_by_name("Annotation Tags").id
+    @ano_tag_id ||= Ontology.find_or_create_by_name("Annotation Tags").id
   end
-  # def self.denormalize
-  #   begin
-  #     puts "Updating Location -> term_id"
-  #     Term.connection.execute("update location set term_id = (select seqfeature.type_term_id from seqfeature where seqfeature.seqfeature_id = location.seqfeature_id) where term_id is null")      
-  #     puts "Updating Seqfeature -> display_name"
-  #     Term.transaction do
-  #       Seqfeature.where('display_name is null').includes(:type_term).each do |feature|
-  #         feature.update_attribute(:display_name,feature.type_term.name.downcase.camelize)
-  #       end
-  #     end
-  #     puts "Done"
-  #     return true
-  #   rescue
-  #     puts $!
-  #     return false
-  #   end
-  # end
-  #  
-  # def display_name
-  #   name
-  # end
+  # All but seqfeature source and seqfeature keys
+  def self.annotation_ontologies
+    @anno_ont ||= Ontology.where("ontology_id not in(#{seq_src_ont_id},#{seq_key_ont_id})").order("name desc")
+  end
+  # All non standard ontologies
+  def self.custom_ontologies
+    @custom_ont ||= Ontology.where("ontology_id not in(#{seq_src_ont_id},#{seq_key_ont_id},#{ano_tag_ont_id})")
+  end
+  # returns the default source term for use with seqfeature source_term
+  def self.default_source_term
+    @default_src_tm ||= Term.find_or_create_by_name_and_ontology_id("EMBL/GenBank/SwissProt",self.seq_src_ont_id)
+  end
+  
+  def self.denormalize
+    begin
+      puts "Updating Location -> term_id"
+      Term.connection.execute("update location set term_id = (select seqfeature.type_term_id from seqfeature where seqfeature.seqfeature_id = location.seqfeature_id) where term_id is null")      
+      puts "Updating Seqfeature -> display_name"
+      Term.transaction do
+        Seqfeature.where('display_name is null').includes(:type_term).each do |feature|
+          feature.update_attribute(:display_name,feature.type_term.name.downcase.camelize)
+        end
+      end
+      puts "Done"
+      return true
+    rescue
+      puts $!
+      return false
+    end
+  end
 end
 
 

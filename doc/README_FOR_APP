@@ -1,8 +1,66 @@
-Deployment Notes:
+----------------
+Installation / Deployment
+----------------
+TODO: simple install guide
 
-If connecting to an ldap database do not forget to setup config/ldap.yml
+----------------
+Full Text Searching
+----------------
+Apache Solr: http://lucene.apache.org/solr/ is the backend for text searching in the application. It is a Java application that must be running separately on the server.
 
--Common Errors:
+This application was developed using Solr 3.6.2 and Solr 3.2 or greater is required for all functionality to work. The sunspot_solr gem is installed for simple solr deployment. If you are going to use this Solr instance, it must be upgraded or, the search functions will fail. https://github.com/sunspot/sunspot/wiki/Upgrading-sunspot_solr-Solr-Instance
+
+Build the index (one time) with:
+>rake sunspot:reindex
+
+and start it with: 
+>rake sunspot:solr:start
+
+Solr configuration is present in /solr/conf/
+
+It is important to secure the solr index server from outside users. Block access to the solr port (default 8983) 
+http://wiki.apache.org/solr/SolrSecurity
+
+----------------
+Background Jobs
+----------------
+Some of the long running tasks are sent to Delayed Job: https://github.com/collectiveidea/delayed_job for background processing (smoothing, conversion, etc..)
+
+At least one background worker must be running on the server. To start delayed job:
+>script/delayed_job start
+
+For multiple workers:
+>script/delayed_job start -n 3
+
+----------------
+Remote Auth
+----------------
+If connecting to an ldap database do not forget to setup config/ldap.yml: https://github.com/clyfe/devise_ldap_authenticatable
+See config/ldap.yml.sample for example configuration.
+
+----------------
+NCBI-Blast
+----------------
+When Sequence is loaded a corresponding Blast database can be generated. This database will then be available through the tools->blast interface for custom blast searches. To enable this feature, :blast_bin_path must be set in config/settings.yml.
+
+in the blast_bin_path/ directory the following executables must be present:
+-makeblastdb
 -
--needLargeMem: trying to allocate 0 bytes -  samtools binary may need executable permission
--
+
+See BLAST help from NCBI for more information: http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=Download
+
+----------------
+Bio-SQL
+----------------
+This application maintains a Bio-SQL schema to support community interaction. There are several extensions that increase functionality but the core Bio-SQL tables remain. Triggers/Procedures and most constraints are NOT present. This allows for a simpler database agnostic design.
+
+When using ORACLE the oracle schema provided by bio-SQL is NOT used. The standard mySql / Postgresql schema is used throughout.
+However, Oracle reserves the use of the word 'comment'; therefore the 'comment' table is converted to the plural form 'comments' when working with an oracle adapter.
+
+The seqfeature -> display_name is used for Rails Single Table Inheritance. This is setup when loading features into the database.
+seqfeature_qualifier_value -> value is a varchar field with a maximum of 4000 characters.
+
+Left and Right nested set values for Taxon are NOT maintained during sequence load or default taxonomy load. Use taxonomy:load --nested_set if they are required.
+
+Taxon has an extra 'non_ncbi' column. When custom taxon names are inserted during sequence load, this column is set to 1. These taxon items are ignored during subsequent taxonomy:load runs and will not be deleted/updated.
+

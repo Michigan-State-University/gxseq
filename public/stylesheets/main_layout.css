@@ -165,8 +165,8 @@ input.text {
 /* middle */
 #middle {
 	float:left;
-    width:100%; 	
-    min-height:700px;
+  width:100%;
+  min-height:700px;
 	background:#fff;
 	border: 1px solid #849dae;
 	border-radius: 7px;
@@ -180,10 +180,8 @@ input.text {
 /* left column */
 #left-column {
 	float:left;
-	padding:1px 14px 0 12px;
-/*    width:151px;*/
-    width:15%;
-    max-width:200px;
+	padding:1px 1% 0 1%;
+  width:14%;
     
 	}
 	
@@ -197,12 +195,12 @@ input.text {
 /* center column */
 #center-column {
 	float:left;
-    width:76%;
+    width:82%;
     border-radius: 15px;
     -moz-border-radius: 15px;
     -webkit-border-radius: 15px;
-	height: 100%;
-    padding:12px 16px 5px 13px;
+/*    height: 100%;*/
+    padding:0px 1% 5px 1%;
 	}
 
 /* footer */
@@ -274,6 +272,9 @@ input.text {
 	line-height:23px;
 	padding:0 0 0 9px;
 	}
+ul {
+  margin:0 0 1em 0;
+}
 ul.nav {
 	margin:0 0 11px 0;
 /*  border-bottom:2px solid #FF9600;*/
@@ -479,6 +480,7 @@ table.listing {
     width:99%;
 	padding:0;
 	margin:0;
+	border-collapse:separate;
 	border:1px solid #9097A9;
 	border-top-left-radius: 10px;
 	border-top-right-radius: 10px;
@@ -524,6 +526,15 @@ table.listing .style1 {font-weight:bold;color:#FF7A00;}
 table.listing .style2 {font-weight:bold;padding-left:16px;}
 table.listing .style3 {padding-left:25px;}
 table.listing .style4 {padding-left:35px;}
+
+table.listing tr.highlight_green td{
+  border: 1px solid #9EC;
+}
+
+table.listing tr.highlight_red td{
+  border: 1px solid #E9C;
+}
+
 table.form td:last-child {padding:1px 0 1px 5px;text-align:left;}
 table.form th,
 table.form td {padding-left:10px;}

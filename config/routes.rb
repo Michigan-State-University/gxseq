@@ -4,27 +4,42 @@ GenomeSuite::Application.routes.draw do
   # first created -> highest priority.
 
   ##Navigation
-  root :to => "home#index"
+  root :to => "help#index"
   match '/faq' => 'help#faq', :as  => :faq
   match '/about' => 'help#about', :as  => :about
   match '/help' => 'help#index', :as  => :help
   match '/contact' => 'help#contact', :as  => :contact
   match 'sitemap' => 'help#sitemap', :as => :sitemap
+  match 'intro' => 'help#index', :as => :intro
 
   ##genome
   resources :bioentries do
-    get 'tracks'
+    #get 'tracks'
+    collection do
+      get 'metadata'
+      get 'track_data'
+    end
   end
   
   resources :genes do
-    get 'details', :on => :collection
+    collection do
+      get 'details'
+      get :autocomplete_bioentry_id
+    end
   end
-  resources :gene_models  
+
   resources :locations
-  resources :seqfeatures
+  resources :seqfeatures do
+    get 'details', :on => :collection
+    member do
+      get 'toggle_favorite'
+    end
+  end
+  
   resources :seqfeature_qualifier_values
   resources :taxon_versions
-  
+  resources :genomes
+  resources :transcriptomes
   ##Browser
   resources :track_layouts
   resources :tracks
@@ -97,12 +112,14 @@ GenomeSuite::Application.routes.draw do
       get 'details'
       get 'smooth'
       post 'smooth'
-      # get 'variant_genes'
-      # post 'variant_genes'
-      get 'expression_viewer'
-      get 'advanced_expression_viewer'
-      get 'expression_results'
     end
+  end
+  match "expression/viewer"
+  match "expression/results"
+  match "expression/advanced_viewer"
+  match "expression/advanced_results"
+  resources :blast_reports do
+    get 'alignment', :on => :member
   end
   
   ##Accounts
@@ -113,7 +130,12 @@ GenomeSuite::Application.routes.draw do
       get 'profile'
     end
   end
-  
+  resources :groups do
+    get :autocomplete_user_login, :on => :collection
+    get :remove_user, :on => :member
+  end
+
+  # Administrator
   namespace :admin do
     root :controller => "jobs", :action => "index"
     resources :users
@@ -123,5 +145,10 @@ GenomeSuite::Application.routes.draw do
         post 'retry'
       end
     end
+    resources :blast_databases
+    resources :blast_runs
+    resources :ontologies
+    resources :terms
   end
+  
 end

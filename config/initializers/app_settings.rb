@@ -5,10 +5,6 @@ rescue
  puts "Error reading settings file.\nCheck config/settings.yml.sample for more information"
 end
 
-# Set CMD_PATH for external commands. 
-# TODO: replace CMD_PATH with ffi gem for ucsc bindings 
-CMD_PATH = ::Rails.root.to_s+"/lib/tasks/" unless defined? CMD_PATH
-
 # Set default accession_link for bioentries
 # TODO: store settings in database, allow admin configuration
 ACCESSION_LINK = "http://www.ncbi.nlm.nih.gov/sites/entrez?db=genome&cmd=search&term=" unless defined? ACCESSION_LINK

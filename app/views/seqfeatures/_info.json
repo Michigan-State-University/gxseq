@@ -2,8 +2,8 @@
 {
   :success => true,
   :data => {                    
-  :text => "#{render :partial => 'seqfeatures/info'}",
-  :title  => "Feature: "+@generic.display_name
-}
+    :text => "#{render :partial => 'seqfeatures/info'}",
+    :title  => "Feature: "+@seqfeature.display_name
+  }
 }.to_json.html_safe
 %>

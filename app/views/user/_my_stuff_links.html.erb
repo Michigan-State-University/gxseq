@@ -1,0 +1,16 @@
+<div style="float:left;" id="format_links">
+  <h2>
+      <%= link_to_unless active_link =='favorites', "Favorites",user_path(user, :fmt => 'favorites') do |name| 
+        "<u style='font-size:120%'>#{name}</u>".html_safe
+      end %>
+    | <%= link_to_unless active_link =='groups', "Groups", user_path(user, :fmt => 'groups') do |name| 
+        "<u style='font-size:120%'>#{name}</u>".html_safe
+      end %>
+      <!-- TODO: Add Preferences view -->
+      <!--     | <%#= link_to_unless active_link =='preferences', "Preferences", user_path(user, :fmt => 'preferences') do |name| 
+              "<u style='font-size:120%'>#{name}</u>".html_safe
+            end %> -->
+    | <%= link_to_unless active_link =='samples', "Samples", user_path(user, :fmt => 'samples') do |name| 
+        "<u style='font-size:120%'>#{name}</u>".html_safe
+      end %>
+</div>

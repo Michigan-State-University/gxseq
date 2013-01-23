@@ -120,6 +120,9 @@ Devise.setup do |config|
   # time the user will be asked for credentials again. Default is 30 minutes.
   if APP_CONFIG[:timeout]
     config.timeout_in = APP_CONFIG[:timeout].minutes
+  else
+    #default to 24 hours
+    config.timeout_in = (60*24).minutes
   end
 
   # ==> Configuration for :lockable

@@ -1,8 +1,16 @@
 class Source < Seqfeature
-  #default_scope :include => :type_term, :conditions => {"#{Term.table_name}.name" => 'source'}
+  #TODO: comment,refactor and condense multiple methods
+  def label
+    generic_label
+  end
+  #
+  def label_type
+    generic_label_type
+  end
+  
   def generic_label
     #A generic label to display for this source in a dropdown i.e. Chr 1, mitochondrion or plasmid xyz
-    (chromosome || organelle || plasmid || mol_type || '::').to_s
+    (chromosome || organelle || plasmid || mol_type || 'Src').to_s
   end
   
   def generic_label_type
@@ -13,8 +21,10 @@ class Source < Seqfeature
       return "Organelle"
     elsif plasmid
       return "Plasmid"
-    else 
+    elsif mol_type
       return "MolType"
+    else
+      return ""
     end
   end
 end

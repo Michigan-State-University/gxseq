@@ -3,6 +3,10 @@
 <% end -%>
 
 <% content_for :item_bar do -%>
+  <% if can? :delete, @variant %>
+    <% #TODO: Change remove buttons to red style %>
+    <%= link_to "Remove Variant", @variant, :method => 'delete', :class => "button", :confirm => "Remove experiment: #{@variant.name}? \n This CANNOT be undone." %>
+  <% end %>
   <%= link_to "Cancel", variants_path, :style => "float:right", :class => "button" %>
 <% end -%>
 

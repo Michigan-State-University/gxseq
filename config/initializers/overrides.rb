@@ -1,9 +1,71 @@
 ### various class overrides for added functionality
+begin
+# CanCan
+# Use include instead of Joins to avoid multiple records with inner joins
+# https://github.com/ryanb/cancan/pull/726
+class CanCan::ModelAdapters::ActiveRecordAdapter
+  # override with new method
+  def database_records
+    if override_scope
+      @model_class.scoped.merge(override_scope)
+    elsif @model_class.respond_to?(:where) && @model_class.respond_to?(:joins)
+      mergeable_conditions = @rules.select {|rule| rule.unmergeable? }.blank?
+      if mergeable_conditions
+        @model_class.where(conditions).includes(joins)
+      else
+        @model_class.where(*(@rules.map(&:conditions))).includes(joins)
+      end
+    else
+      @model_class.scoped(:conditions => conditions, :joins => joins)
+    end
+  end
+  # # rename original method
+  # def joined_database_records
+  #   if override_scope
+  #     @model_class.scoped.merge(override_scope)
+  #   elsif @model_class.respond_to?(:where) && @model_class.respond_to?(:joins)
+  #     mergeable_conditions = @rules.select {|rule| rule.unmergeable? }.blank?
+  #     if mergeable_conditions
+  #       @model_class.where(conditions).joins(joins)
+  #     else
+  #       @model_class.where(*(@rules.map(&:conditions))).joins(joins)
+  #     end
+  #   else
+  #     @model_class.scoped(:conditions => conditions, :joins => joins)
+  #   end
+  # end
+end
+# # add the original joined query as an option for custom selects 'joined_accessible_by'
+# module CanCan::ModelAdditions::ClassMethods
+#   def joined_accessible_by(ability, action = :index)
+#     ability.model_adapter(self, action).joined_database_records
+#   end
+# end
 
+# Sunspot Index
+  # avoid use of ':' in dynamic_field name
+  module Sunspot
+    class FieldFactory::Dynamic
+      def build(dynamic_name)
+        AttributeField.new("#{@name}_#{dynamic_name}", @type, @options.dup)
+      end
+      alias_method :field, :build
+    end
+    class Search::AbstractSearch
+      def facet(name, dynamic_name = nil)
+       if name
+         if dynamic_name
+           @facets_by_name[:"#{name}_#{dynamic_name}"]
+         else
+           @facets_by_name[name.to_sym]
+         end
+       end
+      end
+    end
+  end
 ## RUBY
 ##
 # extend string class with to_formatted() method
-begin
   class String
     def to_formatted(hsh={})
       per_row = hsh[:per_row] || 10
@@ -23,33 +85,27 @@ begin
       return text
     end
   end
-rescue
+rescue => e
   puts "Error: could not extend the String class with to_formatted method"
-  raise StandardError
+  raise StandardError, "#{e}"
 end
 
-# extend array class with sort_by method (sql-like)
+# extend array class with to_ranges for converting large arrays of similar integers to ranges.
 begin
   class Array
-    def sql_sort(method, order='ASC')
-      return [] if self.empty?
-      order = 'ASC' unless order.upcase == 'DESC'
-      raise "Error: '#{self.first.class.name}'.'#{method}' undefined. Array.sort_by cannot continue" unless self.first.respond_to?(method)
-      if(order =='ASC')
-        return sort{|a,b| a.send(method)<=>b.send(method)}
-      else
-        return sort{|a,b| b.send(method)<=>a.send(method)}
+    def to_ranges
+      compact.sort.uniq.inject([]) do |r,x|
+        (r.empty? || r.last.last.succ != x) ? r << (x..x) : r[0..-2] << (r.last.first..x)
       end
     end
   end
 rescue
-  puts "Error: could not extend the String class with to_formatted method"
+  puts "Error: could not extend the Array class with to_ranges method"
   raise StandardError
 end
 
 ## DelayedJob
 ##
-
 # add current_user to jobs and setup papertrail whodunnit
 class Delayed::Backend::ActiveRecord::Job
   ## Setup the methods to save current_user into delayed_jobs
@@ -92,7 +148,6 @@ end
 ## Bio-SQL
 ##
 begin
-  
   # extend method to return index as well as match
   module Bio::Sequence::Common
     def window_search(window_size, step_size = 1)
@@ -104,7 +159,6 @@ begin
       return self[last_step + window_size .. -1]
     end
   end
-  
   ## Fix hard position parsing of locus line
   module Bio
     class GenBank::Locus
@@ -121,7 +175,6 @@ begin
 rescue
   puts "Error: Bio Sequence definition in environment.rb failed\nDid you install the bio gem?\n#{$!}"
 end
-
 ## ActiveRecord
 ##
 module ActiveRecord
@@ -141,8 +194,17 @@ module ActiveRecord
       return connection.insert(sql, "#{name} Create",primary_key, id, sequence_name)
     end
   end
+  class Relation
+    # select_ids override select with primary key only.
+    def select_ids
+      join_dependency = construct_join_dependency_for_association_find
+      relation = except(:select).select("#{@table.table_name}.#{@klass.primary_key}")
+      @klass.connection.select_all(apply_join_dependency(relation, join_dependency).to_sql).collect{|row| row[@klass.primary_key]}
+    rescue ThrowResult
+      []
+    end
+  end
 end
-
 # Fix for nested attributes mass assignment
 # allows Composite Primary Key models within nested update
 module ActiveRecord
@@ -200,36 +262,14 @@ module ActiveRecord
     end
   end
 end
-
 ## CompositePrimaryKeys
 ##
-
 # Fix for PaperTrail Ver. 2.2.9 object.attributes.to_yaml. Force CompositeKey.to_yaml as string 'id1,id2'
 class CompositePrimaryKeys::CompositeKeys
   def to_yaml 
     join(",")
   end
 end
-
-## PaperTrail
-##
-
-# extra order clause in has_paper_trail association 'order (self.primary_key)' causing errors. Removed
-module PaperTrailFix
-  def has_paper_trail(options={})
-    super(options)
-    has_many self.versions_association_name,
-                     :class_name => version_class_name,
-                     :as         => :item,
-                     :order      => "created_at ASC"
-   
-  end
-end
-
-ActiveRecord::Base.class_eval do
-  extend PaperTrailFix
-end
-
 # Extend devise method this would be easier (not necessary) with base devise_ldap_authenticatable but it doesn't support db_authenticatable
 module Devise::LdapAdapter
   def self.get_ldap_param(login, param)
@@ -256,7 +296,6 @@ module Devise::LdapAdapter
     end
   end
 end
-
 ## Squeel
 ##
 # fix Arel override causing LOB update failure. Probably from loss of column metadata?

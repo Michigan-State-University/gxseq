@@ -1,5 +1,5 @@
 class AssetsController < ApplicationController
-def show
-  @asset = Asset.find(params[:id])
-end
+  load_and_authorize_resource
+  def show
+  end
 end

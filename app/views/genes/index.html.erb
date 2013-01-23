@@ -1,6 +1,6 @@
 <% content_for :head do %>
-	<%= render :partial => "common/extjs" %>
-	<%= render :partial => "common/extjs_css_gray" %>
+	<%#= render :partial => "common/extjs" %>
+	<%#= render :partial => "common/extjs_css_gray" %>
 <% end %>
 
 <% content_for :sidebar do %>
@@ -8,24 +8,102 @@
 <% end %>
 
 <% content_for :top_bar do%>
-	<h1 class="pagetitle">Listing <%= number_with_delimiter(@genes.total_entries) %> Gene Models</h1>
+	<h1 class="pagetitle">Gene Models</h1>
 <% end %>
 
 <% content_for :item_bar do %>
 <!-- Filter / Search items here -->
 	<div style="float:left">
-		<%= link_to "New Gene", send("new_gene_path"), :class => "button" %>
-	</div>	
-	<div style="float:right">
-		<%= form_tag genes_path, :method => :get %>
-			Search on Locus Tag or Gene Name:
-			<%= text_field_tag :q, params[:q] %>
-			<%= submit_tag " Go ", :class => "button" %>
-		</form>
+		<%= link_to "New Gene", send("new_gene_path"), :class => "button" if can? :create, GeneModel.new%>
+		<%= link_to "Advanced Search",'#',:onclick => "$('advanced_search').toggle();", :class => "button" %>
 	</div>
+	<div style="float:right">
+	  <% form_tag genes_path, :method => :get do %>
+	    Search:<br/>
+      <%= text_field_tag "keywords",params[:keywords] %>
+      <%= submit_tag 'Go' %>
+	  <% end %>
+	</div>
+	<br/ style="clear:both">
+	<div id='advanced_search' style="<%= params[:advanced_search] ? '' : 'display:none' %>">
+	  <br/>
+	  <hr/>
+	  <br/>
+  	<% form_tag genes_path, :method => :get do %>
+  	  <%= hidden_field :advanced_search, true %>
+      <div style="float:left">
+        Keywords:<br/>
+        <%= text_field_tag "keywords",params[:keywords], :size => 50 %><br/>
+        <br/>
+        Taxonomy:<br/>
+        <%= select_tag 'taxon_version_id', options_for_select(@taxon_versions.collect{|s| [s.name_with_version,s.id]},params[:taxon_version_id]), {:include_blank => "No Filter"} %><br/>
+        <br/>
+        <div style="float:left;margin-right:1em">
+          Location:<br/>
+          <%= text_field_tag "start_pos",params[:start_pos], :size => 10 %>
+          TO
+          <%= text_field_tag "end_pos",params[:end_pos], :size => 10 %><br/>
+        </div>
+        <div style="float:left;margin-right:1em">
+          Strand:<br/>
+          <%= select_tag 'strand', options_for_select(@search.facet(:strand).rows.collect{|s| ["#{s.value.to_i > 0 ? 'Forward (5\' -> 3\')' : 'Reverse (3\' -> 5\')'} (#{s.count})",s.value]},params[:strand]), {:include_blank => "No Filter"} %><br/>
+        </div>
+        <div style="clear:both">
+        </div>
+        <br/>
+        <% @presence_items.each do |presence_item| %>
+          <div style="float:left;margin-right:1em">
+            <%= presence_item.camelize %>:<br/>
+            <%= select_tag "#{presence_item}_present",options_for_select([['Present','t'],['Empty','f']],params["#{presence_item}_present".to_sym]), {:include_blank => "No Filter"} %><br/>
+          </div>
+        <% end %>
+      </div>
+      <div style="clear:both">
+        <br/>
+        <%= submit_tag 'Search' %>
+      </div>
+    <% end -%>
+  </div>
 <% end %>
-<p>
-  Details about each Gene Model are displayed in the list below. Selecting a locus tag will open a page with even more detailed information about that gene. You can also select the sequence name to load the Sequence Viewer and display the gene model annotation.
-</p>
-<br/>
-<%= render :partial => 'js_listing', :locals => {:height => 610} %>
+
+<% if @search.nil? %>
+  No Results Found...
+<% else %>
+  <div class="pagination">
+    <span style="float:left"><%= will_paginate(@search.hits) %></span>
+    <span style="float:right;margin-right:2em"><%= number_with_delimiter(@search.total) %> Matching Results</span>
+  </div>
+
+  <div class="table">
+    <table class="listing">
+      <thead>
+        <th style="white-space:nowrap;width:10em"><%= sort_link "Locus", 'display_name' %></th>
+        <th style="white-space:nowrap"><%= sort_link "Gene Name", 'gene_name' %></th>
+        <th style="white-space:nowrap">Function</th>
+        <th style="white-space:nowrap">Product</th>
+        <th style="white-space:nowrap"><%= sort_link "Start Pos", 'start_pos' %></th>
+        <th style="white-space:nowrap"><%= sort_link "End Pos", 'end_pos' %></th>
+        <th style="white-space:nowrap"><%= sort_link "Strand", 'strand' %></th>
+        <th style="white-space:nowrap"><%= sort_link "Taxon", 'taxon_version_name_with_version' %></th>
+        <th>Options</th>
+      </thead>
+      <% @search.each_hit_with_result do |hit,feature| %>
+      <tr>
+        <td><%= highlight_result(hit,:display_name_text) %></td>
+        <td><%= highlight_result(hit,:gene_name_text) %></td>
+        <td><%= sliced_toggle(highlight_result(hit,:function_text),hit.stored(:function_text).first,"function_text_#{feature.id}") if hit.stored(:function_text).try(:first) %></td>
+        <td><%= sliced_toggle(highlight_result(hit,:product_text),hit.stored(:product_text).first,"product_#{feature.id}") if hit.stored(:product_text).try(:first) %></td>
+        <td><%= highlight_result(hit,:start_pos) %></td>
+        <td><%= highlight_result(hit,:end_pos) %></td>
+        <td><%= (hit.stored(:strand) > 0 ? '<span style="color:darkgreen">F</span>' : '<span style="color:darkred">R</span>').html_safe %></td>
+        <td style="white-space:nowrap"><%= highlight_result(hit,:taxon_version_name_with_version_text) %></td>
+        <td style="white-space:nowrap">
+          <%= link_to 'Details', seqfeature_path(feature) %>
+          |
+          <%= link_to 'View', bioentry_path(feature.bioentry_id,{:pos => feature.start_pos}) %>
+        </td>
+      </tr>
+      <% end %>
+    </table>
+  </div>
+<% end %>

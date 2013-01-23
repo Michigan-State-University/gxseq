@@ -1,7 +1,5 @@
 class UserController < ApplicationController
-
-  before_filter :find_user, :only => [:show, :edit, :update]
-  
+  load_and_authorize_resource
   ##Preferences Ajax actions
   def update_track_node
     if( (path = params[:path]) && (track = Track.find(params[:track_id])) )
@@ -13,7 +11,9 @@ class UserController < ApplicationController
     
   # GET /_users/1
   def show
-  # show.html.erb
+    params[:fmt]||='favorites'
+    @groups = Group.accessible_by(current_ability)
+    @samples = Experiment.accessible_by(current_ability)
   end
 
   # GET /users/1/edit
@@ -32,20 +32,5 @@ class UserController < ApplicationController
       end
     end
   end
-  
-  # public profile view
-  def profile
-    
-  end
-  
-  private
-    def find_user
-      @user = User.find(params[:id])
-      unless(@user == current_user)
-        flash[:error] = "You are not authorized to view that resource!"
-        redirect_to(root_path)
-        return
-      end
-    end
 
 end

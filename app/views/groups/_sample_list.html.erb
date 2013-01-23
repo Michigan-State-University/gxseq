@@ -1,0 +1,24 @@
+<% if group.experiments.empty? %>
+  No samples have been assigned to this group
+<% else %>
+  <div class="table">
+    <table class="listing">
+      <thead>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Options</th>
+      </thead>
+      <% group.experiments.each do |sample| %>
+        <tr>
+          <td><%= sample.class.name %></td>
+          <td><%= sample.name%></td>
+          <td><%= sample.description %></td>
+          <td>
+            <%= link_to "View", sample %>
+          </td>
+        </tr>
+      <% end %>
+    </table>
+  </div>
+<% end %>

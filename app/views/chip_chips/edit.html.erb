@@ -3,6 +3,10 @@
 <% end -%>
 
 <% content_for :item_bar do -%>
+  <% if can? :delete, @rna_seq %>
+    <% #TODO: Change remove buttons to red style %>
+    <%= link_to "Remove ChIP-Chip", @chip_chip, :method => 'delete', :class => "button", :confirm => "Remove experiment: #{@chip_chip.name}? \n This CANNOT be undone." %>
+  <% end %>
   <%= link_to "Cancel", @chip_chip, :style => "float:right", :class => "button"%>
 <% end -%>
 

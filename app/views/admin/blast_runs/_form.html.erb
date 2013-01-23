@@ -1,0 +1,17 @@
+<%= semantic_form_for [:admin,@blast_run] do |f| %>
+  <%= f.inputs do %>
+    <%= f.input :blast_database %>
+    <b>Taxon version:</b> <%= @blast_run.taxon_version.name_with_version if @blast_run.taxon_version %><br/>
+    <b>Parameters:</b> <%= @blast_run.parameters %><br/>
+    <b>Program:</b> <%= @blast_run.program %><br/>
+    <b>Version:</b> <%= @blast_run.version %><br/>
+    <b>Db:</b> <%= @blast_run.db %><br/>
+    <b>Reference:</b> <%= @blast_run.reference %><br/>
+    
+  <% end %>
+<hr/>
+  <%= f.actions do %>
+    <%= f.action :submit, :as => :button %>
+    <%= f.action :cancel, :as => :link, :label => 'Cancel' %>
+  <% end %>
+<% end %>

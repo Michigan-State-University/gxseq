@@ -466,6 +466,7 @@ AnnoJ.Tracks = function(userConfig)
 			if (event.getTarget().tagName == 'INPUT') return;
 			if(!track || !box) {hide(); return}
 			track.setHeight(box.getHeight());
+			track.refreshCanvas();
 			hide();
 		});
 		self.on('dragged', function()
@@ -481,6 +482,7 @@ AnnoJ.Tracks = function(userConfig)
 		{
 			if (dragMode != 'resize' || !track) return;
 			track.setHeight(box.getHeight());
+			track.refreshCanvas();
 			hide();
 		});
 		self.on('dragCancelled', function()

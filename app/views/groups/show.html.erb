@@ -1,0 +1,21 @@
+<% content_for :top_bar do -%>
+  <h1 class="pagetitle">Viewing Group: <%= @group.name %></h1>
+<% end -%>
+
+<% content_for :item_bar do -%>
+  <% if can? :update, @group %>
+    <%= link_to "Update Group", edit_group_path(@group), :class => 'button' %>
+  <% end %>
+  This group is managed by <%= @group.owner_id == current_user.id ? 'you' : @group.owner.email %>
+<% end -%>
+
+<%= render :partial => "home/sidebar" %>
+
+<h2 class="pagetitle">Sequence</h2>
+<%= render :partial => "sequence_list", :locals => {:group => @group} %>
+
+<h2 class="pagetitle">Samples</h2>
+<%= render :partial => "sample_list", :locals => {:group => @group} %>
+
+<h2 class="pagetitle">Members</h2>
+<%= render :partial => "user_list", :locals => {:group => @group} %>

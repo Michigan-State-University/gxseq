@@ -1,6 +1,7 @@
 class VariantsController < ApplicationController
   require 'will_paginate/array'
-  before_filter :get_variants, :only => [:show, :graphics]
+  load_and_authorize_resource
+  before_filter :get_variants, :only => [:show]
   
   ##custom actions - rjs
   def initialize_experiment
@@ -11,27 +12,20 @@ class VariantsController < ApplicationController
     end
   end
   
-  # def graphics
-  #   @variant = Variant.find(params[:id], :include => :bioentries_experiments)
-  #   @bioentry = Bioentry.find(params[:bioentry_id] || @variant.bioentries_experiments.first.bioentry_id)
-  #   render :partial => "graphics", :layout => false
-  # end
-  
   def index
     query = (params[:query] || '').upcase
-    @species = Variant.includes(:taxon_version).where{upper(name) =~ "%#{query}%"}.collect(&:taxon_version).collect(&:species).uniq
+    @variants = Variant.accessible_by(current_ability).includes(:taxon_version => [:species => :scientific_name]).where{upper(name) =~ "%#{query}%"}.order("taxon_name.name ASC")
+    @species = @variants.map(&:taxon_version).map(&:species).uniq
   end
 
   def new
-    @variant = Variant.new()
     @variant.assets.build
-    @taxon_versions = TaxonVersion.order('name asc')
+    @taxon_versions = TaxonVersion.includes(:taxon => :scientific_name).order('taxon_name.name asc')
   end
 
   def create
-    @variant = Variant.new(params[:variant])
     @variant.user = current_user
-    @taxon_versions = TaxonVersion.order('name asc')
+    @taxon_versions = TaxonVersion.includes(:taxon => :scientific_name).order('taxon_name.name asc')
     begin
       if @variant.valid?
         @variant.save
@@ -56,13 +50,11 @@ class VariantsController < ApplicationController
   end
 
   def edit
-    @variant = Variant.find(params[:id])
-    @taxon_versions = TaxonVersion.order('name asc')
+    @taxon_versions = TaxonVersion.includes(:taxon => :scientific_name).order('taxon_name.name asc')
   end
 
   def update
-    @variant = Variant.find(params[:id])
-    @taxon_versions = TaxonVersion.order('name asc')
+    @taxon_versions = TaxonVersion.includes(:taxon => :scientific_name).order('taxon_name.name asc')
     if @variant.update_attributes(params[:variant])
       flash[:notice] = 'Variant was successfully updated.'
       redirect_to(@variant)
@@ -72,15 +64,9 @@ class VariantsController < ApplicationController
   end
 
   def destroy
-    @variant = Variant.find(params[:id])
-    if (current_user.is_admin? || current_user.owns?(@variant))
-      @variant.destroy
-      flash[:warning]="Experiment #{@variant.name} has been removed"
-      redirect_to :action => :index
-    else
-      flash[:error]="Not Permitted"
-      redirect_to :action => :index
-    end
+    @variant.destroy
+    flash[:warning]="Experiment #{@variant.name} has been removed"
+    redirect_to :action => :index
   end
   
   def track_data
@@ -97,11 +83,11 @@ class VariantsController < ApplicationController
         right = param['right']
         bioentry = Bioentry.find(param['bioentry'])
         limit = 5000
-        ov = (right-left>1000)
+        only_variants_flag = (right-left>1000)
         bioentry_id = bioentry.id
         be = variant.bioentries_experiments.find_by_bioentry_id(bioentry_id)
         data = {}
-        variant.get_data(be.sequence_name, left, right, {:limit => limit, :sample => sample, :split_hets => true, :only_variants => ov}).each do |v|  
+        variant.get_data(be.sequence_name, left, right, {:limit => limit, :sample => sample, :split_hets => true, :only_variants => only_variants_flag}).each do |v|  
           data[v[:type]] ||=[]
           data[v[:type]] << [v[:allele],v[:id],v[:pos],v[:ref].length,v[:ref],v[:alt],v[:qual]]
         end
@@ -154,7 +140,6 @@ class VariantsController < ApplicationController
   private
   
   def get_variants
-    @variant = Variant.find(params[:id])
     page = params[:page] || 1
     @bioentry = Bioentry.find((params[:bioentry_id] || @variant.bioentries_experiments.first.bioentry))
     be = @variant.bioentries_experiments.find_by_bioentry_id(@bioentry.id)

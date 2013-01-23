@@ -1,0 +1,21 @@
+<td style="white-space:nowrap">
+  <%= stored_locus_link(hit,experiments) %>
+  <% feature_id = Array(hit.stored(:id)).first %>
+  <% #NOTE: This is the only location requiring n+1 seqfeature queries. Can this come from the index somehow? %>
+  <% if can? :edit, feature %>
+    <%= link_to( image_tag('comment_edit.png'), edit_seqfeature_path(feature_id), :class => 'popupbox', :'data-form' => "edit_seqfeature_#{feature_id}", :'data-post_to' => seqfeature_path(feature_id), :'data-update_id' => "#{feature_id}_definition", :'data-update_from' => request.fullpath+'&seqfeature_id='+feature_id.to_s) %>
+  <% end %>
+  <%= link_to(image_tag(Array(hit.stored(:favorite_user_ids)).include?(current_user.id) ? 'star.png' : 'star_gray.png'), toggle_favorite_seqfeature_path(feature_id), {:class => 'favorite',:id => "favorite_#{feature_id}",:remote => true}) %>
+</td>
+<td id='<%= feature_id %>_definition'>
+  <%= render :partial => "hit_definition", :locals => {:hit => hit, :definition_type => params[:definition_type]} %>
+</td>
+<% if @blast_runs.size > 0 %>
+  <td style="white-space:nowrap">
+    <% @blast_runs.each do |blast_run| %>
+      <% if hit.stored(:blast_id, blast_run.name_with_id) %>
+        <%= link_to blast_run.blast_database.abbreviation, seqfeature_path(feature_id, {:fmt => 'blast', :blast_report_id => Array(hit.stored(:blast_id,blast_run.name_with_id)).first} ) %>
+      <% end %>
+    <% end %>
+  </td>
+<% end%>

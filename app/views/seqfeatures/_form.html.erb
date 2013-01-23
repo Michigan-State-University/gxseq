@@ -1,0 +1,41 @@
+<!-- Form -->
+<div class="clear">
+  <%= semantic_form_for @seqfeature, :as => :seqfeature, :url => seqfeature_path(@seqfeature), :method => :put, :html => { :id => "edit_seqfeature_#{@seqfeature.id}" } do |form| %>
+		<!-- Feature -->
+		<!-- <h1 class="pagetitle">Feature</h1> -->
+		<%= form.hidden_field :bioentry_id, :value => @seqfeature.bioentry_id %>
+		<div class="border">
+  		<%= form.inputs @seqfeature.display_type, :class => "border_white", :id => 'seqfeature_qualifiers' do %>
+  			<%#= form.semantic_errors %>
+        <%= form.semantic_errors :locations %>
+  			<%= form.semantic_errors :locus_tag %>
+  			<%= render :partial  => 'shared/qualifiers_and_locations', :locals => {:f => form, :show_strand => true}%>
+  		<% end %>
+
+      <% if @blast_reports&&@blast_reports.size>0%>
+      <fieldset class="border_white">
+        <legend>
+          Blast Results
+        </legend>
+        <table>
+          <% @blast_reports.each do |blast_report| %>
+            <tr class=<%= cycle("even","odd") %>>
+              <td class='keyword'>
+                <%= blast_report.blast_database.name %>
+              </td>
+              <td><%= blast_report.hit_def %></td>
+            </tr>
+          <% end %>
+        </table>
+      </fieldset>
+      <% end %>
+		</div>
+    <% unless @extjs %>
+  		<!-- Submit -->
+  		<%= form.actions do %>
+  			<%= form.action :submit, :as => :button %>
+  		<% end %>
+    <% end %>
+	<% end %>
+</div>
+<%= sliced_toggle('Show History..',(render :partial => "history"),'history') if @changelogs && @changelogs.size > 0 %>

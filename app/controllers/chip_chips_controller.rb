@@ -1,8 +1,8 @@
 class ChipChipsController < ApplicationController
-
+  load_and_authorize_resource
+  
   ##custom actions - rjs
   def initialize_experiment
-    @chip_chip = ChipChip.find(params[:id])
     @chip_chip.initialize_experiment
     render :update do |page|
       page.replace_html 'initialize_experiment', "Job Started. Refresh to view updates in the console."
@@ -11,7 +11,6 @@ class ChipChipsController < ApplicationController
   
   def compute_peaks
     render :update do |page|
-      @chip_chip = ChipChip.find(params[:id])
       peak_count = @chip_chip.compute_peaks
       page.replace_html 'compute_peaks', "Found #{peak_count} peaks\nRefresh to view them."
     end
@@ -19,19 +18,18 @@ class ChipChipsController < ApplicationController
 
   def index
     query = (params[:query] || '').upcase
-    @species = ChipChip.includes(:taxon_version).where{upper(name) =~ "%#{query}%"}.collect(&:taxon_version).collect(&:species).uniq
+    @chip_chips = ChipChip.accessible_by(current_ability).includes(:taxon_version => [:species => :scientific_name]).where{upper(name) =~ "%#{query}%"}.order("taxon_name.name ASC")
+    @species = @chip_chips.map(&:taxon_version).map(&:species).uniq
   end
 
   def new
-    @chip_chip = ChipChip.new()
     @chip_chip.assets.build
-    @taxon_versions = TaxonVersion.order('name asc')
+    @taxon_versions = TaxonVersion.includes(:taxon => :scientific_name).order('taxon_name.name asc')
   end
 
   def create
-    @chip_chip = ChipChip.new(params[:chip_chip])
     @chip_chip.user = current_user
-    @taxon_versions = TaxonVersion.order('name asc')
+    @taxon_versions = TaxonVersion.includes(:taxon => :scientific_name).order('taxon_name.name asc')
     begin
       if @chip_chip.valid?
         @chip_chip.save
@@ -41,7 +39,7 @@ class ChipChipsController < ApplicationController
           flash[:warning]="#{w.join("<br/>")}"
           @chip_chip.puts "#{w.join("\n")}"
         end
-        redirect_to :action => :index #@chip_chip
+        redirect_to :action => :index
       else
         render :action => :new
       end
@@ -53,7 +51,6 @@ class ChipChipsController < ApplicationController
   end
 
   def show
-    @chip_chip = ChipChip.find(params[:id])
     entry_id = params[:entry_id] || params[:bioentry_id]
     @bioentry = Bioentry.find(entry_id || @chip_chip.bioentries_experiments.first.bioentry_id)
     respond_to do |format|
@@ -63,13 +60,11 @@ class ChipChipsController < ApplicationController
   end
 
   def edit
-    @chip_chip = ChipChip.find(params[:id])
-    @taxon_versions = TaxonVersion.order('name asc')
+    @taxon_versions = TaxonVersion.includes(:taxon => :scientific_name).order('taxon_name.name asc')
   end
 
   def update
-    @chip_chip = ChipChip.find(params[:id])
-    @taxon_versions = TaxonVersion.order('name asc')
+    @taxon_versions = TaxonVersion.includes(:taxon => :scientific_name).order('taxon_name.name asc')
     if @chip_chip.update_attributes(params[:chip_chip])        
       if((w=@chip_chip.assets.map(&:warnings).flatten).empty?)
         flash[:notice] = 'Chip Chip was successfully updated.'
@@ -84,14 +79,8 @@ class ChipChipsController < ApplicationController
   end
 
   def destroy
-    @chip_chip = ChipChip.find(params[:id])
-    if (current_user.is_admin? || current_user.owns?(@chip_chip))
-      @chip_chip.destroy
-      flash[:warning]="Experiment #{@chip_chip.name} has been removed"
-      redirect_to :action => :index
-    else
-      flash[:error]="Not Permitted"
-      redirect_to :action => :index
-    end
+    @chip_chip.destroy
+    flash[:warning]="Experiment #{@chip_chip.name} has been removed"
+    redirect_to :action => :index
   end
 end

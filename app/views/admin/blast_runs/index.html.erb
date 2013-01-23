@@ -1,0 +1,27 @@
+
+<% content_for :top_bar do -%>
+  <h1 class="pagetitle">Listing Blast Runs</h1>
+<% end -%>
+
+<% content_for :item_bar do -%>
+  <%= link_to 'Upload Blast run', new_admin_blast_run_path, :class => 'button' %>
+<% end -%>
+
+<%= render :partial => "admin/sidebar" %>
+<div class='table'>
+<table class='listing'>
+  <thead>
+    <th>Blast Db</th>
+    <th>Taxon Version</th>
+    <th>Options</th>
+  </thead>
+
+<% @blast_runs.each do |blast_run| %>
+  <tr>
+    <td><%= link_to blast_run.blast_database.name, admin_blast_databases_path if blast_run.blast_database %></td>
+    <td><%= blast_run.taxon_version.name_with_version if blast_run.taxon_version %></td>
+    <td><%= link_to 'Edit', edit_admin_blast_run_path(blast_run) %></td>
+  </tr>
+<% end %>
+</table>
+</div>

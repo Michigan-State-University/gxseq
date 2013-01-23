@@ -12,11 +12,8 @@ class GenericFeatureController < ApplicationController
          jrws = JSON.parse(params[:jrws])
          param = jrws['param']
          case jrws['method']
-           
-            when 'select'    
-                bioentry = param['bioentry']
-                seqfeature_name = Array.new
-                seqfeature_keys = Ontology.find_by_name('Annotation Tags').terms.collect {|x| x.name }
+            when 'select' 
+              seqfeature_keys = Term.annotation_tags.collect {|x| x.name }
               render :json  => {
                :success  => true,
                :data  => seqfeature_keys            
@@ -41,13 +38,15 @@ class GenericFeatureController < ApplicationController
                         :version => "",
                         :format => "",
                         :server => "",
-                        :description => "These models are representative of a full genome and have been loaded from a GLBRC biosql database containing the data within a Genbank file"
+                        :description => "These models have been loaded from the GLBRC Genome Suite"
                      }
                   }
                }
             when 'describe'
               begin
-                @generic = Seqfeature.find(param['id'])
+                @seqfeature = Seqfeature.find(param['id'])
+                authorize! :read, @seqfeature
+                @ontologies = Term.annotation_ontologies
                 render :partial => "seqfeatures/info.json"
               rescue
                 render :json => {
@@ -58,6 +57,7 @@ class GenericFeatureController < ApplicationController
             when 'range'
               #Needs refactoring - some data being sent is redundant/unused
                 bioentry = Bioentry.find(param['bioentry'])
+                authorize! :read, bioentry
                 my_data = Seqfeature.get_track_data(param['left'],param['right'],param['bioentry']) 
             render :json => {
               :success => true,
@@ -67,9 +67,11 @@ class GenericFeatureController < ApplicationController
       else
          if(params[:annoj_action] == 'lookup')
              show = ["product"]
-             bioentry = Bioentry.find(params['bioentry'])             
+             bioentry = Bioentry.find(params['bioentry'])
+             authorize! :read, bioentry
              bioentry_ids = bioentry.taxon_version.bioentries.map(&:id)
-             features = Seqfeature.joins{qualifiers.term}.includes( [:locations, [:qualifiers => [:term]]]).order("term.name").where{qualifiers.term.name != 'translation'}.where("UPPER(value) like '%#{params[:query].upcase}%' AND bioentry_id in (#{bioentry_ids.join(',')}) AND display_name not in ('#{GeneModel.seqfeature_types.join("','")}')")
+             features = Seqfeature.joins{qualifiers.term}.includes( [:locations, [:qualifiers => [:term]]]).order("term.name").where{qualifiers.term.name != 'translation'}.where("UPPER(value) like '%#{params[:query].upcase}%' AND bioentry_id in (#{bioentry_ids.join(',')})")
+
              data = []
              features[params[:start].to_i,params[:limit].to_i].each do |feature|
                 info = "<br/>"

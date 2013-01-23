@@ -4,6 +4,7 @@
  *	six frame translation
  *	DNA
  * The display is rendered at multiple levels: GC only, GC plus start/stop, Sequence plus Protein
+ * TODO: Refactor multiple handlers
  */
 Ext.define('Sv.tracks.SequenceTrack',{
 	extend : 'Sv.tracks.BrowserTrack',

@@ -1,0 +1,54 @@
+<div class='table'>
+  <table class="listing">
+  	<tr>
+  	  <th></th>
+  		<% @feature_counts.each do |m| %>
+  			<th><%= link_to m.experiment.name, m.experiment %></th>
+  		<% end %>
+  	</tr>
+  	<tr>
+  	  <td style="width:20px"><b>Reads</b></td>
+  		<% @feature_counts.each do |m| %>
+  			<td><%= m.count %></td>
+  		<% end %>
+  	</tr>
+  	<tr>
+  	  <td style="width:20px"><b>RPKM</b></td>
+  		<% @feature_counts.each do |m| %>
+  			<td><%= m.normalized_count %></td>
+  		<% end %>
+  	</tr>
+  </table>
+  <div id="coverage_graph" style="width: 100%; height: 300px;">
+  </div>
+</div>
+<br/>
+
+
+<br/>
+
+<script type="text/javascript" src="http://www.google.com/jsapi">
+</script>
+<script type="text/javascript">	
+  google.load('visualization', '1', {packages: ['corechart']});	
+  google.setOnLoadCallback(drawChart);	
+  function drawChart() {	
+    // Create and populate the coverage data table.	
+    var data = new google.visualization.DataTable();	
+    data.addColumn('string', 'Base Position');
+		<% @feature_counts.each do |f| %>
+			data.addColumn('number', '<%= f.experiment.name %>');
+		<% end %>
+    data.addRows(<%= @graph_data %>);	
+    // Create and draw the visualization.	
+    var coverage_chart = new google.visualization.AreaChart(document.getElementById('coverage_graph'));	
+    coverage_chart.draw(data,  
+      {  
+           legend: 'top',
+           gridlineColor: '#DDD',
+           backgroundColor: {fill:'#FFF', stroke: '#333'},
+           hAxis: {title: 'Base Position',textStyle: {color: '#333'},titleTextStyle: {color: '#333'}, maxAlternation: 1},
+      }
+    );
+  }
+</script>

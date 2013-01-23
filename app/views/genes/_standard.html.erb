@@ -16,7 +16,7 @@
 <div class="clear">
 	<!-- Gene Details -->
 	<div class="border">
-	<h2>Gene Details</h2>
+	<h2>Gene</h2>
 	<table>
 		<% reset_cycle %>
 		<% if @gene.gene %>
@@ -25,10 +25,10 @@
 				<td><%= @gene.gene.value %></td>
 			</tr>
 		<% end %>
-		<% unless @gene.gene_synonyms.empty? %>
+		<% if @gene.gene_synonym %>
 		<tr class=<%= cycle("odd","even") %>>
 			<td class="keyword">Other Names</td>
-			<td><%= @gene.gene_synonyms.collect(&:value).to_sentence%></td>
+			<td><%= @gene.gene_synonym %></td>
 		</tr>
 		<% end %>
 		<% products = [@gene.gene_models.collect(&:cds).compact.collect(&:product),@gene.product].flatten.compact.uniq %>
@@ -61,6 +61,12 @@
   		</tr>
   	<% end %>
 	</table>
+	
+	<% unless @gene.notes.empty? %>
+	<table>
+	  <%= render :partial => "note_feature", :locals => {:f => @gene, :name => "Notes"} %>
+	  </table>
+	<% end %>
 	</div>
 	
 	<!-- Graphic Gene-->
@@ -95,9 +101,8 @@
 				<h2>Notes</h2>
 				<table>
 					<% reset_cycle %>
-					<%= render :partial => "note_feature", :locals => {:gene_model => gene_model, :feature => 'gene'} %>
-					<%= render :partial => "note_feature", :locals => {:gene_model => gene_model, :feature => 'mrna'} %>
-					<%= render :partial => "note_feature", :locals => {:gene_model => gene_model, :feature => 'cds'} %>
+					<%= render :partial => "note_feature", :locals => {:f => gene_model.mrna, :name => "mRNA"} %>
+					<%= render :partial => "note_feature", :locals => {:f => gene_model.cds, :name => "CDS"} %>
 				</table>
 			</div>
 			<!-- Sequence Details -->

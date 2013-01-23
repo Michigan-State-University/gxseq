@@ -1,0 +1,14 @@
+<div>
+  <div style="width:31%;float:left;text-align:center" class="card">
+    <h2><%= link_to "Sequence", bioentries_path %></h2>
+    <p><%= link_to (image_tag "seq_view.png", :size => "300x300"), bioentries_path %></p>
+  </div>
+  <div style="width:31%;float:left;text-align:center" class="card">
+    <h2><%= link_to "Experiments", experiments_path %></h2>
+    <p><%= link_to ( image_tag "exp_console.png", :size => "300x300"), experiments_path %></p>
+  </div>
+  <div style="width:31%;float:left;text-align:center" class="card">
+    <h2><%= link_to "Annotation", genes_path %></h2>
+    <p><%= link_to (image_tag "gene_edit.png", :size => "300x300"), genes_path %></p>
+  </div>
+</div>

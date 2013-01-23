@@ -2,23 +2,24 @@ class Location < ActiveRecord::Base
   set_table_name "location"
   set_primary_key :location_id
   has_paper_trail :meta => {
-    :parent_id => Proc.new { |l| l.seqfeature.respond_to?(:gene_model) ? l.seqfeature.gene_model.gene_id : l.seqfeature.id},
-    :parent_type => Proc.new { |l| l.seqfeature.respond_to?(:gene_model) ? 'Gene' : l.seqfeature.class.name}
+    :parent_id => Proc.new { |l| (l.seqfeature.respond_to?(:gene_model) && l.seqfeature.gene_model) ? l.seqfeature.gene_model.gene_id : l.seqfeature.id},
+    :parent_type => Proc.new { |l| (l.seqfeature.respond_to?(:gene_model) && l.seqfeature.gene_model) ? 'Gene' : l.seqfeature.class.name}
   }
   belongs_to :seqfeature, :foreign_key => :seqfeature_id
   belongs_to :dbxref, :class_name => "Dbxref"
   belongs_to :term, :class_name => "Term"
   has_many :location_qualifier_values, :class_name => "LocationQualifierValue"
-  
+
   validates_presence_of :start_pos
   validates_presence_of :end_pos
   validate :check_orientation
   after_save :update_related
-    
+  before_save :check_term
+
   def to_s
     "#{start_pos}..#{end_pos}"
   end
-  
+
   ## strand cascade method
   ## if this location takes part in a gene_model definition, cascade any changes to strand.
   def update_related
@@ -32,17 +33,27 @@ class Location < ActiveRecord::Base
           end
         end
         gm.update_attribute(:strand, self.strand) if gm.strand != self.strand
-      end  
+      end
     end
-    
+
   end
-  
+
+  def name
+    "#{term.name if term} Location"
+  end
+
   def display_data
-    "#{term.name} : #{to_s} #{strand == 1 ? '->' : '<-'}"
+    " #{to_s} #{strand == 1 ? '->' : '<-'}"
   end
-  
+
   protected
-  
+
+  def check_term
+    unless term
+      self.term_id = seqfeature.type_term_id
+    end
+  end
+
   def check_orientation
     return true unless self.start_pos && self.end_pos
     if(end_pos <= start_pos)

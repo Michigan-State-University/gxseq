@@ -9,3 +9,15 @@ end
 Paperclip.interpolates :exp_id do |attachment, style|
   attachment.instance.experiment.id
 end
+
+Paperclip.interpolates :exp_name do |attachment, style|
+  attachment.instance.experiment.name
+end
+
+Paperclip.interpolates :blast_name do |attachment, style|
+  attachment.instance.name
+end
+
+Paperclip.interpolates :taxon_version_name do |attachment, style|
+  attachment.instance.taxon_version_name
+end

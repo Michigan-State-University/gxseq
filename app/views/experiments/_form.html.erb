@@ -18,18 +18,26 @@
         <% else %>
           <%= f.collection_select :taxon_version_id, @taxon_versions, :id, :name_with_version, {}, :onchange => "$('bioentries_experiments_list').remove()" %>
           <div id="bioentries_experiments_list">
-            <% f.fields_for :bioentries_experiments do |be| %>
-              <div class="nested-fields" style="clear:both">
-                <div style="padding-left:1em;float:left">
-                  <%= be.object.bioentry.short_name %>
+            <% if f.object.bioentries_experiments.count < 50 %>
+              <% f.fields_for :bioentries_experiments do |be| %>
+                <div class="nested-fields" style="clear:both">
+                  <div style="padding-left:1em;float:left">
+                    <%= be.object.bioentry.short_name %>
+                  </div>
+                  <div style="padding-left:1em;float:right">
+                  	<%= link_to_remove_fields image_tag("delete.png", :alt => "Remove Sequence"), be %>
+                  </div>
+                  <div style="padding-left:1em;float:right">
+                  	SeqID:<%= be.text_field :sequence_name %>
+                  </div>
                 </div>
-                <div style="padding-left:1em;float:right">
-                	<%= link_to_remove_fields image_tag("delete.png", :alt => "Remove Sequence"), be %>
-                </div>
-                <div style="padding-left:1em;float:right">
-                	SeqID:<%= be.text_field :sequence_name %>
-                </div>
-              </div>
+              <% end %>
+            <% else %>
+              <br/>
+              <p>
+                There too many sequences in this taxonomy to edit here.<br/>
+                If you need to manage id concordance contact the site Administrator. 
+              </p>
             <% end %>
           </div>
         <% end %>

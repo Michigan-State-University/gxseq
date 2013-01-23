@@ -7,10 +7,6 @@
 	}
 	var draw_canvas = function(){
 		var ext = Ext.get('gene_canvas')
-		if(!Ext.get('standard_format').isVisible()) //TODO FIX tightly coupled to parent div
-			return
-		//clear for re-paint ( toggle links )
-		ext.replaceWith({id:'gene_canvas',tag:'div'});
 	
 		var container = new Ext.Element(document.createElement('DIV'));	
 		container.setStyle('position', 'relative');

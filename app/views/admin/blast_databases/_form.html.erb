@@ -1,0 +1,14 @@
+<%= semantic_form_for [:admin,@blast_database] do |f| %>
+  <%= f.inputs do %>
+    <%= f.input :abbreviation %>
+    <%= f.input :name %>
+    <%= f.input :description %>
+    <%= f.input :link_ref %>
+    <%= f.input :taxon_id %>
+  <% end %>
+
+  <%= f.actions do %>
+    <%= f.action :submit, :as => :button %>
+    <%= f.action :cancel, :as => :link, :label => 'Cancel' %>
+  <% end %>
+<% end %>

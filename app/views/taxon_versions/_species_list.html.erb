@@ -1,0 +1,45 @@
+<div class="table" id="sstree-sequence">
+<table class="listing sstree" style="width:95%">
+	<thead >
+		<th style="border:none;text-align:left" width="5%">Species</th>
+		<th style="border:none;text-align:left" width="30%">Taxon</th>
+		<th style="border:none;text-align:left" width="10%">Version</th>
+		<th style="border:none" width="55%">Options</th>
+	</thead>
+	<% species.each_with_index do |species, species_idx| %>
+	<% id = species_idx + 1  %>
+	<tr id="<%= id %>" class="one">
+		<td colspan="2">
+			<div class="tier1">
+				<a id="a_<%= id %>" style="width:32px;height:32px" class="folder-open" name="<%= id %>"href="#<%= id %>" onclick="toggleRows(this);return false"></a>
+				<%= species.scientific_name.name %>
+			</div>
+		</td>
+		<td></td><td></td>
+	</tr>
+			<% species.species_taxon_versions.accessible_by(current_ability).each_with_index do |t_version, v_idx| %>
+				<% id = "#{species_idx + 1}-#{v_idx + 1}" %>
+				<tr id="<%= id %>" class="item">
+					<td colspan="2"style="text-align:center">
+					  <div class="tier4">
+					    <a name="<%= id %>" href="#<%= id %>" ></a>
+					  </div>
+					  <%= t_version.name %>
+					</td>
+					<td style="text-align:left">
+						<%= t_version.version %>
+					</td>
+					<td style="text-align:left">
+				    <%= link_to "Explore #{t_version.bioentries.count } entries", bioentries_path(:taxon_version =>t_version.id, :biodatabase => @biodatabase.id ) %>
+				    |
+				    <%= link_to "View First entry", t_version.bioentries.first%>
+				    <% if t_version.has_expression? %>
+				      |
+				      <%= link_to "Expression", expression_viewer_path(:taxon_version_id => t_version.id) %>
+				    <% end %>
+					</td>
+				</tr>
+		<% end %>
+	<% end %>
+</table>
+</div>

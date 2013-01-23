@@ -1,2 +1,0 @@
-<%= collection_select :gene,:bioentry_id, @bioentries, :bioentry_id, :display_info, {:prompt => "Select one.."},{:'data-onchange' => new_gene_path,:'data-params' => "taxon_version_id=#{@taxon_version.id}",:'data-with' => "bioentry_id", :'data-element' => "form_field"} %>
-<div id="form_field"></div>

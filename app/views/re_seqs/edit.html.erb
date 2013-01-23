@@ -3,6 +3,10 @@
 <% end -%>
 
 <% content_for :item_bar do -%>
+  <% if can? :delete, @re_seq %>
+    <% #TODO: Change remove buttons to red style %>
+    <%= link_to "Remove Re-Seq", @re_seq, :method => 'delete', :class => "button", :confirm => "Remove experiment: #{@re_seq.name}? \n This CANNOT be undone." %>
+  <% end %>
   <%= link_to "Cancel", @re_seq, :style => "float:right", :class => "button"%>
 <% end -%>
 

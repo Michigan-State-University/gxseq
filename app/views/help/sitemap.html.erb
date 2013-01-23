@@ -1,0 +1,57 @@
+<% content_for :top_bar do -%>
+  <h1 class="pagetitle">Sitemap</h1>
+<% end -%>
+<%= render :partial => "sidebar", :locals => {:active => "sitemap"} %>
+
+<ul style="clear:both;">
+  <li>
+    <%= link_to 'Help', help_path %>
+    <ul>
+      <li><%= link_to 'faq', faq_path %></li>
+      <li><%= link_to 'contact', contact_path %></li>
+      <li><%= link_to 'about', about_path %></li>
+      <li><%= link_to 'manual', help_path %></li>
+    </ul>
+  </li>
+  <li>
+    <%= current_user ? (link_to 'My Account', current_user) : 'My Account'  %>
+    <ul>
+      <li><%= current_user ? (link_to 'favorites', user_path(current_user, :fmt => 'favorites')) : 'favorites'%></li>
+      <li><%= current_user ? (link_to 'groups', user_path(current_user, :fmt => 'groups')) : 'groups'%></li>
+      <li><%= current_user ? (link_to 'samples', user_path(current_user, :fmt => 'samples')) : 'samples'%></li>
+    </ul>
+  </li>
+  <li>
+    <%= link_to 'Tools', tools_path %>
+    <ul>
+      <li><%= link_to 'Expression Viewer', expression_viewer_path %></li>
+      <li><%= link_to 'Smoother', smooth_tools_path %></li>
+    </ul>
+  </li>
+  <li>
+    <%= link_to 'Gene Annotation', genes_path %>
+    <ul>
+      <li><%= link_to 'Gene Models', genes_path %></li>
+      <li><%= link_to 'Other Features', seqfeatures_path %></li>
+    </ul>
+  </li>
+  <li>
+    <%= link_to 'Sequence', genomes_path %>
+    <ul>
+      <li><%= link_to 'Genomes', genomes_path %></li>
+      <li><%= link_to 'Transcriptomes', transcriptomes_path %></li>
+      <li><%= link_to 'Search/Download', bioentries_path %></li>
+    </ul>
+  </li>
+  <li>
+    <%= link_to 'Samples', experiments_path %>
+    <ul>
+      <li><%= link_to 'ChIP-Chip', chip_chips_path %></li>
+      <li><%= link_to 'ChIP-Seq', chip_seqs_path %></li>
+      <li><%= link_to 'RNA-Seq', rna_seqs_path %></li>
+      <li><%= link_to 'Re-Sequence', re_seqs_path %></li>
+      <li><%= link_to 'Variant (SNP/Indel)', variants_path %></li>
+      <!--TODO: Add synthetic link when ready <li><%#= link_to 'Synthetic', synthetics_path %></li> -->
+    </ul>
+  </li>
+</ul>

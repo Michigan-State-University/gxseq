@@ -1,8 +1,9 @@
 <% content_for :sidebar do -%>
 	<% active = '' unless defined? active %>
-	<h3>Experiment types</h3>
+	<h3>Sequence</h3>
 	<ul class="nav">
-	<li><%= link_to "Listing", bioentries_path, :class => "#{'active' if active== 'listing'}" %></li>
-	<li><%#= link_to "Upload", new_bioentry_path, :class => "#{'active' if active== 'new'}" %></li>
+	<li><%= link_to "Genomes", genomes_path, :class => "#{'active' if active== 'genome'}" %></li>
+	<li><%= link_to "Transcriptomes", transcriptomes_path, :class => "#{'active' if active== 'transcriptome'}" %></li>
+	<li><%= link_to "Search", bioentries_path, :class => "#{'active' if active=='search'}" %></li>
 	</ul>
 <% end -%>

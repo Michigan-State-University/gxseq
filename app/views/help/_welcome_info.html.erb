@@ -1,0 +1,29 @@
+<% content_for :top_bar do -%>
+  <h1 class="pagetitle">Welcome to the GLBRC Genome Suite</h1>
+<% end -%>
+<div style="float:left;width:65%">
+  <p style='font-size:125%'>
+    A repository of genomic sequence, annotations, and experimental data.<br/>
+	<b style='font-size:80%;'>If you are new to the site you should read the <%= link_to "Frequently Asked Questions", faq_path %></b>
+  </p>
+  <div style="clear:both">
+    <p>
+      Using this site you can interact with genomic data. There are listings of sequence and features for searching and downloading, a browser to view genomic data, and several tools to investigate that data. Try the category links above or read through some of the documentation to the left.
+    </p>
+  </div>
+</div>
+
+<div class='smallcard' 
+style="position:absolute; top:3em;right:3em;border:2px solid lightblue; width:28em; height:4em; background-color:rgba(255,255,255,0.3);display:none" id='category_highlight'>
+</div>
+
+<div style="float:right;width:25%;padding-left:10%;"onmouseover="$('category_highlight').toggle()" onmouseout="$('category_highlight').toggle()">
+  <%= image_tag('orange_arrow_up_right2.png',:size => "50x50",:style => "padding-left:5em") %>
+  <h3>Select A Category<br/>To Get Started</h3>
+</div>
+
+<div style="clear:both;padding-top:2em">
+<%= render :partial => "shared/confidential_notice" %>
+</div>
+
+<hr/>

@@ -2,9 +2,11 @@
 	<% active = 'listing' unless defined? active %>
 	<h3>Genes</h3>
 	<ul class="nav">
-	<li><%= link_to "Gene Listing", genes_path, :class => "#{'active' if active== 'genes'}" %></li>
-	<li><%= link_to "Feature Listing", seqfeatures_path, :class => "#{'active' if active== 'features'}" %></li>
-	<li><%= link_to "Create Gene", new_gene_path, :class => "#{'active' if active== 'create'}" %></li>
+	<li><%= link_to "Gene Models", genes_path, :class => "#{'active' if active== 'genes'}" %></li>
+	<li><%= link_to "All Features", seqfeatures_path, :class => "#{'active' if active== 'features'}" %></li>
+	<% if can? :create, GeneModel.new %>
+	  <li><%= link_to "Create Gene", new_gene_path, :class => "#{'active' if active== 'create'}" %></li>
+	<% end %>
 	<li><%= link_to "Details", details_genes_path, :class => "#{'active' if active== 'details'}" %></li>
 	</ul>
 <% end -%>

@@ -1,0 +1,56 @@
+<div id="gene_canvas"></div>
+<script type="text/javascript">
+	window.onload = function(){
+		draw_canvas()
+	}
+	var draw_canvas = function(){
+		var ext = Ext.get('gene_canvas')
+	
+		var containerA = new Ext.Element(document.createElement('DIV'));
+		var containerB = new Ext.Element(document.createElement('DIV'));
+		
+		containerA.setStyle('height', '49%');
+		containerB.setStyle('height', '49%');
+    containerA.setStyle('borderBottom', 'dotted black 1px');
+    
+		containerA.setHeight(<%= @canvas_height %>)
+		containerA.setWidth(<%= @canvas_width %>)
+		containerA.appendTo(ext);
+		
+		containerB.setHeight(<%= @canvas_height %>)
+		containerB.setWidth(<%= @canvas_width %>)
+		containerB.appendTo(ext);
+	
+		var canvasA = new Sv.painters.GenericFeatureCanvas({
+			strand : '+',
+			boxHeight : <%= @model_height %>,
+			selectable : false
+		});
+	
+		canvasA.setContainer(containerA.dom);
+		canvasA.setPixelBaseRatio(<%= @bases/@pixels.to_f %>);
+		
+		var canvasB = new Sv.painters.GenericFeatureCanvas({
+			strand : '-',
+			boxHeight : <%= @model_height %>,
+			selectable : false
+		});
+		var x = <%= @view_stop %>;
+		canvasB.setContainer(containerB.dom);
+		canvasB.setPixelBaseRatio(<%= @bases/@pixels.to_f %>);
+		
+		var dataA = new GenericFeatureList();
+		var dataB = new GenericFeatureList();
+		json_data = Ext.JSON.decode('<%= @graphic_data.html_safe %>')
+		dataA.parse(json_data,true);
+		dataB.parse(json_data,false);
+		
+		var subsetA = dataA.subset2canvas(<%= @view_start %>, <%= @view_stop %>,<%= @bases %>, <%= @pixels %>);
+		var subsetB = dataB.subset2canvas(<%= @view_start %>, <%= @view_stop %>,<%= @bases %>, <%= @pixels %>);
+		canvasA.setData(subsetA);
+		canvasB.setData(subsetB);
+
+		canvasA.paint();
+		canvasB.paint();
+	};
+</script>

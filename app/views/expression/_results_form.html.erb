@@ -1,0 +1,45 @@
+<% form_tag expression_results_path, :method => :get do %>
+  <div style="float:right">
+    Search on definition and locus<br/>
+    <%= text_field_tag "keywords",params[:keywords] %>
+    <%= hidden_field_tag :taxon_version_id, params[:taxon_version_id] %>
+    <%= hidden_field_tag :type_term_id, params[:type_term_id] %>
+    <%= hidden_field_tag :c, params[:c] if params[:c]%>
+    <%= hidden_field_tag :d, params[:d] if params[:d]%>
+    <% @experiments.each do |e| %>
+      <%= hidden_field_tag 'experiments[]', e.id %>
+    <% end %>
+    <%= submit_tag 'Go' %>
+  </div>
+  <div style="float:right;margin-right:2em">
+    Show Empty Results<br/>
+    <%= select_tag :show_blank, options_for_select({'Yes' => 'y','No' => 'n','Only Empty' => 'e'}, params[:show_blank]), {:onchange => 'this.form.submit()'} %>
+  </div>
+  <div style="float:right;margin-right:2em">
+    Definition Source<br/>
+    <%= select_tag :definition_type, grouped_options_for_select(@group_select_options, params[:definition_type]), {:onchange => 'this.form.submit()'} %>
+  </div>
+  <div style="float:right;margin-right:2em">
+    Filter Favorites<br/>
+    <%= select_tag :favorites_filter, options_for_select({'None' => 'n', 'My Favorites' => 'user', 'All Favorites' => 'all'}, params[:favorites_filter]), {:onchange => 'this.form.submit()'} %>
+  </div>
+<% end -%>
+
+<div style="<%=  params[:advanced_search] ? '' : 'display:none;clear:both'%>" id="advanced_search">
+  <h2 class="pagetitle"><br/><hr/></h2>
+  <% form_tag expression_results_path, :method => :get do %>
+    <%= hidden_field_tag :advanced_search, true %>
+    <%= hidden_field_tag :taxon_version_id, params[:taxon_version_id] %>
+    <%= hidden_field_tag :type_term_id, params[:type_term_id] %>
+    <% @experiments.each do |e| %>
+      <%= hidden_field_tag 'experiments[]', e.id %>
+    <% end %>
+    <h3></h3>
+    Keywords:  <%= text_field_tag "keywords",params[:keywords] %><br/>
+    <br/>
+    <h3>Match these fields:</h3>
+    Locus Tag: <%= text_field_tag "locus_tag",params[:locus_tag] %><br/>
+
+    <%= submit_tag 'Search', :style => "float:left", :class => "button" %>
+  <% end %>
+</div>

@@ -1,0 +1,13 @@
+<div style="float:right;" id="format_links">
+	<h2>
+		<%= link_to_unless @format=='standard', "Standard", seqfeature_path(@seqfeature, :fmt => 'standard') %>
+    | <%= link_to_unless @format=='genbank', "Genbank", seqfeature_path(@seqfeature, :fmt => 'genbank') %>
+		<% if @seqfeature.feature_counts.accessible_by(current_ability).count>0 %>
+		| <%= link_to_unless @format=='expression', "Expression", seqfeature_path(@seqfeature, :fmt => 'expression') %>
+		<% end %>
+		<% if @seqfeature.blast_reports.count > 0 %>
+		| <%= link_to_unless @format=='blast', "Blast", seqfeature_path(@seqfeature, :fmt => 'blast') %>
+		<% end %>
+		| <%= link_to_unless @format=='history', "History", seqfeature_path(@seqfeature, :fmt => 'history') %>
+		| <%= link_to_unless @format=='edit', "Edit", edit_seqfeature_path(@seqfeature, :fmt => 'edit') %>
+</div>

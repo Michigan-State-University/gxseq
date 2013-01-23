@@ -1,5 +1,5 @@
 class Ncrna < Seqfeature
-  def display_name
+  def name
     "ncRNA"
   end
 end

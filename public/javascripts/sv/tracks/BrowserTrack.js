@@ -465,7 +465,6 @@ Ext.define('Sv.tracks.BrowserTrack', {
         if (h > self.maxHeight) h = self.maxHeight;
         self.height = h;
         self.Frame.ext.setHeight(h);
-        self.refreshCanvas();
         AnnoJ.resetHeight();
     },
     //Specific functionality for the following methods should be provided by subclasses

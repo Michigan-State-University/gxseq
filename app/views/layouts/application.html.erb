@@ -3,7 +3,7 @@
 <head>
 	<title>Genome Suite</title>
 	<%= csrf_meta_tag %>
-	<%= stylesheet_link_tag 'main_layout', 'layout_extras' %>
+	<%= stylesheet_link_tag 'main_layout', 'layout_extras', 'formtastic' %>
 	<%= yield :head %>
 	<%= javascript_include_tag :defaults %>
 	<%= javascript_include_tag 'swfobject' %>
@@ -46,7 +46,7 @@
 				<div style="position:absolute;z-index:1000;right:5%;top:10%;">
 					<% flash.each do |name, msg| %>
 					<div id="<%= name %>_flash_msg" style="cursor:pointer" onclick="$('<%= name %>_flash_msg').hide();">
-						<%= content_tag :div, msg, :id => "flash_#{name}" if msg.is_a?(String) %>
+						<%= content_tag :div, msg.html_safe, :id => "flash_#{name}" if msg.is_a?(String) %>
 					</div>
 					<% end %>
 				</div>

@@ -1,0 +1,11 @@
+<%= semantic_form_for [:admin,@ontology] do |f| %>
+  <%= f.inputs do %>
+    <%= f.input :name %>
+    <%= f.input :definition %>
+  <% end %>
+
+  <%= f.actions do %>
+    <%= f.action :submit, :as => :button %>
+    <%= f.action :cancel, :as => :link %>
+  <% end %>
+<% end %>

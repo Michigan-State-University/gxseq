@@ -10,6 +10,14 @@ class Biosequence < ActiveRecord::Base
   has_many :sequence_files, :foreign_key => [:bioentry_id, :version], :dependent => :destroy
   has_one :gc_file, :class_name  => "GcFile", :foreign_key => [:bioentry_id, :version]
   
+  
+  def self.to_protein(sequence,frame=1,genetic_code=1)
+    frame = frame.to_i
+    genetic_code = genetic_code.to_i
+    [1,2,3].include?(frame)||frame=1
+    genetic_code>0||genetic_code=1
+    return Bio::Sequence::NA.new(sequence).translate(frame,genetic_code)
+  end
 
   def to_fasta
     s = ""
@@ -17,6 +25,33 @@ class Biosequence < ActiveRecord::Base
     s+="#{self.seq.to_formatted}"
   end
   
+  def yield_fasta
+    seq.scan(/.{100}/).each do |line|
+      yield "#{line}\n"
+    end
+  end
+
+  def to_genbank
+    text = "ORIGIN\n"
+    seq_count = 1
+    seq.scan(/.{60}/).each do |line|
+      text+="#{seq_count}".rjust(10)
+      text+=" #{line.scan(/.{10}/).join(" ")}\n"
+      seq_count+=60
+    end
+    return text
+  end
+  
+  def yield_genbank
+    yield "ORIGIN\n"
+    seq_count = 1
+    seq.scan(/.{60}/).each do |line|
+      yield "#{seq_count}".rjust(10)+" #{line.scan(/.{10}/).join(" ")}\n"
+      seq_count+=60
+    end
+  end
+  
+  # TODO: refactor, this method is too tightly coupled
   def get_protein_sequence(id,left,right)
     # [bioseq.ent_oid+left, left, length, data]
     return [] if left > length
@@ -110,10 +145,14 @@ class Biosequence < ActiveRecord::Base
 	    chrom_file.flush	    
 	    # Attach new empty BigWig file
 	    big_wig_file = File.open("tmp/#{self.bioentry_id}_gc.bw","w+")
-	    self.gc_file = GcFile.new(:data => big_wig_file )
+	    self.gc_file = GcFile.new(:data => big_wig_file)
 	    self.save!	    
 	    # Write out the BigWig data
 	    FileManager.wig_to_bigwig(wig_file.path, self.gc_file.data.path, chrom_file.path)
+	    # Close the files
+	    wig_file.close
+	    chrom_file.close
+	    big_wig_file.close
     rescue 
       puts "Error creating GC_content file for biosequence(#{self.id})\n#{$!}\n\n#{$!.backtrace}"
     end

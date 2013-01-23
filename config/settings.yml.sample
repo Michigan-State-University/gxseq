@@ -1,5 +1,6 @@
 allenv: &ALLENV
   site_link: http://gs.glbrc.org
+  mail_domain: gs.glbrc.org
   admin_email: admin@gs.glbrc.org
   admin_user: admin
   admin_pass: secret

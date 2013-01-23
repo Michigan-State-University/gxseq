@@ -1,0 +1,56 @@
+<% content_for :top_bar do -%>
+  <h1 class="pagetitle">Expression Viewer</h1>
+<% end -%>
+
+<% content_for :item_bar do -%>
+  <%= link_to "Update Selection", expression_viewer_path(:experiments => @experiments,:taxon_version_id => params[:taxon_version_id]), :class => "button" %>
+  <%= link_to "Advanced Search",'#',:onclick => "$('advanced_search').toggle()", :class => "button" %>
+  <%= render :partial => 'results_form' %>
+
+<% end -%>
+
+<% if @search.nil? %>
+  No Results Found...
+<% else %>
+  <div class="pagination">
+    <span style="float:left"><%= will_paginate(@search.hits) %></span>
+    <span style="float:right;margin-right:2em"><%= number_with_delimiter(@search.total) %> Matching Results</span>
+  </div>
+
+  <div class="table">
+    <table class="listing">
+      <thead>
+        <th style="white-space:nowrap"><%= sort_link "Locus", 'locus_tag_value' %></th>
+        <th width="65%">Definition</th>
+        <% if @blast_runs.count > 0 %>
+          <th>Blasts</th>
+        <% end %>
+        <% @experiments.each do |exp| %>
+          <th width="5%" style="white-space:nowrap" ><%=sort_link exp.name,"exp_#{exp.id}" %></th>
+        <% end %>
+        <th style="white-space:nowrap"><%= sort_link "Sum", 'sum' %></th>
+        <th>Options</th>
+      </thead>
+      <% @search.each_hit_with_result do |hit,feature| %>
+        <tr>
+          <%= render :partial => "id_def_and_blast", :locals => {:hit => hit, :feature => feature, :experiments => @experiments, :blast_runs => @blast_runs} %>
+          <% sum = 0 %>
+          <% @experiments.each do |exp| %>
+            <td>
+              <%= val = hit.stored(:normalized_counts,"exp_#{exp.id}") %>
+              <% sum += (val||0) %>
+            </td>
+          <% end %>
+          <td><%= "%.2f" % sum %></td>
+          <td style="white-space:nowrap">
+            <%= link_to 'Details', seqfeature_path(feature) %>
+            |
+            <%= link_to 'View', bioentry_path(feature.bioentry_id,{:pos => Array(hit.stored(:start_pos)).first,:tracks => [ :models_track, :generic_feature_track, @experiments.collect{|e| e.tracks.with_bioentry(feature.bioentry_id).first.id} ].flatten,}) %>
+          </td>
+        </tr>
+      <% end %>
+    </table>
+  </div>
+<% end %>
+
+<%= render :partial => "seqfeatures/ext_update_form" %>

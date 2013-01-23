@@ -1,0 +1,122 @@
+<% if hit %>
+  <table class='blast_report' width="100%">
+  	<tr>
+  		<td colspan="6" style="text-align:right;">
+  			<a style="color:blue; font-weight:bold; cursor:pointer;"
+  				onclick="Effect.Fade('blast_alignment')">
+  				[X]
+  			</a>
+  		</td>
+  	</tr>
+  	<tr>
+  		<td class="subhead" width="20%">Query</td>
+  		<td class="odd"><%= report.query_def %></td>
+  		<td class="subhead">Query Length</td>
+  		<td class="odd" colspan="3">
+  			<%= report.query_len %>
+  		</td>
+  	</tr>
+  	<tr>
+  		<td class="subhead">Hit Accession</td>
+  		<td class="odd">
+  			<%= hit.accession %>
+  		</td>
+  		<td class="subhead">Hit Length</td>
+  		<td class="odd" colspan="3"><%= hit.len %></td>
+  	</tr>
+  	<tr>
+  		<td class="subhead">Definition</td>
+  		<td class="odd" colspan="5">
+  			<%= hit.definition  %>
+  		</td>
+  	</tr>
+  </table>
+  <br/>
+  <table class='blast_report' width="95%" style="float:right;">
+  	<% for hsp in hit.hsps %>
+  		<tr>
+  			<td class="subhead">Score</td>
+  			<td class="odd" width="25%">
+  				<%= hsp.score %>
+  				 (<%= hsp.bit_score %>)
+  			</td>
+  			<td class="subhead" width="20%">Expect</td>
+  			<td class="odd" width="25%" colspan="3">
+  				<%= hsp.evalue %>
+  			</td>
+  		</tr>
+  		<tr>
+  			<td class="subhead">Identities</td>
+  			<td class="odd" width="20%">
+  				<% identity = hsp.identity %>
+  				<% align_len = hsp.align_len %>
+  				<% percent = (identity.to_f/align_len.to_f) %>
+  				<%= identity %>/<%= align_len %> (<%= sprintf("%2d",percent*100) %>%)
+  			</td>
+  			<td class="subhead" width="20%">Positives</td>
+  			<td class="odd" width="20%">
+  				<% positive = hsp.positive %>
+  				<% percent = (positive.to_f/align_len.to_f) %>
+  				<%= positive %>/<%= align_len %> (<%= sprintf("%2d",percent*100) %>%)
+  			</td>
+			
+  			<td class="subhead">Gaps</td>
+  			<td class="odd" width="20%">
+  				<% if hsp.gaps %>
+  					<% gaps = hsp.gaps %>
+  					<% percent = (gaps.to_f/align_len.to_f) %>
+  					<%= gaps %>/<%= align_len %> (<%= sprintf("%2d",percent*100) %>%)
+  				<% else %>
+  					<% percent = (0/align_len.to_f) %>
+  					0/<%= align_len %> (<%= sprintf("%2d",percent*100) %>%)
+  				<% end %>
+  			</td>
+  		</tr>
+  		<tr>
+  			<td colspan="6">
+  				<table width="100%">
+  					<% multiplier = report.program.match(/blastx/) ? 3 : 1 %>
+  					<% query_iter = 0 %>
+  					<% hit_iter = 0 %>
+  					<% query_segs = Array.new(0) %>
+  					<% query_sequence = hsp.qseq.clone %>
+  					<% hit_sequence = hsp.hseq.clone %>
+  					<% mid_sequence = hsp.midline.clone %>
+  					<% until query_sequence.length < 60 do %>
+  				    	<% query_segs = query_segs.push(query_sequence.slice!(/.{60}/)) %>
+  				    <% end %>
+  					<% query_segs = query_segs.push(query_sequence) %>
+  					<% query_segs.each do |seg| %>
+  						<% mid_seg = mid_sequence.slice!(/.{60}/) %>
+  						<% hit_seg = hit_sequence.slice!(/.{60}/) %>
+  						<tr class="alignment">
+  							<td><pre>Query:</pre></td>
+  							<td><pre><%= hsp.query_from + query_iter %></pre></td>
+  							<td><pre><%= seg.upcase %></pre></td>
+  						</tr>
+  						<tr class="alignment">
+  							<td><pre>&nbsp;</pre></td>
+  							<td><pre>&nbsp;</pre></td>
+  							<td><pre><%= mid_seg || mid_sequence %></pre></td>
+  						</tr>
+  						<tr class="alignment">
+  							<td><pre>Sbjct:</pre></td>
+  							<td>
+  								<pre><%= hsp.hit_from + hit_iter %></pre>
+  							</td>
+  							<td><pre><%= hit_seg || hit_sequence %></pre></td>
+  						</tr>
+  						<tr><td height="10px"></td><td></td><td></td></tr>
+  						<% query_iter += (seg.scan(/\w/).length * multiplier) %>
+  						<% if !hit_seg.nil? %>
+  							<% hit_iter += hit_seg.scan(/\w/).length %>
+  						<% end %>
+  					<% end %>
+  				</table>
+  			</td>
+  		</tr>
+  	<% end %>
+  </table>
+<% else %>
+ No Hit Found
+<% end %>

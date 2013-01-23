@@ -1,0 +1,9 @@
+<% content_for :sidebar do -%>
+  <% active = '' unless defined? active %>
+  <h3>Home</h3>
+  <ul class="nav">
+    <li><%= link_to "My Account", user_path(current_user), :class => "#{'active' if active == 'account'}" %></li>
+    <li><%#= link_to "My Profile", profile_user_path(current_user), :class => "#{'active' if active == 'account'}" %></li>
+  </ul>
+
+<% end %>

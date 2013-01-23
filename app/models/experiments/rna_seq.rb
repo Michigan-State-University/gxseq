@@ -3,11 +3,11 @@ class RnaSeq < Experiment
   has_many :feature_counts, :foreign_key => "experiment_id", :dependent => :destroy
   has_one :bam, :foreign_key => "experiment_id"
   has_one :big_wig, :foreign_key => "experiment_id"
-  
+  after_save :update_bioentry_concordance_from_bam
   smoothable
   
   def asset_types
-    {"Bam" => "Bam"}
+    {"Bam" => "Bam","BigWig" => "BigWig"}
   end
   
   def load_asset_data
@@ -19,6 +19,7 @@ class RnaSeq < Experiment
         bam.create_index
         self.create_big_wig(:data => bam.create_big_wig)
         bam.remove_temp_files
+        update_bioentry_concordance_from_bam
         big_wig.update_attribute(:state, "complete")
         bam.update_attribute(:state, "complete")
         update_state_from_assets
@@ -35,10 +36,21 @@ class RnaSeq < Experiment
   def remove_asset_data
     puts "Removing all asset data #{Time.now}"
     begin
-      bam.remove_temp_files
+      bam.remove_temp_files if bam
       bam.destroy_index if bam
     rescue
       puts "Error running RNA-Seq remove asset data:\n#{$!}"
+    end
+  end
+  # use the bam file to update all bioentries assigning external id's from the bam (internal load order vs bam file order)
+  def update_bioentry_concordance_from_bam
+    if bam
+      external_ids = bam.target_info.keys
+      if external_ids.length >= bioentries_experiments.count
+        bioentries_experiments.order('id asc').each_with_index do |bioentry_experiment,index|
+          bioentry_experiment.update_attribute(:sequence_name,external_ids[index])
+        end
+      end
     end
   end
   
@@ -50,7 +62,6 @@ class RnaSeq < Experiment
   
   def summary_data(start,stop,num,chrom)
     (self.big_wig ? big_wig.summary_data(start,stop,num,chrom).map(&:to_f) : [])
-    
   end
   
   def get_reads(start, stop, chrom)

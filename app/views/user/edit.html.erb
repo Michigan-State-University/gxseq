@@ -1,4 +1,7 @@
-<h1>Edit User: <%=h @user.login %></h1>
+<%= render :partial => "home/sidebar" %>
+<% content_for :top_bar do -%>
+  <h1 class="pagetitle">Update Profile</h1>
+<% end -%>
 
 <% @user.password = @user.password_confirmation = nil %>
 
@@ -22,6 +25,6 @@
   <%= f.password_field :password_confirmation %></p>
 <% end %>
 
-  <p><%= submit_tag 'Edit' %> or <%= link_to 'Cancel', root_path %></p>
+  <p><%= submit_tag 'Update' %> or <%= link_to 'Cancel', @user %></p>
 
 <% end -%>

@@ -1,0 +1,54 @@
+<% content_for :top_bar do %>
+	<!-- Header here -->
+	<h1 class="pagetitle">Taxonomy Versions</h1>
+<% end %>
+
+<% content_for :item_bar do %>
+	<!-- Filter / Search items here -->
+	<div style="float:left">
+	</div>
+<% end %>
+
+<% content_for :sidebar do %>
+	<!-- Sidebar / Links / Notices here -->
+	<%= render :partial => "bioentries/sidebar", :locals => {:active => 'taxon'} %>
+<% end %>
+
+
+<% if @taxon_versions.nil? %>
+  No Results Found...
+<% else %>
+  <div class="pagination">
+    <span style="float:left"><%= will_paginate(@taxon_versions) %></span>
+    <span style="float:right;margin-right:2em"><%= number_with_delimiter(@taxon_versions.total_entries) %> Matching Results</span>
+  </div>
+
+  <div class="table">
+    <table class="listing">
+      <thead>
+        <th style="white-space:nowrap"><%= sort_link "Species", 'taxon' %></th>
+        <th>Name</th>
+        <th>Version</th>
+        <th>Bioentries</th>
+        <th>Type</th>
+        <th>Options</th>
+      </thead>
+      <% @taxon_versions.each do |taxon_version| %>
+        <tr>
+          <td><%= taxon_version.species.scientific_name.name %></td>
+          <td><%= taxon_version.name %></td>
+          <td><%= taxon_version.version %></td>
+          <td><%= link_to taxon_version.bioentries.count, bioentries_path(:taxon_version => taxon_version.id) %></td>
+          <td><%= taxon_version.class.name %></td>
+          <td>
+            <%= link_to "Details", taxon_version_path(taxon_version) %>
+          <% if can? :update, taxon_version %>
+            <%= link_to "Edit", edit_taxon_version_path(taxon_version) %>
+          <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </table>
+  </div>
+<% end %>
+          

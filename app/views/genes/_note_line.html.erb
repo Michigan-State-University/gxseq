@@ -1,10 +1,13 @@
 <% note_length = 350 %>
+<% note.value = ' NA ' if note.value.nil? %>
 <tr>
+  <!-- Last Editor -->
 	<td class="options" >
 	<% unless note.versions.empty? %>
 		<%= " #{note.versions.last.created_at.strftime("%D")}<br/> <b>#{User.find(note.versions.last.whodunnit).login}</b>".html_safe %>
 	<% end %>
 	</td>
+  <!-- Expand arrow -->
 	<td class="options">
 		<% if note.value.size > note_length %>
 			<%= link_to_function( image_tag("arrow_closed.png", :id => "#{note.text_id}_arrow_closed", :style => "border:none"), 
@@ -14,21 +17,26 @@
 		<% end %>
 	</td>
 	<td>
+    <!-- Note -->
 		<div id="list_note_<%= note.text_id%>">
 			<div id="<%= note.text_id %>_note_small"><%= truncate(h(note.value), :length => note_length).gsub(/\n|;/,"<br/>").html_safe %></div>
 			<% if note.value.size > note_length %>
 				<div id="<%= note.text_id %>_note_full" style="display:none"><%=(h note.value).gsub(/\n|;/,"<br/>").html_safe %></div>
 			<% end %>
 		</div>
-		<div id="edit_note_<%= note.text_id%>" style="display:none;">
-			<% form_for note do |f| %>
-				<%= f.text_area :value, :cols => 75, :rows => 8 %>
-				<br/>
-				<%= f.submit "Update", :class => "button", :style => "float:left" %>
-	      <%= image_tag("delete.png", :style => "border:none;cursor:pointer;float:left;margin-left:1em", :onclick => "$('edit_note_#{note.text_id}').toggle();$('list_note_#{note.text_id}').toggle();")%>
-			<% end %>
-		</div>
-		<% if note.versions.size > 1 %>
+    <!-- Edit Form -->
+		<% if can? :update, note %>
+  		<div id="edit_note_<%= note.text_id%>" style="display:none;">
+  			<% form_for note do |f| %>
+  				<%= f.text_area :value, :cols => 75, :rows => 8 %>
+  				<br/>
+  				<%= f.submit "Update", :class => "button", :style => "float:left" %>
+  	      <%= image_tag("delete.png", :style => "border:none;cursor:pointer;float:left;margin-left:1em", :onclick => "$('edit_note_#{note.text_id}').toggle();$('list_note_#{note.text_id}').toggle();")%>
+  			<% end %>
+  		</div>
+  	<% end %>
+    <!-- History Table -->
+		<% if note.versions.size > 0 %>
 			<div id="note_versions_<%= note.text_id %>" style="display:none">
 				<br/>
 				<h1 class="pagetitle" style="font-size:110%">History</h1>
@@ -42,7 +50,7 @@
 					<% next unless version.reify %>
 						<tr>
 							<td style="border:solid 2px rgb(210,210,210);width:5%"><%= version.index %></td>
-							<td style="border:solid 2px rgb(215,215,215);width:15%;font-size:80%;text-align:right"><%= " #{version.previous.created_at.strftime("%D")}<br/> <b>#{User.find(version.previous.whodunnit).login}</b>".html_safe %>
+							<td style="border:solid 2px rgb(215,215,215);width:15%;font-size:80%;text-align:right"><%= version.previous ? " #{version.previous.created_at.strftime("%D")}<br/> <b>#{User.find(version.previous.whodunnit).login}</b>".html_safe : ''%>
 							<td style="border:solid 2px rgb(225,225,225);font-size:90%"><%=h version.reify.value %></td>
 						</tr>
 					<% end %>
@@ -50,11 +58,12 @@
 			</div>
 		<% end %>
 	</td>
+  <!-- Toggle Links -->
 	<td style="vertical-align:top">
-		<%# permitted_to? :edit, note d) %>
+		<% if can? :update, note %>
 			<%= image_tag("comment_edit.png", :style => "border:none;cursor:pointer", :onclick => "$('edit_note_#{note.text_id}').toggle();$('list_note_#{note.text_id}').toggle();")%>
-		<%# end %>
-		<% if note.versions.size > 1 %>
+		<% end %>
+		<% if note.versions.size > 0 %>
 			&nbsp;<%= image_tag("table.png", :style => "border:none;cursor:pointer", :onclick => "$('note_versions_#{note.text_id}').toggle();")%>(<%= note.versions.size %>)
 		<% end %>
 	</td>

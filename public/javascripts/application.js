@@ -16,7 +16,7 @@ function add_fields(link, association, content,render) {
 	  var regexp = new RegExp("new_" + association, "g")
 	  $(link).up(".new-fields").insert({
 			after: content.replace(regexp, new_id)
-		});		
+		});
 	}else{
 		var new_id = new Date().getTime();
 	  var regexp = new RegExp("new_" + association, "g")
@@ -25,6 +25,10 @@ function add_fields(link, association, content,render) {
 		});
 	}
 }
+
+document.on('ajax:before', 'a.favorite', function(e, item) {
+	item.update("<img src='../images/loading.gif'></img>")
+});
 
 document.on("change", "*[data-onchange]", function(event, element) {
   var onchange_url = element.readAttribute('data-onchange');

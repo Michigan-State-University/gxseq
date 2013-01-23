@@ -3,12 +3,12 @@ module ApplicationHelper
   # Each key has an array of link, [matching controller symbols]
   def top_navbar_items
     {
-      :home => [root_path,[:home,:'devise/sessions']],
-      :sequence => [bioentries_path,[:bioentries]],
+      #:home => [root_path,[:home,:'devise/sessions',:user]],
+      :sequence => [genomes_path,[:bioentries,:genomes,:transcriptomes]],
       :features => [genes_path,[:genes,:seqfeatures]],
-      :experiments => [experiments_path,[:experiments, :chip_chips, :chip_seqs, :synthetics, :variants]],
-      :tools => [tools_path,[:tools]],
-      :help => [help_path,[:help]]
+      :samples => [experiments_path,[:experiments, :chip_chips, :chip_seqs, :synthetics, :variants]],
+      :tools => [tools_path,[:tools,:expression]],
+      :help => [faq_path,[:help]]
     }
   end
   # return top nav bar html
@@ -21,20 +21,20 @@ module ApplicationHelper
       ((current_user && current_user.is_admin?) ? content_tag(:li, link_to("Admin", admin_root_path, :class => ('active' if params[:controller]=~/^admin/))) : '')
     end
   end
-  
+
   # TODO possible refactor
   def sort_link(title, column, options = {})
     condition = options[:unless] if options.has_key?(:unless)
     tooltip = options.delete(:tooltip) if options.has_key?(:tooltip)
     sort_dir = params[:d] == 'up' ? 'down' : 'up'
-    link_to_unless condition, "#{title}<span>#{tooltip}</span>".html_safe, request.parameters.merge({:c => column, :d => sort_dir}), options
+    link_to_unless condition, "#{params[:c]==column ? (params[:d]=='up' ? image_tag('sort_up.png', :size => '11x11') : image_tag('sort_down.png', :size => '11x11')) : image_tag('sort_off.png', :size => '10x10')}#{title}<span>#{tooltip}</span>".html_safe, request.parameters.merge({:c => column, :d => sort_dir}), options
   end
-  
+
   # Helper for rendering Sequence in View
   def formatted_sequence(seq,hsh = {})
     seq.to_formatted(hsh).html_safe
   end
-  
+
   # canvas 2d number line
   def number_line(start, width, options={})
     #use js 2d canvas to draw a number line
@@ -50,12 +50,12 @@ module ApplicationHelper
         var context = $('canvas_number_line_#{id}').getContext('2d');
         context.textAlign='center';
         context.font='bold #{fontheight}px arial,sans-serif'
-        context.fillRect(#{0},#{(height/2)-1},#{width}, 2)       
+        context.fillRect(#{0},#{(height/2)-1},#{width}, 2)
         #{ text = ""
           0.step(width,10) {|x|
             if(x.divmod(100)[1]==0)
               h = tickheight*2
-              text += "context.fillText('#{start+(x*per_pixel)}',#{x},#{(height/2)+h+fontheight});"
+              text += "context.fillText('#{start+(x*per_pixel).floor}',#{x},#{(height/2)+h+fontheight});"
             else
               h = tickheight
             end
@@ -64,12 +64,12 @@ module ApplicationHelper
           }
           text
         }
-        
+
       </script>
     "
     return line.html_safe
   end
-  
+
   # dynamic links for nested form items
   def link_to_remove_fields(name, f,options={})
     if f.object.new_record?
@@ -89,14 +89,41 @@ module ApplicationHelper
     end
       content_tag(:div,link_to_function(name, "add_fields(this, \"#{association}\", \"#{escape_javascript(fields)}\",'#{options[:render]}')", options), :class => "new-fields")
   end
-  
+
   def link_to_show_deleted(object, association, options={})
-    return if object.new_record? || object.versions.nil?    
+    return if object.new_record? || object.versions.nil?
   end
-  
+
   # Add title for all alt declarations
   def image_tag(location, options={})
     options[:title] ||= options[:alt]
     super(location, options)
+  end
+
+  def sliced_toggle(small_text,full_text,dom_id)
+    [
+      (
+        content_tag(:div,
+          content_tag(:div, '[+]',
+            :style => 'float:left;cursor:pointer;color:#648FAB;',
+            :id => "toggle_#{dom_id}_open",
+            :onclick => "$('slice_#{dom_id}_full').toggle();
+              $('slice_#{dom_id}_short').toggle();
+              $('toggle_#{dom_id}_open').toggle();
+              $('toggle_#{dom_id}_close').toggle();")+'&nbsp;'.html_safe+small_text,
+          :style => "text-wrap:none;text-align:left;overflow:hidden;height:1.2em",
+          :id => "slice_#{dom_id}_short")
+      ),
+      content_tag(:div,
+        content_tag(:div,'[-]',
+          :id =>"toggle_#{dom_id}_close",
+          :style =>'float:left;cursor:pointer;display:none;color:#648FAB',
+          :onclick =>" $('slice_#{dom_id}_full').toggle();
+          $('slice_#{dom_id}_short').toggle();
+          $('toggle_#{dom_id}_open').toggle();
+          $('toggle_#{dom_id}_close').toggle();")+'&nbsp;'.html_safe+full_text.html_safe,
+        :id => "slice_#{dom_id}_full",
+        :style => "display:none;text-align:left")
+    ].join.html_safe
   end
 end

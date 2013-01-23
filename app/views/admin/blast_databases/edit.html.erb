@@ -1,0 +1,6 @@
+<% content_for :top_bar do -%>
+  <h1 class="pagetitle">Editing: <%= @blast_database.name %></h1>
+<% end -%>
+<%= render :partial => 'admin/sidebar', :locals => {:active => 'blast_db'} %>
+
+<%= render 'form' %>

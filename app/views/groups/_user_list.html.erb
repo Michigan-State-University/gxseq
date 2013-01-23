@@ -1,0 +1,20 @@
+<div class="table">
+  <table class="listing">
+    <thead>
+      <th>Username</th>
+      <th>e-mail</th>
+      <th>Options</th>
+    </thead>
+    <% group.users.each do |user| %>
+      <tr>
+        <td><%= user.display_name%></td>
+        <td><%= user.email %></td>
+        <td>
+          <% if can? :update, group %>
+            <%= link_to "Remove", remove_user_group_path(group, :user_id => user.id) %>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </table>
+</div>

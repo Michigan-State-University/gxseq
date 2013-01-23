@@ -396,8 +396,8 @@ var AnnoJ = (function()
     newSearch = "?pos="+loc.position
     newSearch += "&b="+loc.bases
     newSearch += "&p="+loc.pixels
-    Ext.each(GUI.TrackSelector.getActiveIDs(), function(aid){
-      newSearch += "&tracks[]="+aid
+    Ext.each(GUI.TrackSelector.getActiveIDs(), function(active_id){
+      newSearch += "&tracks[]="+active_id
     });
     window.history.replaceState("Data","Sequence Viewer",newSearch)
   };

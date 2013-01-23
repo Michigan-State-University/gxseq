@@ -1,3 +1,4 @@
+#TODO: Synthetics need to be re-implemented and tested
 class SyntheticsController < ApplicationController
    ##ajax routes
    def render_exp_type

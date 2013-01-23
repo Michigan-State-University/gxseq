@@ -1,13 +1,24 @@
+<% content_for :head do %>
+	<%= render :partial => "common/extjs" %>
+	<%= render :partial => "common/extjs_css_gray" %>
+<% end %>
+
 <div id="graphics_container">
   Displaying data for : <%= "#{@bioentry.species_name} #{@bioentry.version_info} : " %>
-  <%= select_tag :bioentry_id, 
-    options_from_collection_for_select(@rna_seq.bioentries_experiments, 
-      :bioentry_id, 
-      :bioentry_display_name, 
-      @bioentry.id),
-    :onChange => "window.location='#{rna_seq_url(@rna_seq)}?bioentry_id='+this.options[this.selectedIndex].value"
-  %><br/>
-  View in <%= link_to "Sequence Viewer", bioentry_path(@bioentry, :tracks => [@rna_seq.tracks.with_bioentry(@bioentry.id).first.id]) %>
+  <% if @bioentry.taxon_version.is_genome? %>
+    <%= select_tag :bioentry_id, 
+      options_from_collection_for_select(@rna_seq.bioentries_experiments, 
+        :bioentry_id, 
+        :bioentry_display_name, 
+        @bioentry.id),
+      :onChange => "window.location='#{rna_seq_url(@rna_seq)}?bioentry_id='+this.options[this.selectedIndex].value"
+    %>
+  <% else %>
+    <%= @bioentry.short_name %><br/><br/>
+    Select another sequence: <div id='bioentry_searchbox'></div>
+  <% end %>
+  <br/>
+  View this in the <%= link_to "Sequence Viewer", bioentry_path(@bioentry, :tracks => [@rna_seq.tracks.with_bioentry(@bioentry.id).first.id]) %>
   <div id='exp_chart'>
   	<%= swf_tag "mixed_plot.swf", 
   		:id => "#{@rna_seq}_plot", 
@@ -20,3 +31,71 @@
   		} %>
   </div>
 </div>
+<script type="text/javascript">
+
+Ext.onReady(function(){
+  //Define Model
+  Ext.define('SequenceSearchResult',{
+    extend : 'Ext.data.Model',
+    fields: [
+    {name: 'id', type:'int'},
+    {name: 'accession', type:'string'},
+    {name: 'reload_url',type:'string'}
+    ]
+  });
+  //Define Store
+  var ds = Ext.create('Ext.data.Store',{
+    model: 'SequenceSearchResult',
+    pageSize : 10,
+    proxy : {
+      type : 'ajax',
+      url : '/bioentries.json',
+      reader:{
+        type : 'json',
+        root : 'rows',
+        totalProperty : 'count',
+        id : 'id'
+      },
+      extraParams : {
+        taxon_version  : <%= @bioentry.taxon_version_id %>,
+        reload_url : '/rna_seqs/<%= @rna_seq.id %>?bioentry_id='
+      }
+    },
+
+  });
+  // Add search box
+  var search = new Ext.form.ComboBox({
+    store       : ds,
+    valueField  : 'id',
+    width       : 250,
+    queryDelay  : 500,
+    minChars    : 3,
+    pageSize    : 10,
+    hideTrigger : false,
+    renderTo    : 'bioentry_searchbox',
+    emptyText   : '<%= @bioentry.short_name %>',
+    listConfig  : {
+      loadingText  : 'Searching for Sequence...',
+      //getInnerTpl: function() {
+        //return '<div class="drop_list"><div style="float:left"><b>{accession}</b></div><div style="float:right"><b></b></div><br/></div>'
+      //}
+      displayField: 'accession',
+      height: 500
+    },			
+    listeners : {
+      beforequery:function(queryEvent){
+        //Hack fix for missing query param: http://www.sencha.com/forum/showthread.php?134592-EXTJSIV-2470-4.0.1-ComboBox-not-issuing-queryParam-on-paging-requests
+        queryEvent.combo.store.proxy.extraParams.query = queryEvent.combo.getValue();
+      },
+      change:function(combo){
+        combo.store.currentPage = 1;
+      },
+      select : function(box, items)
+      {
+        record = items[0] //we only allow single selection
+        window.location = (record.data.reload_url+record.data.id)
+      }
+    }
+  });
+});
+</script>

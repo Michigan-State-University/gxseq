@@ -4,7 +4,7 @@ class GenericFeatureTrack < Track
   end
   
   def name
-    "Features"
+    "All Features"
   end
   
   def config

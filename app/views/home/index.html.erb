@@ -1,33 +1,3 @@
-<h1 class="pagetitle">Welcome to the GLBRC Genomic Data Management Suite</h1>
-<p>
-  <b>The information in this system is confidential and subject to use under the <%= link_to "GLBRC Information Systems Confidentiality Notice","http://www.glbrc.org/sites/default/files/information_systems_confidentiality.htm", :target => "#" %></b>
-</p>
-<p>
-	<h3>If you are new to the site you should read the <%= link_to "Frequently Asked Questions", faq_path %></h2>
-</p>
-<hr>
-<div style="heigth:400px;width:100%">
-  <p>Use the naviagtion links above or the quick links below to get started.</p>
-  <p>
-    The Genome Suite is a repository of Genomic sequence and experiments.
-  </p>
-  <p>
-    Using this site you can interact with Genome Sequence and Annotations, Upload a variety of Experimental Data, and Analyze that data with Tools.
-  </p>
-
-</div>
+<%= render :partial => 'welcome_info' %>
 <h1 class="pagetitle"></h1>
-<div>
-  <div style="width:31%;float:left;text-align:center" class="card">
-    <h2><%= link_to "Sequence", bioentries_path %></h2>
-    <p><%= link_to (image_tag "seq_view.png", :size => "300x300"), bioentries_path %></p>
-  </div>
-  <div style="width:31%;float:left;text-align:center" class="card">
-    <h2><%= link_to "Experiments", experiments_path %></h2>
-    <p><%= link_to ( image_tag "exp_console.png", :size => "300x300"), experiments_path %></p>
-  </div>
-  <div style="width:31%;float:left;text-align:center" class="card">
-    <h2><%= link_to "Annotation", genes_path %></h2>
-    <p><%= link_to (image_tag "gene_edit.png", :size => "300x300"), genes_path %></p>
-  </div>
-</div>
+<%= render :partial => 'image_links' %>

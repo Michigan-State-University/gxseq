@@ -12,7 +12,7 @@ class SixFrameTrack < Track
       name  		: '#{self.name}',
       bioentry 	: '#{self.bioentry.id}',
       type  		: 'SequenceTrack',
-      data  		: '#{root_path}/fetchers/genome',
+      data  		: '#{root_path}/bioentries/track_data',
       iconCls : '#{iconCls}',
       storeLocal: true,
       height 	: 100"

@@ -9,15 +9,17 @@
 <%= render :partial => "experiments/sidebar", :locals => {:experiment => experiment} %>
 
 <% content_for :item_bar do -%>
-  <%= link_to "Reload", {:action => 'initialize_experiment', :id => experiment.id}, {
-    :confirm => "Are you sure?\n\nThis will re-initialize the experiment, removing and re-creating any computed data", 
-    :remote => true,
-    :class => "button",
-    :style => "margin-bottom:1em" } %>
-    <%= render :partial => "actions" rescue nil %>
-    <div style="float:right">
-  	  <%= render :partial => 'experiments/nav_links', :locals => {:experiment => experiment} %>
-  	</div>
+  <% if can? :initialize_experiment, experiment %>
+    <%= link_to "Reload", {:action => 'initialize_experiment', :id => experiment.id}, {
+      :confirm => "Are you sure?\n\nThis will re-initialize the experiment by removing and reloading any computed data", 
+      :remote => true,
+      :class => "button",
+      :style => "margin-bottom:1em" } %>
+  <% end %>
+  <%= render :partial => "actions" rescue nil %>
+  <div style="float:right">
+    <%= render :partial => 'experiments/nav_links', :locals => {:experiment => experiment} %>
+  </div>
   <div id="initialize_experiment" style="clear:both"></div>
 	
 <% end -%>
