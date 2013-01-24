@@ -1,6 +1,6 @@
 class SequenceFile < ActiveRecord::Base
   belongs_to :biosequence, :foreign_key => [:bioentry_id,:version]
-
+  #TODO: Refactor sequence_file only 1 per taxon_version
   has_attached_file :data, :path => ":rails_root/lib/data/sequence/gc/:filename"
   validates_attachment_presence :data
   

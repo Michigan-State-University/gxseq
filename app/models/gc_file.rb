@@ -1,9 +1,21 @@
 class GcFile < SequenceFile
-  def summary_data(start,stop,count,type="mean")
+  def open_bw
     begin
-      base_counts = `#{CMD_PATH}bigWigSummary -type=#{type} #{data.path} #{bioentry_id} #{start} #{stop} #{count}`.chomp.split("\t")
-    rescue
-      []
+      @err = nil
+      @bw ||=Bio::Ucsc::BigWig.open(data.path)
+    rescue => e
+      @err = e
+      # in case file doesn't exist or is bad format
+      @bw = nil
     end
+  end
+  # Returns data summary from the specified chromosome and region.
+  # supported types are [max,min,mean,std,coverage]
+  def summary_data(start,stop,count,type="mean",opts={})
+    # TODO: convert all 'type' references to opts[:type] for bigwig summary
+    return [] unless open_bw
+    opts[:type]||=type
+    #TODO: refactor use taxon_version for lookup, need to be supplied chrom or bioentry
+    open_bw.summary(bioentry_id,start,stop,count,opts)    
   end
 end
