@@ -196,9 +196,12 @@ class Taxonomy < Thor
       # now add the new taxon names from the download
       puts "\t... inserting new taxon names\n" if verbose
       progress_bar = ProgressBar.new(taxon_name_data.length)
+      unique_taxon_name = ''
       taxon_name_data.each_slice(100) do |taxon_name_batch|
         taxon_name_batch.each do |taxon_name|
-          base.connection.execute("INSERT INTO TAXON_NAME (taxon_id, name, name_class,created_at,updated_at) VALUES (#{ncbi_to_db_id_map[taxon_name[0].to_s]}, '#{taxon_name[1].gsub(/\'/,"''")}', '#{taxon_name[3].gsub(/\'/,"''")}','#{db_time}','#{db_time}')")
+          # If a unique name is present use it otherwise just use the name, convert single quotes to double for direct sql insert
+          unique_taxon_name = ( taxon_name[2].strip.empty? ? taxon_name[1].gsub(/\'/,"''") : taxon_name[2].gsub(/\'/,"''") )
+          base.connection.execute("INSERT INTO TAXON_NAME (taxon_id, name, name_class,created_at,updated_at) VALUES (#{ncbi_to_db_id_map[taxon_name[0].to_s]}, '#{unique_taxon_name}', '#{taxon_name[3].gsub(/\'/,"''")}','#{db_time}','#{db_time}')")
         end
         progress_bar.increment!(taxon_name_batch.length)
       end
