@@ -17,7 +17,6 @@ group :development, :test do
   gem 'rails_best_practices'
   gem 'flay'
   gem 'flog'
-  gem 'newrelic_rpm'
 end
 
 gem 'acts_as_api', '~>0.3'
@@ -53,6 +52,7 @@ end
 gem 'progress_bar'
 gem 'cancan'
 gem 'rails3-jquery-autocomplete'
+gem 'newrelic_rpm'
 
 # Deploy with Capistrano
 # gem 'capistrano'
