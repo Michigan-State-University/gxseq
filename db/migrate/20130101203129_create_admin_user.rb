@@ -12,6 +12,9 @@ class CreateAdminUser < ActiveRecord::Migration
       :name => "admin"
     )
     admin.roles << admin_role
+    public_grp = Group.public_group
+    public_grp.owner = admin
+    public_grp.save
   end
 
   def self.down
