@@ -7,6 +7,8 @@ class AddGroupIdToTvAndExp < ActiveRecord::Migration
   end
 
   def self.down
+    remove_index :experiments, :name => :experiment_idx1
+    remove_index :groups_users, :name => :groups_users_idx1
     remove_column :taxon_versions, :group_id
     remove_column :experiments, :group_id
   end
