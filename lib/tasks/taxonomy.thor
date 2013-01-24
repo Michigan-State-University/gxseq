@@ -4,7 +4,7 @@ class Taxonomy < Thor
   require 'net/ftp'
   require 'zlib'
   require 'progress_bar'
-  
+  #TODO: Update thor task help docs, Need more descriptive output
   desc 'load',"Load ncbi taxonomy data into the database"
   method_options :directory => "lib/data/taxdata/",:download => true, :verbose => false, :nested_set => false, :check_count => false
   def load
@@ -27,6 +27,7 @@ class Taxonomy < Thor
     if(download)
       puts "\t... Downloading taxonomy data" if verbose
       ftp = Net::FTP.new('ftp.ncbi.nlm.nih.gov')
+      ftp.passive = true
       ftp.login
       ftp.chdir('/pub/taxonomy')
       ftp.getbinaryfile('taxdump.tar.gz',"#{tax_directory}taxdump.tar.gz")
