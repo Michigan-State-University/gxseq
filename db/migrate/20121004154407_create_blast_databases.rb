@@ -15,5 +15,6 @@ class CreateBlastDatabases < ActiveRecord::Migration
   end
 
   def self.down
+    drop_table :blast_databases
   end
 end
