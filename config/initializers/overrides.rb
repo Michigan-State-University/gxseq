@@ -5,14 +5,19 @@ begin
 # This may have some HUGE side effects.
 # TODO: Test dynamic sti thoroughly! How will these generic features be handled?
 def Object.const_missing(type_name)
-  
-  logger.error "\n\nEncountered Unknown Class type: #{type_name}\n\n"
-  klass_name = type_name.gsub(/\W/,"_").gsub(/_+/,"_")
-  if const_defined?(klass_name)
-    const_get(klass_name)
-  else
-    logger.error { "***creating Seqfeature sub-class #{klass_name}" }
-    const_set(klass_name,Class.new(Seqfeature))
+  begin
+    super(type_name)
+  rescue
+    ::Rails.logger.error "\n\nEncountered Unknown Class type: #{type_name}\n\n"
+    klass_name = type_name.to_s.gsub(/\W/,"_").gsub(/_+/,"_")
+    if const_defined?(klass_name)
+      const_get(klass_name)
+    else
+      ::Rails.logger.error { "***creating Seqfeature sub-class #{klass_name}" }
+      klass_def = "class #{klass_name.camelize} < Seqfeature; end;"
+      eval(klass_def,TOPLEVEL_BINDING)
+      const_get(klass_name)
+    end
   end
 end
 
