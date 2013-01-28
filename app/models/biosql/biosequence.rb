@@ -125,7 +125,8 @@ class Biosequence < ActiveRecord::Base
   end
   
   # create a big wig with the gc content data for this biosequence
-  def generate_gc_data(precision=50, destroy=false)  
+  # TODO: convert second param to opts hash
+  def generate_gc_data(precision=100, destroy=false)  
     desc = bioentry.description
     begin
       if self.gc_file

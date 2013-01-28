@@ -319,13 +319,13 @@ class BioentriesController < ApplicationController
          render :partial => "biosequence/show", :locals => {:biosequence => biosequence, :start => param['left'], :stop => param['right']}
        when 'range'
          bioentry_id = param['bioentry']
-         bioseq = Biosequence.find_by_bioentry_id(bioentry_id)
          bioentry = Bioentry.find(bioentry_id)
          authorize! :read, bioentry
          left = param['left']
          right = param['right']
          length = right - left +1
          if(param['bases']==1 && param['pixels']>1)
+           bioseq = Biosequence.find_by_bioentry_id(bioentry_id.to_i)
            sequence = bioseq.seq[ left, length ]
            data = bioseq.get_six_frames(left, right)
            render :json => {
@@ -342,6 +342,7 @@ class BioentriesController < ApplicationController
               }
            }            
          elsif(param['bases'] < 10 )
+           bioseq = Biosequence.find_by_bioentry_id(bioentry_id.to_i)
            sequence = bioseq.seq[ left, length ]
            data = bioseq.get_six_frames(left, right)
            render :json => {
@@ -361,13 +362,14 @@ class BioentriesController < ApplicationController
               }
            }
          elsif(param['bases']>=10)
-           d =  bioseq.get_gc_content(left,length,param['bases'])
+           bioseq = Biosequence.where(:bioentry_id => bioentry_id.to_i).select(:id,:version).first
+           data =  bioseq.get_gc_content(left,length,param['bases'])
           render :json => {
              :success => true,
                :data => {
                  :sequence  => {
                    :gc_content => [# [id,x,w,sequence]
-                       [left+1, left + 1, length, d] 
+                       [left+1, left + 1, length, data] 
                     ]
                  },
              }
