@@ -408,10 +408,10 @@ class GeneModel < ActiveRecord::Base
       # check locus tags
       total_new_genes = check_new_locus_tags
       # start the Gene Model creation
-      puts "Preparing to create #{total_new_genes} Gene Models: #{Time.now.strftime('%D %H:%M')}"
-      gene_chunk = (total_new_genes/10.to_f).ceil
+      puts "Working on #{total_new_genes} Gene Models: #{Time.now.strftime('%D %H:%M')}"
       new_gene_count = 0
-      gene_model_count = 0      
+      gene_model_count = 0
+      progress_bar = ProgressBar.new(total_new_genes)
       GeneModel.transaction do
         # new gene features
         Gene.find_in_batches(:batch_size=>250, :include => [[:qualifiers => :term],:locations], :conditions => "NOT EXISTS (select id from gene_models where gene_id=#{Gene.primary_key})") do |new_genes|        
@@ -457,9 +457,8 @@ class GeneModel < ActiveRecord::Base
             new_gene_count+=1         
             rank = 0          
             next if(gene.locations.empty?) # we can't use a gene if it doesn't even have locations!
-        
             # CDS feature data - loop through each cds
-            if(cds_features = cds_by_locus[gene.locus_tag.value])            
+            if(cds_features = cds_by_locus[gene.locus_tag.value])
               variants = cds_features.size
               mrna_features = mrna_by_locus[gene.locus_tag.value]
               # new model for each cds
@@ -470,7 +469,6 @@ class GeneModel < ActiveRecord::Base
                 gene_model["transcript_id"] = cds_data[0].transcript_id.value if cds_data[0].transcript_id
                 gene_model["variants"] = variants
                 gene_model["rank"] = rank
-            
                 # mRNA feature data - Assuming mRNA will NOT be defined without CDS
                 # data has already been sorted
                 # NOTE: Added Fix for mrna that does NOT extend the full length of CDS. Yeast does this. 
@@ -488,7 +486,6 @@ class GeneModel < ActiveRecord::Base
                   gene_model["start_pos"] = cds_data[1]
                   gene_model["end_pos"] = cds_data[2]
                 end
-
                 # gene data
                 gene_model["bioentry_id"] = gene.bioentry_id
                 gene_model["locus_tag"] = gene.locus_tag.value
@@ -513,12 +510,12 @@ class GeneModel < ActiveRecord::Base
               fast_insert(gene_model)
               gene_model_count +=1
              end
-            if(new_gene_count%gene_chunk==0)
-              printf("\t\t%i: %2.2f%\n",new_gene_count, ((new_gene_count/total_new_genes.to_f)*100).floor)
-            end        
-          end          
+          end # end genes loop
+        #update progress
+        progress_bar.increment!(new_genes.length)
         end# End batch
-      end#End Transaction      
+        
+      end#End Transaction
       l = "\t...Created #{gene_model_count} gene models for #{new_gene_count} genes";puts l;logger.info "\n\n#{l}\n\n"
       l = "\t...Done: #{Time.now.strftime('%D %H:%M')}";puts l;logger.info "\n\n#{l}\n\n"
       return gene_model_count
@@ -604,25 +601,31 @@ class GeneModel < ActiveRecord::Base
       Seqfeature.transaction do 
         locus_tag_term_id = Term.find_or_create_by_name_and_ontology_id('locus_tag', Term.ano_tag_ont_id).id
         puts "--Working on Gene"
+        progress_bar = ProgressBar.new(new_gene_with_gene.count)
         new_gene_with_gene.find_in_batches do |features|
           features.each do |feature|
             Seqfeature.connection.execute("INSERT INTO SEQFEATURE_QUALIFIER_VALUE (seqfeature_id, term_id,value,rank)
             VALUES(#{feature.id},#{locus_tag_term_id},'#{feature.gene}',1)")
           end
+          progress_bar.increment!(features.length)
         end
         puts "--Working on CDS"
+        progress_bar = ProgressBar.new(new_cds_with_gene.count)
         new_cds_with_gene.find_in_batches do |features|
           features.each do |feature|
             Seqfeature.connection.execute("INSERT INTO SEQFEATURE_QUALIFIER_VALUE (seqfeature_id, term_id,value,rank)
             VALUES(#{feature.id},#{locus_tag_term_id},'#{feature.gene}',1)")
           end
+          progress_bar.increment!(features.length)
         end
         puts "--Working on mRNA"
+        progress_bar = ProgressBar.new(new_mrna_with_gene.count)
         new_mrna_with_gene.find_in_batches do |features|
           features.each do |feature|
             Seqfeature.connection.execute("INSERT INTO SEQFEATURE_QUALIFIER_VALUE (seqfeature_id, term_id,value,rank)
             VALUES(#{feature.id},#{locus_tag_term_id},'#{feature.gene}',1)")
           end
+          progress_bar.increment!(features.length)
         end
       end#transaction
     else
