@@ -362,7 +362,7 @@ class BioentriesController < ApplicationController
               }
            }
          elsif(param['bases']>=10)
-           bioseq = Biosequence.where(:bioentry_id => bioentry_id.to_i).select(:id,:version).first
+           bioseq = Biosequence.where(:bioentry_id => bioentry_id.to_i).select("bioentry_id,version,length").first
            data =  bioseq.get_gc_content(left,length,param['bases'])
           render :json => {
              :success => true,

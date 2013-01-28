@@ -137,7 +137,7 @@ class Biosequence < ActiveRecord::Base
       puts "\t\tCreating new GC file for #{desc}"
       # Write out GC data in Wig format
 	    wig_file = File.open("tmp/#{self.bioentry_id}_gc_data.txt", 'w')
-	    wig_file.write("track type=wiggle_0 name=GC content\nvariableStep chrom=#{bioentry_id} span=1\n")
+	    wig_file.write("track type=wiggle_0 name=GC content\nvariableStep chrom=#{bioentry_id} span=#{precision}\n")
 	    Bio::Sequence::NA.new(self.seq).window_search(precision,precision){ |x,y| wig_file.write("#{y+1}\t#{x.gc_content.to_f}\n") }
 	    wig_file.flush	    
 	    # write the chrom size file
