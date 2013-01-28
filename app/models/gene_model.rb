@@ -567,24 +567,26 @@ class GeneModel < ActiveRecord::Base
     new_genes_with_locus = genes_without_model.where{qualifiers.term.name == 'locus_tag'}
     # Check for consistency
     if(new_genes_with_locus.count != total_new_genes)
-      puts "#{total_new_genes - new_genes_with_locus} genes do not have a locus_tag! - checking for 'gene' annotations: #{Time.now.strftime('%D %H:%M')}"
+      puts "#{total_new_genes - new_genes_with_locus.count} genes do not have a locus_tag! - checking for 'gene' annotations: #{Time.now.strftime('%D %H:%M')}"
       # check the gene annotation
       new_genes_with_gene = genes_without_model.where{qualifiers.term.name == 'gene'}
-      if(new_genes_with_gene.count == total_new_genes)
-        # We are good to transfer gene to locus
-        set_locus_using_gene
-      else
-        # No Good, Gonna need user intervention
+      unless(new_genes_with_gene.count == total_new_genes)
+        # No Good, probably need user intervention
         puts "Found #{new_genes_with_gene.count} gene annotations and #{new_genes_with_locus.count} locus_tag annotations"
         puts "**** Gene Models will not be generated without locus tag annotations"
+        set_locus_using
       end
+      # Try setting the locus by Gene
+      set_locus_using_gene
     end
+    
     # We will create Gene Models for all genes with a locus_tag
     return genes_without_model.where{qualifiers.term.name == 'locus_tag'}.count
   end
   
   def self.set_locus_using_gene
     l = "Found 'gene' annotations for every Gene - checking cds and mrna: #{Time.now.strftime('%D %H:%M')}";puts l
+    new_gene_with_gene = Gene.includes(:gene_models, :qualifiers => [:term]).where{gene_models.id == nil}.where{qualifiers.term.name == 'gene'}
     new_mrna_with_gene = Mrna.includes(:gene_model, :qualifiers => [:term]).where{gene_model.id == nil}.where{qualifiers.term.name == 'gene'}
     new_cds_with_gene = Cds.includes(:gene_model, :qualifiers => [:term]).where{gene_model.id == nil}.where{qualifiers.term.name == 'gene'}
     puts "mrna: #{new_mrna_with_gene.count}"
@@ -601,9 +603,22 @@ class GeneModel < ActiveRecord::Base
       puts "Okay, creating new locus_tag values"
       Seqfeature.transaction do 
         locus_tag_term_id = Term.find_or_create_by_name_and_ontology_id('locus_tag', Term.ano_tag_ont_id).id
-        ['gene','cds','mrna'].each do |klass|
-          puts "--Working on #{klass}"
-          send("new_#{klass}_with_gene").find_in_batches do |features|
+          puts "--Working on Gene"
+          new_gene_with_gene.find_in_batches do |features|
+            features.each do |feature|
+              Seqfeature.connection.execute("INSERT INTO SEQFEATURE_QUALIFIER_VALUE (seqfeature_id, term_id,value,rank)
+              VALUES(#{feature.id},#{locus_tag_term_id},'#{feature.gene}',1)")
+            end
+          end
+          puts "--Working on CDS"
+          new_cds_with_gene.find_in_batches do |features|
+            features.each do |feature|
+              Seqfeature.connection.execute("INSERT INTO SEQFEATURE_QUALIFIER_VALUE (seqfeature_id, term_id,value,rank)
+              VALUES(#{feature.id},#{locus_tag_term_id},'#{feature.gene}',1)")
+            end
+          end
+          puts "--Working on mRNA"
+          new_mrna_with_gene.find_in_batches do |features|
             features.each do |feature|
               Seqfeature.connection.execute("INSERT INTO SEQFEATURE_QUALIFIER_VALUE (seqfeature_id, term_id,value,rank)
               VALUES(#{feature.id},#{locus_tag_term_id},'#{feature.gene}',1)")
