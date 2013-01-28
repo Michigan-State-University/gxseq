@@ -16,6 +16,7 @@ class GcFile < SequenceFile
     return [] unless open_bw
     opts[:type]||=type
     #TODO: refactor use taxon_version for lookup, need to be supplied chrom or bioentry
-    open_bw.summary(bioentry_id,start,stop,count,opts)    
+    #TODO: bug fix for bio::ucsc  convert chrom to_s to avoid errors
+    open_bw.summary(bioentry_id.to_s,start,stop,count,opts)
   end
 end
