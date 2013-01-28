@@ -1,5 +1,21 @@
 ### various class overrides for added functionality
 begin
+# Object override for STI
+# If the class is not defined, create a class for it.
+# This may have some HUGE side effects.
+# TODO: Test dynamic sti thoroughly! How will these generic features be handled?
+def Object.const_missing(type_name)
+  
+  logger.error "\n\nEncountered Unknown Class type: #{type_name}\n\n"
+  klass_name = type_name.gsub(/\W/,"_").gsub(/_+/,"_")
+  if const_defined?(klass_name)
+    const_get(klass_name)
+  else
+    logger.error { "***creating Seqfeature sub-class #{klass_name}" }
+    const_set(klass_name,Class.new(Seqfeature))
+  end
+end
+
 # CanCan
 # Use include instead of Joins to avoid multiple records with inner joins
 # https://github.com/ryanb/cancan/pull/726
@@ -19,28 +35,7 @@ class CanCan::ModelAdapters::ActiveRecordAdapter
       @model_class.scoped(:conditions => conditions, :joins => joins)
     end
   end
-  # # rename original method
-  # def joined_database_records
-  #   if override_scope
-  #     @model_class.scoped.merge(override_scope)
-  #   elsif @model_class.respond_to?(:where) && @model_class.respond_to?(:joins)
-  #     mergeable_conditions = @rules.select {|rule| rule.unmergeable? }.blank?
-  #     if mergeable_conditions
-  #       @model_class.where(conditions).joins(joins)
-  #     else
-  #       @model_class.where(*(@rules.map(&:conditions))).joins(joins)
-  #     end
-  #   else
-  #     @model_class.scoped(:conditions => conditions, :joins => joins)
-  #   end
-  # end
 end
-# # add the original joined query as an option for custom selects 'joined_accessible_by'
-# module CanCan::ModelAdditions::ClassMethods
-#   def joined_accessible_by(ability, action = :index)
-#     ability.model_adapter(self, action).joined_database_records
-#   end
-# end
 
 # Sunspot Index
   # avoid use of ':' in dynamic_field name
