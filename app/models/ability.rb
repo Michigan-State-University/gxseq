@@ -12,11 +12,12 @@ class Ability
   #   WHERE (`users`.`id` = 2) OR (`users`.`id` = 2)  <- Should be `users_groups`.`id`
   #
   def initialize(user)
-    user ||= User.new # guest user (not logged in)
+    # guest user (not logged in) == new user
+    user ||= User.new 
+    
     # admin can view and edit everything
-    if(false)
-    #if user.is_admin?
-      #can :manage, :all
+    if user.is_admin?
+      can :manage, :all
       
     # Members can create and belong to multiple groups. Sample and Sequence data is protected by Groups.
     # Each Taxon Version or Sample is tied to a single group. Members can view Sample and Sequence data only if they belong to it's group.
