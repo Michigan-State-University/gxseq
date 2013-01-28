@@ -603,26 +603,25 @@ class GeneModel < ActiveRecord::Base
       puts "Okay, creating new locus_tag values"
       Seqfeature.transaction do 
         locus_tag_term_id = Term.find_or_create_by_name_and_ontology_id('locus_tag', Term.ano_tag_ont_id).id
-          puts "--Working on Gene"
-          new_gene_with_gene.find_in_batches do |features|
-            features.each do |feature|
-              Seqfeature.connection.execute("INSERT INTO SEQFEATURE_QUALIFIER_VALUE (seqfeature_id, term_id,value,rank)
-              VALUES(#{feature.id},#{locus_tag_term_id},'#{feature.gene}',1)")
-            end
+        puts "--Working on Gene"
+        new_gene_with_gene.find_in_batches do |features|
+          features.each do |feature|
+            Seqfeature.connection.execute("INSERT INTO SEQFEATURE_QUALIFIER_VALUE (seqfeature_id, term_id,value,rank)
+            VALUES(#{feature.id},#{locus_tag_term_id},'#{feature.gene}',1)")
           end
-          puts "--Working on CDS"
-          new_cds_with_gene.find_in_batches do |features|
-            features.each do |feature|
-              Seqfeature.connection.execute("INSERT INTO SEQFEATURE_QUALIFIER_VALUE (seqfeature_id, term_id,value,rank)
-              VALUES(#{feature.id},#{locus_tag_term_id},'#{feature.gene}',1)")
-            end
+        end
+        puts "--Working on CDS"
+        new_cds_with_gene.find_in_batches do |features|
+          features.each do |feature|
+            Seqfeature.connection.execute("INSERT INTO SEQFEATURE_QUALIFIER_VALUE (seqfeature_id, term_id,value,rank)
+            VALUES(#{feature.id},#{locus_tag_term_id},'#{feature.gene}',1)")
           end
-          puts "--Working on mRNA"
-          new_mrna_with_gene.find_in_batches do |features|
-            features.each do |feature|
-              Seqfeature.connection.execute("INSERT INTO SEQFEATURE_QUALIFIER_VALUE (seqfeature_id, term_id,value,rank)
-              VALUES(#{feature.id},#{locus_tag_term_id},'#{feature.gene}',1)")
-            end
+        end
+        puts "--Working on mRNA"
+        new_mrna_with_gene.find_in_batches do |features|
+          features.each do |feature|
+            Seqfeature.connection.execute("INSERT INTO SEQFEATURE_QUALIFIER_VALUE (seqfeature_id, term_id,value,rank)
+            VALUES(#{feature.id},#{locus_tag_term_id},'#{feature.gene}',1)")
           end
         end
       end#transaction
