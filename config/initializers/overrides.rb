@@ -176,7 +176,8 @@ begin
       end
     end
     ## Fix hard position parsing of position line
-    def GenBank::features
+    class GenBank
+    def features
        unless @data['FEATURES']
          ary = []
          in_quote = false
@@ -190,7 +191,6 @@ begin
            # CHANGED NT - grab the whole line.
            # ORIG: body = line[20,60].to_s.chomp
            body = line[20..-1].to_s.chomp
-
            # sub-array [ feature type, position, /q="data", ... ]
            if line =~ /^ {5}\S/
              ary.push([ head, body ])
@@ -228,6 +228,7 @@ begin
        else
          @data['FEATURES']
        end
+     end
      end
   end
 rescue
