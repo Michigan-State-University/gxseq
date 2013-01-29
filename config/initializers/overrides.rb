@@ -159,8 +159,9 @@ begin
       return self[last_step + window_size .. -1]
     end
   end
-  ## Fix hard position parsing of locus line
+  
   module Bio
+    ## Fix hard position parsing of locus line
     class GenBank::Locus
       def initialize(locus_line)
         if locus_line.empty?
@@ -171,6 +172,60 @@ begin
         end
       end
     end
+    ## Fix hard position parsing of position line
+    def GenBank::features
+       unless @data['FEATURES']
+         ary = []
+         in_quote = false
+         get('FEATURES').each_line do |line|
+           next if line =~ /^FEATURES/
+
+           # feature type  (source, CDS, ...)
+           head = line[0,20].to_s.strip
+
+           # feature value (position or /qualifier=)
+           # CHANGED NT - grab the whole line.
+           # ORIG: body = line[20,60].to_s.chomp
+           body = line[20..-1].to_s.chomp
+
+           # sub-array [ feature type, position, /q="data", ... ]
+           if line =~ /^ {5}\S/
+             ary.push([ head, body ])
+
+           # feature qualifier start (/q="data..., /q="data...", /q=data, /q)
+           elsif body =~ /^ \// and not in_quote		# gb:IRO125195
+             ary.last.push(body)
+
+             # flag for open quote (/q="data...)
+             if body =~ /="/ and body !~ /"$/
+               in_quote = true
+             end
+
+           # feature qualifier continued (...data..., ...data...")
+           else
+             ary.last.last << body
+
+             # flag for closing quote (/q="data... lines  ...")
+             if body =~ /"$/
+               in_quote = false
+             end
+           end
+         end
+
+         ary.collect! do |subary|
+           parse_qualifiers(subary)
+         end
+
+         @data['FEATURES'] = ary.extend(Bio::Features::BackwardCompatibility)
+       end
+       if block_given?
+         @data['FEATURES'].each do |f|
+           yield f
+         end
+       else
+         @data['FEATURES']
+       end
+     end
   end
 rescue
   puts "Error: Bio Sequence definition in environment.rb failed\nDid you install the bio gem?\n#{$!}"
