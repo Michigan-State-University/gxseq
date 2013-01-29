@@ -132,8 +132,16 @@ class Expression < Thor
             exit 0
           end
         end
+        # print out a sample save
+        if options[:test]
+          feature = features.first
+          puts "Sample FeatureCount::
+            seqfeature=>#{feature.id},
+            experiment=>#{experiment.id},
+            count=>#{batch_hsh[feature.locus_tag.value][1]},
+            normalized=>#{batch_hsh[feature.locus_tag.value][2]}"
         # Save the new records
-        unless options[:test]
+        else
           features.each do |feature|
             if(options[:existing]=='merge')
               if f = experiment.features.find_by_id(feature.id)
