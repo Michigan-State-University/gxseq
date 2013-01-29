@@ -567,7 +567,7 @@ class GeneModel < ActiveRecord::Base
         # No Good, probably need user intervention
         puts "Found #{new_genes_with_gene.count} gene annotations and #{new_genes_with_locus.count} locus_tag annotations"
         puts "**** Gene Models will not be generated without locus tag annotations"
-        set_locus_using
+        set_locus_using_gene
       end
       # Try setting the locus by Gene
       set_locus_using_gene
@@ -584,7 +584,7 @@ class GeneModel < ActiveRecord::Base
     new_cds_with_gene = Cds.includes(:gene_model, :qualifiers => [:term]).where{gene_model.id == nil}.where{qualifiers.term.name == 'gene'}
     puts "mrna: #{new_mrna_with_gene.count}"
     puts "cds: #{new_cds_with_gene.count}"
-    printf " Create locus_tag's from 'gene' annotations?(Y/n):"
+    printf "You should optimize or gather statistics before continuing\nCreate locus_tag's from 'gene' annotations? (Y/n):"
     while (answer = STDIN.gets.chomp)
       if(answer=='n'||answer=='Y')
         break
