@@ -172,7 +172,7 @@ class Seqfeature < ActiveRecord::Base
     puts "Re-indexing #{seqfeature_ids.length} features"
     progress_bar = ProgressBar.new(seqfeature_ids.length)
     seqfeature_ids.each_slice(batch_size) do |id_batch|
-      Sunspot.index Seqfeature.includes([:bioentry,:type_term,:qualifiers,:feature_counts,:blast_reports,:locations,:favorite_users, :gene_model])
+      Sunspot.index Seqfeature.includes([:bioentry,:type_term,:qualifiers,:feature_counts,:blast_reports,:locations,:favorite_users])
         .where{seqfeature_id.in(my{id_batch})}
       Sunspot.commit
       progress_bar.increment!(id_batch.length)
