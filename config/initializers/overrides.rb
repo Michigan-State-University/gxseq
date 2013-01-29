@@ -6,8 +6,9 @@ begin
 # TODO: Test dynamic sti thoroughly! How will these generic features be handled?
 def Object.const_missing(type_name)
   begin
-    super(type_name)
-  rescue
+    super
+  rescue => e
+    ::Rails.logger.error "#{e}"
     ::Rails.logger.error "\n\nEncountered Unknown Class type: #{type_name}\n\n"
     klass_name = type_name.to_s.gsub(/\W/,"").gsub(/_+/,"")
     if const_defined?(klass_name)
