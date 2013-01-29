@@ -92,19 +92,20 @@ class Ability
       can :track_data, Experiment, :group => {:users => {:id => user.id}}
       can :read, Asset, :experiment => {:group => {:users => {:id => user.id}}}
       can :read, FeatureCount, :experiment => {:group => {:users => {:id => user.id}}}
-      
+    #TODO: What about users with no role?
+    
     # Anybody from the public can view data in the Public group.
     else
       can :read, User, :id => user.id
-      can :read, Group, :group => {:name => 'Public'}
-      can :read, Taxon, :species_taxon_versions => {:group => {:name => 'Public'}}
-      can :read, TaxonVersion, :group => {:name => 'Public'}
-      can :read, Bioentry, :taxon_version => {:group => {:name => 'Public'}}
-      can :read, Seqfeature, :bioentry => {:taxon_version => {:group => {:name => 'Public'}}}
-      can :read, GeneModel, :bioentry => {:taxon_version => {:group => {:name => 'Public'}}}
-      can :read, Experiment, :group => {:name => 'Public'}
-      can :read, Asset, :experiment => {:group => {:name => 'Public'}}
-      can :read, FeatureCount, :experiment => {:group => {:name => 'Public'}}
+      can :read, Group, :name => 'public'
+      can :read, Taxon, :species_taxon_versions => {:group => {:name => 'public'}}
+      can :read, TaxonVersion, :group => {:name => 'public'}
+      can :read, Bioentry, :taxon_version => {:group => {:name => 'public'}}
+      can :read, Seqfeature, :bioentry => {:taxon_version => {:group => {:name => 'public'}}}
+      can :read, GeneModel, :bioentry => {:taxon_version => {:group => {:name => 'public'}}}
+      can :read, Experiment, :group => {:name => 'public'}
+      can :read, Asset, :experiment => {:group => {:name => 'public'}}
+      can :read, FeatureCount, :experiment => {:group => {:name => 'public'}}
     end
   end
 end

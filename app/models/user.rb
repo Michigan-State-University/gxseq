@@ -15,6 +15,7 @@ class User < ActiveRecord::Base
   validates_uniqueness_of :login
   validates_presence_of :login
   before_save :get_ldap_email
+  before_save :set_default_role
   after_create :setup_default_groups
   
   has_paper_trail :ignore => [:sign_in_count, :current_sign_in_at, :last_sign_in_at, :current_sign_in_ip, :last_sign_in_ip, :remember_created_at, :updated_at]
@@ -63,6 +64,15 @@ class User < ActiveRecord::Base
       self.email = Devise::LdapAdapter.get_ldap_param(login,'mail')
     rescue
       logger.info "\n\n#{$!}\n#{caller.join("\n")}\n\n"
+    end
+  end
+  
+  # TODO: Make this configurable - default remote users are members, all others are guests
+  def set_default_role
+    if is_remote?
+      self.roles << Role.find_or_create_by_name('Member')
+    else
+      self.roles << Role.find_or_create_by_name('Guest')
     end
   end
   

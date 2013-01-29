@@ -387,6 +387,7 @@ class Sequence < Thor
     return entry_accession
   end
   # compare the entry against taxon in the database. Try to find an existing match. Create a new taxonomy if none found
+  # TODO: Re-factor. This method is not right, supplying strain only results in unknown species
   def get_entry_taxonomy(entry,opts={})
     # setup user supplied species
     species_taxon = nil

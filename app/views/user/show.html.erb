@@ -7,7 +7,9 @@
 
 <%= content_for :item_bar do -%>
   <%= link_to 'Update Profile', edit_user_path(@user), :class => 'button' %>
-  <%= link_to 'Create New Group', new_group_path, :class => 'button' %>
+  <% if can? :create, Group.new %>
+    <%= link_to 'Create New Group', new_group_path, :class => 'button' %>
+  <% end %>
 <% end -%>
 
 <% content_for :sidebar do -%>

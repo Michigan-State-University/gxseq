@@ -2,6 +2,16 @@
 Installation / Deployment
 ----------------
 TODO: simple install guide
+Create config files
+- settings.yml
+- ldap.yml
+- sunspot.yml
+- database.yml
+Load Taxon
+Load Genome(s) / Transcriptome(s)
+Load Samples
+Load Expression
+Load Blast Reports
 
 ----------------
 Full Text Searching
@@ -35,7 +45,7 @@ For multiple workers:
 ----------------
 Remote Auth
 ----------------
-If connecting to an ldap database do not forget to setup config/ldap.yml: https://github.com/clyfe/devise_ldap_authenticatable
+If connecting to an ldap database you need to setup config/ldap.yml: https://github.com/clyfe/devise_ldap_authenticatable
 See config/ldap.yml.sample for example configuration.
 
 ----------------
@@ -44,8 +54,8 @@ NCBI-Blast
 When Sequence is loaded a corresponding Blast database can be generated. This database will then be available through the tools->blast interface for custom blast searches. To enable this feature, :blast_bin_path must be set in config/settings.yml.
 
 in the blast_bin_path/ directory the following executables must be present:
--makeblastdb
--
+-formatdb
+-blastall
 
 See BLAST help from NCBI for more information: http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=Download
 

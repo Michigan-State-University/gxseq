@@ -175,7 +175,7 @@ begin
         end
       end
     end
-    ## Fix hard position parsing of position line
+    ## Fix hard parsing of position line
     class GenBank
     def features
        unless @data['FEATURES']
