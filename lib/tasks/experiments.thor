@@ -7,7 +7,7 @@ class Experiments < Thor
   desc 'list',"Display all of the experiments in the system and their internal ID's\n\tfilter by type with -t: (#{Experiment.select('distinct type').map(&:type).join(',')})"
   method_options %w(verbose -v) => false, %w(type -t) => nil
   def list
-    experiments = Experiment.includes(:taxon_version).order('type asc, taxon_versions.name asc, experiments.name asc')
+    experiments = Experiment.includes(:taxon_version).order('experiments.type asc, taxon_versions.species_id asc, experiments.name asc')
     if(options[:type])
       experiments = experiments.where("type = '#{options[:type]}'")
     end
