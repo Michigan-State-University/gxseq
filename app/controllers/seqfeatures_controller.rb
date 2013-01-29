@@ -16,6 +16,12 @@ class SeqfeaturesController < ApplicationController
     authorized_id_set=[-1] if authorized_id_set.empty?
     # Begin block
     @search = Seqfeature.search do
+      # Auth      
+      any_of do |any_s|
+        authorized_id_set.each do |id_range|
+          any_s.with :id, id_range
+        end
+      end
       # Text Keywords
       if params[:keywords]
         keywords params[:keywords], :highlight => true
