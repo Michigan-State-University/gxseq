@@ -257,11 +257,6 @@ class GeneModel < ActiveRecord::Base
         g.start_pos < #{right} 
         AND g.end_pos > #{left}
         AND g.bioentry_id = #{bioentry_id})")
-    else
-      mrna_locations = [] 
-    end
-    
-    if(gene_models.size < max)
       cds_locations = ActiveRecord::Base.connection.select_all("SELECT g.id gene_model_id, g.strand, l.location_id, l.start_pos, l.end_pos 
         FROM gene_models g
         RIGHT OUTER JOIN location l ON l.seqfeature_id = g.cds_id
@@ -270,6 +265,7 @@ class GeneModel < ActiveRecord::Base
         AND g.end_pos > #{left}
         AND g.bioentry_id = #{bioentry_id})")
     else
+      mrna_locations = []
       #only grab the first CDS location, we reached our max for gene models
       cds_locations = ActiveRecord::Base.connection.select_all("SELECT g.id gene_model_id, g.strand, l.location_id, l.start_pos, l.end_pos 
         FROM gene_models g
@@ -282,7 +278,7 @@ class GeneModel < ActiveRecord::Base
         AND g.rank = 1")
     end
           
-    gene_models.each do |g|      
+    gene_models.each do |g|
       data.push(
       [
          nil,
@@ -291,10 +287,10 @@ class GeneModel < ActiveRecord::Base
          "gene",
          g['start_pos'].to_i,
          (g['end_pos'].to_i - g['start_pos'].to_i),
-         ([]),
-         "no product",#(f.product.nil? ? "-" : f.product.value),
+         ([]),#styles unused
+         "-",#product unused
          g['gene_name'].to_s,
-         g['id'].to_s, #gene_id
+         g['id'].to_s,
          g['locus_tag'].to_s,
          g['end_pos'].to_i
       ])
