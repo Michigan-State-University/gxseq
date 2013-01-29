@@ -26,6 +26,7 @@ class Sequence < Thor
     species_id=options[:species_id]
     strain_id = options[:strain_id]
     entry_count = 0
+    type_names = []
     seq_key_terms = {}
     anno_tag_terms = {}
     qual_rank = {}
@@ -282,13 +283,16 @@ class Sequence < Thor
                 type_term_id=seq_key_terms["#{feature.feature}"] || (seq_key_terms["#{feature.feature}"] = Term.find_or_create_by_name_and_ontology_id(feature.feature,Term.seq_key_ont_id).id)      
                 feat_rank["#{feature.feature}"]||=0
                 feat_rank["#{feature.feature}"]+=1
+                # store the type name
+                type_name = feature.feature.downcase.camelize.gsub(/\W/,"").gsub(/_+/,"")
+                type_names.push(type_name).uniq!
                 # seqfeature
                 new_seqfeature_id=Seqfeature.fast_insert(
                 :bioentry_id => bioentry.id,
                 :type_term_id => type_term_id,
                 :source_term_id => seq_src_term.id,
                 :rank => feat_rank["#{feature.feature}"],
-                :display_name => feature.feature.downcase.camelize.gsub(/\W/,"").gsub(/_+/,"")
+                :display_name => type_name
                 )
                 # location(s)
                 # parse position text - fairly naive, may need updates for complicated locations
@@ -342,15 +346,28 @@ class Sequence < Thor
       days = (time_taken / 86400).floor
       remainder = time_taken % (24*60*60)
       puts "\t... loaded #{total_count} #{(total_count > 1) ? "entries" : "entry"} in #{(days > 0) ? "#{days} days" : ''} #{Time.at(remainder).gmtime.strftime('%R:%S')}"
-    end    
+    end
     # Sync the database with new sequence and features
     bio_db.sync_database
     # Done
     task_end_time = Time.now
     puts "Finished - #{Time.now.strftime('%m/%d/%Y - %H:%M:%S')} :: #{Time.at(task_end_time - task_start_time).gmtime.strftime('%R:%S')}"
+    puts "Checking Feature Types"
+    check_feature_types(type_names)
   end
   
   protected
+  # Compare the types we loaded to the Classes that exist in the app
+  def check_feature_types(type_names)
+    type_names.each do |name|
+      begin
+        Object.const_get name
+      rescue
+        puts " -- #{name} not found"
+        puts "class #{name} < Seqfeature; end;"
+      end
+    end
+  end
   # parse the entry and find an acession based on the file type, raise an error if none can be found. All bioentries need an accession
   def get_entry_accession(entry,file_type)
     if(entry.accession && !entry.accession.blank?)
