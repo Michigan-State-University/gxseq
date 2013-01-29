@@ -117,7 +117,7 @@ class Expression < Thor
           batch_hsh[concordance_hash[item[0]]]=item
         end
         # Grab all of the matching features
-        features = Seqfeature.find_all_with_locus_tags(batch_ids).where{bioentry.taxon_version_id=my{experiment.taxon_version_id}}
+        features = Seqfeature.find_all_with_locus_tags(batch_ids).where{bioentry.taxon_version_id==my{experiment.taxon_version_id}}
         features = features.where{upper(display_name) == my{options[:feature]}}
         seqfeature_ids.concat(features.map(&:seqfeature_id))
         feature_ids = features.collect{|f|f.locus_tag.value}
