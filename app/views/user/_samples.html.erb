@@ -14,7 +14,7 @@
         <td>
           <%= link_to "View", sample %>
           <% if can? :update, sample %>
-            | <%= link_to "Edit", edit_experiment_path(sample) %>
+            | <%= link_to "Edit", [:edit,sample] %>
           <% end %>
           <% if can? :destroy, sample %>
             | <%= link_to "Remove", sample, :method => :delete, :confirm => "Permanently remove #{sample.name}?\nThis CANNOT be undone" %>
