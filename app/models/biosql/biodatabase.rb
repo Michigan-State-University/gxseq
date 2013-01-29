@@ -32,7 +32,7 @@ class Biodatabase < ActiveRecord::Base
       puts $!
       return false
     end
-    # Update the bioentry index
+    # Update the indexes
     begin
       puts "Re-indexing sequence"
       progress_bar = ProgressBar.new(Bioentry.count)
@@ -40,6 +40,9 @@ class Biodatabase < ActiveRecord::Base
       puts "Re-indexing features"
       progress_bar = ProgressBar.new(Seqfeature.count)
       Seqfeature.solr_reindex(:batch_size => 50,:progress_bar => progress_bar)
+      puts "Re-indexing gene_models"
+      progress_bar = ProgressBar.new(GeneModel.count)
+      GeneModel.solr_reindex(:batch_size => 50,:progress_bar => progress_bar)
     rescue
       puts $!
       return false
