@@ -117,8 +117,10 @@ class Expression < Thor
           batch_hsh[concordance_hash[item[0]]]=item
         end
         # Grab all of the matching features
-        features = Seqfeature.find_all_with_locus_tags(batch_ids).where{bioentry.taxon_version_id==my{experiment.taxon_version_id}}
-        features = features.where{upper(display_name) == my{options[:feature]}}
+        features = Seqfeature.find_all_with_locus_tags(batch_ids)
+          .includes(:bioentry,:qualifiers => [:term])
+          .where{bioentry.taxon_version_id == my{experiment.taxon_version_id}}
+          .where{display_name == my{options[:feature]}}
         seqfeature_ids.concat(features.map(&:seqfeature_id))
         feature_ids = features.collect{|f|f.locus_tag.value}
         # check for missing locus
@@ -152,7 +154,7 @@ class Expression < Thor
     end#End Transaction
     # Begin Re-index
     if options[:test]
-      reindex = ask('This is as test run, no changes were saved. Do you want to re-index the features anyway? To test re-indexing type \'yes\'; anything else to skip:')
+      reindex = ask('This is a test run, no changes were saved. Do you want to re-index the features anyway? To test re-indexing type \'yes\'; anything else to skip:')
     else
       reindex = 'yes'
     end

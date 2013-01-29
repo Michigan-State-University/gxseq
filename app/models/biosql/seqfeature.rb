@@ -186,7 +186,7 @@ class Seqfeature < ActiveRecord::Base
   end
   # return all seqfeatures matching a list of locus tags (limit list size to <= 999 if using oracle adapter)
   def self.find_all_with_locus_tags(locus)
-    Seqfeature.joins(:qualifiers=>:term).where(:term=>{:name=>'locus_tag'}).where{qualifiers.value.in(locus)}.includes(:bioentry, :locations, :type_term, :qualifiers=>:term)
+    Seqfeature.joins(:qualifiers=>:term).where{qualifiers.term.name=='locus_tag'}.where{qualifiers.value.in(locus)}
   end
   # return a list of seqfeatures overlapping a particular region on a bioentry
   # Optional types[] array will limit results to the supplied types
