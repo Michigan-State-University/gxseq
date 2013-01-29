@@ -179,16 +179,7 @@ class Seqfeature < ActiveRecord::Base
     end
     Sunspot.commit
   end
-  # Override STI. If the type is not defined, create a class for it.
-  # TODO: Test dynamic sti thoroughly! How will these generic features be handled?
-  def self.find_sti_class(type_name)
-    begin
-      super(type_name)
-    rescue ActiveRecord::SubclassNotFound
-      logger.error "\n\nEncountered Unknown Seqfeature type: #{type_name}\n\n"
-      Object.const_set(type_name.gsub(/\W/,"_").gsub(/_+/,"_"),Class.new(Seqfeature))
-    end
-  end
+
   # return all seqfeatures with a single locus tag
   def self.find_all_by_locus_tag(locus="")
    find_all_with_locus_tags(Array(locus))
