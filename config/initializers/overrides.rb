@@ -9,7 +9,7 @@ def Object.const_missing(type_name)
     super(type_name)
   rescue
     ::Rails.logger.error "\n\nEncountered Unknown Class type: #{type_name}\n\n"
-    klass_name = type_name.to_s.gsub(/\W/,"_").gsub(/_+/,"_")
+    klass_name = type_name.to_s.gsub(/\W/,"").gsub(/_+/,"")
     if const_defined?(klass_name)
       const_get(klass_name)
     else

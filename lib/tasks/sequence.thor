@@ -288,7 +288,7 @@ class Sequence < Thor
                 :type_term_id => type_term_id,
                 :source_term_id => seq_src_term.id,
                 :rank => feat_rank["#{feature.feature}"],
-                :display_name => feature.feature.downcase.camelize
+                :display_name => feature.feature.downcase.camelize.gsub(/\W/,"").gsub(/_+/,"")
                 )
                 # location(s)
                 # parse position text - fairly naive, may need updates for complicated locations
