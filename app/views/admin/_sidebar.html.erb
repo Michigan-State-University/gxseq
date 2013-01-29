@@ -5,7 +5,7 @@
 		<li><%= link_to "Users", admin_users_path,:class => "#{'active' if active== 'users'}" %></li>
 		<!-- <li><%#= link_to "Roles", admin_roles_path,:class => "#{'active' if active== 'roles'}" %></li> -->
     <li><%= link_to "Jobs", admin_jobs_path,:class => "#{'active' if active== 'jobs'}" %></li>
-    <!-- <li><%#= link_to "Searches", admin_jobs_path,:class => "#{'active' if active== 'jobs'}" %></li> -->
+    <li><%= link_to "Groups", groups_path, :class => "#{'active' if active== 'group'}" %></li>
     <li><%= link_to "Blast DB", admin_blast_databases_path,:class => "#{'active' if active== 'blast_db'}" %></li>
     <li><%= link_to "Blast Run", admin_blast_runs_path,:class => "#{'active' if active== 'blast_run'}" %></li>
     <li><%= link_to "Ontology", admin_ontologies_path,:class => "#{'active' if active== 'ontology'}" %></li>

@@ -1,0 +1,27 @@
+<% content_for :head do -%>
+  <%= stylesheet_link_tag 'formtastic_overrides' %>
+  <%= stylesheet_link_tag 'jquery-ui-1.9.2' %>
+  <%= javascript_include_tag "jquery-latest.min.js" %>
+  <%= javascript_include_tag "jquery-ui-1.9.2.js" %>
+  <%= javascript_include_tag "autocomplete-rails.js" %>
+<% end -%>
+<% content_for :top_bar do -%>
+  <h1 class="pagetitle">Create A Group</h1>
+<% end -%>
+
+<%= render :partial => "home/sidebar" %>
+
+<% content_for :item_bar do -%>
+  <%= link_to "Back to Account", current_user, :class => 'button' %>
+<% end -%>
+
+<% semantic_form_for @group do |f| -%>
+  <%=  f.inputs do %>
+    <%= f.input :name %>
+  <% end %>
+  
+  <%= f.actions do %>
+    <%= f.action :submit, :label => "Submit", :button_html => {:class => 'button'} %>
+  <% end %>
+  
+<% end -%>

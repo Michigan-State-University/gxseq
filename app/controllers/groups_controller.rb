@@ -17,6 +17,7 @@ class GroupsController < ApplicationController
   end
 
   def create
+    @group.owner = current_user
     respond_to do |wants|
       if @group.save
         flash[:notice] = 'Group was successfully created.'
