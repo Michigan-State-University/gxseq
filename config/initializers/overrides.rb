@@ -4,23 +4,25 @@ begin
 # If the class is not defined, create a class for it.
 # This may have some HUGE side effects.
 # TODO: Test dynamic sti thoroughly! How will these generic features be handled?
-def Object.const_missing(type_name)
-  begin
-    super
-  rescue => e
-    ::Rails.logger.error "#{e}"
-    ::Rails.logger.error "\n\nEncountered Unknown Class type: #{type_name}\n\n"
-    klass_name = type_name.to_s.gsub(/\W/,"").gsub(/_+/,"")
-    if const_defined?(klass_name)
-      const_get(klass_name)
-    else
-      ::Rails.logger.error { "***creating Seqfeature sub-class #{klass_name}" }
-      klass_def = "class #{klass_name.camelize} < Seqfeature; end;"
-      eval(klass_def,TOPLEVEL_BINDING)
-      const_get(klass_name)
-    end
-  end
-end
+# Removed, causing problems with Bio:Genbank parser and class loading
+#def Object.const_missing(*args)
+#  begin
+#    super(args)
+#  rescue => e
+#    type_name = args.first
+#    ::Rails.logger.error "#{e}"
+#    ::Rails.logger.error "\n\nEncountered Unknown Class type: #{type_name}\n\n"
+#    klass_name = type_name.to_s.gsub(/\W/,"").gsub(/_+/,"")
+#    if const_defined?(klass_name.to_sym)
+#      const_get(klass_name.to_sym)
+#    else
+#      ::Rails.logger.error { "***creating Seqfeature sub-class #{klass_name}" }
+#      klass_def = "class #{klass_name.camelize} < Seqfeature; end;"
+#      eval(klass_def,TOPLEVEL_BINDING)
+#      const_get(klass_name.to_sym)
+#    end
+#  end
+#end
 
 # CanCan
 # Use include instead of Joins to avoid multiple records with inner joins
