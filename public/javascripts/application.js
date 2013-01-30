@@ -27,7 +27,8 @@ function add_fields(link, association, content,render) {
 }
 
 document.on('ajax:before', 'a.favorite', function(e, item) {
-	item.update("<img src='../images/loading.gif'></img>")
+	//item.update("<img src='/images/loading.gif'></img>")
+	item.update(item.getAttribute('data-loading'))
 });
 
 document.on("change", "*[data-onchange]", function(event, element) {
@@ -50,7 +51,7 @@ document.on("change", "*[data-onchange]", function(event, element) {
 		param = param.toQueryParams();
 	else
 		param = {};
-	changeElement.innerHTML="<img src='../images/loading.gif'></img>";
+	changeElement.innerHTML="<img src='/images/loading.gif'></img>";
 	new Ajax.Request(onchange_url, {
     method: "get",
 		parameters: param,
