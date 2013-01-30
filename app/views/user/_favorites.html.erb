@@ -2,18 +2,14 @@
   <table class="listing">
     <thead>
       <th>ID</th>
-<!--       <th width="25%">Custom Annotation</th>
-      <th width="25%">Annotation Tags (Genbank)</th>
-      <th width="25%">Blast Reports</th> -->
+      <th>Type</p>
       <th>Full Description</th>
       <th>Sequence</th>
     </thead>
     <% @user.favorite_seqfeatures.each do |fav| %>
       <tr>
         <td><%= link_to fav.item.label, seqfeature_path(fav.item) %></td>
-<!--         <td><%#= sliced_toggle fav.item.custom_description, fav.item.custom_description, "favorite_#{fav.id}_custom" %></td>
-        <td><%#= sliced_toggle fav.item.description, fav.item.description, "favorite_#{fav.id}_desc" %></td>
-        <td><%#= sliced_toggle fav.item.blast_description, fav.item.blast_description, "favorite_#{fav.id}_blast" %></td> -->
+        <td><%= fav.item.class.name %> </td>
         <td><%= sliced_toggle fav.item.full_description, fav.item.full_description, "favorite_#{fav.id}_full_def" %></td>
         <td><%= link_to fav.item.bioentry.display_name, bioentry_path(fav.item.bioentry, :pos => fav.item.min_start)%></td>
       </tr>
