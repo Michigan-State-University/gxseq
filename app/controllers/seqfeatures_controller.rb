@@ -84,7 +84,7 @@ class SeqfeaturesController < ApplicationController
       setup_graphics_data
       @ontologies = Term.annotation_ontologies
     when 'genbank'
-      # Find related features (by locus tag until we have a parent<->child relationship)
+      #NOTE:  Find related features (by locus tag until we have a parent<->child relationship)
       @features = @seqfeature.find_related_by_locus_tag
       @ontologies = [Ontology.find(Term.ano_tag_ont_id)]
     when 'history'
@@ -92,7 +92,6 @@ class SeqfeaturesController < ApplicationController
     when 'expression'
       @feature_counts = @seqfeature.feature_counts.accessible_by(current_ability)
       @graph_data = FeatureCount.create_graph_data(@feature_counts)
-      #setup_graphics_data
     when 'blast'
       @blast_reports = @seqfeature.blast_reports
       params[:blast_report_id]||=@blast_reports.first.id

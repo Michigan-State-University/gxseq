@@ -103,6 +103,7 @@ class GenesController < ApplicationController
   end
   
   def show
+    # TODO: Dry up the seqfeature/gene show methods. Duplicate code
     @format = params[:fmt] || 'standard'
     begin
     case @format
@@ -121,14 +122,21 @@ class GenesController < ApplicationController
       #check for other genes with the same locus_tag
       @genes = Gene.with_locus_tag( @gene.locus_tag.value)
     when 'genbank'
-      @gene = Gene.find(params[:id])
-      #Find related features (by locus tag until we have a parent<->child relationship)
+      @gene = Gene.find(params[:id], :include => [:locations,[:bioentry => [:taxon_version]],[:gene_models => [:cds => [:locations, [:qualifiers => :term]],:mrna => [:locations, [:qualifiers => :term]]]],[:qualifiers => :term]])
+      #Note: Find related features (by locus tag until we have a parent<->child relationship)
       @features = @gene.find_related_by_locus_tag
     when 'history'
       @gene = Gene.find(params[:id])
       @changelogs = Version.order('id desc').where(:parent_id => @gene.id).where(:parent_type => 'Gene')
     when 'expression'
       @gene = Gene.find(params[:id])
+      @feature_counts = @seqfeature.feature_counts.accessible_by(current_ability)
+      @graph_data = FeatureCount.create_graph_data(@feature_counts)
+    when 'blast'
+      @blast_reports = @gene.blast_reports
+      params[:blast_report_id]||=@blast_reports.first.id
+      @blast_report = BlastReport.find(params[:blast_report_id])
+      @blast_run = @blast_report.blast_run
     end
     rescue => e
       logger.info "\n\n#{e.backtrace}\n\n"
