@@ -45,7 +45,7 @@ class RnaSeq < Experiment
   # use the bam file to update all bioentries assigning external id's from the bam (internal load order vs bam file order)
   def update_bioentry_concordance_from_bam
     if bam
-      external_ids = bam.target_info.keys
+      external_ids = bam.target_info.keys.sort
       if external_ids.length >= bioentries_experiments.count
         bioentries_experiments.order('id asc').each_with_index do |bioentry_experiment,index|
           bioentry_experiment.update_attribute(:sequence_name,external_ids[index])
