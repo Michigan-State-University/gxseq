@@ -1,12 +1,13 @@
 module ExpressionHelper
 
   def stored_locus_link(hit,experiments)
-    bioentry_id = Array(hit.stored(:bioentry_id)).first
-    link_to( Array(hit.stored(:locus_tag_text)).first, bioentry_path(bioentry_id,
-      :tracks => [ :models_track, :generic_feature_track, experiments.collect{|e| e.tracks.with_bioentry(bioentry_id).first.id} ].flatten,
-      :pos => Array(hit.stored(:start_pos)).first
+    if (bioentry_id = Array(hit.stored(:bioentry_id)).first)
+      link_to( Array(hit.stored(:locus_tag_text)).first, bioentry_path(bioentry_id,
+        :tracks => [ :models_track, :generic_feature_track, experiments.collect{|e| e.tracks.with_bioentry(bioentry_id).map(&:id).first} ].flatten,
+        :pos => Array(hit.stored(:start_pos)).first
+        )
       )
-    )
+    end
   end
 
   def highlight_result(hit,field_name)
