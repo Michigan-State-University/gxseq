@@ -161,7 +161,14 @@ class Bioentry < ActiveRecord::Base
   end
   # returns sequence label
   def display_name
-    "#{generic_label_type}(#{sequence_name})"
+    # test for 'unknown' chromosome name to use accession instead
+    if sequence_name.downcase == 'unknown'
+      accession
+    elsif generic_label_type.empty?
+      sequence_name
+    else
+      "#{generic_label_type}(#{sequence_name})"
+    end
   end
   # returns name from source feature to use as sequence label. i.e 1,2,C
   def sequence_name
@@ -176,9 +183,9 @@ class Bioentry < ActiveRecord::Base
     # NOTE: we usually only have one source, is it possible to have more than one?
     sequence_name
   end
-  # returns type from source feature for sequence label. i.e. Chr, organelle, contig
+  # returns type from source feature for sequence label. i.e. Chr, organelle or blank string if unknown
   def sequence_type
-    source_features.empty? ? 'contig' : source_features[0].generic_label_type
+    source_features[0].generic_label_type
   end
   # TODO: deprecate in favor of sequence_type
   def generic_label_type
