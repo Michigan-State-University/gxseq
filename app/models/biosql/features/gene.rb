@@ -43,7 +43,7 @@ class Gene < Seqfeature
         syns << gm.send(feature).try(:gene_synonym).try(:value)
       end
     end
-    [names.compact.uniq,prods.compact.uniq,funcs.compact.uniq,syns.compact.uniq].flatten.join("; ")
+    [names.compact.uniq,prods.compact.uniq,funcs.compact.uniq,syns.compact.uniq].flatten.join("; ").presence
   end
   # returns uniq searchable attributes for all gene models
   def indexed_full_description
@@ -53,7 +53,7 @@ class Gene < Seqfeature
         vals << gm.send(feature).try(:search_qualifiers).try(:map,&:value)
       end
     end
-    [vals,blast_description].flatten.compact.uniq.join('; ')
+    [vals,blast_description].flatten.compact.uniq.join('; ').presence
   end
   # returns uniq products for all gene models
   def indexed_product
@@ -62,7 +62,7 @@ class Gene < Seqfeature
       vals << gm.cds.try(:product).try(:value)
       vals << gm.mrna.try(:product).try(:value)
     end
-    vals.compact.uniq.join("; ")
+    vals.compact.uniq.join("; ").presence
   end
   # returns uniq functions for all gene models
   def indexed_function
@@ -71,7 +71,7 @@ class Gene < Seqfeature
       vals << gm.cds.try(:function).try(:value)
       vals << gm.mrna.try(:function).try(:value)
     end
-    vals.compact.uniq.join("; ")
+    vals.compact.uniq.join("; ").presence
   end
   # returns an array of all possible start locations in this gene
   def possible_starts(padding=300)

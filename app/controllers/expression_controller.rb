@@ -110,28 +110,31 @@ class ExpressionController < ApplicationController
       @type_term_id = params[:type_term_id]||=@feature_types.facet(:type_term_id).rows.first.try(:value)
       # find any blasts
       @blast_runs = @taxon_version.blast_runs
+      logger.info "\nfrom find_bersion_and_featuer\n#{@blast_runs.inspect}\n\n"
     rescue => e
       logger.info "\n***Error: Could not build version and features in expression controller:\n#{e}\n"
+      server_error(e,"Could not build version and features")
     end
   end
   # options for grouped select
   def setup_definition_select
+    logger.info "\nfrom Setup_def\n#{@blast_runs.inspect}\n\n"
     @group_select_options = {
-      'Combined' => [['Description','description_text'],['Everything','full_description_text']],
-      "Blast Reports" => @blast_runs.collect{|run|[run.name,run.name_with_id+'_text']},
-      'Annotation' => [['Function','function_text'],['Product','product_text']]
+      'Combined' => [['Description','description'],['Everything','full_description']],
+      "Blast Reports" => @blast_runs.collect{|run|[run.name,run.name_with_id]},
+      'Annotation' => [['Function','function'],['Product','product']]
     }
     # Get all the custom terms in use
     @terms = Term.includes(:ontology,[:qualifiers => [:seqfeature => :bioentry]]).where{ (seqfeature.type_term_id == my{@type_term_id}) & (bioentry.taxon_version_id == my{@taxon_version.id}) & (ontology_id.in(Term.custom_ontologies))}
     @terms.each do |term|
       @group_select_options[term.ontology.name] ||= []
-      @group_select_options[term.ontology.name] << [term.name, "ont_#{term.ontology.id}_#{term.id}_text"]
+      @group_select_options[term.ontology.name] << [term.name, term.name_with_id]
     end
   end
   # defaults
   def setup_defaults
     params[:per_page]||=50
-    params[:definition_type]||= @taxon_version.is_genome? ? 'description_text' : @blast_runs.first.name_with_id+'_text'
+    params[:definition_type]||= @taxon_version.is_genome? ? 'description' : @blast_runs.first.name_with_id
     # setup order
     case params[:d]
     when 'ASC','asc','up'
@@ -165,7 +168,7 @@ class ExpressionController < ApplicationController
       end
       # Text Search
       unless params[:keywords].blank?
-        s.fulltext params[:keywords], :fields => [params[:definition_type], :locus_tag_text], :highlight => true
+        s.fulltext params[:keywords], :fields => [params[:definition_type]+'_text', :locus_tag_text], :highlight => true
       end
       # Remove empty
       case params[:show_blank]

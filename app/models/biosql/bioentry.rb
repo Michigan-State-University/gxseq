@@ -161,10 +161,7 @@ class Bioentry < ActiveRecord::Base
   end
   # returns sequence label
   def display_name
-    # test for 'unknown' chromosome name to use accession instead
-    if sequence_name.downcase == 'unknown'
-      accession
-    elsif generic_label_type.empty?
+    if generic_label_type.empty?
       sequence_name
     else
       "#{generic_label_type}(#{sequence_name})"
@@ -172,7 +169,12 @@ class Bioentry < ActiveRecord::Base
   end
   # returns name from source feature to use as sequence label. i.e 1,2,C
   def sequence_name
-    source_features.empty? ? accession : source_features[0].generic_label
+    # Use accession if missing source or 'unknown' chromosome name
+    if source_features.empty? || source_features[0].generic_label.downcase == 'unknown'
+      accession
+    else 
+      source_features[0].generic_label
+    end
   end
   # TODO: deprecate in favor of sequence_name
   def short_name

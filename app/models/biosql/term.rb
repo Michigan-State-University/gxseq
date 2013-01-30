@@ -22,6 +22,7 @@ class Term < ActiveRecord::Base
   has_many :term_relationship_predicates, :class_name => "TermRelationship", :foreign_key =>"predicate_term_id"
   has_many :term_relationship_objects, :class_name => "TermRelationship", :foreign_key =>"object_term_id"
   has_many :seqfeature_paths, :class_name => "SeqfeaturePath"
+  ## CLASS METHODS
   # ontology terms
   def self.annotation_tags
     Term.where(:ontology_id => ano_tag_ont_id)
@@ -71,6 +72,11 @@ class Term < ActiveRecord::Base
       puts $!
       return false
     end
+  end
+  ## INSTANCE METHODS
+  #
+  def name_with_id
+    "#{name.gsub(/\s+/, "_")}_#{id}"
   end
 end
 

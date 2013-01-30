@@ -10,6 +10,6 @@ class BlastRun < ActiveRecord::Base
     "#{blast_database.name}"
   end
   def name_with_id
-    "#{blast_database.name}_#{id}"
+    "#{blast_database.name.gsub(/\s+/, "_")}_#{id}"
   end
 end

@@ -1,5 +1,5 @@
-<%= hit.stored(definition_type) ? sliced_toggle(
-    highlight_result(hit,definition_type),
-    Array(hit.stored(definition_type)).first||'',
+<%= hit.stored(definition_type+'_text') ? sliced_toggle(
+    highlight_result(hit,definition_type+'_text'),
+    Array(hit.stored(definition_type+'_text')).first||'',
     Array(hit.stored(:id)).first
   ) : '' %>

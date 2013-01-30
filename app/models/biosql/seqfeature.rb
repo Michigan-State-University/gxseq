@@ -427,13 +427,11 @@ class Seqfeature < ActiveRecord::Base
     # Fake dynamic blast text - defined for 'every' blast_run on 'every' seqfeature
     # TODO: find another way to allow scoped blast_def full text search without searching all of the definitions
     BlastRun.all.each do |blast_run|
-      s.string ("#{blast_run.blast_database.name}_#{blast_run.id}").to_sym, do
-        #report = blast_reports.where("blast_run_id = #{blast_run.id}").select('hit_def').first
+      s.string blast_run.name_with_id.to_sym, do
         report = blast_reports.select{|b| b.blast_run_id == blast_run.id }.first
         report ? report.hit_def : nil
       end
-      s.text ("#{blast_run.blast_database.name}_#{blast_run.id}_text").to_sym, :stored => true do
-        #report = blast_reports.where("blast_run_id = #{blast_run.id}").select('hit_def').first
+      s.text "#{blast_run.name_with_id}_text".to_sym, :stored => true do
         report = blast_reports.select{|b| b.blast_run_id == blast_run.id }.first
         report ? report.hit_def : nil
       end
@@ -441,13 +439,11 @@ class Seqfeature < ActiveRecord::Base
     # More fake dynamic text ... for custom ontologies and annotation
     Term.custom_ontologies.each do |ont|
       ont.terms.each do |ont_term|
-        s.string "ont_#{ont.id}_#{ont_term.id}".to_sym do
-          #a = self.qualifiers.with_term(ont_term.id).collect(&:value).join('; ')
+        s.string ont_term.name_with_id.to_sym do
           a = self.custom_qualifiers.select{|q| q.term.ontology_id == ont_term.id}.collect(&:value).join('; ')
           a.empty? ? nil : a
         end
-        s.text "ont_#{ont.id}_#{ont_term.id}_text".to_sym, :stored => true do
-          #a = self.qualifiers.with_term(ont_term.id).collect(&:value).join('; ')
+        s.text "#{ont_term.name_with_id}_text".to_sym, :stored => true do
           a = self.custom_qualifiers.select{|q| q.term.ontology_id == ont_term.id}.collect(&:value).join('; ')
           a.empty? ? nil : a
         end
