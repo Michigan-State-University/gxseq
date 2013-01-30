@@ -72,6 +72,7 @@ class SeqfeaturesController < ApplicationController
 
   # GET /_seqfeatures/1
   def show
+    authorize! :read, @seqfeature
     @format = params[:fmt] || 'standard'
     begin
     # Gene features have special show pages
@@ -110,6 +111,7 @@ class SeqfeaturesController < ApplicationController
   # GET /seqfeatures/1/edit
   def edit
     # Gene features have special edit pages
+    authorize! :update, @seqfeature
     if request.xhr?
       setup_xhr_form
       #@seqfeature.qualifiers.build
@@ -133,6 +135,7 @@ class SeqfeaturesController < ApplicationController
 
   # PUT /seqfeatures/1
   def update
+    authorize! :update, @seqfeature
     respond_to do |wants|
       if @seqfeature.update_attributes(params[:seqfeature])
         if request.xhr?

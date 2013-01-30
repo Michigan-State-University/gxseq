@@ -6,6 +6,7 @@ class GenesController < ApplicationController
   
   before_filter :get_gene_data, :only => [:edit, :update]
   before_filter :new_gene_data, :only => [:new]
+  #TODO: Refactor controller. Split into genes_controller gene_models_controller. They are mixed right now...
   def index
     # Defaults
     params[:page]||=1
@@ -72,6 +73,7 @@ class GenesController < ApplicationController
   end
   
   def create
+    authorize! :create, Gene.new
     begin
       @taxons = Bioentry.all_taxon
       @taxon_versions = TaxonVersion.accessible_by(current_ability).order(:name)
@@ -132,13 +134,16 @@ class GenesController < ApplicationController
       logger.info "\n\n#{e.backtrace}\n\n"
       @gene = nil
     end
+    authorize! :read, @gene
   end
   
   def edit
     @format = 'edit'
+    authorize! :update, @gene
   end
   
   def update
+    authorize! :update, @gene
     begin
       Gene.transaction do
         if(@gene.update_attributes(params[:gene]))
