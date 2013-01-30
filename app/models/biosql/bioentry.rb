@@ -112,7 +112,7 @@ class Bioentry < ActiveRecord::Base
   end
   
   ## Class Methods
-    
+
   def self.all_taxon
     TaxonVersion.all.collect(&:taxon).uniq
   end
@@ -134,7 +134,7 @@ class Bioentry < ActiveRecord::Base
   end
   ## Instance Methods
   
-  # initalizing tracks after creation
+  # initializes tracks creating any that do not exist. Returns an array of new tracks
   def create_tracks
     result = []
     result << create_models_track if models_track.nil?
@@ -143,28 +143,27 @@ class Bioentry < ActiveRecord::Base
     result << create_generic_feature_track if generic_feature_track.nil?    
     return result
   end
-  
-  # convenience methods
+  # returns the length of associated biosequence
   def length
     Biosequence.find_by_bioentry_id(self.id,:select => :length).length
   end
-  
+  # returns all bioentry qualifiers
   def qualifiers
     self.bioentry_qualifier_values
   end
-  
+  # returns species, version info (may include a taxon), and sequence label
   def display_info
     "#{species_name} #{version_info} : #{display_name}"
   end
-  
+  # returns taxon name if present version
   def version_info
     "#{taxon_version.species_id==taxon_version.taxon_id ? '' : " > "+taxon_version.name} - #{taxon_version.version}"
   end
-  
+  # returns sequence label
   def display_name
     "#{generic_label_type}(#{sequence_name})"
   end
-  
+  # returns name from source feature to use as sequence label. i.e 1,2,C
   def sequence_name
     source_features.empty? ? accession : source_features[0].generic_label
   end
@@ -177,7 +176,7 @@ class Bioentry < ActiveRecord::Base
     # NOTE: we usually only have one source, is it possible to have more than one?
     sequence_name
   end
-  
+  # returns type from source feature for sequence label. i.e. Chr, organelle, contig
   def sequence_type
     source_features.empty? ? 'contig' : source_features[0].generic_label_type
   end
@@ -185,11 +184,13 @@ class Bioentry < ActiveRecord::Base
   def generic_label_type
     sequence_type
   end
-  
+  # returns the species name. This is the scientific name of the species for associated taxon version
   def species_name
     taxon_version.species.name
   end
-  
+  # returns the Taxon representing the superkingdom for associated taxon.
+  # the selection is made using the nested set left_value and right_value
+  # the nested set must be built or this method will not work correctly
   def superkingdom
     if(taxon.left_value && taxon.right_value)
       Taxon.find(:first, :include => :taxon_names, :conditions => "node_rank='superkingdom' AND left_value < #{taxon.left_value} AND right_value > #{taxon.left_value}")

@@ -46,31 +46,41 @@ class Seqfeature < ActiveRecord::Base
     self.qualifiers -= [q]
   end
   # Sunspot search definition
+  # TODO: Document Search attributes
   searchable(:include => [:bioentry,:type_term,:qualifiers,:feature_counts,:blast_reports,:locations,:favorite_users]) do
     text :locus_tag_text, :stored => true do
      locus_tag.value if locus_tag
     end
     text :description_text, :stored => true do
-      description
+      indexed_description
     end
     text :full_description_text, :stored => true do
-      full_description
+      indexed_full_description
     end
     text :taxon_version_name_with_version_text, :stored => true do
      bioentry.taxon_version.name_with_version
     end
     text :function_text, :stored => true do
-      function
+      indexed_function
     end
     text :product_text, :stored => true do
-      product
+      indexed_product
     end
     string :display_name
-    string :description
+    string :description do
+      indexed_description
+    end
+    string :full_description do
+      indexed_full_description
+    end
     string :protein_id
     string :transcript_id
-    string :function
-    string :product
+    string :function do
+      indexed_function
+    end
+    string :product do
+      indexed_product
+    end
     string :locus_tag do
       locus_tag ? locus_tag.value : nil
     end
@@ -207,6 +217,19 @@ class Seqfeature < ActiveRecord::Base
   
   ## INSTANCE METHODS
   
+  # index methods, should overriden to include associated items
+  def indexed_description
+    description
+  end
+  def indexed_full_description
+    full_description
+  end
+  def indexed_product
+    product
+  end
+  def indexed_function
+    function
+  end
   # generates a Seqfeature scope with all features having the same locus tag as self.
   # self will be included in the result
   def find_related_by_locus_tag

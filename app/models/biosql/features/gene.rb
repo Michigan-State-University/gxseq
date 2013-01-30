@@ -4,7 +4,11 @@ class Gene < Seqfeature
   validates_associated :gene_models
   validate :check_locus_tag
   accepts_nested_attributes_for :gene_models, :allow_destroy => true
-    
+  
+  # Override search definition to include gene_models
+  searchable(:include => [:bioentry,:type_term,:qualifiers,:feature_counts,:blast_reports,:locations,:favorite_users,:gene_models => [:cds => :qualifiers,:mrna => :qualifiers]]) do
+  end
+  
   def self.find_by_locus_tag(locus="")
     self.find_all_by_locus_tag(locus).first
   end
@@ -25,6 +29,50 @@ class Gene < Seqfeature
     self.gene.nil? ? locus_tag.value : self.gene.value
   end
   
+  ## Override text index methods to return a combination of attributes from gene, cds, mrna
+  ##
+  # returns uniq 'gene names; products; functions; and synonyms' for all gene models
+  def indexed_description
+    names,prods,funcs,syns = [gene.try(:value)],[product.try(:value)],[function.try(:value)],[gene_synonym.try(:value)]
+    gene_models.each do |gm|
+      ['cds','mrna'].each do |feature|
+        names << gm.send(feature).try(:gene).try(:value)
+        prods << gm.send(feature).try(:product).try(:value)
+        funcs << gm.send(feature).try(:function).try(:value)
+        syns << gm.send(feature).try(:gene_synonym).try(:value)
+      end
+    end
+    [names.compact.uniq,prods.compact.uniq,funcs.compact.uniq,syns.compact.uniq].flatten.join("; ")
+  end
+  # returns uniq searchable attributes for all gene models
+  def indexed_full_description
+    vals = [search_qualifiers.map(&:value)]
+    gene_models.each do |gm|
+      ['cds','mrna'].each do |feature|
+        vals << gm.send(feature).try(:search_qualifiers).try(:map,&:value)
+      end
+    end
+    [vals,blast_description].flatten.compact.uniq.join('; ')
+  end
+  # returns uniq products for all gene models
+  def indexed_product
+    vals = [product.try(:value)]
+    gene_models.each do |gm|
+      vals << gm.cds.try(:product).try(:value)
+      vals << gm.mrna.try(:product).try(:value)
+    end
+    vals.compact.uniq.join("; ")
+  end
+  # returns uniq functions for all gene models
+  def indexed_function
+    vals = [function.try(:value)]
+    gene_models.each do |gm|
+      vals << gm.cds.try(:function).try(:value)
+      vals << gm.mrna.try(:function).try(:value)
+    end
+    vals.compact.uniq.join("; ")
+  end
+  # returns an array of all possible start locations in this gene
   def possible_starts(padding=300)
     starts=[]
     seq = bioentry.biosequence.seq[location.start_pos-(padding+1),(location.end_pos-location.start_pos)+(padding+1)]
@@ -47,10 +95,12 @@ class Gene < Seqfeature
   end
   
   def initialize_associations
+    #TODO: test this method against new inverse_of association setting
     self.gene_models.each{|gm| gm.gene=self; gm.bioentry=self.bioentry}
     super
   end
   
+  # validate uniqueness and format of locus_tag before saving
   def check_locus_tag
     if(self.locus_tag)
       if(self.locus_tag.value.match(/\s/))
