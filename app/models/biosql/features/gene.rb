@@ -6,7 +6,8 @@ class Gene < Seqfeature
   accepts_nested_attributes_for :gene_models, :allow_destroy => true
   
   # Override search definition to include gene_models
-  searchable(:include => [:bioentry,:type_term,:qualifiers,:feature_counts,:blast_reports,:locations,:favorite_users,:gene_models => [:cds => :qualifiers,:mrna => :qualifiers]]) do
+  searchable(:include => [:bioentry,:type_term,:qualifiers,:feature_counts,:blast_reports,:locations,:favorite_users,:gene_models => [:cds => :qualifiers,:mrna => :qualifiers]]) do |search|
+    full_search_block(search)
   end
   
   def self.find_by_locus_tag(locus="")

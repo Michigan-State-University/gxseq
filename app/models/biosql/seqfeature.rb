@@ -45,120 +45,6 @@ class Seqfeature < ActiveRecord::Base
   def update_assoc_mem(q)
     self.qualifiers -= [q]
   end
-  # Sunspot search definition
-  # TODO: Document Search attributes
-  searchable(:include => [:bioentry,:type_term,:qualifiers,:feature_counts,:blast_reports,:locations,:favorite_users]) do
-    text :locus_tag_text, :stored => true do
-     locus_tag.value if locus_tag
-    end
-    text :description_text, :stored => true do
-      indexed_description
-    end
-    text :full_description_text, :stored => true do
-      indexed_full_description
-    end
-    text :taxon_version_name_with_version_text, :stored => true do
-     bioentry.taxon_version.name_with_version
-    end
-    text :function_text, :stored => true do
-      indexed_function
-    end
-    text :product_text, :stored => true do
-      indexed_product
-    end
-    string :display_name
-    string :description do
-      indexed_description
-    end
-    string :full_description do
-      indexed_full_description
-    end
-    string :protein_id
-    string :transcript_id
-    string :function do
-      indexed_function
-    end
-    string :product do
-      indexed_product
-    end
-    string :locus_tag do
-      locus_tag ? locus_tag.value : nil
-    end
-    string :sequence_name do
-      bioentry.display_name
-    end
-    string :species_name do
-      bioentry.species_name
-    end
-    string :version_name do
-      bioentry.version_info
-    end
-    string :taxon_version_name_with_version do
-     bioentry.taxon_version.name_with_version
-    end
-    integer :id, :stored => true
-    integer :bioentry_id, :stored => true
-    integer :type_term_id, :references => Term
-    integer :source_term_id, :references => Term
-    integer :strand, :stored => true
-    integer :taxon_version_id do
-      bioentry.taxon_version_id
-    end
-    integer :start_pos, :stored => true do
-      min_start
-    end
-    integer :end_pos, :stored => true do
-      max_end
-    end
-    integer :favorite_user_ids, :multiple => true, :stored => true
-    
-    # dynamic feature expression
-    dynamic_float :normalized_counts, :stored => true do
-      feature_counts.inject({}){|h,x| h["exp_#{x.experiment_id}"]=x.normalized_count;h}
-    end
-    dynamic_float :counts, :stored => true do
-      feature_counts.inject({}){|h,x| h["exp_#{x.experiment_id}"]=x.count;h}
-    end
-    # dynamic blast reports
-    dynamic_string :blast_def, :stored => true do
-      blast_reports.inject({}){|hash,report| hash[report.blast_database.name+"_#{report.blast_run.id}"]=report.hit_def;hash}
-    end
-    dynamic_string :blast_acc, :stored => true do
-      blast_reports.inject({}){|hash,report| hash[report.blast_database.name+"_#{report.blast_run.id}"]=report.hit_acc;hash}
-    end
-    dynamic_string :blast_id, :stored => true do
-      blast_reports.inject({}){|hash,report| hash[report.blast_database.name+"_#{report.blast_run.id}"]=report.id;hash}
-    end
-    # Fake dynamic blast text - defined for 'every' blast_run on 'every' seqfeature
-    # TODO: find another way to allow scoped blast_def full text search without searching all of the definitions
-    BlastRun.all.each do |blast_run|
-      string ("#{blast_run.blast_database.name}_#{blast_run.id}").to_sym, do
-        #report = blast_reports.where("blast_run_id = #{blast_run.id}").select('hit_def').first
-        report = blast_reports.select{|b| b.blast_run_id == blast_run.id }.first
-        report ? report.hit_def : nil
-      end
-      text ("#{blast_run.blast_database.name}_#{blast_run.id}_text").to_sym, :stored => true do
-        #report = blast_reports.where("blast_run_id = #{blast_run.id}").select('hit_def').first
-        report = blast_reports.select{|b| b.blast_run_id == blast_run.id }.first
-        report ? report.hit_def : nil
-      end
-    end
-    # More fake dynamic text ... for custom ontologies and annotation
-    Term.custom_ontologies.each do |ont|
-      ont.terms.each do |ont_term|
-        string "ont_#{ont.id}_#{ont_term.id}".to_sym do
-          #a = self.qualifiers.with_term(ont_term.id).collect(&:value).join('; ')
-          a = self.custom_qualifiers.select{|q| q.term.ontology_id == ont_term.id}.collect(&:value).join('; ')
-          a.empty? ? nil : a
-        end
-        text "ont_#{ont.id}_#{ont_term.id}_text".to_sym, :stored => true do
-          #a = self.qualifiers.with_term(ont_term.id).collect(&:value).join('; ')
-          a = self.custom_qualifiers.select{|q| q.term.ontology_id == ont_term.id}.collect(&:value).join('; ')
-          a.empty? ? nil : a
-        end
-      end
-    end
-  end
 
   ## CLASS METHODS
 
@@ -449,7 +335,130 @@ class Seqfeature < ActiveRecord::Base
 
     return data
   end
-
+  
+  protected
+  
+  ## Sunspot search definition
+  ## TODO: Document Search attributes
+  
+  # search block - allows reuse in subclasses
+  def self.full_search_block(s)
+    s.text :locus_tag_text, :stored => true do
+     locus_tag.value if locus_tag
+    end
+    s.text :description_text, :stored => true do
+      indexed_description
+    end
+    s.text :full_description_text, :stored => true do
+      indexed_full_description
+    end
+    s.text :taxon_version_name_with_version_text, :stored => true do
+     bioentry.taxon_version.name_with_version
+    end
+    s.text :function_text, :stored => true do
+      indexed_function
+    end
+    s.text :product_text, :stored => true do
+      indexed_product
+    end
+    s.string :display_name
+    s.string :description do
+      indexed_description
+    end
+    s.string :full_description do
+      indexed_full_description
+    end
+    s.string :protein_id
+    s.string :transcript_id
+    s.string :function do
+      indexed_function
+    end
+    s.string :product do
+      indexed_product
+    end
+    s.string :locus_tag do
+      locus_tag ? locus_tag.value : nil
+    end
+    s.string :sequence_name do
+      bioentry.display_name
+    end
+    s.string :species_name do
+      bioentry.species_name
+    end
+    s.string :version_name do
+      bioentry.version_info
+    end
+    s.string :taxon_version_name_with_version do
+     bioentry.taxon_version.name_with_version
+    end
+    s.integer :id, :stored => true
+    s.integer :bioentry_id, :stored => true
+    s.integer :type_term_id, :references => Term
+    s.integer :source_term_id, :references => Term
+    s.integer :strand, :stored => true
+    s.integer :taxon_version_id do
+      bioentry.taxon_version_id
+    end
+    s.integer :start_pos, :stored => true do
+      min_start
+    end
+    s.integer :end_pos, :stored => true do
+      max_end
+    end
+    s.integer :favorite_user_ids, :multiple => true, :stored => true
+    
+    # dynamic feature expression
+    s.dynamic_float :normalized_counts, :stored => true do
+      feature_counts.inject({}){|h,x| h["exp_#{x.experiment_id}"]=x.normalized_count;h}
+    end
+    s.dynamic_float :counts, :stored => true do
+      feature_counts.inject({}){|h,x| h["exp_#{x.experiment_id}"]=x.count;h}
+    end
+    # dynamic blast reports
+    s.dynamic_string :blast_def, :stored => true do
+      blast_reports.inject({}){|hash,report| hash[report.blast_database.name+"_#{report.blast_run.id}"]=report.hit_def;hash}
+    end
+    s.dynamic_string :blast_acc, :stored => true do
+      blast_reports.inject({}){|hash,report| hash[report.blast_database.name+"_#{report.blast_run.id}"]=report.hit_acc;hash}
+    end
+    s.dynamic_string :blast_id, :stored => true do
+      blast_reports.inject({}){|hash,report| hash[report.blast_database.name+"_#{report.blast_run.id}"]=report.id;hash}
+    end
+    # Fake dynamic blast text - defined for 'every' blast_run on 'every' seqfeature
+    # TODO: find another way to allow scoped blast_def full text search without searching all of the definitions
+    BlastRun.all.each do |blast_run|
+      s.string ("#{blast_run.blast_database.name}_#{blast_run.id}").to_sym, do
+        #report = blast_reports.where("blast_run_id = #{blast_run.id}").select('hit_def').first
+        report = blast_reports.select{|b| b.blast_run_id == blast_run.id }.first
+        report ? report.hit_def : nil
+      end
+      s.text ("#{blast_run.blast_database.name}_#{blast_run.id}_text").to_sym, :stored => true do
+        #report = blast_reports.where("blast_run_id = #{blast_run.id}").select('hit_def').first
+        report = blast_reports.select{|b| b.blast_run_id == blast_run.id }.first
+        report ? report.hit_def : nil
+      end
+    end
+    # More fake dynamic text ... for custom ontologies and annotation
+    Term.custom_ontologies.each do |ont|
+      ont.terms.each do |ont_term|
+        s.string "ont_#{ont.id}_#{ont_term.id}".to_sym do
+          #a = self.qualifiers.with_term(ont_term.id).collect(&:value).join('; ')
+          a = self.custom_qualifiers.select{|q| q.term.ontology_id == ont_term.id}.collect(&:value).join('; ')
+          a.empty? ? nil : a
+        end
+        s.text "ont_#{ont.id}_#{ont_term.id}_text".to_sym, :stored => true do
+          #a = self.qualifiers.with_term(ont_term.id).collect(&:value).join('; ')
+          a = self.custom_qualifiers.select{|q| q.term.ontology_id == ont_term.id}.collect(&:value).join('; ')
+          a.empty? ? nil : a
+        end
+      end
+    end
+  end
+  
+  # search definition
+  searchable(:include => [:bioentry,:type_term,:qualifiers,:feature_counts,:blast_reports,:locations,:favorite_users]) do |search|
+    full_search_block(search)
+  end
 end
 
 
