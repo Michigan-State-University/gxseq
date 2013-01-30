@@ -130,7 +130,7 @@ class GenesController < ApplicationController
       @changelogs = Version.order('id desc').where(:parent_id => @gene.id).where(:parent_type => 'Gene')
     when 'expression'
       @gene = Gene.find(params[:id])
-      @feature_counts = @seqfeature.feature_counts.accessible_by(current_ability)
+      @feature_counts = @gene.feature_counts.accessible_by(current_ability)
       @graph_data = FeatureCount.create_graph_data(@feature_counts)
     when 'blast'
       @blast_reports = @gene.blast_reports
