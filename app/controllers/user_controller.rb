@@ -12,7 +12,7 @@ class UserController < ApplicationController
   # GET /_users/1
   def show
     unless params[:fmt]
-      if @user.favorite_seqfeatures
+      if !@user.favorite_seqfeatures.empty?
         params[:fmt]='favorites'
       else
         params[:fmt]='samples'
