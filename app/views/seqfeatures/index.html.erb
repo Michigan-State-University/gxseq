@@ -72,7 +72,7 @@
       </thead>
       <% @search.each_hit_with_result do |hit,feature| %>
       <tr>
-        <td>
+        <td style="white-space:nowrap">
           <%= highlight_result(hit,:locus_tag_text) %>
           <% if can? :edit, feature %>
             <%= link_to( image_tag('comment_edit.png'), edit_seqfeature_path(feature.id), :class => 'popupbox', :'data-form' => "edit_seqfeature_#{feature.id}", :'data-post_to' => seqfeature_path(feature.id), :'data-update_id' => "#{feature.id}_definition", :'data-update_from' => request.fullpath+'&seqfeature_id='+feature.id.to_s) %>

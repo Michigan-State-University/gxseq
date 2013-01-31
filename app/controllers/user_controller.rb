@@ -11,7 +11,13 @@ class UserController < ApplicationController
     
   # GET /_users/1
   def show
-    params[:fmt]||='favorites'
+    unless params[:fmt]
+      if @user.favorite_seqfeatures.empty?
+        params[:fmt]='samples'
+      else
+        params[:fmt]='favorites'
+      end
+    end
     @groups = Group.accessible_by(current_ability)
     @samples = Experiment.accessible_by(current_ability)
   end

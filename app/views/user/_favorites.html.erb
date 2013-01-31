@@ -1,18 +1,35 @@
 <div class="table">
-  <table class="listing">
-    <thead>
-      <th>ID</th>
-      <th>Type</p>
-      <th>Full Description</th>
-      <th>Sequence</th>
-    </thead>
-    <% @user.favorite_seqfeatures.each do |fav| %>
-      <tr>
-        <td><%= link_to fav.item.label, seqfeature_path(fav.item) %></td>
-        <td><%= fav.item.class.name %> </td>
-        <td><%= sliced_toggle fav.item.full_description, fav.item.full_description, "favorite_#{fav.id}_full_def" %></td>
-        <td><%= link_to fav.item.bioentry.display_name, bioentry_path(fav.item.bioentry, :pos => fav.item.min_start)%></td>
-      </tr>
+
+    <% if @user.favorite_seqfeatures.empty? %>
+    <br/>
+      <p>
+        It looks like you haven't selected any favorites yet!
+      </p>
+      <br/>
+      <p>
+        In the <%= link_to "Features List", seqfeatures_path %> and
+        <%= link_to "Expression Viewer", expression_viewer_path %> you can save your favorite items for later.<br/>
+        Just click the star images (<%= image_tag("star_gray.png") %> / <%= image_tag("star.png") %>) to toggle your setting. Yellow stars will show up here.
+      </p>
+    <% else %>
+      <table class="listing">
+        <thead>
+          <th>ID</th>
+          <th>Type</p>
+          <th>Full Description</th>
+          <th>Sequence</th>
+        </thead>
+        <% @user.favorite_seqfeatures.each do |fav| %>
+          <tr>
+            <td>
+              <%= link_to(image_tag('star.png'), toggle_favorite_seqfeature_path(fav.item.id), {:class => 'favorite',:id => "favorite_#{fav.item.id}",:remote => true,:'data-loading' => "#{image_tag("loading.gif")}"}) %>
+              <%= link_to fav.item.label, seqfeature_path(fav.item) %>
+            </td>
+            <td><%= fav.item.class.name %> </td>
+            <td><%= sliced_toggle fav.item.full_description, fav.item.full_description, "favorite_#{fav.id}_full_def" %></td>
+            <td><%= link_to fav.item.bioentry.display_name, bioentry_path(fav.item.bioentry, :pos => fav.item.min_start)%></td>
+          </tr>
+        <% end %>
+      </table>
     <% end %>
-  </table>
 </div>
