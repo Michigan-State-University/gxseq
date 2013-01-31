@@ -292,7 +292,7 @@ class GeneModel < ActiveRecord::Base
          g['gene_name'].to_s,
          g['id'].to_s,
          g['locus_tag'].to_s,
-         g['end_pos'].to_i
+         0
       ])
     end
     mrna_locations.each do |l|
@@ -309,7 +309,7 @@ class GeneModel < ActiveRecord::Base
          "",
          "",
          "",
-         l['end_pos'].to_i
+         1
       ])
     end                   
     cds_locations.each do |l|
@@ -326,7 +326,7 @@ class GeneModel < ActiveRecord::Base
          "",
          "",
          "",
-         l['end_pos'].to_i
+         2
       ])
     end
     

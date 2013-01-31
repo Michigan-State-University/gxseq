@@ -63,8 +63,8 @@ Ext.define('Sv.painters.ModelsCanvas',{
     if (!(models instanceof Array)) return;
     Ext.each(models, function(model)
     {
-      model.x1 = model.x;
-      model.x2 = model.x + model.w;
+      //model.x1 = model.x;
+      //model.x2 = model.x + model.w;
       self.groups.add(model.cls);
     });
     self.data = models;
@@ -156,10 +156,15 @@ Ext.define('Sv.painters.ModelsCanvas',{
       // ----Painting the model and any children--- //
       self.paintBox(model.cls, x, y, w, h);
       var max_x = (x+w);
-      Ext.each(model.children, function(child)
+      // Loop over each child level (levels provided by data source)
+      Ext.each(model.children, function(level)
       {
-        if(child.x2>max_x){max_x = child.x2;} //store the maximum pixel of the children for the arrow image
-        self.paintBox(child.cls, child.x, y,(child.x2-child.x), h);
+        //Then paint items in each level
+        Ext.each(level, function(child){
+          //store the maximum pixel of the children for the arrow image
+          if(child.x2>max_x){max_x = child.x2;}
+          self.paintBox(child.cls,child.x,y,(child.x2-child.x),h);
+        });
       });
 
       //Draw the arrow point
@@ -188,20 +193,19 @@ Ext.define('Sv.painters.ModelsCanvas',{
 
       //test the left side of screen
       if(Offset <=1){
-        Offset = 1;
         label = "("+label+")"
+        Offset = 1;
+        
       }
       //test the right side of the screen
       else if(Offset >= (width-1)){
         Offset = (width-1);
       }
 
-      topOffset = Offset;		
-      bottomOffset = Offset
-
-      //test right side of model
-      if(bottomOffset >= (x+w)-(label_width)){
-        bottomOffset = (x+w)-(label_width);
+      //test right side of model - add 4 letterwidths for parentheses and slight end padding
+      var max_right_offset = (x+w)-(label_width+(4*fontLetterWidth))
+      if(Offset >= max_right_offset){
+        Offset = (max_right_offset);
       }
       //Draw the label
       if (h >= self.boxBlingLimit && label_width < model_width && font_height > 5)
@@ -209,12 +213,12 @@ Ext.define('Sv.painters.ModelsCanvas',{
         labelY+=font_height
         brush.font='italic 400 '+font_height+'px arial, sans-serif'
         brush.fillStyle='#333333'
-        if(self.config.strand =='+'){
-          brush.fillText(label,bottomOffset, labelY)
-        }
-        else{
-          brush.fillText(label,topOffset, labelY)
-        }
+        // if(self.config.strand =='+'){
+        //   brush.fillText(label,bottomOffset, labelY)
+        // }
+        // else{
+          brush.fillText(label,Offset, labelY)
+        //}
       }
     });
 

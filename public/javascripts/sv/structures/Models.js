@@ -25,14 +25,15 @@ var ModelsList = function()
 				gene	 	: datum[8],
 				oid	 	: datum[9],
 				locus_tag: datum[10],
-				x2			: parseInt(datum[11])
+				render_level: datum[11]
+				//x2			: parseInt(datum[11])
 			};
-
+			if(!item.render_level){item.render_level=1;}
 			if (!item.parent)
 			{
 				if (!self.exists(item.id))
 				{
-					var node = self.createNode(item.id, item.x, item.x+item.w, item);				
+					var node = self.createNode(item.id, item.x, item.x+item.w, item);
 					self.insert(node);
 				}
 			}
@@ -42,11 +43,12 @@ var ModelsList = function()
 
 				if (parent)
 				{
-					if (!parent.children)
-					{
-						parent.children = {};
+				  item.x2 = item.x+item.w;
+					if(!parent.children){ parent.children = []; }
+					if(!parent.children[item.render_level]){
+					  parent.children[item.render_level] = {};
 					}
-					parent.children[item.id] = item;
+					parent.children[item.render_level][item.id] = item;
 				}
 			}
 		});
@@ -69,34 +71,41 @@ var ModelsList = function()
 			var item = {
 				id      	: node.id,
 				cls     	: node.value.cls,
-				x       	: Math.floor((node.value.x - x1) * pixels / bases),
+				x       	: Math.floor((node.x1 - x1) * pixels / bases),
 				w       	: Math.ceil(node.value.w * pixels / bases) || 1,
-				x2       	: Math.ceil((node.value.x2 - x1) * pixels / bases) || 1,
+				x2       	: Math.ceil((node.x2 - x1) * pixels / bases) || 1,
 				children	: [],
-				product 	: node.value.product,
+				//product 	: node.value.product,
 				gene	  	: node.value.gene,
 				locus_tag: node.value.locus_tag,
 				oid		: node.value.oid
 			};
 			if (node.value.children)
 			{
-				for (var id in node.value.children)
-				{
-					var child = node.value.children[id];
-
-					var cw = Math.ceil(child.w * pixels / bases) || 0;
-
-					if (cw)
-					{					
-						item.children.push({
-							id  : child.id,
-							cls : child.cls,
-							x   : Math.floor((child.x - x1) * pixels / bases),
-							x2  : Math.ceil((child.x2 - x1) * pixels / bases),
-							w   : cw
-						});
-					}
-				}
+			  var length = node.value.children.length;
+        for (var i = 0, len = length; i < len; i++) {
+          //Setup this child level skipping any undefined
+          child_level = node.value.children[i];
+          if(child_level==undefined){continue;}
+          item.children[i] = [];
+          //add the new children
+          for (var id in child_level){
+            child = child_level[id];
+            var cw = Math.ceil(child.w * pixels / bases) || 0;
+  					if (cw)
+  					{					
+  						item.children[i].push({
+  							id  : child.id,
+  							cls : child.cls,
+  							x   : Math.floor((child.x - x1) * pixels / bases),
+  							x2  : Math.ceil((child.x2 - x1) * pixels / bases),
+  							w   : cw
+  						});
+  					}
+          }
+        };
+        console.log("Setup some kids:")
+        console.log(item)
 			}
       // console.log("2. model x1 (left):"+x1+" x2 (right):"+x2+" node.value.x:"+node.value.x+" x:"+(node.value.x - x1))
 			subset.push(item);

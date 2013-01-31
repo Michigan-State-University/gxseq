@@ -139,7 +139,7 @@ class GenesController < ApplicationController
       @blast_run = @blast_report.blast_run
     end
     rescue => e
-      logger.info "\n\n#{e.backtrace}\n\n"
+      logger.info "\n#{e}\n\n#{e.backtrace.inspect}\n\n"
       @gene = nil
     end
     authorize! :read, @gene
@@ -229,6 +229,8 @@ class GenesController < ApplicationController
     gene_size = @gene.max_end - @gene.min_start
     @gui_zoom = (gene_size/600).floor + 2    
     @view_start = @gene.min_start - (200*@gui_zoom)
+    logger.info "\n\n#{@gene.inspect}\n\n"
+    logger.info "\n\n#{@gene.bioentry.inspect}\n\n"
     @gui_data = GeneModel.get_canvas_data(@view_start,@view_start+(@canvas_width*@gui_zoom),@gene.bioentry.id,@gui_zoom,@gene.strand)
     @depth = @gui_data.collect{|g| (g[:x2]>=(@gene.min_start-@view_start)/@gui_zoom && g[:x]<=(@gene.max_end-@view_start)/@gui_zoom) ? 1 : nil}.compact.size
     @canvas_height = ( @depth * (@model_height * 2))+10 # each model and label plus padding

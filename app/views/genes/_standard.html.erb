@@ -1,18 +1,3 @@
-<% if @genes.size > 1 %>
-	<% content_for :left_column do -%>
-		<div class="hb-green">Notice</div>
-		<div class="box-green">	
-			<h2 style="color:darkred;">Locus Tag Is Not Unique!</h2>
-			Alternate versions:
-			<p style="margin:.5em">
-				<% @genes.each do |g| %>
-					<%= link_to (g.bioentry.species_name + " >" + g.bioentry.display_name + ":" + g.bioentry.taxon_version.version.to_s), g %><br/><br/>
-				<% end %>
-			</p>
-		</div>
-	<% end -%>
-<% end %>
-
 <div class="clear">
 	<!-- Gene Details -->
 	<div class="border">
@@ -92,10 +77,12 @@
 				{:name => gene_model.display_name,:style => "text-decoration:none;color:rgb(100,100,100);cursor:pointer;"})
 			%>
 		</h1>
+		<%= link_to ' View detail data for mRNA ', seqfeature_path(gene_model.mrna) if gene_model.mrna %><br/>
+    <%= link_to ' View detail data for CDS ', seqfeature_path(gene_model.cds) if gene_model.cds %>
 		<div id="gene_model_<%= gene_model.id %>_hidden" style="display:none">
 			<div class="border"><p>...</p></div>
 		</div>
-		<div id="gene_model_<%= gene_model.id %>_data">
+		<div id="gene_model_<%= gene_model.id %>_data">      
 			<!-- Note Details -->
 			<div class="border">
 				<h2>Notes</h2>

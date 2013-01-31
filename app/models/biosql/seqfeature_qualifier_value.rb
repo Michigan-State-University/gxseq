@@ -24,7 +24,7 @@ class SeqfeatureQualifierValue < ActiveRecord::Base
   end
 
   def name
-    "#{term.ontology.name}: #{term.name}"
+    "#{term.name}"
   end
 
   def text_id

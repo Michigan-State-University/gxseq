@@ -28,6 +28,21 @@
 		<%= render :partial => 'format_links' %>
 	<% end -%>
 	
+	<% if @genes.size > 1 %>
+  	<% content_for :left_column do -%>
+  		<div class="hb-green">Notice</div>
+  		<div class="box-green">	
+  			<h2 style="color:darkred;">Locus Tag Is Not Unique!</h2>
+  			Alternate versions:
+  			<p style="margin:.5em">
+  				<% @genes.each do |g| %>
+  					<%= link_to (g.bioentry.species_name + " >" + g.bioentry.display_name + ":" + g.bioentry.taxon_version.version.to_s), g %><br/><br/>
+  				<% end %>
+  			</p>
+  		</div>
+  	<% end -%>
+  <% end %>
+  
 	<!-- Format -->
 	<div id="<%= @format %>_format" style="clear:both;">
 	  <% if ['standard','variants'].include?(@format) %>
