@@ -104,8 +104,6 @@ var ModelsList = function()
   					}
           }
         };
-        console.log("Setup some kids:")
-        console.log(item)
 			}
       // console.log("2. model x1 (left):"+x1+" x2 (right):"+x2+" node.value.x:"+node.value.x+" x:"+(node.value.x - x1))
 			subset.push(item);

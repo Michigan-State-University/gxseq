@@ -142,8 +142,11 @@ Ext.define("Sv.tracks.BaseTrack",{
              iconCls : 'silk_delete',
              tooltip : 'Remove the track',
              permanent : true,
+             //handleMouseEvents : false,
              handler : function() {
-                 self.fireEvent('close', self);
+               //Manually remove the hover button style before closing
+               this.removeClsWithUI(this.overCls);
+               self.fireEvent('close', self);
              }
          });
         
