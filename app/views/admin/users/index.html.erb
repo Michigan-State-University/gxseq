@@ -30,13 +30,14 @@
   	<% for user in @users %>
   		<tr>
 		  	<td class="style2"><%= user.email %></th>
-    		<td class="style3"><%= user.login %></td>
+    		<td class="style3"><%= link_to user.login, user %></td>
     		<td class="style3"><%= user.created_at.strftime('%b %d \'%y') %></td>
 				<td ><%= user.last_sign_in_at.strftime('%b %d %I:%M %p') if user.last_sign_in_at %></td>
 	    	<td class="style1">
-				<%= link_to '[Show]', :action => 'show', :id => user %>
+				  <%= link_to '[Show]', :action => 'show', :id => user %>
 					<%= mail_to user.email, "[Email]" %>
 					<%= link_to '[Edit]', :action => 'edit', :id => user %>
+					<%= link_to '[Delete]', admin_user_path(user), :method => :delete %>
 				</td>
   	  </tr>
   	<% end %>

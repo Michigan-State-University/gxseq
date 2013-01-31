@@ -1,5 +1,5 @@
 class Admin::UsersController < Admin::AdminController
-  before_filter :find_user, :except => [:index,:new, :create, :logout]
+  before_filter :find_user, :except => [:index,:new, :create]
   before_filter :load_data, :only => [:edit, :new, :create, :update]
   
   # render index.html
@@ -56,18 +56,21 @@ class Admin::UsersController < Admin::AdminController
     end
   end
   
-  def logout
-    sign_out(current_user)
-    redirect_to(new_session_path)
-  end
-  
+  # DELETE /ontologies/1
+   def destroy
+     @user.destroy
+     respond_to do |wants|
+       wants.html { redirect_to(admin_users_url) }
+     end
+   end
+   
 protected
   def find_user
     @user = User.find(params[:id], :include => :roles)
   end
   
   def load_data
-    @default_role = Role.find_by_name("user")
+    @default_role = Role.find_or_create_by_name("member")
     @roles = Role.all
   end
 

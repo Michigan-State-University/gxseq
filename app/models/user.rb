@@ -4,7 +4,7 @@ class User < ActiveRecord::Base
   devise :database_authenticatable, :ldap_authenticatable, :trackable, :rememberable, :timeoutable
 
   # Setup accessible (or protected) attributes for your model
-  attr_accessible :email, :login, :password, :password_confirmation, :remember_me, :role_ids
+  attr_accessible :email, :login, :password, :password_confirmation, :remember_me, :role_ids, :is_ldap
   has_and_belongs_to_many :groups
   has_and_belongs_to_many :roles
   has_many :track_layouts
@@ -12,9 +12,10 @@ class User < ActiveRecord::Base
   has_many :favorite_seqfeatures
   has_many :seqfeatures, :through => :favorite_seqfeatures
   has_many :experiments
+  has_one :private_group, :class_name => "Group", :include => :owner, :foreign_key => 'owner_id', :conditions => "name = users.login", :dependent => :destroy
   validates_uniqueness_of :login
   validates_presence_of :login
-  before_save :get_ldap_email
+  before_create :get_ldap_email
   before_save :set_default_role
   after_create :setup_default_groups
   
@@ -69,10 +70,12 @@ class User < ActiveRecord::Base
   
   # TODO: Make this configurable - default remote users are members, all others are guests
   def set_default_role
-    if is_remote?
-      self.roles << Role.find_or_create_by_name('Member')
-    else
-      self.roles << Role.find_or_create_by_name('Guest')
+    if self.roles.empty?
+      if is_remote?
+        self.roles << Role.find_or_create_by_name('member')
+      else
+        self.roles << Role.find_or_create_by_name('guest')
+      end
     end
   end
   
