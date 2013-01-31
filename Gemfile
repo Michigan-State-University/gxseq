@@ -6,6 +6,7 @@ gem 'rails', '3.0.9'
 group :production do
   gem 'activerecord-oracle_enhanced-adapter'
   gem 'ruby-oci8'
+  gem 'newrelic_rpm'
 end
 group :development, :test do
   gem 'mysql2', '~> 0.2.0'
@@ -52,7 +53,6 @@ end
 gem 'progress_bar'
 gem 'cancan'
 gem 'rails3-jquery-autocomplete'
-gem 'newrelic_rpm'
 
 # Deploy with Capistrano
 # gem 'capistrano'
