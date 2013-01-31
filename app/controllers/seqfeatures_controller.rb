@@ -42,6 +42,8 @@ class SeqfeaturesController < ApplicationController
           with(:end_pos).less_than(params[:end_pos])
         end
       end
+      # Sort
+      order_by params[:c].to_sym, order_d
       # Paging
       paginate(:page => params[:page], :per_page => 50)
       # scope to id
