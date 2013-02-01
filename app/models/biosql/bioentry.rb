@@ -187,7 +187,7 @@ class Bioentry < ActiveRecord::Base
   end
   # returns type from source feature for sequence label. i.e. Chr, organelle or blank string if unknown
   def sequence_type
-    source_features.empty? '' : source_features[0].generic_label_type
+    source_features.empty? ? '' : source_features[0].generic_label_type
   end
   # TODO: deprecate in favor of sequence_type
   def generic_label_type
