@@ -30,6 +30,7 @@ class Seqfeature < ActiveRecord::Base
   has_one :product_assoc, :class_name => "SeqfeatureQualifierValue", :foreign_key => "seqfeature_id", :include => :term, :conditions => "term.name = 'product'"
   has_one :function_assoc, :class_name => "SeqfeatureQualifierValue", :foreign_key => "seqfeature_id", :include => :term, :conditions => "term.name = 'function'"
   # For index eager loading we add gene_models here but only Gene features will have gene_models
+  # TODO: Test this for side effects against create/update gene
   has_many :gene_models, :foreign_key => :gene_id, :inverse_of => :gene
   
   # scope
