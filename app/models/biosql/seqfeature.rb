@@ -29,6 +29,9 @@ class Seqfeature < ActiveRecord::Base
   # Use :qualifiers when including the entire attribute set. Use _assoc when including a small subset (1 or 2)
   has_one :product_assoc, :class_name => "SeqfeatureQualifierValue", :foreign_key => "seqfeature_id", :include => :term, :conditions => "term.name = 'product'"
   has_one :function_assoc, :class_name => "SeqfeatureQualifierValue", :foreign_key => "seqfeature_id", :include => :term, :conditions => "term.name = 'function'"
+  # For index eager loading we add gene_models here but only Gene features will have gene_models
+  has_many :gene_models, :foreign_key => :gene_id, :inverse_of => :gene
+  
   # scope
   scope :with_locus_tag, lambda { |locus_tag|
     { :include => [:qualifiers => [:term]], :conditions => "upper(seqfeature_qualifier_value.value) = '#{locus_tag.upcase}'"}
@@ -452,7 +455,7 @@ class Seqfeature < ActiveRecord::Base
   end
   
   # search definition
-  searchable(:include => [:bioentry,:type_term,:qualifiers,:feature_counts,:blast_reports,:locations,:favorite_users]) do |search|
+  searchable(:include => [:bioentry,:type_term,:qualifiers,:feature_counts,:blast_reports,:locations,:favorite_users,:gene_models => [:cds => [:product_assoc, :function_assoc], :mrna => [:product_assoc, :function_assoc]]]) do |search|
     full_search_block(search)
   end
 end
