@@ -3,7 +3,7 @@ class Sequence < Thor
   require File.expand_path('config/environment.rb')
   
   desc 'load FILE','Load genomic sequence into the database'
-  method_options :database => 'Public', :verbose => false, :version => 1, :source_name => "EMBL/GenBank/SwissProt"
+  method_options :database => 'Public', :verbose => false, :version => "1", :source_name => "EMBL/GenBank/SwissProt"
   method_options :transcriptome => false, :add_entry_feature => nil
   method_option :species
   method_option :strain
