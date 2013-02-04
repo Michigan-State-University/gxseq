@@ -98,7 +98,7 @@
         <td><%= (hit.stored(:strand) > 0 ? '<span style="color:darkgreen">F</span>' : '<span style="color:darkred">R</span>').html_safe %></td>
         <td style="white-space:nowrap"><%= highlight_result(hit,:taxon_version_name_with_version_text) %></td>
         <td style="white-space:nowrap">
-          <%= link_to 'Details', seqfeature_path(feature) %>
+          <%= link_to 'Details', feature.gene %>
           |
           <%= link_to 'View', bioentry_path(feature.bioentry_id,{:pos => feature.start_pos}) %>
         </td>
