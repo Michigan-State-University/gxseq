@@ -1,13 +1,16 @@
 class Tabix < Asset
+  def load
+    update_attribute(:state, "loading")
+    create_index
+    update_attribute(:state, "complete")
+  end
+  
   def open_tabix(opts={})
     return Bio::Tabix::TFile.open(data.path,opts)
   end
   
   def create_index(opts={})
-    #opening the file checks and creates index automatically
-    #t = open_tabix
     Bio::Tabix::TFile.build_index(self.data.path,opts)
-    #t.close
   end
   
   def get_data(seq,start,stop,opts={})

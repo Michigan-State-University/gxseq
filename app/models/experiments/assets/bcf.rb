@@ -1,5 +1,11 @@
 class Bcf < Asset
   
+  def load
+    update_attribute(:state, "loading")
+    create_index
+    update_attribute(:state, "complete")
+  end
+  
   def open_bcf
     return Bio::DB::SAM::Bcf.new(data.path)
   end

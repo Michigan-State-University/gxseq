@@ -44,8 +44,13 @@ class BigWig < Asset
     return 0 unless open_bw
     open_bw.chrom_length(chrom)
   end
-  # Returns data summary from the specified chromosome and region.
-  # supported types are [max,min,mean,std,coverage]
+  # Returns data summary from the specified chromosome and region binned using the type option
+  # aggregation type can be [max,min,mean,std,coverage]
+  # :start => sequence start position, 1 based, open interval
+  # :stop  => sequence end position, 1 based, open interval
+  # :count => number of bins to return
+  # :opts => options hash:
+  # - :type => aggregation type for bins
   def summary_data(start,stop,count,chrom,type="max",opts={})
     # TODO: convert all 'type' references to opts[:type] for bigwig summary
     return [] unless open_bw

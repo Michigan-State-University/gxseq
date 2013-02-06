@@ -1,11 +1,32 @@
 class Bam < Asset
   require 'strscan'
   
+  ## Asset Generic Methods
+  
+  # generates an index and updates state
+  def load
+    # TODO: update to use a state machine or remove...
+    update_attribute(:state, "loading")
+    create_index
+    remove_temp_files
+    update_attribute(:state, "complete")
+  end
+  
+  # removes any generated data and updates state
+  def unload
+    remove_temp_files
+    destroy_index
+    update_attribute(:state, "pending")
+  end
+  
+  ## Instance Methods
+  
   def open_bam    
     Bio::DB::Sam.new(:bam=>data.path,:fasta => "").tap{|b|b.open}
   end
   
   # NOTE does NOT work with delayed_job background tasks
+  # TODO: Test this again, document results and reasons
   def index_stats
     bam = open_bam
     bam.index_stats.tap{
@@ -26,14 +47,27 @@ class Bam < Asset
       bam.close
     }
   end
-  
+  # returns reads overlapping the supplied region
   def get_reads(left,right,seq)
     bam = open_bam
     bam.fetch(seq,left,right).tap{
       bam.close
     }
   end
-  
+  # returns a read for display containing all of the read details
+  #   :id => read id,
+  #   :flag => SAM flag,
+  #   :pos => start,
+  #   :mapq => mapping quality,
+  #   :cigar => cigar format,
+  #   :mate_ref => reference name of paired mate,
+  #   :mate_pos => position of paired mate,
+  #   :tlen => template length,
+  #   :seq => nucleotide sequence,
+  #   :qual => read quality,
+  #   :tags => additional flags,
+  #   :qlen => qlen.to_i,
+  #   :calend => calend.to_i,
   def find_read(read_id, chrom, pos)
     bam = open_bam
     read = nil
@@ -80,7 +114,8 @@ class Bam < Asset
     end
     nil
   end
-  
+  # returns text array of read data for items overlapping the supplied region
+  # :format  =>  [name, start, length, strand, sequence]
   def get_reads_text(left,right,seq,opts)
     
     bam = open_bam

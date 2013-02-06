@@ -1,4 +1,10 @@
 class TabixVcf < Tabix
+  def load
+    update_attribute(:state, "loading")
+    create_index
+    update_attribute(:state, "complete")
+  end
+  
   def create_index
     super({:s => 1, :b => 2, :e => 2, :c => '#', :S => 0})
   end

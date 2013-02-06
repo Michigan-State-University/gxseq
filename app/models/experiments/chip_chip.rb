@@ -1,7 +1,6 @@
 class ChipChip < Experiment
   has_many :peaks, :foreign_key => "experiment_id"
   has_many :histogram_tracks, :foreign_key => "experiment_id", :dependent => :destroy
-  #asset types
   has_one :big_wig, :foreign_key => "experiment_id"
   has_one :wig, :foreign_key => "experiment_id"  
   after_save :set_abs_max
@@ -11,19 +10,31 @@ class ChipChip < Experiment
   ##Specialized Methods
   def asset_types
     {"bigWig" => "BigWig", "wig" => "Wig"}
-  end  
-  
-  def load_asset_data
-    # check for big_wig; create it
-    self.update_attribute(:state,"saving")
-    create_big_wig_from_wig unless self.big_wig
-    # compute associated data
-    self.update_attribute(:state,"computing")
-    compute_peaks
-    self.update_attribute(:state,"ready")
   end
   
+  def load_asset_data
+    return false unless super
+    begin
+      # check for big_wig; create it if we can
+      if(wig && !big_wig)
+        self.create_big_wig(:data => wig.create_big_wig(self.get_chrom_file.path))
+        big_wig.load if big_wig
+      end
+      # compute associated data
+      # TODO: add compute peaks flag and peak upload
+      self.update_attribute(:state,"computing")
+      compute_peaks
+      self.update_attribute(:state,"ready")
+      return true
+    rescue
+      puts "** Error loading assets:\n#{$!}"
+      return false
+    end
+  end
+  
+  # TODO: should we remove peaks? What about uploaded peaks. Should we remove big_wig if we have a wig?
   def remove_asset_data
+    super
   end
   
   def create_tracks

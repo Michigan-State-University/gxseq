@@ -12,14 +12,28 @@ class ChipSeq < Experiment
   end  
   
   def load_asset_data
-    # check for big_wig, create it if missing
-    self.update_attribute(:state,"saving")
-    create_big_wig_from_wig unless self.big_wig
-    self.update_attribute(:state,"ready")
+    return false unless super
+    begin
+      # check for big_wig; create it if we can
+      if(wig && !big_wig)
+        self.create_big_wig(:data => wig.create_big_wig(self.get_chrom_file.path))
+        big_wig.load if big_wig
+      end
+      # compute associated data
+      # TODO: add compute peaks flag and peak upload
+      self.update_attribute(:state,"computing")
+      compute_peaks
+      self.update_attribute(:state,"ready")
+      return true
+    rescue
+      puts "** Error loading assets:\n#{$!}"
+      return false
+    end
   end
   
-  # do nothing don't even destroy the big_wig we create
+  # TODO: should we remove peaks? What about uploaded peaks. Should we remove big_wig if we have a wig?
   def remove_asset_data
+    super
   end
 
   def create_tracks

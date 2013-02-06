@@ -3,39 +3,25 @@ class ReSeq < Experiment
   has_one :bam, :foreign_key => "experiment_id"
   has_one :big_wig, :foreign_key => "experiment_id"
   
+  def asset_types
+    {"Bam" => "Bam","BigWig" => "BigWig"}
+  end
+  
+  # overrides load to include big_wig generation
   def load_asset_data
-    puts "Loading asset data #{Time.now}"
+    return false unless super
     begin
-      if(bam)
-        bam.update_attribute(:state, "loading")
-        update_state_from_assets
-        bam.create_index
+      if(bam && !big_wig)
         self.create_big_wig(:data => bam.create_big_wig)
-        bam.remove_temp_files
-        big_wig.update_attribute(:state, "complete")
-        bam.update_attribute(:state, "complete")
-        update_state_from_assets
-      else
-        puts "No bam file found!"
-        update_attribute(:state, "error")
+        big_wig.load if big_wig
       end
+      return true
     rescue
-      puts "Error running RNA-Seq load_assets:\n#{$!}"
-      update_attribute(:state, "error")
+      return false
     end
   end
   
-  def remove_asset_data
-    puts "Removing all asset data #{Time.now}"
-    begin
-      bam.remove_temp_files
-      big_wig.destroy if big_wig
-      bam.destroy_index if bam
-    rescue
-      puts "Error running RNA-Seq remove asset data:\n#{$!}"
-    end
-  end
-  
+  # TODO: Merge variant track / exp with re_seq
   def create_tracks
     self.bioentries_experiments.each do |be|
       reads_tracks.create(:bioentry => be.bioentry) unless reads_tracks.any?{|t| t.bioentry_id == be.bioentry_id}

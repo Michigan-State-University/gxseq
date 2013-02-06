@@ -49,11 +49,11 @@ class Asset < ActiveRecord::Base
     alias_method_chain :new, :cast
   end
   
-  #Generic Methods - override in sub-classes
-  def load_data
+  #Generic Methods - define in sub-classes
+  def load
   end
   
-  def remove_data
+  def unload
   end
   
   def file_details

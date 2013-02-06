@@ -12,7 +12,8 @@ class Experiment < ActiveRecord::Base
   has_many :components
   has_many :tracks
   validates_presence_of :user
-  validates_presence_of :assets
+  # We don't force an assets presence. It might be added later or an expression only rna_seq
+  # validates_presence_of :assets
   validates_presence_of :name
   validates_uniqueness_of :name, :scope => [:taxon_version_id,:type], :message => " has already been used"
   validates_length_of :name, :maximum => 35, :on => :create, :message => "must be less than 35 characters"
@@ -35,8 +36,44 @@ class Experiment < ActiveRecord::Base
   
   
 ## Class Methods
+# TODO: Document to_label remove if unused
   def self.to_label
     name
+  end
+
+## Generalized methods (should be specialized in subclass)
+  # Defines assets that will be available in the Experiment dropdown.
+  # Types must also be whitelisted in - Asset::validates_inclusion_of :type
+  # - hash: {key => value} == {DisplayName => ClassName}
+  def asset_types
+    {'Text' => 'Text'}
+  end
+  # returns data for the given range and sequence name
+  def summary_data(start,stop,num,chrom)
+  end
+  # Builds new tracks to represent asset data
+  # TODO - can this be removed, using the experiment for track info instead? Are there any samples with >1 track per sequence
+  def create_tracks
+  end
+  # Processes assets generating any necessary data
+  def load_asset_data
+    puts "Loading asset data #{Time.now}"
+    begin
+      assets.each(&:load)
+      return true
+    rescue
+      puts "** Error loading assets:\n#{$!}"
+      return false
+    end
+  end
+  # Reverts any processing from load_asset_data
+  def remove_asset_data
+    puts "Removing all asset data #{Time.now}"
+    begin
+      assets.each(&:unload)
+    rescue
+      puts "** Error removing asset data:\n#{$!}"
+    end
   end
   
 ## Instance Methods
@@ -54,25 +91,6 @@ class Experiment < ActiveRecord::Base
     end
     return e
   end
-  
-  # Set the experiment state based on the current asset state
-  # TODO Refactor .. remove or convert to state machine
-  def update_state_from_assets
-    self.reload
-    states = assets.collect(&:state).uniq
-    if states==["pending"]
-      self.update_attribute(:state, 'pending')
-    elsif states.include?('error')
-      puts "!!Changing state to error. Something went wrong parsing assets... #{Time.now}" unless self.state == 'error'
-      self.update_attribute(:state, 'error')
-    elsif states.include?('loading') || states.include?('pending')
-      puts "Changing State To loading #{Time.now}" unless self.state == 'loading'
-      self.update_attribute(:state, 'loading')
-    else
-      puts "Changing State To complete #{Time.now}" unless self.state == 'complete'
-      self.update_attribute(:state, 'complete')
-    end
-  end
 
   # write out a temporary chrom.sizes file using the sequence list
   def get_chrom_file
@@ -83,23 +101,7 @@ class Experiment < ActiveRecord::Base
     chr.flush
     return chr
   end
-  
-  # convert wig to big_wig and save as a new asset
-  def create_big_wig_from_wig
-    begin
-      raise StandardError, "No wig found!" unless self.wig
-      f = wig.data.path+"_bw"
-      FileManager.wig_to_bigwig(wig.data.path, f, get_chrom_file.path)
-      self.big_wig = bw = assets.new(:type => "BigWig", :data => File.open(f))
-      bw.save!
-      FileUtils.rm(f)
-    rescue
-      logger.error("#{Time.now} \n #{$!}")
-      puts "Error: could not convert wig to BigWig #{Time.now}"
-    end
-  end
-    
-## Initialization / Callback Methods
+
 
   # before validating set the reverse association for assets. Otherwise nested validation fails
   # TODO: test new rails 3 reverse association for nested attributes
@@ -111,8 +113,9 @@ class Experiment < ActiveRecord::Base
   # Run immediately after create
   def initialize_experiment
     puts "Initializing Experiment #{Time.now}"
+    update_attribute(:state, "loading")
     self.remove_asset_data
-    self.load_asset_data
+    update_attribute(:state, self.load_asset_data ? "complete" : "error")
     puts "Finished Initialization #{Time.now}"
   end
   handle_asynchronously :initialize_experiment  
@@ -130,8 +133,8 @@ class Experiment < ActiveRecord::Base
     
     super(tv_id)
   end
-
-## Convienence Methods
+  
+  ## Convienence Methods
   def taxon_version_name
     taxon_version.name_with_version if taxon_version
   end
@@ -168,31 +171,6 @@ class Experiment < ActiveRecord::Base
     else
       nil
     end
-  end
-  
-##Generalized methods (should be specialized in subclass)
-  # returns data for the given range and sequence name
-  def summary_data(start,stop,num,chrom)
-  end
-  # Builds new tracks to represent asset data
-  # TODO - can this be removed, using the experiment for track info instead? Are there any samples with >1 track per sequence
-  def create_tracks
-  end
-  # Enables parsing / processing asset data on load
-  def load_asset_data
-    puts "Loading Asset Data - #{Time.now}"
-    assets.each{|a| a.load_data}
-  end
-  # Reverts any processing that occurs on load
-  def remove_asset_data
-    puts "Removing Asset Data - #{Time.now}"
-    assets.each{|a| a.remove_data}
-  end
-  # Defines assets that will be available in the Experiment dropdown.
-  # Types must also be whitelisted in - Asset::validates_inclusion_of :type
-  # - hash: {key => value} == {DisplayName => ClassName}
-  def asset_types
-    {'Text' => 'Text'}
   end
 end
 

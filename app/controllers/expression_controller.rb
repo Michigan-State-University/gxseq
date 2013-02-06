@@ -2,9 +2,11 @@ class ExpressionController < ApplicationController
   before_filter :find_version_and_features
   before_filter :setup_definition_select, :only => [:results,:advanced_results]
   before_filter :setup_defaults, :only => [:results,:advanced_results]
+  # display the selection form for samples and matrix or ratio results
   def viewer
   end
-
+  
+  # display the matrix results
   def results
     begin
       # Lookup the Experiments - Intersect with accessible experiments
@@ -39,7 +41,8 @@ class ExpressionController < ApplicationController
       @experiments =[]
     end
   end
-
+  
+  # display the ratio results
   def advanced_results
     begin
       # Lookup the Experiments Intersect with accessible experiments
@@ -103,14 +106,13 @@ class ExpressionController < ApplicationController
       @taxon_version = @taxon_versions.find{|t_version| t_version.try(:id)==params[:taxon_version_id].to_i} || @taxon_versions.first
       params[:taxon_version_id] = @taxon_version.try(:id)
       # get the experiments
-      @experiment_options = @taxon_version.rna_seqs.accessible_by(current_ability).order('experiments.name') if @taxon_version
+      @experiment_options = @taxon_version.rna_seqs.accessible_by(current_ability).order('experiments.name')
       # get all expression features
-      @feature_types = Seqfeature.facet_types_with_expression_and_taxon_version_id(@taxon_version.id) if @taxon_version
+      @feature_types = Seqfeature.facet_types_with_expression_and_taxon_version_id(@taxon_version.id)
       # set the current feature
       @type_term_id = params[:type_term_id]||=@feature_types.facet(:type_term_id).rows.first.try(:value)
       # find any blasts
       @blast_runs = @taxon_version.blast_runs
-      logger.info "\nfrom find_bersion_and_featuer\n#{@blast_runs.inspect}\n\n"
     rescue => e
       logger.info "\n***Error: Could not build version and features in expression controller:\n#{e}\n"
       server_error(e,"Could not build version and features")
@@ -118,7 +120,6 @@ class ExpressionController < ApplicationController
   end
   # options for grouped select
   def setup_definition_select
-    logger.info "\nfrom Setup_def\n#{@blast_runs.inspect}\n\n"
     @group_select_options = {
       'Combined' => [['Description','description'],['Everything','full_description']],
       "Blast Reports" => @blast_runs.collect{|run|[run.name,run.name_with_id]},

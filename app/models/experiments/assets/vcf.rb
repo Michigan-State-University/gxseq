@@ -1,4 +1,8 @@
 class Vcf < Asset
+  def unload
+    remove_temp_files
+  end
+  
   def create_bcf
     File.open(Bio::DB::SAM::Bcf.vcf_to_bcf(data.path),"r")
   end

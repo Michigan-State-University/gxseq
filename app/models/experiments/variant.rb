@@ -9,52 +9,22 @@ class Variant < Experiment
   end  
   
   def load_asset_data
-    puts "Loading asset data #{Time.now}"
+    return false unless super
     begin
-      if(assets.empty?)
-        puts "No assets found!"
-        update_attribute(:state, "error")
-        return nil
-      end
-      if(bcf)
-        load_bcf
-      elsif(tabix_vcf)
-        load_tabix_vcf
-      elsif(vcf)
-        vcf.update_attribute(:state, "converting")
+      if(vcf && !tabix_vcf)
         self.create_tabix_vcf(:data => vcf.create_tabix_vcf)
-        vcf.remove_temp_files
-        load_tabix_vcf
-        vcf.update_attribute(:state, "complete")
+        tabix_vcf.load
       end
+      # create the tracks again after we are done loading
+      # the first attempt fails because we don't know what samples to use
       create_tracks
-      update_attribute(:state, "complete")
+      return true
     rescue
-      puts "Error running Variant load_assets:\n#{$!}"
-      update_attribute(:state, "error")
+      puts "Error loading Variant assets:\n#{$!}"
+      return false
     end
   end
-  
-  def load_bcf
-    puts "Starting load bcf for: #{self.bcf}"
-    bcf.update_attribute(:state, "loading")
-    bcf.create_index
-    bcf.update_attribute(:state, "complete")
-  end
-  
-  def load_tabix_vcf
-    puts "Starting load_tabix for: #{self.bcf}"
-    tabix_vcf.update_attribute(:state, "loading")
-    tabix_vcf.create_index
-    tabix_vcf.update_attribute(:state, "complete")
-  end
-
-  def remove_asset_data
-    puts "Removing all Asset Data - #{Time.now}"
-    bcf.destroy if vcf && bcf
-    self.reload
-  end
-  
+  # creates 1 track for each sample in the vcf and attaches them to the bioentry
   def create_tracks
     bioentries.each do |bioentry|
       self.samples.each do |samp|
@@ -62,28 +32,19 @@ class Variant < Experiment
       end
     end
   end
-  
+  # returns the samples from tabix_vcf or bcf or an empty array
   def samples
     begin
-    if tabix_vcf
-      tabix_vcf.samples
-    elsif bcf
-      bcf.samples
-    else
-      []
-    end
-    rescue 
+      Array( (tabix_vcf || bcf).samples )
+    rescue
       []
     end
   end
-  
+  # returns the data from tabix_vcf or bcf or an empty array
+  # TODO: conver to summary_data for consistency and document asset methods
   def get_data(seq,start,stop,opts={})
   begin
-    if(tabix_vcf)
-      tabix_vcf.get_data(seq,start,stop,opts)
-    elsif(bcf)
-      bcf.get_data(seq,start,stop,opts)
-    end
+    (tabix_vcf||bcf).get_data(seq,start,stop,opts)
   rescue 
     []
   end
