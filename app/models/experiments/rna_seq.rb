@@ -5,7 +5,6 @@ class RnaSeq < Experiment
   has_one :bam, :foreign_key => "experiment_id"
   has_one :big_wig, :foreign_key => "experiment_id"
   after_save :update_bioentry_concordance_from_bam
-  after_save :update_state_from_assets
   smoothable
   
   def asset_types
@@ -15,6 +14,8 @@ class RnaSeq < Experiment
   def load_asset_data
     return false unless super
     begin
+      # Update the concordance again after indexing the bam
+      update_bioentry_concordance_from_bam
       if(bam && !big_wig)
         self.create_big_wig(:data => bam.create_big_wig)
         big_wig.load if big_wig
