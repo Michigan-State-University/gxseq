@@ -1,7 +1,6 @@
 class ExpressionController < ApplicationController
-  before_filter :find_version_and_features
-  before_filter :setup_definition_select, :only => [:results,:advanced_results]
-  before_filter :setup_defaults, :only => [:results,:advanced_results]
+  before_filter :setup_form_data, :only => [:viewer]
+  before_filter :setup_viewer_data, :only => [:results,:advanced_results]
   # display the selection form for samples and matrix or ratio results
   def viewer
   end
@@ -96,15 +95,33 @@ class ExpressionController < ApplicationController
 
   private
   # Taxon, Version and feature type lookup for every action
-  def find_version_and_features
+  def setup_form_data
+    # lookup accessible taxons
+    get_taxon_version
+    logger.info "\n\ntaxon_version from viewer#{@taxon_version}\n\n"
+    # lookup the extra taxon data
+    get_taxon_version_data if @taxon_version
+  end
+  
+  def setup_viewer_data
+    # lookup accessible taxons
+    get_taxon_version
+    unless @taxon_version
+      redirect_to expression_viewer_path
+      return
+    end
+    # lookup the extra taxon data
+    get_taxon_version_data
+    # build the grouped select
+    setup_definition_select
+    # set default search parameters
+    setup_defaults
+  end
+  
+  #returns rna_seq,features with expression,and blast_runs associated with this taxon version
+  def get_taxon_version_data
+    logger.info "\n\ntaxon_version from get_tv_data#{@taxon_version}\n\n"
     begin
-      # get all taxon versions that might have expression
-      ## Collect from accessible experiments to avoid displaying 1.accessible sequence 2.that has rna_seq 3.with no accessible rna_seqs by current user
-      # @taxon_versions = TaxonVersion.includes(:rna_seqs,:taxon => :scientific_name).order('taxon_name.name').accessible_by(current_ability).where{rna_seqs.id != nil}
-      @taxon_versions = RnaSeq.accessible_by(current_ability).includes(:taxon_version => [:species => :scientific_name]).order("taxon_name.name ASC").map(&:taxon_version).uniq || []
-      # set the current taxon version
-      @taxon_version = @taxon_versions.find{|t_version| t_version.try(:id)==params[:taxon_version_id].to_i} || @taxon_versions.first
-      params[:taxon_version_id] = @taxon_version.try(:id)
       # get the experiments
       @experiment_options = @taxon_version.rna_seqs.accessible_by(current_ability).order('experiments.name')
       # get all expression features
@@ -118,6 +135,19 @@ class ExpressionController < ApplicationController
       server_error(e,"Could not build version and features")
     end
   end
+  
+  # get all taxon versions that might have expression
+  # Collect from accessible experiments to avoid displaying accessible sequence that has rna_seq but none accessible to the current user
+  def get_taxon_version
+    # @taxon_versions = TaxonVersion.includes(:rna_seqs,:taxon => :scientific_name).order('taxon_name.name').accessible_by(current_ability).where{rna_seqs.id != nil}
+    @taxon_versions = RnaSeq.accessible_by(current_ability).includes(:taxon_version => [:species => :scientific_name]).order("taxon_name.name ASC").map(&:taxon_version).uniq || []
+    # set the current taxon version
+    @taxon_version = @taxon_versions.find{|t_version| t_version.try(:id)==params[:taxon_version_id].to_i} || @taxon_versions.first
+    logger.info "\n\ntaxon_version from get_tv#{@taxon_version}\n\n"
+    # set the params TODO: Why do we do this?
+    params[:taxon_version_id] ||= @taxon_version.try(:id)
+  end
+  
   # options for grouped select
   def setup_definition_select
     @group_select_options = {
