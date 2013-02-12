@@ -245,7 +245,7 @@ Ext.define('Sv.painters.ReadsCanvas',{
 			  var cls = 'base'
 			  if(self.colorBases){ 
   				switch (letter){
-            case '-': cls = '';continue;
+            case '-': cls = '';break;
             case 'n': cls = 'base_spacer';break;
             case 'D': cls = 'base_deletion';break;
             case 'a': cls = 'A_mis'; break;
