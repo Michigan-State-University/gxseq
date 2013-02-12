@@ -49,13 +49,13 @@ Ext.define('Sv.painters.SequenceCanvas',{
 
 			if (h < self.boxHeightMin) h = self.boxHeightMin;
 			if (h > self.boxHeightMax) h = self.boxHeightMax;
-
+      var letterW = AnnoJ.bases2pixels(1);
+			
 			Ext.each(data, function(read)
 			{
 				var groups = self.groups.getList();
 				self.groups.add(read.cls);
 				if (!self.groups.active(read.cls)) return;
-				var letterW = AnnoJ.bases2pixels(1);
 				w = read.w;
 				e = read.e;
 				x = read.x;
@@ -76,6 +76,9 @@ Ext.define('Sv.painters.SequenceCanvas',{
 						var letterX = x + (i * letterW);
 						//self.paintWedge(letterX, 0, 1, y, 'line');
 						self.paintBox(letter, letterX, y, letterW, h);
+						brush.fillStyle = '#fff'
+      			brush.font = 'bold '+(letterW+1)+'px'+' courier new, monospace'
+					  brush.fillText(letter,letterX,y+h-1)
 					};
 				}else{
 				  

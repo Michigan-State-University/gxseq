@@ -53,7 +53,7 @@ class ReadsController < ApplicationController
           return
         end
          reads_text = experiment.get_reads_text(param['left'],param['right'],be.sequence_name,{:include_seq => true, :read_limit => param['read_limit']})
-         render :text => "{\"success\":true,\"data\":{#{"\"notice\": \"#{reads_text[2]} of #{reads_text[1]} reads\","}\"line_above\":["+reads_text[0]+"]}}"
+         render :text => "{\"success\":true,\"data\":{#{"\"notice\": \"#{reads_text[2]} of #{reads_text[1]} reads\","}\"reads\":["+reads_text[0]+"]}}"
       when 'describe'
         bioentry_id = Bioentry.find(param['bioentry'])
         experiment = Experiment.find(param['experiment'])

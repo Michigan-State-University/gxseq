@@ -286,7 +286,7 @@ class GeneModel < ActiveRecord::Base
          (g['strand'].to_i == 1 ? "+" : "-"),
          "gene",
          g['start_pos'].to_i,
-         (g['end_pos'].to_i - g['start_pos'].to_i),
+         (g['end_pos'].to_i - g['start_pos'].to_i)+1,
          ([]),#styles unused
          "-",#product unused
          g['gene_name'].to_s,
@@ -303,7 +303,7 @@ class GeneModel < ActiveRecord::Base
          (l['strand'].to_i == 1 ? "+" : "-"),
          "mRNA",
          l['start_pos'].to_i,
-         (l['end_pos'].to_i - l['start_pos'].to_i),
+         (l['end_pos'].to_i - l['start_pos'].to_i)+1,
          ([]),
          "",
          "",
@@ -320,7 +320,7 @@ class GeneModel < ActiveRecord::Base
          (l['strand'].to_i == 1 ? "+" : "-"),
          "CDS",
          l['start_pos'].to_i,
-         (l['end_pos'].to_i - l['start_pos'].to_i),
+         (l['end_pos'].to_i - l['start_pos'].to_i)+1,
          ([]),
          "",
          "",

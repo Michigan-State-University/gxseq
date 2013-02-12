@@ -15,7 +15,7 @@ class SixFrameTrack < Track
       data  		: '#{root_path}/bioentries/track_data',
       iconCls : '#{iconCls}',
       storeLocal: true,
-      height 	: 100"
+      height 	: 120"
   end
   
   def type

@@ -96,16 +96,23 @@ class ExpressionController < ApplicationController
   private
   # Taxon, Version and feature type lookup for every action
   def setup_form_data
-    # lookup accessible taxons
-    get_taxon_version
-    logger.info "\n\ntaxon_version from viewer#{@taxon_version}\n\n"
+    # lookup all accessible taxon versions
+    # Collect from accessible experiments to avoid displaying accessible sequence that has rna_seq but none accessible to the current user
+    @taxon_versions = RnaSeq.accessible_by(current_ability).includes(:taxon_version => [:blast_runs, :species => :scientific_name]).order("taxon_name.name ASC").map(&:taxon_version).uniq || []
+    # set the current taxon version
+    @taxon_version = @taxon_versions.find{|t_version| t_version.try(:id)==params[:taxon_version_id].to_i} || @taxon_versions.first
     # lookup the extra taxon data
     get_taxon_version_data if @taxon_version
+    # get all expression features
+    @feature_types = Seqfeature.facet_types_with_expression_and_taxon_version_id(@taxon_version.id) if @taxon_version
+    # set the current feature
+    @type_term_id ||=@feature_types.facet(:type_term_id).rows.first.try(:value) if @feature_types
   end
   
   def setup_viewer_data
-    # lookup accessible taxons
-    get_taxon_version
+    # lookup taxon version
+    @taxon_version = TaxonVersion.accessible_by(current_ability).where(:id => params[:taxon_version_id]).first
+    # redirect if none available
     unless @taxon_version
       redirect_to expression_viewer_path
       return
@@ -120,32 +127,19 @@ class ExpressionController < ApplicationController
   
   #returns rna_seq,features with expression,and blast_runs associated with this taxon version
   def get_taxon_version_data
-    logger.info "\n\ntaxon_version from get_tv_data#{@taxon_version}\n\n"
     begin
+      # set the type_term_id
+      @type_term_id = params[:type_term_id]
       # get the experiments
       @experiment_options = @taxon_version.rna_seqs.accessible_by(current_ability).order('experiments.name')
-      # get all expression features
-      @feature_types = Seqfeature.facet_types_with_expression_and_taxon_version_id(@taxon_version.id)
-      # set the current feature
-      @type_term_id = params[:type_term_id]||=@feature_types.facet(:type_term_id).rows.first.try(:value)
       # find any blasts
       @blast_runs = @taxon_version.blast_runs
+      # set the taxon_version param for search block 
+      params[:taxon_version_id] ||= @taxon_version.try(:id)
     rescue => e
       logger.info "\n***Error: Could not build version and features in expression controller:\n#{e}\n"
       server_error(e,"Could not build version and features")
     end
-  end
-  
-  # get all taxon versions that might have expression
-  # Collect from accessible experiments to avoid displaying accessible sequence that has rna_seq but none accessible to the current user
-  def get_taxon_version
-    # @taxon_versions = TaxonVersion.includes(:rna_seqs,:taxon => :scientific_name).order('taxon_name.name').accessible_by(current_ability).where{rna_seqs.id != nil}
-    @taxon_versions = RnaSeq.accessible_by(current_ability).includes(:taxon_version => [:species => :scientific_name]).order("taxon_name.name ASC").map(&:taxon_version).uniq || []
-    # set the current taxon version
-    @taxon_version = @taxon_versions.find{|t_version| t_version.try(:id)==params[:taxon_version_id].to_i} || @taxon_versions.first
-    logger.info "\n\ntaxon_version from get_tv#{@taxon_version}\n\n"
-    # set the params TODO: Why do we do this?
-    params[:taxon_version_id] ||= @taxon_version.try(:id)
   end
   
   # options for grouped select
@@ -178,7 +172,7 @@ class ExpressionController < ApplicationController
   # Shared search setup
   def base_search
     # Find minimum set of id ranges accessible by current user
-    authorized_id_set = Seqfeature.accessible_by(current_ability).select_ids.to_ranges
+    authorized_id_set = current_user.authorized_seqfeature_ids
     # Set to -1 if no items are found. This will force empty search results
     authorized_id_set=[-1] if authorized_id_set.empty?
     # start base search block

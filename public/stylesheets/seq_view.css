@@ -488,6 +488,11 @@
 .tmrna 					{ background: url('../images/models/bar.gif') repeat-x; }
 .trna 					{ background: url('../images/models/bar.gif') repeat-x; }
 .feature_parent { background: url('../images/models/parent.gif') repeat-x; }
+/* Read Styles */
+.read_gap {
+  background: url('../images/models/bar-filled.gif')
+}
+
 /* Unused */
 .CDS_changed { background: url('../images/models/green.gif') repeat-x; /*	border: 1px solid #467AA7; Light ExtJs Blue */border: 1px solid yellow;}
 
@@ -528,27 +533,27 @@
 /*Nucleotide letters*/
 .A { 
 	background-color:rgb(140,220,140);
-  background-image:url('../images/bases/A.gif');
+/*  background-image:url('../images/bases/A.gif');*/
 }
 .T { 
 	background-color:rgb(220,140,140);
-  background-image:url('../images/bases/T.gif');
+/*  background-image:url('../images/bases/T.gif');*/
 }
 .C { 
 	background-color:rgb(140,140,220);
-  background-image:url('../images/bases/C.gif');
+/*  background-image:url('../images/bases/C.gif');*/
 }
 .G { 
 /*  background-color:rgb(140,140,140);*/
   background-color:rgb(240,190,50);
-  background-image:url('../images/bases/G.gif');
+/*  background-image:url('../images/bases/G.gif');*/
 }
 .N { 
   background-color:rgb(255,140,0);
-  background-image:url('../images/bases/spacer.gif');
+/*  background-image:url('../images/bases/spacer.gif');*/
 }
 .base_spacer { 
-	background-color:rgb(255,255,255);	
+	background-color:rgb(248,248,255);	
   background-image:url('../images/bases/spacer.gif');
 }
 
@@ -560,40 +565,40 @@
 /*Transparent Nucleotide letters*/
 .A_trans { 
 /*  background-color:rgb(255,255,255);*/
-  background-image:url('../images/bases/A.gif');
+/*  background-image:url('../images/bases/A.gif');*/
 }
 .T_trans { 
 /*  background-color:rgb(255,255,255);*/
-  background-image:url('../images/bases/T.gif');
+/*  background-image:url('../images/bases/T.gif');*/
 }
 .C_trans { 
 /*  background-color:rgb(255,255,255);*/
-  background-image:url('../images/bases/C.gif');
+/*  background-image:url('../images/bases/C.gif');*/
 }
 .G_trans { 
 /*  background-color:rgb(255,255,255);*/
-  background-image:url('../images/bases/G.gif');
+/*  background-image:url('../images/bases/G.gif');*/
 }
 .N_trans { 
 /*  background-color:rgb(255,255,255);*/
-  background-image:url('../images/bases/N.gif');
+/*  background-image:url('../images/bases/N.gif');*/
 }
 /*Mismatch Nucleotide letters*/
 .A_mis {
 	background-color:rgb(150,150,150);
-  background-image:url('../images/bases/A.gif');
+/*  background-image:url('../images/bases/A.gif');*/
 }
 .T_mis { 
 	background-color:rgb(150,150,150);
-  background-image:url('../images/bases/T.gif');
+/*  background-image:url('../images/bases/T.gif');*/
 }
 .C_mis { 
 	background-color:rgb(150,150,150);
-  background-image:url('../images/bases/C.gif');
+/*  background-image:url('../images/bases/C.gif');*/
 }
 .G_mis { 
 	background-color:rgb(150,150,150);
-  background-image:url('../images/bases/G.gif');
+/*  background-image:url('../images/bases/G.gif');*/
 }
 
 /*

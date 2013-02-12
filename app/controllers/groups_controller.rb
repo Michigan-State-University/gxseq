@@ -48,6 +48,7 @@ class GroupsController < ApplicationController
   end
 
   # custom route to remove a user
+  # clears out the User cache as well
   def remove_user
     to_be_removed = @group.users.where(:id => params[:user_id])
     if(to_be_removed.size > 0)
@@ -56,6 +57,7 @@ class GroupsController < ApplicationController
       flash[:error] = "Error: Could not find user with id '#{params[:user_id]}'"
     end
     @group.users.delete(to_be_removed)
+    User.reset_cache
     redirect_to(edit_group_path(@group)) 
   end
 end

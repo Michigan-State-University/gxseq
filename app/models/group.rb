@@ -19,10 +19,11 @@ class Group < ActiveRecord::Base
   def user_login
     new_user
   end
-  # save valid users along with the model
+  # save valid users and reset user cache
   def add_new_user
     if(u = get_user_from_string(new_user))
       self.users << u
+      User.reset_cache
     end
   end
   

@@ -26,6 +26,7 @@ class Experiment < ActiveRecord::Base
   before_validation :initialize_assets, :on => :create
   before_create 'self.state = "pending"'
   after_save :create_tracks
+  before_save :update_cache
   after_create :initialize_experiment
   has_paper_trail :ignore => [:state]
   has_console_log
@@ -132,6 +133,11 @@ class Experiment < ActiveRecord::Base
     end
     
     super(tv_id)
+  end
+  
+  # check if our group has changed and clear user cache if it has
+  def update_cache
+    User.reset_cache if self.group_id_changed?
   end
   
   ## Convienence Methods

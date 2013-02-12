@@ -12,7 +12,8 @@ Ext.define('Sv.painters.ReadsCanvas',{
 	ratio : 1,
 	frameBreaks : [],
 	viewport : {},
-	readColor : '#44D',
+	forwardColor:'#44D',
+	reverseColor : '44D',
 	colorBases : true,
   initComponent: function(){
     var self = this;
@@ -139,8 +140,27 @@ Ext.define('Sv.painters.ReadsCanvas',{
         // else
         // {
         //brush.strokeStyle = "rgba(75,75,85,0.8)";
-        brush.fillStyle = self.readColor;
-  			brush.fillRect(x, y, w, h);
+        
+
+  			//TODO allow user control
+  			if(read.strand =='+')
+  			{
+  			  brush.fillStyle = self.forwardColor;
+    			brush.fillRect(x, y, w, h);
+			  }
+			  else{
+			    brush.fillStyle = self.reverseColor;
+    			brush.fillRect(x, y, w, h);
+			  }
+  			// Loop over each child provided by data source
+        Ext.each(read.children, function(child)
+        {
+          if(child.length>2)
+          //TODO: in some places we have coupled the canvas to the viewport. This needs to be addressed
+          var child_x = Math.ceil((child[1]) * self.viewport.pixels/self.viewport.bases)+x
+          var child_w = Math.ceil((child[2]) * self.viewport.pixels/self.viewport.bases)
+          self.paintBox(child[0],child_x,y,child_w,h)
+        });
   			//brush.strokeRect(x,y,w,h);
         // }
 
@@ -216,42 +236,38 @@ Ext.define('Sv.painters.ReadsCanvas',{
   		{
   			var letter = sequence.charAt(i);
   			
-			  if(! self.colorBases){  			    
-			    switch (letter)
-    			{
-  				  case 'A': letter = 'A_trans'; break;
-  				  case 'T': letter = 'T_trans'; break;
-  				  case 'C': letter = 'C_trans'; break;
-  				  case 'G': letter = 'G_trans'; break;
-  				  case 'N': letter = 'N_trans'; break;
-			    }
-			  }
-			  
-				switch (letter){
-  				case '-': letter = 'base_spacer';break;
-  				case 'n': letter = 'base_spacer'; break;
-  				case 'D': letter = 'base_deletion';break;
-  				case 'a': letter = 'A_mis'; break;
-  				case 't': letter = 'T_mis'; break;
-  				case 'c': letter = 'C_mis'; break;
-  				case 'g': letter = 'G_mis'; break;
-  			}
+        // if(! self.colorBases){           
+        //   switch (letter)
+        //          {
+
+        //   }
+        // }
+			  var cls = 'base'
+			  if(self.colorBases){ 
+  				switch (letter){
+            case '-': cls = '';continue;
+            case 'n': cls = 'base_spacer';break;
+            case 'D': cls = 'base_deletion';break;
+            case 'a': cls = 'A_mis'; break;
+            case 't': cls = 'T_mis'; break;
+            case 'c': cls = 'C_mis'; break;
+            case 'g': cls = 'G_mis'; break;
+            case 'A': cls = 'A'; break;
+            case 'T': cls = 'T'; break;
+            case 'C': cls = 'C'; break;
+            case 'G': cls = 'G'; break;
+            case 'N': cls = 'N'; break;
+    			}
+    		}
   			//clean += letter;
 
   			var letterX = x + (i * letterW) //+ (i >= half ? w-2*readLength : 0);
-  			if ((letterW < 5 || h < self.boxBlingLimit))
+  			if ((letterW >= 5 && h >= self.boxBlingLimit && letter != '-'))
   			{
-  				if(fs = self.styles.get(letter).fill){
-  				  //brush.fillStyle = fs;
-  				}else{
-  				  //brush.fillStyle = self.readColor;
-  				};
-  				
-  				//brush.fillRect(letterX, y, letterW, h);
-  			}
-  			else
-  			{
-  				self.paintBox(letter, letterX, y, letterW, h);
+  			  self.paintBox(cls, letterX, y, letterW, h);
+  			  brush.fillStyle = '#fff'
+      		brush.font = 'bold '+(letterW+1)+'px'+' courier new, monospace'
+  				brush.fillText(letter,letterX,y+h-1)
   			}
   		};
   	};

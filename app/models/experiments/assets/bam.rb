@@ -191,7 +191,7 @@ class Bam < Asset
         seq = set_item[0][9].upcase
         # interpolate cigar data
         # Matches are upper case, mismatches lower
-
+        gaps = []
         scanner = StringScanner.new(set_item[0][5])
         while( cnt = scanner.scan(cnt_reg))
           cnt = cnt.to_i
@@ -205,6 +205,8 @@ class Bam < Asset
             seq.insert(idx,"D"*cnt)
           when "N"
             seq.insert(idx,"-"*cnt)
+            # track the gaps for later
+            gaps << "[\"read_gap\",#{idx},#{cnt}]"
             idx+=cnt
           when "X"
             seq.insert(idx,seq.slice!(idx,cnt).downcase)
@@ -245,7 +247,7 @@ class Bam < Asset
       width = (set_item[2]-start)+1                             # inclusive width (calend - pos) + 1
       strand = (set_item[0][1].to_i & 0x0010 > 0) ? '+' : '-'   # sam_data bit flag for strand -- 0x10 SEQ being reverse complemented
       
-      reads << "[\"#{seq_name}\",#{set_item[0][3]},#{width},\"#{strand}\",\"#{seq}\"],"
+      reads << "[\"#{seq_name}\",#{set_item[0][3]},#{width},\"#{strand}\",\"#{seq}\",[#{gaps.join(',')}]],"
     end
 
     bam.close

@@ -31,6 +31,7 @@
     link_to "Expression",
       expression_results_path(
         :taxon_version_id => experiment.taxon_version_id,
+        :type_term_id => experiment.feature_counts.first.try(:seqfeature).try(:type_term_id),
         :experiments => [experiment.id],
         :c => "exp_#{experiment.id}",
         :d => "desc"

@@ -11,40 +11,31 @@ var ReadsList = function()
 	  try{
 	  
   		if (!data) return;
-
-  		//var reads = [];
   		var msg = null;
   		for (var name in data)
   		{
   		  if(name=='notice'){
   		    msg = data[name];
   		  }
-  		  else{
-    			//if (!data[name]['watson'] || !data[name]['crick']) continue;
-			
+  		  else{			
     			Ext.each(data[name], function(datum)
     			{ 
-    				if (datum.length != 5) return msg;
+    				if (datum.length < 5) return msg;
 				
     				var read = {
     					cls      : name,
     					id       : datum[0] || '',
     					x        : parseInt(datum[1]) || 0,
     					w        : parseInt(datum[2]) || 0,
-    					//places   : parseInt(datum[3]) || 0,
-    					//copies   : parseInt(datum[4]) || 0,
-    					//readLen  : peLength,
     					strand   : datum[3],
-    					sequence : datum[4] || ''
+    					sequence : datum[4] || '',
+    					children : datum[5]
     				};
-    				if (read.id && read.x && read.w )//&& read.places && read.copies)
+    				if (read.id && read.x && read.w )
     				{
-    					//if (read.places > 1) read.cls += ' multi_mapper';
-    					//if (read.copies > 1) read.cls += ' multi_copies';
 					
     					var node = self.createNode(read.id, read.x, read.x + read.w - 1, read);
     					self.insert(node);
-    					//reads.push(node);
     				}
     			});
     		}
@@ -80,7 +71,8 @@ var ReadsList = function()
 				sequence : node.value.sequence,
 				level : node.level,
 				strand : node.value.strand,
-				id : node.id
+				id : node.id,
+				children : node.value.children
 			});
 			return true;
 		});

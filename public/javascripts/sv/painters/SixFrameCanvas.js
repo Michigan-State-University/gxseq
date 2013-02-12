@@ -91,7 +91,8 @@ Ext.define('Sv.painters.SixFrameCanvas',{
 			if(baseW < 1) baseW = 1;
 			var half = Math.ceil(length/2)/baseW;
 			var readLength = half * letterW;
-
+			
+      //TODO refactor this method
 			if(!upper)
 			{
 				left = Math.floor( (((x/letterW)-(width/letterW))/3)*baseW );
@@ -101,13 +102,15 @@ Ext.define('Sv.painters.SixFrameCanvas',{
 				for (var i=left;i<right;i++)
 	    		{
 					var letter = sequence.charAt(i);
-					if(letter == "*") letter = "star";
 					var shift = Math.ceil(((i)*letterW * 3)/baseW);
 					var letterX = (x-shift) - pixel_offset
 					if (self.showProteins)
 					{ 
-						self.paintBox("p_"+letter, letterX, y, letterW, h);
 						self.paintWedgeLower(letterX, 0, 1, height, 'line');
+						self.paint_codon_colors(brush,letter,letterX,y,letterW,h)
+						brush.fillStyle = '#000'
+      			brush.font = 'italic '+(letterW+1)+'px'+' courier new, monospace'
+					  brush.fillText(letter,letterX,y+h-1)
 					}
 					if (self.showCodons)
 					{
@@ -115,9 +118,7 @@ Ext.define('Sv.painters.SixFrameCanvas',{
 							self.paintBox('line',0,y,width,1) ; 
 							self.paintBox('line',0,y+h,width,1) ;
 						}
-						if(letter == "star" || letter =="M"){
-							self.paintBox("p_"+letter, letterX, y, letterW, h);
-						}
+            self.paint_codon_colors(brush,letter,letterX,y,letterW,h)
 					}	
 	    		}
 			}
@@ -130,28 +131,37 @@ Ext.define('Sv.painters.SixFrameCanvas',{
 				for (var i=left; i<right; i++)
 				{
 					var letter = sequence.charAt(i);
-					if(letter == "*") letter = "star";
 					var shift = Math.ceil(((i)*letterW * 3)/baseW);
 					var letterX = x + shift + pixel_offset
 					if (self.showProteins)
 					{ 
-
-						self.paintBox("p_"+letter, letterX, y, letterW, h);
-						self.paintWedge(letterX, 0, 1, height, 'line');
+            self.paintWedge(letterX, 0, 1, height, 'line');
+            self.paint_codon_colors(brush,letter,letterX,y,letterW,h)
+						brush.fillStyle = '#000'
+      			brush.font = 'italic '+(letterW+1)+'px'+' courier new, monospace'
+					  brush.fillText(letter,letterX,y+h-1)
 					}
-					if(self.showCodons)
+					else if(self.showCodons)
 					{
 						if(i==left){
 							self.paintBox('line',0,y+h-1,width,1) ; 
 							self.paintBox('line',0,y-1,width,1) ;
 						}
-						if(letter == "star" || letter =="M"){
-							self.paintBox("p_"+letter, letterX, y, letterW, h);
-						}
+            self.paint_codon_colors(brush,letter,letterX,y,letterW,h)
 					}
 				}
 			}
 		};
+		
 	},
-	
+	paint_codon_colors: function(canvas,letter,x,y,w,h){
+	  if(letter == "*"){
+      canvas.fillStyle = "rgb(250,150,150)";
+			canvas.fillRect(x, y, w, h);
+		}
+		else if(letter== "M"){
+		  canvas.fillStyle = "rgb(100,250,100)";
+			canvas.fillRect(x, y, w, h);
+		}
+	}
 });

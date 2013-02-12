@@ -24,6 +24,25 @@ class User < ActiveRecord::Base
   preference :track_path, :string
   preference :track_layout, :string
   
+  # hash used for auth cache. keys are user_id, values are id ranges
+  @@seqfeature_auth_ids = {}
+  @@gene_model_auth_ids = {}
+  # clear out the auth cache
+  # The cache must be reset when a sample or group is updated
+  def self.reset_cache
+    @@seqfeature_auth_ids = {}
+    @@gene_model_auth_ids = {}
+  end
+  # returns an array of seqfeature id ranges accessible by this user
+  # used to send authorized ids in index queries
+  def authorized_seqfeature_ids
+    @@seqfeature_auth_ids[self.id]||=Seqfeature.accessible_by(Ability.new(self)).select_ids.to_ranges
+  end
+  # returns an array of gene model id ranges accessible by this user
+  def authorized_gene_model_ids
+    @@gene_model_auth_ids[self.id]||=GeneModel.accessible_by(Ability.new(self)).select_ids.to_ranges
+  end
+  
   # name used for public display
   def display_name
     login
