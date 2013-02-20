@@ -457,6 +457,9 @@
 /* arrow shaped mask */
 .forward_arrow { background: url('../images/models/forward.png') }
 .reverse_arrow { background: url('../images/models/reverse.png') }
+.forward_read { background: url('../images/models/forward_read.gif') }
+.reverse_read { background: url('../images/models/reverse_read.gif') }
+
 /*Gene Model styles*/
 .mRNA            { background: url('../images/models/red.gif') repeat-x; }
 .five_prime_UTR  { background: url('../images/models/red.gif') repeat-x; }

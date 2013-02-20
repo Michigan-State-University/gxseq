@@ -26,7 +26,8 @@ Ext.define("Sv.tracks.BaseTrack",{
              'resize'        : true,
              'selectStart'   : true,
              'selectEnd'     : true,
-             'cancelDrag'    : true
+             'cancelDrag'    : true,
+             'frameLoaded'   : true
          });
              
          // cancel the select event; remove with this.removeListener
@@ -167,7 +168,7 @@ Ext.define("Sv.tracks.BaseTrack",{
         // }
                     
                     //Shows the title of the track
-         var title = new Ext.Toolbar.TextItem(self.config.name);
+         var title = new Ext.Toolbar.TextItem(self.name);
          title.permanent = true;
          //Ext.get(title.getEl()).addCls('AJ_track_title');
          title.addCls('AJ_track_title')
@@ -196,7 +197,7 @@ Ext.define("Sv.tracks.BaseTrack",{
          {
              //Ext.get(title.getEl()).update(text);
              title.setText(text);
-             toolbar.doLayout();
+             //toolbar.doLayout();
          };
          function getTitle()
          {
@@ -219,7 +220,7 @@ Ext.define("Sv.tracks.BaseTrack",{
                  
              Ext.each(items, function(item)
              {
-                 if (item.show) item.show();
+                 if (item.show && !item.keep_hidden) item.show();
              });
          };
          function hide()

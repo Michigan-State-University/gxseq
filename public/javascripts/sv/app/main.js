@@ -28,11 +28,15 @@ var AnnoJ = (function()
 	var GUI = {};
 	var height = 700;
 	var self = this;
+	self.localHistMax = 1;
+	self.globalHistMax = 1;
+	self.localMaxes = [1];
+	self.globalMaxes = [1];
 	
 	function init()
 	{	
 		//Clear any localStorage
-		//localStorage.clear();
+		localStorage.clear();
     
     //Check that the browser is compatible
 		if (!WebApp.checkBrowser())
@@ -109,7 +113,8 @@ var AnnoJ = (function()
   		}
   	},this);
   	
-	 };
+	};
+	
 	//Build all the tracks
 	function buildTracks()
 	{
@@ -138,6 +143,10 @@ var AnnoJ = (function()
 			//Add the track to the track selector tree and the track main window
 			GUI.Tracks.tracks.manage(track);
 			GUI.TrackSelector.manage(track);
+			//Bind app wide events
+			track.on('open',setupTrack);
+			track.on('close',closeTrack);
+			track.on('frameLoaded',handleFrame)
 		});
 		//Hook the info buttons of all of the tracks
 		// Ext.each(GUI.Tracks.tracks.tracks, function(track)
@@ -184,7 +193,6 @@ var AnnoJ = (function()
     var TrackSelector = new Sv.gui.TrackSelector({
      activeTracks : config.active
     });
-
 
 		// var Bookmarker = new AnnoJ.Bookmarker({
 		// 	datasource : config.bookmarks || config.genome
@@ -273,20 +281,32 @@ var AnnoJ = (function()
 			//InfoBox.echo(BaseJS.toHTML(syndication));
 			//InfoBox.expand();
 		});
-		NavBar.on('browse', Tracks.tracks.setLocation);
+		NavBar.on('browse', setLocation);
+		
 		NavBar.on('dragModeSet', Tracks.setDragMode);
 		Tracks.on('dragModeSet', NavBar.setDragMode);
-    Tracks.on('refresh',function(){
-      resetHeight();
-      updateState();
-    });
+    // Tracks.on('refresh',function(){
+    //   //setLocation();
+    //   //resetHeight();
+    //   //updateState();
+    // });
+    Tracks.on('browse',setLocation);
     TrackSelector.on('openTrack', Tracks.tracks.open);
     TrackSelector.on('moveTrack', Tracks.tracks.reorder);
     TrackSelector.on('closeTrack', Tracks.tracks.close);
     
 		InfoBox.hide();
 		Viewport.doLayout();
-		//Viewport.doComponentLayout();
+		
+		// Setup touch events for track selector
+		// This emulates right click
+		selectorDom = TrackSelector.getEl().dom
+		selectorDom.setAttribute("ontouchstart", "this.handleTouchStart(event);")
+		selectorDom.handleTouchStart=function(event){
+		  var ev = document.createEvent('HTMLEvents')
+		  ev.initEvent('contextmenu', true, false);
+      event.toElement.dispatchEvent(ev);
+		}
 		return {
 			//Messenger : Messenger,
 			TrackSelector : TrackSelector,
@@ -343,8 +363,28 @@ var AnnoJ = (function()
 	};
 	function setLocation(location) {
 		result = GUI.NavBar.setLocation(location);
-		updateState();
-		return result;
+		// Before Rendering make track specific requests
+		//Lookup all local maximums
+		self.localMaxes=[];
+	  Ext.each(GUI.Tracks.tracks.active,function(track){
+	    if(track.getViewMax){
+	      self.localMaxes.push(track.getViewMax(location));
+	    }
+	  });
+	  //console.log(localMaxes);
+	  //Compute and set local Histogram Maximum
+	  self.localHistMax = Math.max.apply(null,localMaxes);
+    Ext.each(GUI.Tracks.tracks.active,function(track){
+	    if(track.setAllViewMax){
+	      //console.log("Track:"+track.name+" Setting allview max to: "+self.localHistMax);
+        track.setAllViewMax(self.localHistMax);
+      }
+    });
+	  // Update the track manager location
+	  // This updates all tracks and re-renders the view
+	  GUI.Tracks.tracks.setLocation(result);
+	  // update our state (history)
+	  updateState();
 	};
 	function pixels2bases(pixels) {
 		return GUI.NavBar.pixels2bases(pixels);
@@ -400,6 +440,23 @@ var AnnoJ = (function()
       newSearch += "&tracks[]="+active_id
     });
     window.history.replaceState("Data","Sequence Viewer",newSearch)
+  };
+  //Load Track with data. Replacing internal setLocation with managed event.
+  function handleFrame(track){
+    //for now, we re-render every frame load
+    setupTrack(track);
+  }
+  //initialize the track and set its location - changes any correlated data
+  //NOTE: this causes re-rendering during loads but avoids any concurrency/race conditions
+  // It would be better to look through correlated tracks and find out IF we need to update first
+  function setupTrack(track){
+    //track.setLocation(getLocation());
+    setLocation(getLocation);
+  };
+  //close the track and remove its data
+  //re-render all tracks after a close to change any correlated data
+  function closeTrack(track){
+    setLocation(getLocation);
   };
   return {
     ready           : true,

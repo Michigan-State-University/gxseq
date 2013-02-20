@@ -17,6 +17,7 @@ Ext.define('Sv.painters.ReadsCanvas',{
 	colorBases : true,
   initComponent: function(){
     var self = this;
+    var data;
     self.callParent(arguments);
     
     self.addEvents({
@@ -33,6 +34,7 @@ Ext.define('Sv.painters.ReadsCanvas',{
   			self.groups.add(read.cls);
   		});
   		data = reads;
+  		//console.log("Canvas data set:"+self.id)
   	};
 
   	//Toggle the state of elements containing the specified class name
@@ -74,6 +76,7 @@ Ext.define('Sv.painters.ReadsCanvas',{
   	//Draw points using a specified rendering class
   	this.paint = function()
   	{
+  	  //console.log("painting from canvas:"+self.id)
   		this.clear();
   		var container = this.getContainer();
   		var canvas = this.getCanvas();
@@ -143,14 +146,18 @@ Ext.define('Sv.painters.ReadsCanvas',{
         
 
   			//TODO allow user control
+  			aw = 5
+  			aw_offset = (read.level==0) ? 1 : 2
   			if(read.strand =='+')
   			{
   			  brush.fillStyle = self.forwardColor;
     			brush.fillRect(x, y, w, h);
+    			self.paintBox('forward_read',x+w-aw,y-1,aw,h+aw_offset);
 			  }
 			  else{
 			    brush.fillStyle = self.reverseColor;
     			brush.fillRect(x, y, w, h);
+    			self.paintBox('reverse_read',x,y-1,aw,h+aw_offset);
 			  }
   			// Loop over each child provided by data source
         Ext.each(read.children, function(child)

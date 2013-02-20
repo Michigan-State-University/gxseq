@@ -122,7 +122,7 @@ Ext.define('Sv.tracks.DataTrack', {
                     {
                         self.name = syndication.service.title;
                     }
-                    self.setTitle(self.config.name);
+                    self.setTitle(self.name);
                     //self.unmask();
                     tempS(response);
                 };

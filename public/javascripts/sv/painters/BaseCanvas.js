@@ -10,13 +10,13 @@ Ext.define('Sv.painters.BaseCanvas',{
   },
   initComponent : function(){
 		var self = this;
-  	    var container = document.createElement('DIV');
-  	    var canvas    = document.createElement('CANVAS');
-  	    var brush     = canvas.getContext('2d');
-  	    var width     = 0;
-  	    var height    = 0;
+    var container = document.createElement('DIV');
+    var canvas    = document.createElement('CANVAS');
+    var brush     = canvas.getContext('2d');
+    var width     = 0;
+    var height    = 0;
   	    
-  	    //Initialization
+  	//Initialization
   	container.style.position = 'relative';
   	canvas.style.position = 'relative';
   	
@@ -84,12 +84,7 @@ Ext.define('Sv.painters.BaseCanvas',{
     //       container.style.height = parseInt(height) || container.offsetHeight;
     //  self.refresh();
     // };
-  	
-  	//Rendering functions
-  	// this.paint = function()
-  	// {
-  	// 	//Provide implementation in subclasses
-  	// };
+    
   	this.refresh = function()
   	{
   		self.clear();
@@ -416,4 +411,9 @@ Ext.define('Sv.painters.BaseCanvas',{
   	})();
   	
   },
+  //Rendering functions
+  paint : function()
+  {
+    //Provide implementation in subclasses
+  }
 })

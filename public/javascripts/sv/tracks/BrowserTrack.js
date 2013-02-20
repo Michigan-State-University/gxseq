@@ -13,7 +13,10 @@ Ext.define('Sv.tracks.BrowserTrack', {
         self.cache = 3 * screen.width;
         self.maxCache = 20 * screen.width;
         self.originalHeight = self.height;
-        
+        self.addEvents({
+          'open' : true,
+          'close': true
+        });
         self.contextMenu.addItems(
         [
         self.name,
@@ -255,8 +258,7 @@ Ext.define('Sv.tracks.BrowserTrack', {
                 }
                 self.unmaskFrame();
 
-                //Clear if the policy or assembly have changed
-                //if (views.requested.assembly != state.assembly || policy.index != newPolicy.index)
+                //Clear if the policy has changed
                 if (policy != newPolicy)
                 {
                     clear();
@@ -274,6 +276,7 @@ Ext.define('Sv.tracks.BrowserTrack', {
                 prune(frameL, frameR);
                 
 								//Load data as required
+								// TODO: rework the loading queue.. it is hard to manage
                 if (state.empty)
                 {
                     loadFrame(frameL);
@@ -286,12 +289,12 @@ Ext.define('Sv.tracks.BrowserTrack', {
                 {
                     loadFrame(state.right + 1);
                 }
-
                 //Paint the desired location
                 var edges = getEdges();
                 //self.paintCanvas(edges.g1, edges.g2, views.requested.bases, views.requested.pixels);
                 //try painting a wider region
                 var w = edges.g2 - edges.g1
+                //TODO: Avoid painting 3 times per load
                 self.paintCanvas(edges.g1, edges.g2, views.requested.bases, views.requested.pixels);
             };
 
@@ -316,7 +319,7 @@ Ext.define('Sv.tracks.BrowserTrack', {
                 // Check localStorage
                 if(self.storeLocal){
                   try {
-                    var ls = localStorage.getItem("request_"+self.id+"_"+pos.left+"_"+pos.right+"_"+policy.bases+"_"+policy.pixels+"_"+self.requestFormat())
+                    var ls = localStorage.getItem("request_"+self.id+"_"+pos.left+"_"+pos.right+"_"+policy.bases+"_"+policy.pixels+"_"+self.requestFormat()+self.localStoreId())
                   } catch(e){}
                 }
                 if(ls)
@@ -337,7 +340,10 @@ Ext.define('Sv.tracks.BrowserTrack', {
               views.loading = null;
               state.busy = false;
               self.setTitle(self.name);
-              if(data) setLocation(views.requested);
+              if(data){
+                //setLocation(views.requested);
+                self.fireEvent('frameLoaded',self,getEdges(),views.requested);
+              }
             }
             return {
                 getLocation: getLocation,
@@ -376,12 +382,14 @@ Ext.define('Sv.tracks.BrowserTrack', {
          {
            localStorage.removeItem(keysArray.shift());
          }
-         var idString = "request_"+me.id+"_"+pos.left+"_"+pos.right+"_"+policy.bases+"_"+policy.pixels+"_"+me.requestFormat();
+         var idString = "request_"+me.id+"_"+pos.left+"_"+pos.right+"_"+policy.bases+"_"+policy.pixels+"_"+me.requestFormat()+me.localStoreId();
          keysArray.push(idString);
          localStorage.setItem('orderedKeys',JSON.stringify(keysArray));
          localStorage.setItem(idString, JSON.stringify(response) );
        }
        catch(e){
+         console.error(e)
+         console.log("Possible Quota limit. Removing last item to try making room")
          //Probably a quota limit error. Remove the last item to make some room
          localStorage.removeItem(keysArray.shift());
        }
@@ -390,8 +398,9 @@ Ext.define('Sv.tracks.BrowserTrack', {
     },
     loadFailure : function(message){
       var me = this;
-      console.error('Failed to load data for track ' + me.name + ' (' + message + ')');
-      me.DataManager.setDataFrame(null,frame)
+      console.error('Failed to load data for track ' + me.name);
+      console.error(message)
+      me.DataManager.setDataFrame(null)
     },
     // requestFrame runs the ajax request for all data loads in the track
     // Children may override requestFrame to customize behavior
@@ -428,6 +437,10 @@ Ext.define('Sv.tracks.BrowserTrack', {
     requestFormat : function(){
       return 'range';
     },
+    //Override to provide custom store ids
+    localStoreId : function(){
+      return '';
+    },
     open : function(){
       var me = this;
       //Syndicate the track if necessary
@@ -436,7 +449,7 @@ Ext.define('Sv.tracks.BrowserTrack', {
 			  me.Syndicator.syndicate({
 					success : function()
 					{
-						me.setLocation(AnnoJ.getLocation());
+					  me.fireEvent('open',me)
 					},
 					failure : function()
 					{
@@ -448,13 +461,14 @@ Ext.define('Sv.tracks.BrowserTrack', {
 			else
 			{
 				me.unmaskFrame();
-				me.setLocation(AnnoJ.getLocation());
+				me.fireEvent('open',me)
 			}
     },
     close: function() {
         this.maskFrame('Track Closed');
         this.DataManager.clear();
         this.removeFrame();
+        this.fireEvent('close',this);
     },
     moveCanvas: function(x) {
         this.Canvas.ext.setLeft(x);

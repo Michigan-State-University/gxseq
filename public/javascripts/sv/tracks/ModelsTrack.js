@@ -166,7 +166,7 @@ Ext.define('Sv.tracks.ModelsTrack',{
           function parse(data)
           {
               dataA.parse(data,true);
-              dataB.parse(data,false);            
+              dataB.parse(data,false);
           };
 
           var canvasA = new Sv.painters.ModelsCanvas({
@@ -205,7 +205,6 @@ Ext.define('Sv.tracks.ModelsTrack',{
               canvasB.setPixelBaseRatio(bases/pixels);
               canvasA.paint();
               canvasB.paint();
-
               var list = canvasA.groups.getList();
 
               for (var series in list)

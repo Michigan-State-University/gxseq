@@ -2,50 +2,32 @@ var HistogramData = function()
 {
 	var series = new HistogramList();
 	var max;
-	var min;
+	var min;// TODO: where are these used
 	
 	this.clear = function()
 	{
-		// for (var s in series)
-		// {
-		// 	series[s].clear();
-		// }
 		series.clear()
 	};
 	
 	this.prune = function(x1,x2)
 	{
-		// for (var s in series)
-		// {
-		// 	series[s].prune(x1,x2);
-		// }
 		series.prune(x1,x2)
 	};
 
 	this.parse = function(data, above)
 	{
 		if (!data) return;
-		// for (var name in data[2])
-		// {
-			// if (series[] == undefined)
-			// {
-				//series[above ? "above"] = new HistogramList();
-			// }
-			//series[above ? "below"].parse(data[2], above);
-			series.parse(data);
-		// }
+		series.parse(data);
 	};
 		
 	this.subset2canvas = function(left, right, bases, pixels)
 	{
-		// var result = {};
-		// 
-		// for (var s in series)
-		// {
-		// 	result[s] = series[s].subset2canvas(left, right, bases, pixels);
-		// }		
-		// return result;
 		return series.subset2canvas(left,right,bases,pixels);
+	};
+	
+	this.getMaxY = function(x1, x2)
+	{
+    return series.getMax(x1,x2);
 	};
 };	
 
@@ -62,22 +44,6 @@ var HistogramList = function()
 		Ext.each(data, function(datum)
 		{
 			if (!datum) return;
-			// if (datum.length == 3)
-			// {
-			// 	var item = {
-			// 		x : parseInt(datum[0]),
-			// 		w : 1,
-			// 		y : parseFloat(datum[1] ) || 0
-			// 	};
-			// }
-			// else
-			// {
-			// 	var item = {
-			// 		x : parseInt(datum[0]),
-			// 		w : parseInt(datum[1]) || 0,
-			// 		y : parseFloat(datum[2]) || 0
-			// 	};
-			// }
 			var item ={
 				x : parseInt(datum[0]),
 				y : parseFloat(datum[1]),
@@ -114,31 +80,20 @@ var HistogramList = function()
 					y : y,
 					w : w
 				})
-			// if (active == null)
-			// {
-			// 	active = {
-			// 		x : x,
-			// 		y : y,
-			// 		w : w
-			// 	};
-			// }
-			// else if (x == active.x)
-			// {
-			// 	active.y = Math.max(active.y, y);
-			// 	active.w = Math.max(active.w, w);
-			// }
-			// else
-			// {
-			// 	subset.push(active);
-			// 	active = {
-			// 		x : x,
-			// 		y : y,
-			// 		w : w
-			// 	};
-			// }
 		});
-		//if (active) subset.push(active);
 		return subset;
+	};
+	
+	//Return the maximum y-value from the list
+	this.getMax =function(x1,x2){
+	  var max = 0;
+	  //prune the viewport to left and right
+	  self.viewport.update(x1,x2);
+		self.viewport.apply(function(item)
+		{
+		  if(item.y>max){max=item.y;}
+	  });
+	  return max;
 	};
 };
 Ext.extend(HistogramList,PointList,{})

@@ -15,7 +15,7 @@ Ext.define('Sv.painters.HistogramCanvas',{
     	this.setData = function(series){data = series;};
 
     	this.setAbsMax = function(m){absMax = m;};
-
+      this.getAbsMax = function(){return absMax;}
     	this.setColor = function(value){
     	  self.color = value
     	};
