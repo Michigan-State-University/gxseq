@@ -3,7 +3,7 @@ class GenesController < ApplicationController
   autocomplete :bioentry, :id, :full => true
   authorize_resource :class => "GeneModel"
   skip_authorize_resource :only => [:autocomplete_bioentry_id]
-  
+  before_filter :lookup_gene, :only => [:show]
   before_filter :get_gene_data, :only => [:edit, :update]
   before_filter :new_gene_data, :only => [:new]
   #TODO: Refactor controller. Split into genes_controller gene_models_controller. They are mixed right now...
@@ -106,31 +106,18 @@ class GenesController < ApplicationController
     # TODO: Dry up the seqfeature/gene show methods. Duplicate code
     @format = params[:fmt] || 'standard'
     begin
-      @gene = Gene.find_by_seqfeature_id(params[:id].to_i) || Gene.with_locus_tag(params[:id]).first
-      @genes = Gene.with_locus_tag( @gene.locus_tag.value)
     case @format
     when 'variants'
-      @gene = Gene.find(params[:id])
       @variant_window = [(params[:v_win].to_i || 0),1000].min
       @variant_format = params[:v_fmt] || 'fasta'
     when 'standard'
-      # test the id parameter for non numeric characters
-      if(params[:id]=~/^\d+$/)
-        @gene = Gene.find(params[:id], :include => [:locations,[:bioentry => [:taxon_version]],[:gene_models => [:cds => [:locations, [:qualifiers => :term]],:mrna => [:locations, [:qualifiers => :term]]]],[:qualifiers => :term]])
-      else
-        @gene = Gene.with_locus_tag(params[:id]).first
-      end
       setup_graphics_data
-      #check for other genes with the same locus_tag
     when 'genbank'
-      @gene = Gene.find(params[:id], :include => [:locations,[:bioentry => [:taxon_version]],[:gene_models => [:cds => [:locations, [:qualifiers => :term]],:mrna => [:locations, [:qualifiers => :term]]]],[:qualifiers => :term]])
       #Note: Find related features (by locus tag until we have a parent<->child relationship)
       @features = @gene.find_related_by_locus_tag
     when 'history'
-      @gene = Gene.find(params[:id])
       @changelogs = Version.order('id desc').where(:parent_id => @gene.id).where(:parent_type => 'Gene')
     when 'expression'
-      @gene = Gene.find(params[:id])
       @feature_counts = @gene.feature_counts.accessible_by(current_ability)
       @graph_data = FeatureCount.create_graph_data(@feature_counts)
     when 'blast'
@@ -205,6 +192,21 @@ class GenesController < ApplicationController
     end
     rescue
     end
+  end
+  
+  def lookup_gene
+    # See if we have a locus or id
+    gene_id = Gene.with_locus_tag(params[:id]).first.try(:id) || params[:id]
+    # Lookup gene by id
+    @gene = Gene.where(:seqfeature_id => gene_id).includes(
+      [ 
+        :locations,
+        [:qualifiers => :term],
+        [:bioentry => [:taxon_version]],
+        [:gene_models => [:cds => [:locations, [:qualifiers => :term]],:mrna => [:locations, [:qualifiers => :term]]]],
+      ]).first
+    # Lookup all genes with the same locus tag for warning display
+    @genes = Gene.with_locus_tag( @gene.locus_tag.value)
   end
   
   def get_gene_data
