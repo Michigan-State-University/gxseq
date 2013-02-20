@@ -106,6 +106,8 @@ class GenesController < ApplicationController
     # TODO: Dry up the seqfeature/gene show methods. Duplicate code
     @format = params[:fmt] || 'standard'
     begin
+      @gene = Gene.find_by_seqfeature_id(params[:id].to_i) || Gene.with_locus_tag(params[:id]).first
+      @genes = Gene.with_locus_tag( @gene.locus_tag.value)
     case @format
     when 'variants'
       @gene = Gene.find(params[:id])
@@ -120,7 +122,6 @@ class GenesController < ApplicationController
       end
       setup_graphics_data
       #check for other genes with the same locus_tag
-      @genes = Gene.with_locus_tag( @gene.locus_tag.value)
     when 'genbank'
       @gene = Gene.find(params[:id], :include => [:locations,[:bioentry => [:taxon_version]],[:gene_models => [:cds => [:locations, [:qualifiers => :term]],:mrna => [:locations, [:qualifiers => :term]]]],[:qualifiers => :term]])
       #Note: Find related features (by locus tag until we have a parent<->child relationship)
