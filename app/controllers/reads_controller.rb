@@ -42,7 +42,7 @@ class ReadsController < ApplicationController
           return
         end
           data = experiment.summary_data(param['left'],param['right'],((param['right']-param['left'])/param['bases']),be.sequence_name)
-          data = data.fill{|i| [param['left']+(i*param['bases']),data[i]]}
+          data = data.fill{|i| [param['left']+(i*param['bases']),data[i].to_i]}
           render :text =>"{\"success\":true,\"data\":#{data.inspect}}"
       when 'reads'
         bioentry = Bioentry.find(param['bioentry'])
