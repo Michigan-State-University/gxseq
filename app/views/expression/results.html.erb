@@ -45,7 +45,9 @@
           <td style="white-space:nowrap">
             <%= link_to 'Details', seqfeature_path(feature) %>
             |
-            <%= link_to 'View', bioentry_path(feature.bioentry_id,{:pos => Array(hit.stored(:start_pos)).first,:tracks => [ :models_track, :generic_feature_track, @experiments.collect{|e| e.tracks.with_bioentry(feature.bioentry_id).first.id} ].flatten,}) %>
+            <%= link_to 'Graph', seqfeature_path(feature,:fmt => 'expression') %>
+            |
+            <%= link_to 'Browser', bioentry_path(feature.bioentry_id,{:pos => Array(hit.stored(:start_pos)).first,:tracks => [ :models_track, :generic_feature_track, @experiments.collect{|e| e.tracks.with_bioentry(feature.bioentry_id).first.id} ].flatten,}) %>
           </td>
         </tr>
       <% end %>

@@ -1,0 +1,23 @@
+<% content_for :head do -%>
+  <%= stylesheet_link_tag 'base_count_chart' %>
+  <%= javascript_include_tag 'd3.v3.min' %>
+  <%= javascript_include_tag 'base_count_chart' %>
+<% end -%>
+<% content_for :footer do -%>
+  <div style="width:100%;text-align:center">Chart Design Courtesy: Jim Vallandingham - <%= link_to 'http://flowingdata.com/' ,'http://flowingdata.com/2013/01/17/how-to-animate-transitions-between-multiple-charts/' %>  </div>
+<% end -%>
+<div style="margin-top:1em">
+  <%= link_to "stream", '#',:id => 'stream', :class => 'switch' %> |
+  <%= link_to "stack", '#',:id => 'stack', :class => 'switch' %> |
+  <%= link_to "area", '#',:id => 'area', :class => 'switch' %>
+</div>
+
+<div id="d3_graph" width="100%" style="height:300px;padding-top:1em"></div>
+
+<div id="legend" width="100%" height="100%" style="background-color:#fff"></div>
+
+
+<script type='text/javascript'>
+  BaseCountChart.init('d3_graph');
+  BaseCountChart.load(<%= "'#{data}'" %>);
+</script>

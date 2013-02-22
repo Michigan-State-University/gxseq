@@ -5,7 +5,7 @@ class ApplicationController < ActionController::Base
   
   rescue_from CanCan::AccessDenied do |exception|
     flash[:error] = "Access Denied"
-    redirect_to current_user || root_url
+    redirect_to current_user || login_path #root_url
   end
   
   # We want to direct logins to the user account page if no other path is already set

@@ -19,36 +19,5 @@
   		<% end %>
   	</tr>
   </table>
-  <div id="coverage_graph" style="width: 100%; height: 300px;">
-  </div>
+  <%= render :partial => "shared/base_count_chart", :locals => {:data => feature_counts_seqfeature_path(@gene,:format => :json)} %>
 </div>
-<br/>
-
-
-<br/>
-
-<script type="text/javascript" src="https://www.google.com/jsapi">
-</script>
-<script type="text/javascript">	
-  google.load('visualization', '1', {packages: ['corechart']});	
-  google.setOnLoadCallback(drawChart);	
-  function drawChart() {	
-    // Create and populate the coverage data table.	
-    var data = new google.visualization.DataTable();	
-    data.addColumn('string', 'Base Position');
-		<% @feature_counts.each do |f| %>
-			data.addColumn('number', '<%= f.experiment.name %>');
-		<% end %>
-    data.addRows(<%= @graph_data %>);	
-    // Create and draw the visualization.	
-    var coverage_chart = new google.visualization.AreaChart(document.getElementById('coverage_graph'));	
-    coverage_chart.draw(data,  
-      {  
-           legend: 'top',
-           gridlineColor: '#DDD',
-           backgroundColor: {fill:'#FFF', stroke: '#333'},
-           hAxis: {title: 'Base Position',textStyle: {color: '#333'},titleTextStyle: {color: '#333'}, maxAlternation: 1},
-      }
-    );
-  }
-</script>

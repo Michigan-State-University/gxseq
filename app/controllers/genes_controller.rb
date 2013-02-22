@@ -119,7 +119,8 @@ class GenesController < ApplicationController
       @changelogs = Version.order('id desc').where(:parent_id => @gene.id).where(:parent_type => 'Gene')
     when 'expression'
       @feature_counts = @gene.feature_counts.accessible_by(current_ability)
-      @graph_data = FeatureCount.create_graph_data(@feature_counts)
+      #@d3_data = FeatureCount.create_graph_data(@feature_counts,{:type => 'json-rpkm'})
+      #@google_data = FeatureCount.create_graph_data(@feature_counts,{:type => 'rpkm'})
     when 'blast'
       @blast_reports = @gene.blast_reports
       params[:blast_report_id]||=@blast_reports.first.id

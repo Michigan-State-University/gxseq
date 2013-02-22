@@ -33,6 +33,7 @@ GenomeSuite::Application.routes.draw do
     get 'details', :on => :collection
     member do
       get 'toggle_favorite'
+      get 'feature_counts'
     end
   end
   

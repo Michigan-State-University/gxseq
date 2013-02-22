@@ -9,6 +9,7 @@ group :production do
   gem 'newrelic_rpm'
 end
 group :development, :test do
+  gem 'ruby-oci8'
   gem 'mysql2', '~> 0.2.0'
   gem 'railroady'
   gem 'ruby-debug19'

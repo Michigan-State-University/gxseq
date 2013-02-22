@@ -69,15 +69,16 @@ class RnaSeq < Experiment
   def summary_data(start,stop,num,chrom)
     (self.big_wig ? big_wig.summary_data(start,stop,num,chrom).map(&:to_f) : [])
   end
-  # returns reads data see bam#get_reads for details
+  # returns reads in chromosome range see bam#get_reads
   def get_reads(start, stop, chrom)
     bam.get_reads(start, stop, chrom)
   end
-  #
+  # returns processed reads as formatted text see bam#get_reads_text
   def get_reads_text(start, stop, chrom,opts)
     bam.get_reads_text(start, stop, chrom,opts)
   end
-  
+  # returns the max value stored in the big_wig
+  # if a sequence_name is supplied it will return max for that sequence only
   def max(chrom='')
     begin
       if big_wig
@@ -89,7 +90,10 @@ class RnaSeq < Experiment
       1
     end
   end
-  
+  # returns the total count of mapped reads from the bam
+  def total_mapped_reads
+    bam.try(:total_mapped_reads) || 0
+  end
   
   ##Track Config
   def iconCls

@@ -1,0 +1,39 @@
+.container {
+  clear:both;
+  margin-top:1em;
+}
+.line {
+  fill: none;
+  stroke: #000;
+  stroke-width: 2px;
+}
+
+.axis {
+  shape-rendering: crispEdges;
+}
+
+.axis text {
+  font: 10px sans-serif;
+}
+
+.x.axis line {
+  stroke: #ddd;
+  stroke-opacity: 0.6;
+}
+
+.y.axis line {
+  stroke: #fbfbfb;
+}
+
+.axis path {
+  fill: none;
+}
+
+#legend {
+  position:relative;
+  top:0px;
+  right:0px;
+  z-index: 100000;
+  overflow: visible;
+  margin-top:2em;
+}

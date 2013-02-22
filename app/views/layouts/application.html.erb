@@ -12,6 +12,7 @@
 
 <% body_onload = (yield :body_onload) %>
 <body onload="<%= body_onload || "" %>">
+  <%= yield :body %>
 	<div id="header-bkg"></div>
 	<div id="main">	
 		<div id="logo" style="font-size:150%">
@@ -69,6 +70,7 @@
 			</div>
 		</div>
 		<div id="footer">
+		  <%= yield :footer %>
 			<div class="footer-links">
 				<%= link_to "Home", root_path %> |
 				<%= link_to "Sequence", bioentries_path %> |

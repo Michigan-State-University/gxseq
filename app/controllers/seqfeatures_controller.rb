@@ -79,7 +79,7 @@ class SeqfeaturesController < ApplicationController
     begin
     # Gene features have special show pages
     if @seqfeature.kind_of?(Gene)
-      redirect_to gene_path(@seqfeature)
+      redirect_to gene_path(@seqfeature,:fmt => @format)
     end
     case @format
     when 'standard'
@@ -93,7 +93,6 @@ class SeqfeaturesController < ApplicationController
       @changelogs = Version.order('id desc').where(:parent_id => @seqfeature.id).where(:parent_type => @seqfeature.class.name)
     when 'expression'
       @feature_counts = @seqfeature.feature_counts.accessible_by(current_ability)
-      @graph_data = FeatureCount.create_graph_data(@feature_counts)
     when 'blast'
       @blast_reports = @seqfeature.blast_reports
       params[:blast_report_id]||=@blast_reports.first.id
@@ -163,7 +162,17 @@ class SeqfeaturesController < ApplicationController
       wants.html { redirect_to(params[:return_to]||seqfeatures_url) }
     end
   end
-
+  
+  # Custom Routes
+  respond_to :json, :only => :feature_counts
+  # returns formatted counts for all feature counts tied to seqfeature
+  # [{:key => sample_name, :values => {:base => int, :count => float }}, ...]
+  def feature_counts
+    @feature_counts = FeatureCount.where(:seqfeature_id => params[:id]).accessible_by(current_ability)
+    data = FeatureCount.create_graph_data(@feature_counts, {:type => (params[:type]||'rpkm')} )
+    respond_with data
+  end
+  
   # Add or Remove this seqfeature as a favorite for the given user, and reindex
   def toggle_favorite
     #Note: is it right to have the image here?
@@ -175,11 +184,6 @@ class SeqfeaturesController < ApplicationController
       @new_favorite_image = 'star.png'
     end
     @seqfeature.index!
-    # if request.xhr?
-    #   render :partial => 'seqfeatures/update_favorite', :locals => {:is_favorite => true, :feature => @seqfeature}
-    # else
-    #   redirect_to seqfeature_path(@seqfeature)
-    # end
   end
 
   private

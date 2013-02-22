@@ -27,6 +27,8 @@ class Bam < Asset
   
   # NOTE does NOT work with delayed_job background tasks
   # TODO: Test this again, document results and reasons
+  # returns hash of index data
+  # { "sequence_1"  => {:length => 1000, :unmapped_reads => 10, :mapped_reads => 1000}, ... }
   def index_stats
     bam = open_bam
     bam.index_stats.tap{
@@ -46,6 +48,14 @@ class Bam < Asset
     bam.target_info.tap{
       bam.close
     }
+  end
+  # counts the total number of mapped reads in the bam
+  def total_mapped_reads
+    @total_mapped_reads||=index_stats.inject(0){|sum,info| sum+=info[1][:mapped_reads]}
+  end
+  # counts the total number of un-mapped reads in the bam
+  def total_unmapped_reads
+    index_stats.inject(0){|sum,info| sum+=info[1][:unmapped_reads]}
   end
   # returns reads overlapping the supplied region
   def get_reads(left,right,seq)
