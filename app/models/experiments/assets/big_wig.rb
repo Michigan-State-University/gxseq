@@ -2,47 +2,47 @@ class BigWig < Asset
   def open_bw
     begin
       @err = nil
-      @bw ||=Bio::Ucsc::BigWig.open(data.path)
+      Bio::Ucsc::BigWig.open(data.path)
     rescue => e
-      @err = e
-      # in case file doesn't exist or is bad format
+      @err
       @bw = nil
+      return false
     end
   end
   
   def info(opts={})
-    return @err.to_s unless open_bw
-    open_bw.info(opts)
+    return @err.to_s unless bw = open_bw
+    bw.info(opts).tap{ bw.close }
   end
 
   def bases_covered
-    return 0 unless open_bw
-    open_bw.bases_covered
+    return 0 unless bw = open_bw
+    bw.bases_covered.tap{ bw.close }
   end
 
   def min(chrom=nil)
-    return 0 unless open_bw
-    open_bw.min(chrom)
+    return 0 unless bw = open_bw
+    bw.min(chrom).tap{ bw.close }
   end
 
   def max(chrom=nil)
-    return 0 unless open_bw
-    open_bw.max(chrom)
+    return 0 unless bw = open_bw
+    bw.max(chrom).tap{ bw.close }
   end
 
   def mean(chrom=nil)
-    return 0 unless open_bw
-    open_bw.mean(chrom)
+    return 0 unless bw = open_bw
+    bw.mean(chrom).tap{ bw.close }
   end
 
   def standard_deviation(chrom=nil)
-    return 0 unless open_bw
-    open_bw.std_dev(chrom)
+    return 0 unless bw = open_bw
+    bw.std_dev(chrom).tap{ bw.close }
   end
 
   def chrom_length(chrom)
-    return 0 unless open_bw
-    open_bw.chrom_length(chrom)
+    return 0 unless bw = open_bw
+    bw.chrom_length(chrom).tap{ bw.close }
   end
   # Returns data summary from the specified chromosome and region binned using the type option
   # aggregation type can be [max,min,mean,std,coverage]
@@ -53,9 +53,9 @@ class BigWig < Asset
   # - :type => aggregation type for bins
   def summary_data(start,stop,count,chrom,type="max",opts={})
     # TODO: convert all 'type' references to opts[:type] for bigwig summary
-    return [] unless open_bw
+    return [] unless bw = open_bw
     opts[:type]||=type
-    open_bw.summary(chrom,start,stop,count,opts)    
+    bw.summary(chrom,start,stop,count,opts).tap{ bw.close }
   end
   # smooth this data returning a new file_handle. Calls the C bigWigSmooth utility
   # hash options:
@@ -71,7 +71,8 @@ class BigWig < Asset
     cutoff = opts[:cutoff].to_f if type=='probe' unless opts[:cutoff].blank?
     #run smoothing tool
     begin
-      open_bw.smooth(file_path,{:type => type,:window => window,:cutoff => cutoff})
+      bw = open_bw
+      bw.smooth(file_path,{:type => type,:window => window,:cutoff => cutoff}).tap{ bw.close }
     rescue
       s = "Error running bigwig smooth\n#{$!}"; puts s ; logger.info s
     end

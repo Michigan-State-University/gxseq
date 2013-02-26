@@ -88,8 +88,8 @@
 				<h2>Notes</h2>
 				<table>
 					<% reset_cycle %>
-					<%= render :partial => "note_feature", :locals => {:f => gene_model.mrna, :name => "mRNA"} %>
-					<%= render :partial => "note_feature", :locals => {:f => gene_model.cds, :name => "CDS"} %>
+					<%= render :partial => "note_feature", :locals => {:f => gene_model.mrna, :name => "mRNA"} if gene_model.mrna%>
+					<%= render :partial => "note_feature", :locals => {:f => gene_model.cds, :name => "CDS"} if gene_model.cds %>
 				</table>
 			</div>
 			<!-- Sequence Details -->

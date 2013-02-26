@@ -387,7 +387,7 @@ class Sequence < Thor
     return entry_accession
   end
   # compare the entry against taxon in the database. Try to find an existing match. Create a new taxonomy if none found
-  # TODO: Re-factor. This method is not right, supplying strain only results in unknown species
+  # TODO: Re-factor. This method is not right, supplying just strain results in unknown species
   def get_entry_taxonomy(entry,opts={})
     # setup user supplied species
     species_taxon = nil
@@ -402,11 +402,12 @@ class Sequence < Thor
       strain_taxon = (t = TaxonName.find_by_name(opts[:strain])) ? t.taxon : create_taxon(opts[:strain],'varietas')
     elsif(opts[:strain_id])
       strain_taxon = TaxonName.find(opts[:strain_id]).taxon
-    else
-    # strain not supplied - look for organism
+    end
+    
+    # look at organism
     if(entry.respond_to?(:organism))
       if(tn = TaxonName.find_by_name(entry.organism) )
-        strain_taxon = tn.taxon
+        org_taxon = tn.taxon
       else
         t = nil
         entry.source_features.find do |source|
@@ -416,18 +417,20 @@ class Sequence < Thor
           end
           false
         end
-        strain_taxon = t
+        org_taxon = t
       end
     end
-    end
+
     # species not supplied
     if species_taxon.nil?
       # strain supplied - If the strain/varietas is above species rank, the taxonomy will be 'unknown'
       if strain_taxon
-        species_taxon = strain_taxon.species || Taxon.unknown
+        species_taxon = strain_taxon.species || org_taxon || Taxon.unknown
       # species and strain not set ...
+      elsif org_taxon
+        species_taxon = org_taxon
       else
-        raise "Could not infer taxonomy for: #{entry.accession}.You must supply strain_name= and/or species_name=. If unknown use: --species_name='Unidentified'"
+        raise "Could not infer taxonomy for: #{entry.accession}.You must supply strain_name= and/or species_name="
       end
     # species supplied - check strain
     else
@@ -444,7 +447,10 @@ class Sequence < Thor
   end
   
   def create_taxon(taxon_name, node_rank='species')
-    puts "No taxon found for #{taxon_name} - Creating new entry."
+    puts "No taxon found for #{taxon_name} - Do you want to create a new entry? (This is not advised. Use taxonomy:load and taxonomy:find to get the correct taxon) (Y or N):"
+    unless(gets.chomp=='Y')
+      return nil
+    end
     begin
       # try to create so we can continue
       unless (Taxon.count > 0)

@@ -126,13 +126,14 @@ class Experiment < ActiveRecord::Base
     if(tv_id.to_i == self.taxon_version_id)
       return super(tv_id)
     end
-    tv = TaxonVersion.find(tv_id)
-    self.bioentries_experiments.destroy_all
-    tv.bioentries.each do |b|
-      self.bioentries_experiments.build(:bioentry => b,:sequence_name => b.accession,:experiment => self)
+    tv = TaxonVersion.find_by_id(tv_id)
+    if(tv)
+      self.bioentries_experiments.destroy_all
+      tv.bioentries.each do |b|
+        self.bioentries_experiments.build(:bioentry => b,:sequence_name => b.accession,:experiment => self)
+      end
+      super(tv_id)
     end
-    
-    super(tv_id)
   end
   
   # check if our group has changed and clear user cache if it has

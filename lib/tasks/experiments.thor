@@ -1,7 +1,8 @@
 class Experiments < Thor
   ENV['RAILS_ENV'] ||= 'development'
   require File.expand_path('config/environment.rb')
-  # List search and displays experiments in the database
+  @@experiments = ['ChipChip','ChipSeq','RnaSeq','Variant','ReSeq']
+  # List displays experiments in the database
   # Supply -t to filter by experiment type.
   # It is recommended to run this before loading expression to identify the correct experiment name/id
   desc 'list',"Display all of the experiments in the system and their internal ID's\n\tfilter by type with -t: (#{Experiment.select('distinct type').map(&:type).join(',')})"
@@ -23,5 +24,49 @@ class Experiments < Thor
       #puts "\t#{idx})\t#{e.id}\t#{e.type}\t#{e.name}\t#{e.taxon_version.name} > #{e.taxon_version.version}\t"
       printf "%10s %10s %15s %#{exp_length}s %#{seq_length}s\n", idx,e.id,e.type,e.name,"#{e.taxon_version.name} > #{e.taxon_version.version}"
     end
+  end
+  
+  desc 'create',"Create a new experiment"
+  method_option :type, :aliases => '-t',:required => true, :banner => "Provide the Class Name for the Experiment. (#{@@experiments.join(",")})"
+  method_option :name, :aliases => '-n',:required => true, :banner  => 'Names must be unique within a taxonomy'
+  method_option :description, :aliases => '-d', :type => :string, :banner => 'Description can store any extra metadata for the experiment'
+  method_option :taxon_version_id, :aliases => '-v', :type => :numeric, :required => true, :banner => 'Supply the ID for sequence taxonomy. Use thor taxonomy:list to lookup'
+  method_option :data, :aliases => ['-f','--files'], :type => :hash, :required => true, :banner => 'Hash of Assets to load for this experiment. Format is AssetType:filename .. {Bam:file1,BigWig:file2}'
+  method_option :username, :default => 'admin', :aliases => '-u', :banner => 'Login name for the experiment owner. Default is: admin'
+  def create
+    # Validate options
+    unless owner = User.find_by_login(options[:username])
+      puts "User with login #{options[:username]} not found"
+      return
+    end
+    unless @@experiments.include?(options[:type])
+      puts "Invalid Experiment Type: #{options[:type]}. \n Valid options are #{@@experiments.to_sentence}\n"
+      return
+    end
+    unless TaxonVersion.find_by_id(options[:taxon_version_id])
+      puts "No taxon with id #{options[:taxon_version_id]} found. Try: thor taxonomy:list"
+    end
+    # Build the new experiment
+    experiment = options[:type].constantize.new(
+      :name => options[:name],
+      :description => options[:description],
+      :taxon_version_id => options[:taxon_version_id],
+      :user => owner
+    )
+    # Validate experiment
+    unless experiment.valid?
+      puts experiment.errors.inspect
+      return
+    end
+    # Add the assets
+    options[:data].each do |type,filename|
+      file = File.open(filename)
+      experiment.assets.build(
+        :type => type,
+        :data => file
+      )
+    end
+    # Save
+    experiment.save!
   end
 end
