@@ -10,12 +10,92 @@ class TaxonVersion < ActiveRecord::Base
   has_many :re_seqs, :order => "experiments.name asc"
   has_many :blast_runs
   has_many :blast_databases, :through => :blast_runs
+  has_many :tracks
+  has_many :models_tracks
+  has_many :generic_feature_tracks
+  has_one :six_frame_track
+  # TODO: fix or remove protein sequence track
+  #has_one :protein_sequence_track
+  has_one :gc_file
   belongs_to :taxon
   belongs_to :species, :class_name => "Taxon", :foreign_key => :species_id
   belongs_to :group
   validates_presence_of :taxon
   validates_presence_of :version
   validates_uniqueness_of :version, :scope => :taxon_id
+  
+  
+  # create a big wig with the gc content data for this biosequence
+  def generate_gc_data(opts={})
+    destroy=opts[:destroy]||false
+    window=opts[:window]||50
+    progress_bar = ProgressBar.new(self.total_bases)
+    begin
+      if self.gc_file
+        puts "\t\tFound existing for #{name_with_version}"
+        if destroy == true
+          puts "Destroy flag #{destroy} ... removing"
+          self.gc_file.destroy
+        else
+          return
+        end
+      end
+      puts "\t\tCreating new GC file for #{name_with_version}"
+      # New ouput files for wig data
+	    wig_file = File.open("tmp/taxon_version_#{self.id}_gc_data.txt", 'w')
+	    chrom_file = File.open("tmp/taxon_version_#{self.id}_gc_chrom.txt","w")
+	    # Have all the entries write gc data and chrom length
+	    bioentries.includes(:biosequence).find_in_batches(:batch_size => 500) do |batch|
+	      batch.each do |bioentry|
+  	      # GC data in Wig format
+  	      bioentry.biosequence.write_gc_data(wig_file,{:window => window, :progress => progress_bar})
+  	      # Chrom name and length
+  	      chrom_file.write("#{bioentry.bioentry_id}\t#{bioentry.biosequence.length}\n")
+	      end
+      end
+      # flush write before conversion
+      wig_file.flush
+	    chrom_file.flush
+	    # Attach new empty BigWig file
+	    big_wig_file = File.open("tmp/taxon_version_#{self.id}_gc.bw","w+")
+	    self.gc_file = GcFile.new(:data => big_wig_file)
+	    self.save!
+	    # Write out the BigWig data
+	    FileManager.wig_to_bigwig(wig_file.path, self.gc_file.data.path, chrom_file.path)
+	    # Close the files
+	    wig_file.close
+	    chrom_file.close
+	    big_wig_file.close
+    rescue 
+      puts "Error creating GC_content file for taxon version(#{self.id})\n#{$!}\n\n#{$!.backtrace}"
+    end
+    # Cleanup the tmp files
+    begin;FileUtils.rm("tmp/taxon_version_#{self.id}_gc_data.txt");rescue;puts $!;end
+    begin;FileUtils.rm("tmp/taxon_version_#{self.id}_gc_chrom.txt");rescue;puts $!;end
+    begin;FileUtils.rm("tmp/taxon_version_#{self.id}_gc.bw");rescue;puts $!;end    
+  end
+  
+  # initializes tracks creating any that do not exist. Returns an array of new tracks
+  # TODO: Remove tracks completely. Just lookup the data during SV configuration
+  def create_tracks
+    result = []
+    source_terms.each do |source_term|
+      result << ModelsTrack.find_or_create_by_taxon_version_id_and_source_term_id(self.id,source_term.id)
+      result << GenericFeatureTrack.find_or_create_by_taxon_version_id_and_source_term_id(self.id,source_term.id)
+    end
+    result << (six_frame_track || create_six_frame_track)
+    #result << protein_sequence_track || create_protein_sequence_track
+    return result
+  end
+  # returns an array of all source terms used by features under this taxon
+  def source_terms
+    Term.source_tags.where(:term_id => self.source_term_ids)
+  end
+  
+  # returns the ids of all source_terms used by entries attached to this taxon
+  def source_term_ids
+    Seqfeature.where(:bioentry_id => self.bioentry_ids).select('distinct source_term_id')
+  end
   
   def reindex
     #bioentries
@@ -45,7 +125,10 @@ class TaxonVersion < ActiveRecord::Base
   def is_genome?
     false
   end
-
+  # returns the sum of bases for all bioentries
+  def total_bases
+    Biosequence.where(:bioentry_id => self.bioentry_ids).sum(:length)
+  end
   # Collects the seqfeatures for each bioentry and indexes them
   # optionally accepts {:type => 'feature_type'} to scope indexing
   def index_features(opts={})

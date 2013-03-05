@@ -23,7 +23,7 @@
 	<% content_for :item_bar do -%>	
 		<div style="float:left">
 			<%= link_to "New Gene", new_gene_path, :class => "button" %>
-			<%= link_to "Open Sequence Viewer", bioentry_path(@gene.bioentry,{:pos => @gene.min_start,:feature_id => @gene.id},:tracks => [@gene.bioentry.six_frame_track.id,@gene.bioentry.models_track.id]), :class => 'button'%>
+			<%= link_to "Open Sequence Viewer", bioentry_path(@gene.bioentry,{:pos => @gene.min_start,:feature_id => @gene.id},:tracks => [@gene.bioentry.taxon_version.six_frame_track.id,@gene.bioentry.taxon_version.models_tracks.first.id]), :class => 'button'%>
 		</div>
 		<%= render :partial => 'format_links' %>
 	<% end -%>

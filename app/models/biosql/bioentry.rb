@@ -33,24 +33,14 @@ class Bioentry < ActiveRecord::Base
   has_many :chip_chips, :through => :bioentries_experiments
   has_many :synthetics, :through => :bioentries_experiments
   has_many :variants, :through => :bioentries_experiments
-  has_many :tracks, :dependent => :destroy
   has_many :peaks
-  has_one :gc_file
-  
-  #has_many :models_tracks # TODO: allow multiple sources
-  #has_many :generic_feature_tracks# TODO: allow multiple sources
-  has_one :models_track
-  has_one :six_frame_track
-  has_one :protein_sequence_track
-  has_one :generic_feature_track
-  
   
   scope :with_version, lambda { |v| where("version = ?",v) }
   has_paper_trail :version => 'paper_trail_version', :versions => 'paper_trail_versions'
   acts_as_api
   
   # Sunspot search definition
-  searchable(:include => [[:bioentry_qualifier_values, :taxon_version => [:species => :scientific_name]], [:source_features => [:qualifiers => :term]]]) do
+  searchable(:auto_index => false, :include => [[:bioentry_qualifier_values, :taxon_version => [:species => :scientific_name]], [:source_features => [:qualifiers => :term]]]) do
     text :qualifiers, :stored => true do
       qualifiers.map{|q|"#{q.name}: #{q.value}"}
     end
@@ -134,15 +124,6 @@ class Bioentry < ActiveRecord::Base
   end
   ## Instance Methods
   
-  # initializes tracks creating any that do not exist. Returns an array of new tracks
-  def create_tracks
-    result = []
-    result << create_models_track if models_track.nil?
-    result << create_six_frame_track if six_frame_track.nil?
-    #result << create_protein_sequence_track if protein_sequence_track.nil?
-    result << create_generic_feature_track if generic_feature_track.nil?    
-    return result
-  end
   # returns the length of associated biosequence
   def length
     Biosequence.find_by_bioentry_id(self.id,:select => :length).length
@@ -210,6 +191,16 @@ class Bioentry < ActiveRecord::Base
   
   def taxon
     taxon_version.nil? ? nil : taxon_version.taxon 
+  end
+  # returns data from the taxon version gc_file
+  # TODO: refactor and simplify this function
+  def get_gc_content(left=0,length=0,bases=2)
+    left = [left,self.length-1].min
+    right = [(left + length),self.length].min
+    points =((right-left)/(20*bases)).ceil
+    points = 1 if points <= 0 
+    step = ((right-left)/points).ceil
+    taxon_version.gc_file.summary_data(self.bioentry_id.to_s,left,right+step,points+1).map{|d| [d.round(4),step]}
   end
   
   def keywords

@@ -1,7 +1,7 @@
 class TrackLayout < ActiveRecord::Base
-  belongs_to :bioentry
+  belongs_to :taxon_version
   has_many :track_configurations, :dependent => :destroy
-  validates_uniqueness_of :name, :scope => [:user_id, :bioentry_id], :on => :create, :message => "is already in use"
+  validates_uniqueness_of :name, :scope => [:user_id, :taxon_version_id], :on => :create, :message => "is already in use"
   # TODO: refactor this
 end
 

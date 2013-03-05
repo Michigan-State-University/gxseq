@@ -34,7 +34,7 @@ gem "devise_ldap_authenticatable", :git => 'git://github.com/clyfe/devise_ldap_a
 gem 'exception_notification', '~> 2.4.1', :require => 'exception_notifier'
 gem 'formtastic', "~> 2.2.1"
 gem 'paper_trail', '~>2'
-gem 'paperclip', '~> 2.3'
+gem 'paperclip', '~> 3.0'
 gem 'squeel', '~>0.9'
 gem 'thor', '~> 0.14.6'
 gem 'will_paginate', '~>3'

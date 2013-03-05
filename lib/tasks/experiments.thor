@@ -27,12 +27,13 @@ class Experiments < Thor
   end
   
   desc 'create',"Create a new experiment"
-  method_option :type, :aliases => '-t',:required => true, :banner => "Provide the Class Name for the Experiment. (#{@@experiments.join(",")})"
-  method_option :name, :aliases => '-n',:required => true, :banner  => 'Names must be unique within a taxonomy'
-  method_option :description, :aliases => '-d', :type => :string, :banner => 'Description can store any extra metadata for the experiment'
-  method_option :taxon_version_id, :aliases => '-v', :type => :numeric, :required => true, :banner => 'Supply the ID for sequence taxonomy. Use thor taxonomy:list to lookup'
-  method_option :data, :aliases => ['-f','--files'], :type => :hash, :required => true, :banner => 'Hash of Assets to load for this experiment. Format is AssetType:filename .. {Bam:file1,BigWig:file2}'
-  method_option :username, :default => 'admin', :aliases => '-u', :banner => 'Login name for the experiment owner. Default is: admin'
+  method_option :type, :aliases => '-c',:required => true, :desc => "Provide the Class Name for the Experiment. (#{@@experiments.join(",")})"
+  method_option :name, :aliases => '-n',:required => true, :desc  => 'Names must be unique within a taxonomy'
+  method_option :description, :aliases => '-d', :type => :string, :desc => 'Description can store any extra metadata for the experiment'
+  method_option :taxon_version_id, :aliases => '-t', :type => :numeric, :required => true, :desc => 'Supply the ID for sequence taxonomy. Use thor taxonomy:list to lookup'
+  method_option :data, :aliases => ['-f','--files'], :type => :hash, :required => true, :desc => 'Hash of Assets to load for this experiment; AssetType:path/to/file'
+  method_option :username, :default => 'admin', :aliases => '-u', :desc => 'Login name for the experiment owner'
+  method_option :group, :aliases => '-g', :desc => "Group name for this experiment"
   def create
     # Validate options
     unless owner = User.find_by_login(options[:username])
@@ -46,27 +47,54 @@ class Experiments < Thor
     unless TaxonVersion.find_by_id(options[:taxon_version_id])
       puts "No taxon with id #{options[:taxon_version_id]} found. Try: thor taxonomy:list"
     end
-    # Build the new experiment
-    experiment = options[:type].constantize.new(
-      :name => options[:name],
-      :description => options[:description],
-      :taxon_version_id => options[:taxon_version_id],
-      :user => owner
-    )
-    # Validate experiment
-    unless experiment.valid?
-      puts experiment.errors.inspect
-      return
+    if(options[:group])
+      unless group = ::Group.find_by_name(options[:group])
+        puts "No Group found with name #{options[:group]}. Try: thor groups:list"
+        return
+      end
+    else
+      group = nil
     end
-    # Add the assets
-    options[:data].each do |type,filename|
-      file = File.open(filename)
-      experiment.assets.build(
-        :type => type,
-        :data => file
+    # Validate assets and build
+    assets = []
+    options[:data].each do |key,value|
+      unless key.constantize.superclass == Asset && File.exists?(value)
+        puts "#{key} File Not Found : #{value}"
+        return
+      end
+      #assets << key.constantize.new(:data => File.open(value,'r'))
+    end
+    
+    Experiment.transaction do
+      # Create the new experiment
+      experiment = options[:type].constantize.create(
+        :name => options[:name],
+        :description => options[:description],
+        :taxon_version_id => options[:taxon_version_id],
+        :user => owner,
+        :group => group
       )
+      # Validate experiment
+      unless experiment.valid?
+        puts experiment.errors.inspect
+      end
+      # Add the assets
+      options[:data].each do |key,value|
+        puts "trying #{key} : #{value}"
+        #experiment.send("create_#{type.underscore}",{:data => File.open(filename,'r')})
+        
+        # type.constantize.create(
+        #   :data => File.open(filename,'r'),
+        #   #:experiment => experiment
+        # )
+        
+        # b = Bam.create(:data => File.open(filename,'r'))
+        #b = key.constantize.new(:data => File.open(value,'r'))
+        puts b.inspect
+      end
+      puts b.valid?
+      puts b.errors.inspect
+      raise "All Done\n\n\n\n"
     end
-    # Save
-    experiment.save!
   end
 end

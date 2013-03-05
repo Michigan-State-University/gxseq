@@ -6,7 +6,6 @@ class TrackConfiguration < ActiveRecord::Base
   def config
     " id: '#{track.id}',
       name: '#{track.name}',
-      bioentry: '#{track.bioentry.id}',
       source: '#{track.source_term_id}',
       data: '#{data || 'false'}',
       edit: '#{edit || 'false'}',

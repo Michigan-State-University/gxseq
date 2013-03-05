@@ -12,7 +12,7 @@ class Asset < ActiveRecord::Base
   
   def creator
     who_id = versions.last.whodunnit
-    who_id ? User.find(versions.last.whodunnit) : nil
+    who_id ? User.find_by_id(who_id) : nil
   end
     
   #returns the filename
@@ -43,7 +43,6 @@ class Asset < ActiveRecord::Base
         raise "wtF hax!!"  unless klass < self  # klass should be a descendant of us
         return klass.new(*a, &b)
       end
-      
       new_without_cast(*a, &b)
     end
     alias_method_chain :new, :cast

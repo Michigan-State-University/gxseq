@@ -1,6 +1,6 @@
 class RnaSeq < Experiment
-  has_many :reads_tracks, :foreign_key => "experiment_id", :dependent => :destroy
-  has_many :histogram_tracks, :foreign_key => "experiment_id", :dependent => :destroy
+  has_one :reads_track, :foreign_key => "experiment_id", :dependent => :destroy
+  has_one :histogram_track, :foreign_key => "experiment_id", :dependent => :destroy
   has_many :feature_counts, :foreign_key => "experiment_id", :dependent => :destroy
   has_one :bam, :foreign_key => "experiment_id"
   has_one :big_wig, :foreign_key => "experiment_id"
@@ -52,12 +52,10 @@ class RnaSeq < Experiment
   # generates tracks for each bioentry
   # creates ReadsTracks if a bam is present otherwise HistogramTracks are created
   def create_tracks
-    self.bioentries_experiments.each do |be|
-      if(bam)
-        reads_tracks.create(:bioentry => be.bioentry) unless reads_tracks.any?{|t| t.bioentry_id == be.bioentry_id}
-      else
-        histogram_tracks.create(:bioentry => be.bioentry) unless histogram_tracks.any?{|t| t.bioentry_id == be.bioentry_id}
-      end
+    if(bam)
+      create_reads_track(:taxon_version => taxon_version) unless reads_track
+    else
+      create_histogram_track(:taxon_version => taxon_version) unless histogram_track
     end
   end
   

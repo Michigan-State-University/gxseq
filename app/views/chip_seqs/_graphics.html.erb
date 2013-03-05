@@ -1,5 +1,5 @@
 <div id="graphics_container">
-  Displaying data for : <%= @bioentry.display_info %>. View in <%= link_to "Sequence Viewer", bioentry_path(@bioentry, :tracks => [@chip_seq.tracks.with_bioentry(@bioentry.id).first.id]) %>
+  Displaying data for : <%= @bioentry.display_info %>. View in <%= link_to "Sequence Viewer", bioentry_path(@bioentry, :tracks => [@chip_seq.tracks.first.id]) %>
   <div id='exp_chart'>
   	<%= swf_tag "mixed_plot.swf", 
   		:id => "#{@chip_seq}_plot", 

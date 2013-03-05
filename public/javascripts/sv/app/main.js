@@ -203,7 +203,8 @@ var AnnoJ = (function()
 		// });
 
 		var LayoutBox = new AnnoJ.LayoutBox();
-
+    LayoutBox.setLoadPath(config.layouts_path);
+    
 		var InfoBox = new AnnoJ.InfoBox();
 
     //var EditBox = new AnnoJ.EditBox();
@@ -335,7 +336,7 @@ var AnnoJ = (function()
 			data				: 
 			{
 				name			: layout_name,
-				bioentry_id : AnnoJ.config.bioentry,
+				taxon_version_id : AnnoJ.config.taxon_version_id,
 				active_tracks	: GUI.TrackSelector.getActiveTrackString(),
 				track_configurations : Ext.JSON.encode(getActiveTracks().getConfigs()),
 				location	:  Ext.JSON.encode(getLocation())

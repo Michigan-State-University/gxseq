@@ -30,7 +30,7 @@
 						<%= t_version.version %>
 					</td>
 					<td style="text-align:left">
-				    <%= link_to "Explore #{t_version.bioentries.count } entries", bioentries_path(:taxon_version =>t_version.id, :biodatabase => @biodatabase.id ) %>
+				    <%= link_to "Explore #{t_version.bioentries.count } entries", bioentries_path(:taxon_version =>t_version.id) %>
 				    |
 				    <%= link_to "View First entry", t_version.bioentries.first%>
 				    <% if t_version.has_expression? %>

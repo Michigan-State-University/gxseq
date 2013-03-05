@@ -7,11 +7,9 @@ class CreateTaxonVersions < ActiveRecord::Migration
       t.string :version
       t.timestamps
     end
-    add_index :taxon_versions, :version, :unique => true
   end
 
   def self.down
-    remove_index :taxon_versions, :version
     drop_table :taxon_versions
   end
 end

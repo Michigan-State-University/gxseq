@@ -79,7 +79,10 @@ GEM
       ffi
     builder (2.1.2)
     cancan (1.6.8)
-    cocaine (0.2.1)
+    climate_control (0.0.3)
+      activesupport (>= 3.0)
+    cocaine (0.5.1)
+      climate_control (>= 0.0.3, < 1.0)
     colored (1.2)
     columnize (0.3.6)
     daemons (1.1.4)
@@ -126,10 +129,11 @@ GEM
     paper_trail (2.6.3)
       activerecord (~> 3.0)
       railties (~> 3.0)
-    paperclip (2.7.0)
-      activerecord (>= 2.3.0)
-      activesupport (>= 2.3.2)
-      cocaine (>= 0.0.2)
+    paperclip (3.4.1)
+      activemodel (>= 3.0.0)
+      activerecord (>= 3.0.0)
+      activesupport (>= 3.0.0)
+      cocaine (~> 0.5.0)
       mime-types
     polyamorous (0.5.0)
       activerecord (~> 3.0)
@@ -237,7 +241,7 @@ DEPENDENCIES
   mysql2 (~> 0.2.0)
   newrelic_rpm
   paper_trail (~> 2)
-  paperclip (~> 2.3)
+  paperclip (~> 3.0)
   progress_bar
   railroady
   rails (= 3.0.9)

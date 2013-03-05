@@ -282,16 +282,26 @@ class Bam < Asset
     if target_info.length == 0
       raise "File Error: No items found in index"
     end
+      
     target_info.each do |accession,hsh|
       next unless( hsh[:length] && hsh[:length]>0)
       length = hsh[:length]
-      puts "--Working on #{accession} - Length: #{hsh[:length]}"
-      bam.mpileup_text({:r => "'#{accession}'"},bed.path,com)
+      unless(APP_CONFIG[:bedtools_path])
+        puts "--Working on #{accession} - Length: #{hsh[:length]}"
+        bam.mpileup_text({:r => "'#{accession}'"},bed.path,com)
+      end
       # write chrom.sizes data
       chr.puts "#{accession} #{length}"
     end
     
     chr.flush
+    
+    if(APP_CONFIG[:bedtools_path])
+      puts "--Running Bedtools genomeCoverageBed -split -bg"
+      #TODO: This APP_CONFIG call shouldn't be in the class. Use a class attribute instead
+      `#{APP_CONFIG[:bedtools_path]}/genomeCoverageBed -split -bg -ibam #{self.data.path} -g #{chr.path} > #{bed.path}`
+    end
+    
     bed.flush
     bam.close
     

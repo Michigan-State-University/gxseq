@@ -1,15 +1,11 @@
 require 'stringio'
 require 'base64'
 require 'tempfile'
-require 'fileutils'
 
 class Biosequence < ActiveRecord::Base
   set_table_name "biosequence"
   set_primary_keys :bioentry_id, :version
   belongs_to :bioentry, :foreign_key => 'bioentry_id'
-  has_many :sequence_files, :foreign_key => [:bioentry_id, :version], :dependent => :destroy
-  has_one :gc_file, :class_name  => "GcFile", :foreign_key => [:bioentry_id, :version]
-  
   
   def self.to_protein(sequence,frame=1,genetic_code=1)
     frame = frame.to_i
@@ -115,54 +111,23 @@ class Biosequence < ActiveRecord::Base
     return my_array
   end
   
-  def get_gc_content(left=0,length=0,bases=2)
-    left = [left,self.length-1].min
-    right = [(left + length),self.length].min
-    points =((right-left)/(20*bases)).ceil
-    points = 1 if points <= 0 
-    step = ((right-left)/points).ceil
-    self.gc_file.summary_data(left,right+step,points+1).map{|d| [d,step]}
+  # writes GC data over the window size to the supplied IO.
+  # Format is wig
+  def write_gc_data(out_io,opts={})
+    window = opts[:window]||50
+    step = opts[:step]||20
+    progress_bar = opts[:progress]||ProgressBar.new(self.length)
+    total_written = 0
+    write_wig_header(out_io,{:span => step})
+    Bio::Sequence::NA.new(self.seq).window_search(window,step){ |x,y| out_io.write("#{y+1}\t#{x.gc_content.to_f}\n"); progress_bar.increment!(step); total_written+=step }
+    progress_bar.increment!(self.length - total_written)
   end
-  
-  # create a big wig with the gc content data for this biosequence
-  # TODO: convert second param to opts hash
-  def generate_gc_data(precision=100, destroy=false)  
-    desc = bioentry.description
-    begin
-      if self.gc_file
-        return unless destroy
-        puts "\t\tFound existing for #{desc} so removing"
-        self.gc_file.destroy
-      end
-      puts "\t\tCreating new GC file for #{desc}"
-      # Write out GC data in Wig format
-	    wig_file = File.open("tmp/#{self.bioentry_id}_gc_data.txt", 'w')
-	    wig_file.write("track type=wiggle_0 name=GC content\nvariableStep chrom=#{bioentry_id} span=#{precision}\n")
-	    Bio::Sequence::NA.new(self.seq).window_search(precision,precision){ |x,y| wig_file.write("#{y+1}\t#{x.gc_content.to_f}\n") }
-	    wig_file.flush	    
-	    # write the chrom size file
-	    chrom_file = File.open("tmp/#{self.bioentry_id}_gc_chrom.txt","w")
-	    chrom_file.write("#{bioentry_id}\t#{seq.length}")
-	    chrom_file.flush	    
-	    # Attach new empty BigWig file
-	    big_wig_file = File.open("tmp/#{self.bioentry_id}_gc.bw","w+")
-	    self.gc_file = GcFile.new(:data => big_wig_file)
-	    self.save!	    
-	    # Write out the BigWig data
-	    FileManager.wig_to_bigwig(wig_file.path, self.gc_file.data.path, chrom_file.path)
-	    # Close the files
-	    wig_file.close
-	    chrom_file.close
-	    big_wig_file.close
-    rescue 
-      puts "Error creating GC_content file for biosequence(#{self.id})\n#{$!}\n\n#{$!.backtrace}"
-    end
-    # Cleanup the tmp files
-    begin;FileUtils.rm("tmp/#{self.bioentry_id}_gc_chrom.txt");rescue;puts $!;end
-    begin;FileUtils.rm("tmp/#{self.bioentry_id}_gc_data.txt");rescue;puts $!;end
-    begin;FileUtils.rm("tmp/#{self.bioentry_id}_gc.bw");rescue;puts $!;end    
+  # writes a wig header to the supplied IO
+  def write_wig_header(out_io,opts={})
+    span = opts[:span]||20
+    out_io.write("track type=wiggle_0 name=#{opts[:track_name]||'GC content'}\n") if opts[:track_line]==true
+    out_io.write("variableStep chrom=#{bioentry_id} span=#{span}\n")
   end
-
   def offsets(left, right)
     case (left%3)
     when 0

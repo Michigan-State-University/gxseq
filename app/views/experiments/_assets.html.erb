@@ -17,7 +17,7 @@
         number_to_human(max_peak.pos), 
         bioentry_path(
           max_peak.bioentry, 
-          :tracks => [experiment.tracks.with_bioentry(max_peak.bioentry.id).first.id], 
+          :tracks => [experiment.tracks.first.id], 
           :pos => max_peak.pos
         ) ) %><br/>
       <% end %>

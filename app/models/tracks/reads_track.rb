@@ -5,7 +5,6 @@ class ReadsTrack < Track
     " id    		: '#{self.id}',
       experiment: '#{experiment.id}',
       name  		: '#{name}',
-      bioentry 	: '#{bioentry.id}',
       single	  : #{experiment.single},
       type  		: 'ReadsTrack',
       data  		: '#{root_path}/reads/track_data',

@@ -6,6 +6,7 @@ allenv: &ALLENV
   admin_pass: secret
   use_remote_user: true
   create_from_remote_user: true
+  bedtools_path: path/to/bedtools/bin
   timeout: 60
   
 production:

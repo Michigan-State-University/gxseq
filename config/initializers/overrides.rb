@@ -372,3 +372,12 @@ module Arel
     end
   end
 end
+## Streaming Support - fix
+# TODO: Update to 3.1 and use new streaming support
+# avoid double render/lookup in streaming actions
+# http://stackoverflow.com/questions/3507594/ruby-on-rails-3-streaming-data-through-rails-to-client
+class Rack::Response
+  def close
+    @body.close if @body.respond_to?(:close)
+  end
+end

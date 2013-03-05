@@ -43,7 +43,8 @@ class CreateBiosqlDb < ActiveRecord::Migration
       t.timestamps
     end
     add_index(:bioentry, [:taxon_version_id, :accession, :biodatabase_id, :version], :unique => true, :name => :bioentry_idx)
-    add_index(:bioentry, [:taxon_version_id, :identifier, :biodatabase_id, :version], :unique => true, :name => :bioentry_idx_1)
+    # We do not set the 'identifier' column so it is not unique
+    #add_index(:bioentry, [:taxon_version_id, :identifier, :biodatabase_id, :version], :unique => true, :name => :bioentry_idx_1)
     add_index(:bioentry, :version, :name => :bioentry_idx_2)
     
     create_table :bioentry_dbxref, :id => false do |t|
@@ -104,7 +105,7 @@ class CreateBiosqlDb < ActiveRecord::Migration
       end
       t.timestamps
     end
-    
+    add_index(:biosequence, [:bioentry_id,:version], :unique => true, :name => :bioseq_idx )
     # Comment is a reserved word in oracle
     if(self.adapter_name.downcase =~/.*oracle.*/)
       create_table :comments, :primary_key => :comments_id do |t|

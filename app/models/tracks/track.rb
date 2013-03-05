@@ -1,19 +1,18 @@
 class Track < ActiveRecord::Base
-  belongs_to :bioentry
+  belongs_to :taxon_version
+  belongs_to :experiment
   has_many :track_configurations, :dependent => :destroy
-  scope :with_bioentry, lambda { |item|
-        { :conditions => { :bioentry_id => (item.respond_to?(:id) ? item.id : item) } }
-      }
+
   def name
     'Generic Track'
   end
   
   def self.create_all
-    Experiment.all.each do |e|
-      e.create_track
+    Experiment.all.each do |experiment|
+      experiment.create_tracks
     end
-    Bioentry.all.each do |b|
-      b.create_tracks
+    TaxonVersion.all.each do |taxon_version|
+      taxon_version.create_tracks
     end
   end
   

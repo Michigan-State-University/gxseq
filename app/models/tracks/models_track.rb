@@ -1,17 +1,17 @@
 class ModelsTrack < Track
+  belongs_to :source_term, :class_name => "Term", :foreign_key => :source_term_id
   def path
     "Genome"
   end
   
   def name
-    "Gene Models"
+    "#{source_term.name}: Gene Models"
   end
   
   def config
     " id: '#{self.id}',
       name: '#{self.name}',
       showAdd: true,
-      bioentry: '#{self.bioentry.id}',
       source: '#{self.source_term_id}',
       type: '#{self.class.name}',
       data: '#{root_path}/fetchers/gene_models',

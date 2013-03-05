@@ -18,7 +18,7 @@
     Select another sequence: <div id='bioentry_searchbox'></div>
   <% end %>
   <br/>
-  View this in the <%= link_to "Sequence Viewer", bioentry_path(@bioentry, :tracks => [@rna_seq.tracks.with_bioentry(@bioentry.id).first.id]) %>
+  View this in the <%= link_to "Sequence Viewer", bioentry_path(@bioentry, :tracks => [@rna_seq.tracks.first.id]) %>
   <div id='exp_chart'>
   	<%= swf_tag "mixed_plot.swf", 
   		:id => "#{@rna_seq}_plot", 

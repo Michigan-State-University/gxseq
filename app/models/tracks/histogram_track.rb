@@ -5,7 +5,6 @@ class HistogramTrack < Track
     " id    		: '#{self.id}',
       experiment: '#{experiment.id}',
       name  		: '#{name}',
-      bioentry 	: '#{bioentry.id}',
       single	  : #{experiment.single},
       type  		: 'MicroarrayTrack',
       data  		: '#{root_path}/fetchers/base_counts',

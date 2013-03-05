@@ -18,15 +18,10 @@ class Biodatabase < ActiveRecord::Base
     end
     # generate the sequence data for bioentries
     begin
-      puts "Syncing GC data"
-      bioentries.includes(:models_track,:six_frame_track,:generic_feature_track,:gc_file,:taxon_version).find_in_batches(:batch_size => 500) do |entry_batch|
-        entry_batch.each do | bioentry |
-          bioentry.create_tracks
-          #TODO: Fix GC data for transcriptome. Use one file for full TaxonVersion
-          if(bioentry.taxon_version.is_genome?)
-            bioentry.biosequence.generate_gc_data unless bioentry.gc_file
-          end
-        end
+      puts "Syncing Taxon Version data"
+      TaxonVersion.all.each do |taxon_version|
+        taxon_version.generate_gc_data
+        taxon_version.create_tracks
       end
     rescue
       puts $!

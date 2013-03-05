@@ -34,9 +34,8 @@ class FetchersController < ApplicationController
     when 'range'
       bioentry_id = param['bioentry']
       bioentry = Bioentry.find(bioentry_id)
-      authorize! :read, bioentry
-      
       exp = Experiment.find(param['experiment'])
+      authorize! :track_data, exp
       be = exp.bioentries_experiments.with_bioentry(bioentry_id)[0]
       data = exp.summary_data(param['left'],param['right'],((param['right']-param['left'])/param['bases']),be.sequence_name)
       #{(stop-start)/bases
@@ -45,18 +44,21 @@ class FetchersController < ApplicationController
       render :text =>"{\"success\":true,\"data\":#{data.inspect}}"
     when 'abs_max'
       exp = Experiment.find(param['experiment'])
+      authorize! :track_data, exp
       bioentry_id = param['bioentry']
       bioentry = Bioentry.find(bioentry_id)
       authorize! :read, bioentry
       render :text => exp.max(exp.get_chrom(bioentry_id)).to_s
     when 'peak_genes'
       @experiment = Experiment.find(param['experiment'])
+      authorize! :track_data, @experiment
       @bioentry_id = param['bioentry']
       bioentry = Bioentry.find(@bioentry_id)
       authorize! :read, bioentry
       render :partial => 'peaks/gene_list.json' #exp.peaks.with_bioentry(param['bioentry']).order(:pos).to_json(:only => [:id,:pos, :val], :methods => :genes_link)
     when 'peak_locations'
       exp = Experiment.find(param['experiment'])
+      authorize! :track_data, exp
       bioentry_id = param['bioentry']
       bioentry = Bioentry.find(bioentry_id)
       authorize! :read, bioentry

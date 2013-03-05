@@ -20,6 +20,7 @@ class FileManager
     Bio::Ucsc::Util.wig_to_big_wig("#{filein}.nohdr",chrom_file,fileout).close
     fout.close
     fin.close
+    FileUtils.rm("#{filein}.nohdr")
   end
   
   def self.bedgraph_to_bigwig(filein, fileout, chrom_file)

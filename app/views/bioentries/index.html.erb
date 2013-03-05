@@ -37,12 +37,13 @@
       Filter by Taxonomy:<br/>
       <%= select_tag 'taxon_version', options_for_select(@taxon_versions.collect{|s| [s.name_with_version,s.id]},params[:taxon_version]), {:include_blank => "No Filter", :onchange => "this.form.submit()"} %>
     </div>
-    <% if @biodatabases.size > 1 %>
+    <!-- Remove Biodatabase filter until required -->
+    <!-- <%# if @biodatabases.size > 1 %>
     <div style="float:left">
       Filter by Database:<br/>
-      <%= select_tag 'biodatabase', options_for_select(@biodatabases.collect{|b| [b.name,b.id]},params[:biodatabase]), {:onchange => "this.form.submit()"} %>
+      <%#= select_tag 'biodatabase', options_for_select(@biodatabases.collect{|b| [b.name,b.id]},params[:biodatabase]), {:onchange => "this.form.submit()"} %>
     </div>
-    <% end %>
+    <%# end %> -->
     <div style="float:left">
       Filter by Type:<br/>
       <%= select_tag 'taxon_type', options_for_select(['Genome','Transcriptome'],params[:taxon_type]), {:include_blank => "No Filter", :onchange => "this.form.submit()"} %>

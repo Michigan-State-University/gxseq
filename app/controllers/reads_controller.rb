@@ -36,6 +36,7 @@ class ReadsController < ApplicationController
       when 'range'
         bioentry = Bioentry.find(param['bioentry'])
         experiment = Experiment.find(param['experiment'])
+        authorize! :track_data, experiment
         be = experiment.bioentries_experiments.with_bioentry(bioentry)[0]
         unless(be && bioentry && experiment && experiment.respond_to?(:get_reads))
           render :json => {:success => false}
@@ -47,6 +48,7 @@ class ReadsController < ApplicationController
       when 'reads'
         bioentry = Bioentry.find(param['bioentry'])
         experiment = Experiment.find(param['experiment'])
+        authorize! :track_data, experiment
         be = experiment.bioentries_experiments.with_bioentry(bioentry)[0]
         unless(be && bioentry && experiment && experiment.respond_to?(:get_reads))
           render :json => {:success => false}
@@ -57,12 +59,10 @@ class ReadsController < ApplicationController
       when 'describe'
         bioentry_id = Bioentry.find(param['bioentry'])
         experiment = Experiment.find(param['experiment'])
+        authorize! :track_data, experiment
         pos = param['pos']
         be = experiment.bioentries_experiments.with_bioentry(bioentry_id)[0]
         @read = experiment.find_read(param['id'],be.sequence_name,pos)
-        # if(@read && @read[:pos] && @read[:calend])
-        #   @read[:ref_seq]=Bioentry.find(bioentry_id).biosequence.seq[@read[:pos]-1,(@read[:calend]-@read[:pos])+1]
-        # end
         render :partial => "reads/show"
       end
       

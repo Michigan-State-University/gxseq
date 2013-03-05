@@ -3,6 +3,7 @@ AnnoJ.LayoutBox = function()
 	var self = this;
 	var body = new Ext.Element(document.createElement('DIV'));
 	body.addCls('AJ_layoutbox');
+	self.loadPath = 'not_set';
 	
 	AnnoJ.LayoutBox.superclass.constructor.call(this,
 	{
@@ -16,6 +17,9 @@ AnnoJ.LayoutBox = function()
 	
 	var layouts = new Array();
 	
+	this.setLoadPath = function(path){
+	  self.loadPath = path;
+	};
 	this.refresh = function()
 	{
 		loadLayouts();
@@ -47,9 +51,9 @@ AnnoJ.LayoutBox = function()
 			text += "<br/>";
 			text += "<ul>";
 			Ext.each(data, function(layout){
-				text += "<div style='margin-left:3px;' class='x-panel-header'><a href="+AnnoJ.config.root_path+"bioentries/"+AnnoJ.config.bioentry+"?layout_id="+layout[1]+">"+layout[0]+"</a></div>";
+				text += "<div style='margin-left:3px;' class='x-panel-header'><a href="+AnnoJ.config.refresh_path+"?layout_id="+layout.track_layout.id+">"+layout.track_layout.name+"</a></div>";
 			});
-			text +=	"<div style='margin-left:3px;' class='x-panel-header'><a href="+AnnoJ.config.root_path+"bioentries/"+AnnoJ.config.bioentry+"?default=true>Default Layout</a></div>";
+			text +=	"<div style='margin-left:3px;' class='x-panel-header'><a href="+AnnoJ.config.refresh_path+"?default=true>Default Layout</a></div>";
 			text += "</ul>";
 			self.update(text)
 		}
@@ -59,10 +63,10 @@ AnnoJ.LayoutBox = function()
 		self.update("loading layouts...");
 		BaseJS.request(
 		{
-			url         : AnnoJ.config.root_path+"track_layouts",
+			url         : self.loadPath,
 			method      : 'GET',
 			requestJSON : false,
-			data				: {bioentry_id : AnnoJ.config.bioentry},
+		data : {},
 			success  : function(response)
 			{
 				setData(response);

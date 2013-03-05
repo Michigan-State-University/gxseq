@@ -1,6 +1,6 @@
 class ChipChip < Experiment
   has_many :peaks, :foreign_key => "experiment_id"
-  has_many :histogram_tracks, :foreign_key => "experiment_id", :dependent => :destroy
+  has_one :histogram_track, :foreign_key => "experiment_id", :dependent => :destroy
   has_one :big_wig, :foreign_key => "experiment_id"
   has_one :wig, :foreign_key => "experiment_id"  
   after_save :set_abs_max
@@ -38,9 +38,7 @@ class ChipChip < Experiment
   end
   
   def create_tracks
-    self.bioentries_experiments.each do |be|
-      histogram_tracks.create(:bioentry => be.bioentry) unless histogram_tracks.any?{|t| t.bioentry_id == be.bioentry_id}
-    end
+    create_histogram_track(:taxon_version => taxon_version) unless histogram_track
   end
 
   def summary_data(start,stop,num,chrom)

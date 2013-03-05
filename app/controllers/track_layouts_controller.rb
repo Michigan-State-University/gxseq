@@ -2,19 +2,19 @@ class TrackLayoutsController < ApplicationController
 
   def index    
     @track_layouts = current_user.is_admin? ?
-      TrackLayout.find(:all, :conditions => ["bioentry_id = ?", params[:bioentry_id]]) :
-      TrackLayout.find(:all, :conditions => ["user_id = ? AND bioentry_id = ?",current_user.id, params[:bioentry_id]], :order => "created_at DESC")
-    render :json => @track_layouts.collect{|t| [t.name, t.id]}
+      TrackLayout.where(:taxon_version_id  =>  params[:taxon_version_id]) :
+      TrackLayout.where(:user_id  => current_user.id, :taxon_version_id => params[:taxon_version_id])
+    render :json => @track_layouts.order("created_at DESC").to_json(:only => [:name,:id])
   end
 
   def create
-    if(params[:bioentry_id]&&params[:name]&&params[:active_tracks]&&params[:track_configurations]&&params[:location])
+    if(params[:taxon_version_id]&&params[:name]&&params[:active_tracks]&&params[:track_configurations]&&params[:location])
       configs = JSON.parse(params[:track_configurations])
       location = JSON.parse(params[:location])
       begin         
           @track_layout = current_user.track_layouts.new(
-            :name => params[:name], 
-            :bioentry_id => params[:bioentry_id], 
+            :name => params[:name],
+            :taxon_version_id => params[:taxon_version_id],
             :active_tracks => params[:active_tracks],
             :assembly => 1,
             :position => location['position'],
@@ -58,6 +58,11 @@ class TrackLayoutsController < ApplicationController
           :messsage => "Error Creating Layout"
         }
       end
+    else
+      render :json  => {
+        :success => false,
+        :message => "Missing parameter"
+      }
     end
   end
 

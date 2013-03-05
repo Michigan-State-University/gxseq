@@ -10,7 +10,6 @@ class ProteinSequenceTrack < Track
   def config
     " id    		: '#{self.id}',
       name  		: '#{self.name}',
-      bioentry 	: '#{self.bioentry.id}',
       type  		: '#{self.class.name}',
       data  		: '#{root_path}/protein_sequence/genome',
       iconCls   : '#{iconCls}',

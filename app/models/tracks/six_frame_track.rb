@@ -10,7 +10,6 @@ class SixFrameTrack < Track
   def config
     "id    		: '#{self.id}',
       name  		: '#{self.name}',
-      bioentry 	: '#{self.bioentry.id}',
       type  		: 'SequenceTrack',
       data  		: '#{root_path}/bioentries/track_data',
       iconCls : '#{iconCls}',

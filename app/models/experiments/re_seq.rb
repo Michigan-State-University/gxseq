@@ -1,5 +1,5 @@
 class ReSeq < Experiment
-  has_many :reads_tracks, :foreign_key => "experiment_id", :dependent => :destroy
+  has_one :reads_track, :foreign_key => "experiment_id", :dependent => :destroy
   has_one :bam, :foreign_key => "experiment_id"
   has_one :big_wig, :foreign_key => "experiment_id"
   
@@ -23,9 +23,7 @@ class ReSeq < Experiment
   
   # TODO: Merge variant track / exp with re_seq
   def create_tracks
-    self.bioentries_experiments.each do |be|
-      reads_tracks.create(:bioentry => be.bioentry) unless reads_tracks.any?{|t| t.bioentry_id == be.bioentry_id}
-    end
+    create_reads_track(:taxon_version => taxon_version) unless reads_track
   end
   
   def summary_data(start,stop,num,chrom)

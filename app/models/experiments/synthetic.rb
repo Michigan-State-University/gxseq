@@ -1,5 +1,5 @@
 class Synthetic < Experiment
-  has_many :histogram_tracks, :foreign_key => "experiment_id", :dependent => :destroy
+  has_one :histogram_track, :foreign_key => "experiment_id", :dependent => :destroy
   has_many :a_components, :foreign_key => :synthetic_experiment_id, :dependent => :destroy
   has_many :b_components, :foreign_key => :synthetic_experiment_id, :dependent => :destroy
   has_many :components, :foreign_key => :synthetic_experiment_id
@@ -7,6 +7,7 @@ class Synthetic < Experiment
   validates_presence_of :b_components
   after_save :set_abs_max
   #has_peaks
+  # TODO: Test and activate synthetic experiments
   
   ##Specialized methods
   def update_assets
@@ -14,7 +15,7 @@ class Synthetic < Experiment
   end
   
   def create_tracks
-    create_histogram_track(:bioentry => self.bioentry) if histogram_track.nil?
+    create_histogram_track(:taxon_version => taxon_version) unless histogram_track
   end
   
   def display_name
@@ -50,7 +51,7 @@ class Synthetic < Experiment
   end
   
   def base_counts
-    bioentry.biosequence.seq.length
+    bioentry.biosequence.length
   end
 
   ##Track Config
@@ -68,7 +69,7 @@ class Synthetic < Experiment
   end
   
   def set_abs_max
-    # bioentries_experiments
+    
   end
   
   def merge_results(op, a_results, b_results, has_pos = true)

@@ -8,7 +8,6 @@ class VariantTrack < Track
     " id    		: '#{self.id}',
       experiment: '#{experiment.id}',
       name  		: '#{name}',
-      bioentry 	: '#{bioentry.id}',
       sample    : '#{sample}',
       type  		: 'VariantTrack',
       data  		: '#{root_path}/variants/track_data',

@@ -1,17 +1,17 @@
 class GenericFeatureTrack < Track
+  belongs_to :source_term, :class_name => "Term", :foreign_key => :source_term_id
   def path
     "Genome"
   end
   
   def name
-    "All Features"
+    "#{source_term.name}: Features"
   end
   
   def config
     " id: '#{self.id}',
       name: '#{name}',
       showAdd: true,
-      bioentry: '#{self.bioentry.id}',
       type: '#{self.class.name}',
       data: '#{root_path}/generic_feature/gene_models',
       height: 150,

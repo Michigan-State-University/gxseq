@@ -51,13 +51,25 @@ See config/ldap.yml.sample for example configuration.
 ----------------
 NCBI-Blast
 ----------------
-When Sequence is loaded a corresponding Blast database can be generated. This database will then be available through the tools->blast interface for custom blast searches. To enable this feature, :blast_bin_path must be set in config/settings.yml.
+When Sequence is loaded a corresponding Blast database can be generated. This database will then be available through the tools->blast interface for custom blast searches. To enable this feature, :blast_path must be set in config/settings.yml.
 
-in the blast_bin_path/ directory the following executables must be present:
+in the blast_path/ directory the following executables must be present:
 -formatdb
 -blastall
 
 See BLAST help from NCBI for more information: http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=Download
+
+----------------
+Bedtools
+----------------
+The bedtools utilities will be used to convert Bam datafiles to Bedgraph and then BigWig format if present
+To enable this feature the bedtools_path must be set in config/settings.yml
+
+bedtools_path must include:
+-genomeCoverageBed
+
+For more information about installing and using bedtools see:
+http://bedtools.readthedocs.org/en/latest/
 
 ----------------
 Bio-SQL

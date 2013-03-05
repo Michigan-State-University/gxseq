@@ -41,8 +41,8 @@ class Ability
       can :read, Bioentry, :taxon_version => {:group => {:users => {:id => user.id}}}
       can :read, Bioentry, :taxon_version => {:experiments => {:group => {:id => user.group_ids}}}
       #Features
-      can [:read,:update, :toggle_favorite], Seqfeature, :bioentry => {:taxon_version => {:group => {:users => {:id => user.id}}}}
-      can [:read,:update, :toggle_favorite], Seqfeature, :bioentry => {:taxon_version => {:experiments => {:group => {:id => user.group_ids}}}}
+      can [:read,:update, :toggle_favorite, :feature_counts], Seqfeature, :bioentry => {:taxon_version => {:group => {:users => {:id => user.id}}}}
+      can [:read,:update, :toggle_favorite, :feature_counts], Seqfeature, :bioentry => {:taxon_version => {:experiments => {:group => {:id => user.group_ids}}}}
       can :create, Seqfeature
       #GeneModels
       can [:read,:update], GeneModel, :bioentry => {:taxon_version => {:group => {:users => {:id => user.id}}}}
@@ -52,16 +52,20 @@ class Ability
       #Samples
       can :manage, Experiment, :user_id => user.id
       can :read, Experiment, :group => {:users => {:id => user.id}}
-      # TODO: coordinate user_id,owner_id,owns? methods for consistency (Experiment,Group,What Else?)
-      # Need explicit create to allow new experiments
-      #Track Data
       can :track_data, Experiment, :group => {:users => {:id => user.id}}
       can :track_data, Experiment, :user_id => user.id
+      #Tracks
+      # Tracks are only accessible if they have experiments
+      # Non-experiment tracks are not tested in controllers/models (models,generic,six_frame)
+      can :read, Track, :experiment => {:group => {:id => user.group_ids}}
       #Asset
       can :read, Asset, :experiment => {:group => {:users => {:id => user.id}}}
       #Expression
       can :read, FeatureCount, :experiment => {:group => {:users => {:id => user.id}}}
       can :read, FeatureCount, :experiment => {:user_id => user.id}
+      #
+      # TODO: coordinate user_id,owner_id,owns? methods for consistency (Experiment,Group,What Else?)
+      # Need explicit create to allow new experiments
       #
       # Owner tests - these were added as extra feature/sequence visibilty tests. Removed for simplicity.
       # They did allow users to view sequence and features if they could view any associated samples
@@ -90,6 +94,7 @@ class Ability
       can [:read,], GeneModel, :bioentry => {:taxon_version => {:experiments => {:group => {:id => user.group_ids}}}}
       can :read, Experiment, :group => {:users => {:id => user.id}}
       can :track_data, Experiment, :group => {:users => {:id => user.id}}
+      can :read, Track, :experiment => {:group => {:id => user.group_ids}}
       can :read, Asset, :experiment => {:group => {:users => {:id => user.id}}}
       can :read, FeatureCount, :experiment => {:group => {:users => {:id => user.id}}}
     #TODO: What about users with no role?
@@ -104,6 +109,8 @@ class Ability
       can :read, Seqfeature, :bioentry => {:taxon_version => {:group => {:name => 'public'}}}
       can :read, GeneModel, :bioentry => {:taxon_version => {:group => {:name => 'public'}}}
       can :read, Experiment, :group => {:name => 'public'}
+      can :track_data, Experiment, :group => {:name => 'public'}
+      can :read, Track, :experiment => {:group => {:name => 'public'}}
       can :read, Asset, :experiment => {:group => {:name => 'public'}}
       can :read, FeatureCount, :experiment => {:group => {:name => 'public'}}
     end

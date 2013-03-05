@@ -18,48 +18,54 @@ class BioentriesController < ApplicationController
       }
       wants.fasta {
         ## Search block - hack to get around forced paging, 
-        search = base_search do |s|
+        fasta_search = base_search do |s|
           s.paginate(:page => 1, :per_page => Bioentry.count)
         end
+        logger.info "\n\n\n\n#{fasta_search.total}\n\n\n\n"
         # set disposition to attachment
         headers["Content-disposition"] = 'attachment;'
         # use custom proc for response body
         # NOTE: change to streaming Enumerator for rails 3.2
         self.response_body = proc {|resp, out|
-          search.results.each do |entry|
-            # write the entry header
-            out.write entry.fasta_header
-            # write each line of sequence
-            entry.biosequence.yield_fasta do |output_part|
-              out.write output_part
+          fasta_search.hits.each_slice(100) do |hits|
+            Bioentry.where(:bioentry_id => hits.map{|h| h.stored(:id)}).includes(:biosequence).each do |entry|
+              # write the entry header
+              out.write entry.fasta_header
+              # write each line of sequence
+              entry.biosequence.yield_fasta do |output_part|
+                out.write output_part
+              end
             end
           end
         }
       }
       wants.genbank {
         ## Search block
-        search = base_search do
+        genbank_search = base_search do |s|
           s.paginate(:page => 1, :per_page => Bioentry.count)
         end
         # set disposition to attachment
         headers["Content-disposition"] = 'attachment;'
+        # use custom proc for response body
         self.response_body = proc {|resp, out|
-          search.results.each do |entry|
-            # write the entry header
-            out.write entry.genbank_header
-            # process the features in batches (for manageable includes)
-            entry.seqfeatures.includes{[type_term,qualifiers.term,locations]}.find_in_batches(:batch_size => 500) do |feature_batch|
-              # write the feature and qualifiers
-              feature_batch.each do |feature|
-                out.write feature.to_genbank(false)
+          genbank_search.hits.each_slice(100) do |hits|
+            Bioentry.where(:bioentry_id => hits.map{|h| h.stored(:id)}).includes(:biosequence).each do |entry|
+              # write the entry header
+              out.write entry.genbank_header
+              # process the features in batches (for manageable includes)
+              Seqfeature.where(:bioentry_id => entry.id).includes{[type_term,qualifiers.term,locations]}.find_in_batches(:batch_size => 500) do |feature_batch|
+                # write the feature and qualifiers
+                feature_batch.each do |feature|
+                  out.write feature.to_genbank(false)
+                end
               end
+              # write each line of sequence
+              entry.biosequence.yield_genbank do |output_part|
+                out.write output_part
+              end
+              # end the entry
+              out.write "//\n"
             end
-            # write each line of sequence
-            entry.biosequence.yield_genbank do |output_part|
-              out.write output_part
-            end
-            # end the entry
-            out.write "//\n"
           end
         }
       }
@@ -97,60 +103,52 @@ class BioentriesController < ApplicationController
   def show
     @bioentry = Bioentry.find(params[:id])
     authorize! :read, @bioentry
-    # config params
+    taxon_version = @bioentry.taxon_version
     # the feature_id will be used to lookup the given feature on load. It will NOT set the position.
     @feature_id = params[:feature_id]
     @gene_id = params[:gene_id]
-    # position
-    @position = params[:pos]
-    # zoom
-    @bases = params[:b]
-    @pixels = params[:p]
-    # tracks will be activated by type or id if no layout is provided
-    @tracks_param = params[:tracks]
-    
     ## get layout id
+    # selecting default layout resets preferred layout
     if(params[:default])
-      current_user.preferred_track_layout=nil, @bioentry
+      current_user.preferred_track_layout=nil, taxon_version
       current_user.save!
       layout_id = nil
+    # passing layout_id sets preferred layout
     elsif params[:layout_id]
       layout_id = params[:layout_id]
-      current_user.preferred_track_layout=layout_id, @bioentry
-      current_user.save! 
+      current_user.preferred_track_layout=layout_id, taxon_version
+      current_user.save!
+    # lookup preferred layout if no explicit tracks set
     else
-      layout_id = current_user.preferred_track_layout(@bioentry) unless @tracks_param
+      layout_id = current_user.preferred_track_layout(taxon_version) unless params[:track]
     end
-    
+    ## Setup the Active Tracks
     # if we have a layout_id find the layout and set the active tracks
-    # otherwise check the parameters for track ids
-    # fallback on default tracks
     if(layout_id)
       begin
         @layout = TrackLayout.find(layout_id)
-        @active_tracks = @layout.active_tracks
+        @active_track_string = @layout.active_tracks
       rescue
         @layout = nil
       end
+    # otherwise check the parameters for track ids
+    elsif(params[:tracks])
+      # use tracks param. no reason to sanitize because track_ids are only loaded if they exist
+      @active_tracks = Array(params[:tracks])
+    # fallback on default tracks
     else
-      @param_track_ids = []
-      if(@tracks_param && @tracks_param.is_a?(Array))
-        @tracks_param.each do |track|
-          if(track.is_a?(String) && @bioentry.respond_to?(track) && @bioentry.send(track))
-            @param_track_ids << @bioentry.send(track).id
-          elsif(track.respond_to?('to_i') && @bioentry.tracks.find(track.to_i))
-            @param_track_ids << @bioentry.tracks.find(track).id
-          end
-        end
-      end
-      unless(@param_track_ids.empty?)
-        # use parameter tracks
-        @active_tracks = @param_track_ids.to_json
-      else
-        # use default
-        @active_tracks =[@bioentry.six_frame_track.id,@bioentry.models_track.id].to_json
-      end
+      @active_tracks =[taxon_version.six_frame_track.try(:id),taxon_version.models_tracks.first.try(:id)]
     end
+    # Scope track access by ability
+    # Active tracks will be ignored if not in this list
+    @all_tracks = taxon_version.tracks.accessible_by(current_ability)+taxon_version.models_tracks+taxon_version.generic_feature_tracks+[taxon_version.six_frame_track]
+    # Setup the view
+    @view ={
+      :position => params[:position]||@layout.try(:position)||1,
+      :bases => params[:bases]||@layout.try(:bases)||50,
+      :pixels => params[:pixels]||@layout.try(:pixels)||1
+    }
+
     render :layout => 'sequence_viewer'
   end
   
@@ -353,7 +351,7 @@ class BioentriesController < ApplicationController
                       [left+1, left+1, length, sequence]
                     ],
                     :gc_content => [# [id,x,w,sequence]
-                        [left+1, left + 1, length, bioseq.get_gc_content(left,length,param['bases'])]
+                        [left+1, left + 1, length, bioentry.get_gc_content(left,length,param['bases'])]
                      ]
                   },
                 :sixframe => {# [id,x,w,sequence,frame#,offset]..]
@@ -363,7 +361,7 @@ class BioentriesController < ApplicationController
            }
          elsif(param['bases']>=10)
            bioseq = Biosequence.where(:bioentry_id => bioentry_id.to_i).select("bioentry_id,version,length").first
-           data =  bioseq.get_gc_content(left,length,param['bases'])
+           data =  bioentry.get_gc_content(left,length,param['bases'])
           render :json => {
              :success => true,
                :data => {
@@ -410,7 +408,8 @@ class BioentriesController < ApplicationController
       end
       # Filters
       s.with :taxon_version_id, params[:taxon_version] unless params[:taxon_version].blank?
-      s.with :biodatabase_id, params[:biodatabase] unless params[:biodatabase].blank?
+      # TODO: Hash out use case for biodatabase segmentation
+      #s.with :biodatabase_id, params[:biodatabase] unless params[:biodatabase].blank?
       s.with :taxon_version_type, params[:taxon_type] unless params[:taxon_type].blank?
       # Sort
       s.order_by params[:c].to_sym, order_d

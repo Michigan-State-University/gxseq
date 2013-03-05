@@ -28,5 +28,8 @@
   		<h4> Default Layout </h3>
   	<% end %>
   <% end %>
-  <%= build_genome_gui(@bioentry) %>
+  <%= build_genome_gui(@bioentry,@all_tracks,{
+    :view => @view,
+    :active => @active_tracks,
+  }) %>
 <% end %>
