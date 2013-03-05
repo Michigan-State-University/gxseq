@@ -1,4 +1,4 @@
-<% if group.taxon_versions.empty? %>
+<% if group.assemblies.empty? %>
   No sequence has been assigned to this group
 <% else %>
   <div class="table">
@@ -9,18 +9,18 @@
         <th>Version</th>
         <th>Options</th>
       </thead>
-      <% group.taxon_versions.each do |tv| %>
+      <% group.assemblies.each do |tv| %>
         <tr>
           <td><%= tv.species.name%></td>
           <td><%= tv.taxon.name %></td>
           <td><%= tv.version %></td>
           <td>
-            <%= link_to "Explore #{tv.bioentries.count } entries", bioentries_path(:taxon_version =>tv.id) %>
+            <%= link_to "Explore #{tv.bioentries.count } entries", bioentries_path(:assembly =>tv.id) %>
 				    |
 				    <%= link_to "View First entry", tv.bioentries.first%>
 				    <% if tv.has_expression? %>
 				      |
-				      <%= link_to "Expression", expression_viewer_path(:taxon_version_id => tv.id) %>
+				      <%= link_to "Expression", expression_viewer_path(:assembly_id => tv.id) %>
 				    <% end %>
           </td>
         </tr>

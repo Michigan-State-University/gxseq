@@ -1,4 +1,4 @@
-class TaxonVersion < ActiveRecord::Base
+class Assembly < ActiveRecord::Base
   has_many :bioentries, :order => "name asc", :dependent => :destroy
   has_many :experiments
   #TODO experiment STI - can this be dynamic?
@@ -42,8 +42,8 @@ class TaxonVersion < ActiveRecord::Base
       end
       puts "\t\tCreating new GC file for #{name_with_version}"
       # New ouput files for wig data
-	    wig_file = File.open("tmp/taxon_version_#{self.id}_gc_data.txt", 'w')
-	    chrom_file = File.open("tmp/taxon_version_#{self.id}_gc_chrom.txt","w")
+	    wig_file = File.open("tmp/assembly_#{self.id}_gc_data.txt", 'w')
+	    chrom_file = File.open("tmp/assembly_#{self.id}_gc_chrom.txt","w")
 	    # Have all the entries write gc data and chrom length
 	    bioentries.includes(:biosequence).find_in_batches(:batch_size => 500) do |batch|
 	      batch.each do |bioentry|
@@ -57,7 +57,7 @@ class TaxonVersion < ActiveRecord::Base
       wig_file.flush
 	    chrom_file.flush
 	    # Attach new empty BigWig file
-	    big_wig_file = File.open("tmp/taxon_version_#{self.id}_gc.bw","w+")
+	    big_wig_file = File.open("tmp/assembly_#{self.id}_gc.bw","w+")
 	    self.gc_file = GcFile.new(:data => big_wig_file)
 	    self.save!
 	    # Write out the BigWig data
@@ -70,9 +70,9 @@ class TaxonVersion < ActiveRecord::Base
       puts "Error creating GC_content file for taxon version(#{self.id})\n#{$!}\n\n#{$!.backtrace}"
     end
     # Cleanup the tmp files
-    begin;FileUtils.rm("tmp/taxon_version_#{self.id}_gc_data.txt");rescue;puts $!;end
-    begin;FileUtils.rm("tmp/taxon_version_#{self.id}_gc_chrom.txt");rescue;puts $!;end
-    begin;FileUtils.rm("tmp/taxon_version_#{self.id}_gc.bw");rescue;puts $!;end    
+    begin;FileUtils.rm("tmp/assembly_#{self.id}_gc_data.txt");rescue;puts $!;end
+    begin;FileUtils.rm("tmp/assembly_#{self.id}_gc_chrom.txt");rescue;puts $!;end
+    begin;FileUtils.rm("tmp/assembly_#{self.id}_gc.bw");rescue;puts $!;end    
   end
   
   # initializes tracks creating any that do not exist. Returns an array of new tracks
@@ -80,8 +80,8 @@ class TaxonVersion < ActiveRecord::Base
   def create_tracks
     result = []
     source_terms.each do |source_term|
-      result << ModelsTrack.find_or_create_by_taxon_version_id_and_source_term_id(self.id,source_term.id)
-      result << GenericFeatureTrack.find_or_create_by_taxon_version_id_and_source_term_id(self.id,source_term.id)
+      result << ModelsTrack.find_or_create_by_assembly_id_and_source_term_id(self.id,source_term.id)
+      result << GenericFeatureTrack.find_or_create_by_assembly_id_and_source_term_id(self.id,source_term.id)
     end
     result << (six_frame_track || create_six_frame_track)
     #result << protein_sequence_track || create_protein_sequence_track
@@ -139,6 +139,6 @@ class TaxonVersion < ActiveRecord::Base
   end
 
   def bioentry_ids
-    Bioentry.select('bioentry_id').where{taxon_version_id == my{id}}
+    Bioentry.select('bioentry_id').where{assembly_id == my{id}}
   end
 end

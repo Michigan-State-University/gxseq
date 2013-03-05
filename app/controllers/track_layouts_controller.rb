@@ -2,19 +2,19 @@ class TrackLayoutsController < ApplicationController
 
   def index    
     @track_layouts = current_user.is_admin? ?
-      TrackLayout.where(:taxon_version_id  =>  params[:taxon_version_id]) :
-      TrackLayout.where(:user_id  => current_user.id, :taxon_version_id => params[:taxon_version_id])
+      TrackLayout.where(:assembly_id  =>  params[:assembly_id]) :
+      TrackLayout.where(:user_id  => current_user.id, :assembly_id => params[:assembly_id])
     render :json => @track_layouts.order("created_at DESC").to_json(:only => [:name,:id])
   end
 
   def create
-    if(params[:taxon_version_id]&&params[:name]&&params[:active_tracks]&&params[:track_configurations]&&params[:location])
+    if(params[:assembly_id]&&params[:name]&&params[:active_tracks]&&params[:track_configurations]&&params[:location])
       configs = JSON.parse(params[:track_configurations])
       location = JSON.parse(params[:location])
       begin         
           @track_layout = current_user.track_layouts.new(
             :name => params[:name],
-            :taxon_version_id => params[:taxon_version_id],
+            :assembly_id => params[:assembly_id],
             :active_tracks => params[:active_tracks],
             :assembly => 1,
             :position => location['position'],

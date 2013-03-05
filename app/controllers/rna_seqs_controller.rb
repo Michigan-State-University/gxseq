@@ -11,18 +11,18 @@ class RnaSeqsController < ApplicationController
   
   def index
     query = (params[:query] || '').upcase
-    @rna_seqs = RnaSeq.accessible_by(current_ability).includes(:taxon_version => [:species => :scientific_name]).where{upper(name) =~ "%#{query}%"}.order("taxon_name.name ASC")
-    @species = @rna_seqs.map(&:taxon_version).map(&:species).uniq
+    @rna_seqs = RnaSeq.accessible_by(current_ability).includes(:assembly => [:species => :scientific_name]).where{upper(name) =~ "%#{query}%"}.order("taxon_name.name ASC")
+    @species = @rna_seqs.map(&:assembly).map(&:species).uniq
   end
 
   def new
     @rna_seq.assets.build
-    @taxon_versions = TaxonVersion.includes(:taxon => :scientific_name).order('taxon_name.name asc')
+    @assemblies = Assembly.includes(:taxon => :scientific_name).order('taxon_name.name asc')
   end
 
   def create
     @rna_seq.user = current_user
-    @taxon_versions = TaxonVersion.includes(:taxon => :scientific_name).order('taxon_name.name asc')
+    @assemblies = Assembly.includes(:taxon => :scientific_name).order('taxon_name.name asc')
     begin
       if @rna_seq.valid?
         @rna_seq.save
@@ -49,12 +49,12 @@ class RnaSeqsController < ApplicationController
   end
 
   def edit
-    @taxon_versions = TaxonVersion.includes(:taxon => :scientific_name).order('taxon_name.name asc')
+    @assemblies = Assembly.includes(:taxon => :scientific_name).order('taxon_name.name asc')
   end
 
   def update
     @rna_seq.user = current_user
-    @taxon_versions = TaxonVersion.includes(:taxon => :scientific_name).order('taxon_name.name asc')
+    @assemblies = Assembly.includes(:taxon => :scientific_name).order('taxon_name.name asc')
     if @rna_seq.update_attributes(params[:rna_seq])        
       flash[:notice] = 'mRNA-Seq was successfully updated.'
       redirect_to(@rna_seq)

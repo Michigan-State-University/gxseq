@@ -28,7 +28,7 @@ class Variant < Experiment
   # TODO: convert variant_track in js to multiple samples, then we can remove 'tracks' concept entirely
   def create_tracks
     self.samples.each do |samp|
-      VariantTrack.find_or_create_by_taxon_version_id_and_experiment_id_and_sample(taxon_version_id,self.id,samp)
+      VariantTrack.find_or_create_by_assembly_id_and_experiment_id_and_sample(assembly_id,self.id,samp)
     end
   end
   # returns the samples from tabix_vcf or bcf or an empty array

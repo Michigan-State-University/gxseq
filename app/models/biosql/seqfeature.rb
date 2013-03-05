@@ -52,13 +52,13 @@ class Seqfeature < ActiveRecord::Base
 
   ## CLASS METHODS
 
-  # Use sunspot search to return a type_term_id facet for all seqfeatures with a given taxon_version_id
-  def self.facet_types_with_expression_and_taxon_version_id(taxon_version_id)
-    taxon_version = TaxonVersion.find_by_id(taxon_version_id)
+  # Use sunspot search to return a type_term_id facet for all seqfeatures with a given assembly_id
+  def self.facet_types_with_expression_and_assembly_id(assembly_id)
+    assembly = Assembly.find_by_id(assembly_id)
     Seqfeature.search(:include => :feature_counts) do
-      with(:taxon_version_id, taxon_version.id)
+      with(:assembly_id, assembly.id)
       any_of do
-        taxon_version.experiments.each do |exp|
+        assembly.experiments.each do |exp|
           dynamic(:normalized_counts) do
             without "exp_#{exp.id}", nil
           end
@@ -356,8 +356,8 @@ class Seqfeature < ActiveRecord::Base
     s.text :full_description_text, :stored => true do
       indexed_full_description
     end
-    s.text :taxon_version_name_with_version_text, :stored => true do
-     bioentry.taxon_version.name_with_version
+    s.text :assembly_name_with_version_text, :stored => true do
+     bioentry.assembly.name_with_version
     end
     s.text :function_text, :stored => true do
       indexed_function
@@ -392,16 +392,16 @@ class Seqfeature < ActiveRecord::Base
     s.string :version_name do
       bioentry.version_info
     end
-    s.string :taxon_version_name_with_version do
-     bioentry.taxon_version.name_with_version
+    s.string :assembly_name_with_version do
+     bioentry.assembly.name_with_version
     end
     s.integer :id, :stored => true
     s.integer :bioentry_id, :stored => true
     s.integer :type_term_id, :references => Term
     s.integer :source_term_id, :references => Term
     s.integer :strand, :stored => true
-    s.integer :taxon_version_id do
-      bioentry.taxon_version_id
+    s.integer :assembly_id do
+      bioentry.assembly_id
     end
     s.integer :start_pos, :stored => true do
       min_start

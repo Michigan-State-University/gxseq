@@ -98,27 +98,27 @@ class ExpressionController < ApplicationController
   def setup_form_data
     # lookup all accessible taxon versions
     # Collect from accessible experiments to avoid displaying accessible sequence that has rna_seq but none accessible to the current user
-    @taxon_versions = RnaSeq.accessible_by(current_ability).includes(:taxon_version => [:blast_runs, :species => :scientific_name]).order("taxon_name.name ASC").map(&:taxon_version).uniq || []
+    @assemblies = RnaSeq.accessible_by(current_ability).includes(:assembly => [:blast_runs, :species => :scientific_name]).order("taxon_name.name ASC").map(&:assembly).uniq || []
     # set the current taxon version
-    @taxon_version = @taxon_versions.find{|t_version| t_version.try(:id)==params[:taxon_version_id].to_i} || @taxon_versions.first
+    @assembly = @assemblies.find{|t_version| t_version.try(:id)==params[:assembly_id].to_i} || @assemblies.first
     # lookup the extra taxon data
-    get_taxon_version_data if @taxon_version
+    get_assembly_data if @assembly
     # get all expression features
-    @feature_types = Seqfeature.facet_types_with_expression_and_taxon_version_id(@taxon_version.id) if @taxon_version
+    @feature_types = Seqfeature.facet_types_with_expression_and_assembly_id(@assembly.id) if @assembly
     # set the current feature
     @type_term_id ||=@feature_types.facet(:type_term_id).rows.first.try(:value) if @feature_types
   end
   
   def setup_viewer_data
     # lookup taxon version
-    @taxon_version = TaxonVersion.accessible_by(current_ability).where(:id => params[:taxon_version_id]).first
+    @assembly = Assembly.accessible_by(current_ability).where(:id => params[:assembly_id]).first
     # redirect if none available
-    unless @taxon_version
+    unless @assembly
       redirect_to expression_viewer_path
       return
     end
     # lookup the extra taxon data
-    get_taxon_version_data
+    get_assembly_data
     # build the grouped select
     setup_definition_select
     # set default search parameters
@@ -126,16 +126,16 @@ class ExpressionController < ApplicationController
   end
   
   #returns rna_seq,features with expression,and blast_runs associated with this taxon version
-  def get_taxon_version_data
+  def get_assembly_data
     begin
       # set the type_term_id
       @type_term_id = params[:type_term_id]
       # get the experiments
-      @experiment_options = @taxon_version.rna_seqs.accessible_by(current_ability).order('experiments.name')
+      @experiment_options = @assembly.rna_seqs.accessible_by(current_ability).order('experiments.name')
       # find any blasts
-      @blast_runs = @taxon_version.blast_runs
-      # set the taxon_version param for search block 
-      params[:taxon_version_id] ||= @taxon_version.try(:id)
+      @blast_runs = @assembly.blast_runs
+      # set the assembly param for search block 
+      params[:assembly_id] ||= @assembly.try(:id)
     rescue => e
       logger.info "\n***Error: Could not build version and features in expression controller:\n#{e}\n"
       server_error(e,"Could not build version and features")
@@ -150,7 +150,7 @@ class ExpressionController < ApplicationController
       'Annotation' => [['Function','function'],['Product','product']]
     }
     # Get all the custom terms in use
-    @terms = Term.includes(:ontology,[:qualifiers => [:seqfeature => :bioentry]]).where{ (seqfeature.type_term_id == my{@type_term_id}) & (bioentry.taxon_version_id == my{@taxon_version.id}) & (ontology_id.in(Term.custom_ontologies))}
+    @terms = Term.includes(:ontology,[:qualifiers => [:seqfeature => :bioentry]]).where{ (seqfeature.type_term_id == my{@type_term_id}) & (bioentry.assembly_id == my{@assembly.id}) & (ontology_id.in(Term.custom_ontologies))}
     @terms.each do |term|
       @group_select_options[term.ontology.name] ||= []
       @group_select_options[term.ontology.name] << [term.name, term.name_with_id]
@@ -159,7 +159,7 @@ class ExpressionController < ApplicationController
   # defaults
   def setup_defaults
     params[:per_page]||=50
-    params[:definition_type]||= @taxon_version.is_genome? ? 'description' : @blast_runs.first.name_with_id
+    params[:definition_type]||= @assembly.is_genome? ? 'description' : @blast_runs.first.name_with_id
     # setup order
     case params[:d]
     when 'ASC','asc','up'
@@ -183,8 +183,8 @@ class ExpressionController < ApplicationController
           any_s.with :id, id_range
         end
       end
-      # limit to the current taxon_version
-      s.with(:taxon_version_id, params[:taxon_version_id].to_i)
+      # limit to the current assembly
+      s.with(:assembly_id, params[:assembly_id].to_i)
       # limit to the supplied type
       s.with(:type_term_id, params[:type_term_id].to_i)
       # Search Filters

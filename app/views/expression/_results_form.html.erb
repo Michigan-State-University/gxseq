@@ -2,7 +2,7 @@
   <div style="float:right">
     Search on definition and locus<br/>
     <%= text_field_tag "keywords",params[:keywords] %>
-    <%= hidden_field_tag :taxon_version_id, params[:taxon_version_id] %>
+    <%= hidden_field_tag :assembly_id, params[:assembly_id] %>
     <%= hidden_field_tag :type_term_id, params[:type_term_id] %>
     <%= hidden_field_tag :c, params[:c] if params[:c]%>
     <%= hidden_field_tag :d, params[:d] if params[:d]%>
@@ -29,7 +29,7 @@
   <h2 class="pagetitle"><br/><hr/></h2>
   <% form_tag expression_results_path, :method => :get do %>
     <%= hidden_field_tag :advanced_search, true %>
-    <%= hidden_field_tag :taxon_version_id, params[:taxon_version_id] %>
+    <%= hidden_field_tag :assembly_id, params[:assembly_id] %>
     <%= hidden_field_tag :type_term_id, params[:type_term_id] %>
     <% @experiments.each do |e| %>
       <%= hidden_field_tag 'experiments[]', e.id %>

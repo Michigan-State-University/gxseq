@@ -2,7 +2,7 @@ class Experiment < ActiveRecord::Base
   include HasPeaks
   include Smoothable
   belongs_to :user
-  belongs_to :taxon_version
+  belongs_to :assembly
   belongs_to :group
   has_many :bioentries_experiments, :dependent => :destroy
   #has_many through is ignoring the set_primary_key definition. Need to fix this!
@@ -15,10 +15,10 @@ class Experiment < ActiveRecord::Base
   # We don't force an assets presence. It might be added later or an expression only rna_seq
   # validates_presence_of :assets
   validates_presence_of :name
-  validates_uniqueness_of :name, :scope => [:taxon_version_id,:type], :message => " has already been used"
+  validates_uniqueness_of :name, :scope => [:assembly_id,:type], :message => " has already been used"
   validates_length_of :name, :maximum => 35, :on => :create, :message => "must be less than 35 characters"
   validates_length_of :description, :maximum => 500, :on => :create, :message => "must be less than 500 characters"
-  validates_presence_of :taxon_version
+  validates_presence_of :assembly
   
   accepts_nested_attributes_for :bioentries_experiments, :allow_destroy => true
   accepts_nested_attributes_for :assets, :allow_destroy => true
@@ -55,7 +55,7 @@ class Experiment < ActiveRecord::Base
   def summary_data(start,stop,num,chrom)
   end
   # Builds new tracks to represent asset data
-  # TODO - update variants track so we can have 1 per experiment and remove tracks entirely. Exp and TaxonVersion instead of tracks
+  # TODO - update variants track so we can have 1 per experiment and remove tracks entirely. Exp and Assembly instead of tracks
   def create_tracks
   end
   # Processes assets generating any necessary data
@@ -124,11 +124,11 @@ class Experiment < ActiveRecord::Base
   handle_asynchronously :initialize_experiment  
   
   # # Virtual Method Override - When the tv_id is set re-create the habtm for each sequence in the list.
-  # def taxon_version_id=(tv_id)    
-  #   if(tv_id.to_i == self.taxon_version_id)
+  # def assembly_id=(tv_id)    
+  #   if(tv_id.to_i == self.assembly_id)
   #     return super(tv_id)
   #   end
-  #   tv = TaxonVersion.find_by_id(tv_id)
+  #   tv = Assembly.find_by_id(tv_id)
   #   if(tv)
   #     self.bioentries_experiments.destroy_all
   #     # Find in batches for large sequence sets
@@ -146,7 +146,7 @@ class Experiment < ActiveRecord::Base
   def update_taxon_join
     self.bioentries_experiments.destroy_all
     # Find in batches and fast insert for large sequence sets
-    taxon_version.bioentries.select('bioentry_id,accession').find_in_batches(:batch_size => 500) do |batch|
+    assembly.bioentries.select('bioentry_id,accession').find_in_batches(:batch_size => 500) do |batch|
       batch.each do |b|
         BioentriesExperiment.fast_insert(:bioentry_id => b.bioentry_id,:sequence_name => b.accession,:experiment_id => self.id)
       end
@@ -159,8 +159,8 @@ class Experiment < ActiveRecord::Base
   end
   
   ## Convienence Methods
-  def taxon_version_name
-    taxon_version.name_with_version if taxon_version
+  def assembly_name
+    assembly.name_with_version if assembly
   end
   
   def display_name
@@ -168,7 +168,7 @@ class Experiment < ActiveRecord::Base
   end
   
   def display_info
-    "#{display_name} - #{taxon_version_name}"
+    "#{display_name} - #{assembly_name}"
   end
 
   def typed_display_name

@@ -26,7 +26,7 @@
         <%= text_field_tag "keywords",params[:keywords], :size => 50 %><br/>
         <br/>
         Taxonomy:<br/>
-        <%= select_tag 'taxon_version_id', options_for_select(@taxon_versions.collect{|s| [s.name_with_version,s.id]},params[:taxon_version_id]), {:include_blank => "No Filter"} %><br/>
+        <%= select_tag 'assembly_id', options_for_select(@assemblies.collect{|s| [s.name_with_version,s.id]},params[:assembly_id]), {:include_blank => "No Filter"} %><br/>
         <br/>
         Type:<br/>
         <%= select_tag 'type_term_id', options_for_select(@search.facet(:type_term_id).rows.collect{|s| ["#{s.instance.try(:name)} (#{s.count})",s.value]},params[:type_term_id]), {:include_blank => "No Filter"} %><br/>
@@ -67,7 +67,7 @@
         <th style="white-space:nowrap"><%= sort_link "Start Pos", 'start_pos' %></th>
         <th style="white-space:nowrap"><%= sort_link "End Pos", 'end_pos' %></th>
         <th style="white-space:nowrap"><%= sort_link "Strand", 'strand' %></th>
-        <th style="white-space:nowrap"><%= sort_link "Taxon", 'taxon_version_name_with_version' %></th>
+        <th style="white-space:nowrap"><%= sort_link "Taxon", 'assembly_name_with_version' %></th>
         <th>Options</th>
       </thead>
       <% @search.each_hit_with_result do |hit,feature| %>
@@ -84,7 +84,7 @@
         <td><%= highlight_result(hit,:start_pos) %></td>
         <td><%= highlight_result(hit,:end_pos) %></td>
         <td><%= (hit.stored(:strand) > 0 ? '<span style="color:green">F</span>' : '<span style="color:darkred">R</span>').html_safe if hit.stored(:strand) %></td>
-        <td style="white-space:nowrap"><%= highlight_result(hit,:taxon_version_name_with_version_text) %></td>
+        <td style="white-space:nowrap"><%= highlight_result(hit,:assembly_name_with_version_text) %></td>
         <td style="white-space:nowrap">
           <%= link_to 'Details', seqfeature_path(feature) %>
           |

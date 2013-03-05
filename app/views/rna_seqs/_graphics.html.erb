@@ -5,7 +5,7 @@
 
 <div id="graphics_container">
   Displaying data for : <%= "#{@bioentry.species_name} #{@bioentry.version_info} : " %>
-  <% if @bioentry.taxon_version.is_genome? %>
+  <% if @bioentry.assembly.is_genome? %>
     <%= select_tag :bioentry_id, 
       options_from_collection_for_select(@rna_seq.bioentries_experiments, 
         :bioentry_id, 
@@ -57,7 +57,7 @@ Ext.onReady(function(){
         id : 'id'
       },
       extraParams : {
-        taxon_version  : <%= @bioentry.taxon_version_id %>,
+        assembly  : <%= @bioentry.assembly_id %>,
         reload_url : '/rna_seqs/<%= @rna_seq.id %>?bioentry_id='
       }
     },

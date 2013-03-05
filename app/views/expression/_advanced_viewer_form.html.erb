@@ -1,5 +1,5 @@
 <%= form_tag expression_advanced_results_path, :method => :get do %>
-<%= hidden_field_tag :taxon_version_id, taxon_version.try(:id) %>
+<%= hidden_field_tag :assembly_id, assembly.try(:id) %>
 <%= hidden_field_tag :type_term_id, type_term_id %>
 <div style="width:25em">
   <dl style="font-weight:bold;">

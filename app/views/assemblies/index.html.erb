@@ -15,12 +15,12 @@
 <% end %>
 
 <!-- TODO: Update listing, test links and add to sidebar -->
-<% if @taxon_versions.nil? %>
+<% if @assemblies.nil? %>
   No Results Found...
 <% else %>
   <div class="pagination">
-    <span style="float:left"><%= will_paginate(@taxon_versions) %></span>
-    <span style="float:right;margin-right:2em"><%= number_with_delimiter(@taxon_versions.total_entries) %> Matching Results</span>
+    <span style="float:left"><%= will_paginate(@assemblies) %></span>
+    <span style="float:right;margin-right:2em"><%= number_with_delimiter(@assemblies.total_entries) %> Matching Results</span>
   </div>
 
   <div class="table">
@@ -33,17 +33,17 @@
         <th>Type</th>
         <th>Options</th>
       </thead>
-      <% @taxon_versions.each do |taxon_version| %>
+      <% @assemblies.each do |assembly| %>
         <tr>
-          <td><%= taxon_version.species.scientific_name.name %></td>
-          <td><%= taxon_version.name %></td>
-          <td><%= taxon_version.version %></td>
-          <td><%= link_to taxon_version.bioentries.count, bioentries_path(:taxon_version => taxon_version.id) %></td>
-          <td><%= taxon_version.class.name %></td>
+          <td><%= assembly.species.scientific_name.name %></td>
+          <td><%= assembly.name %></td>
+          <td><%= assembly.version %></td>
+          <td><%= link_to assembly.bioentries.count, bioentries_path(:assembly => assembly.id) %></td>
+          <td><%= assembly.class.name %></td>
           <td>
-            <%= link_to "Details", taxon_version_path(taxon_version) %>
-          <% if can? :update, taxon_version %>
-            <%= link_to "Edit", edit_taxon_version_path(taxon_version) %>
+            <%= link_to "Details", assembly_path(assembly) %>
+          <% if can? :update, assembly %>
+            <%= link_to "Edit", edit_assembly_path(assembly) %>
           <% end %>
           </td>
         </tr>

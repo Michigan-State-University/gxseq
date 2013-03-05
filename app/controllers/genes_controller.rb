@@ -1,5 +1,5 @@
 class GenesController < ApplicationController
-  #autocomplete :taxon_version, :id
+  #autocomplete :assembly, :id
   autocomplete :bioentry, :id, :full => true
   authorize_resource :class => "GeneModel"
   skip_authorize_resource :only => [:autocomplete_bioentry_id]
@@ -10,11 +10,11 @@ class GenesController < ApplicationController
   def index
     # Defaults
     params[:page]||=1
-    params[:c]||='taxon_version_name_with_version'
+    params[:c]||='assembly_name_with_version'
     order_d = (params[:d]=='down' ? 'desc' : 'asc')
     @presence_items = presence_items = ['gene_name','function','product']
     # Filter setup
-    @taxon_versions = TaxonVersion.accessible_by(current_ability).includes(:taxon => :scientific_name).order('taxon_name.name')
+    @assemblies = Assembly.accessible_by(current_ability).includes(:taxon => :scientific_name).order('taxon_name.name')
     # Find minimum set of id ranges accessible by current user. Set to -1 if no items are found. This will force empty search results
     authorized_id_set = current_user.authorized_gene_model_ids
     authorized_id_set=[-1] if authorized_id_set.empty?
@@ -44,7 +44,7 @@ class GenesController < ApplicationController
         end
       end
       # Filters
-      with :taxon_version_id, params[:taxon_version_id] unless params[:taxon_version_id].blank?
+      with :assembly_id, params[:assembly_id] unless params[:assembly_id].blank?
       with :strand, params[:strand] unless params[:strand].blank?
       unless params[:start_pos].blank?
         any_of do
@@ -76,12 +76,12 @@ class GenesController < ApplicationController
     authorize! :create, Gene.new
     begin
       @taxons = Bioentry.all_taxon
-      @taxon_versions = TaxonVersion.accessible_by(current_ability).order(:name)
+      @assemblies = Assembly.accessible_by(current_ability).order(:name)
       @gene = Gene.new(params[:gene])
       
       @bioentry = @gene.bioentry
-      @taxon_version = @gene.bioentry.taxon_version
-      @bioentries = @taxon_version.bioentries
+      @assembly = @gene.bioentry.assembly
+      @bioentries = @assembly.bioentries
       @annotation_terms = Term.annotation_tags.order(:name).reject{|t|t.name=='locus_tag'}
       seq_src_ont_id = Term.seq_src_ont_id
       @seq_src_term_id = Term.default_source_term.id
@@ -164,16 +164,16 @@ class GenesController < ApplicationController
   private
   
   def new_gene_data
-    @taxon_version = @bioentry = nil
-    @taxon_versions = TaxonVersion.includes(:taxon => :scientific_name).order('taxon_name.name').accessible_by(current_ability)
+    @assembly = @bioentry = nil
+    @assemblies = Assembly.includes(:taxon => :scientific_name).order('taxon_name.name').accessible_by(current_ability)
     # TODO: refactor this! Ontology doesn't belong here... Should prabably be selected...
     @seq_src_term_id = Term.default_source_term.id
     begin
-      params[:taxon_version_id]||=params[:genes][:taxon_version_id] rescue nil
+      params[:assembly_id]||=params[:genes][:assembly_id] rescue nil
       params[:bioentry_id]||=params[:genes][:bioentry_id] rescue nil
       @gene = Gene.new
-    if(params[:taxon_version_id] && @taxon_version = TaxonVersion.accessible_by(current_ability).find(params[:taxon_version_id]))
-      @bioentries = @taxon_version.bioentries
+    if(params[:assembly_id] && @assembly = Assembly.accessible_by(current_ability).find(params[:assembly_id]))
+      @bioentries = @assembly.bioentries
       params[:bioentry_id]=@bioentries.first.id if @bioentries.count ==1
       if(params[:bioentry_id] && @bioentry = Bioentry.accessible_by(current_ability).find(params[:bioentry_id]))
         @gene = Gene.new(:bioentry_id => @bioentry.id)
@@ -203,7 +203,7 @@ class GenesController < ApplicationController
       [ 
         :locations,
         [:qualifiers => :term],
-        [:bioentry => [:taxon_version]],
+        [:bioentry => [:assembly]],
         [:gene_models => [:cds => [:locations, [:qualifiers => :term]],:mrna => [:locations, [:qualifiers => :term]]]],
       ]).first
     # Lookup all genes with the same locus tag for warning display
@@ -213,7 +213,7 @@ class GenesController < ApplicationController
   def get_gene_data
     begin
       #get gene and attributes
-      @gene = Gene.find(params[:id], :include => [:locations, [:bioentry => [:taxon_version]],[:gene_models => [:cds => [:locations, [:qualifiers => :term]],:mrna => [:locations, [:qualifiers => :term]]]],[:qualifiers => :term]])
+      @gene = Gene.find(params[:id], :include => [:locations, [:bioentry => [:assembly]],[:gene_models => [:cds => [:locations, [:qualifiers => :term]],:mrna => [:locations, [:qualifiers => :term]]]],[:qualifiers => :term]])
       setup_graphics_data      
       @locus = @gene.locus_tag.value.upcase
       @bioentry = @gene.bioentry

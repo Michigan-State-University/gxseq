@@ -2,7 +2,7 @@ class Bioentry < ActiveRecord::Base
   set_table_name "bioentry"
   set_primary_key :bioentry_id
   belongs_to :biodatabase, :class_name => "Biodatabase"
-  belongs_to :taxon_version
+  belongs_to :assembly
 
   has_one :biosequence, :dependent  => :destroy
   has_one :biosequence_without_seq, :class_name => "Biosequence", :select => [:alphabet,:length,:version,:created_at,:updated_at]
@@ -40,7 +40,7 @@ class Bioentry < ActiveRecord::Base
   acts_as_api
   
   # Sunspot search definition
-  searchable(:auto_index => false, :include => [[:bioentry_qualifier_values, :taxon_version => [:species => :scientific_name]], [:source_features => [:qualifiers => :term]]]) do
+  searchable(:auto_index => false, :include => [[:bioentry_qualifier_values, :assembly => [:species => :scientific_name]], [:source_features => [:qualifiers => :term]]]) do
     text :qualifiers, :stored => true do
       qualifiers.map{|q|"#{q.name}: #{q.value}"}
     end
@@ -57,46 +57,46 @@ class Bioentry < ActiveRecord::Base
       sequence_name
     end
     text :species_name_text, :stored => true do
-     taxon_version.species.scientific_name.name rescue 'No Species'
+     assembly.species.scientific_name.name rescue 'No Species'
     end
     text :taxon_name_text, :stored => true do
-     taxon_version.taxon.scientific_name.name rescue 'No Taxon'
+     assembly.taxon.scientific_name.name rescue 'No Taxon'
     end
-    text :taxon_version_name_text, :stored => true do
-     taxon_version.name
+    text :assembly_name_text, :stored => true do
+     assembly.name
     end
     text :version_text, :stored => true do 
-     taxon_version.version
+     assembly.version
     end
     string :description, :stored => true
     string :accession, :stored => true
     string :sequence_type, :stored => true
     string :sequence_name, :stored => true
     string :species_name, :stored => true do
-      taxon_version.species.scientific_name.name rescue 'No Species'
+      assembly.species.scientific_name.name rescue 'No Species'
     end
     string :taxon_name, :stored => true do
-      taxon_version.taxon.scientific_name.name rescue 'No Taxon'
+      assembly.taxon.scientific_name.name rescue 'No Taxon'
     end
-    string :taxon_version_name, :stored => true do
-      taxon_version.name
+    string :assembly_name, :stored => true do
+      assembly.name
     end
     string :version, :stored => true do 
-      taxon_version.version
+      assembly.version
     end
-    string :taxon_version_type do 
-      taxon_version.type
+    string :assembly_type do 
+      assembly.type
     end
     string :division
     integer :species_id do 
-      taxon_version.species_id
+      assembly.species_id
     end
     integer :taxon_id do
-      taxon_version.taxon_id
+      assembly.taxon_id
     end
     integer :id, :stored => true
     integer :length, :stored => true
-    integer :taxon_version_id
+    integer :assembly_id
     
     integer :biodatabase_id
   end
@@ -104,7 +104,7 @@ class Bioentry < ActiveRecord::Base
   ## Class Methods
 
   def self.all_taxon
-    TaxonVersion.all.collect(&:taxon).uniq
+    Assembly.all.collect(&:taxon).uniq
   end
   
   def self.all_species
@@ -116,7 +116,7 @@ class Bioentry < ActiveRecord::Base
     puts "Re-indexing #{bioentry_ids.length} entries"
     progress_bar = ProgressBar.new(bioentry_ids.length)
     bioentry_ids.each_slice(100) do |id_batch|
-      Sunspot.index Bioentry.includes([[:bioentry_qualifier_values, :taxon_version => [:species => :scientific_name]], [:source_features => [:qualifiers => :term]]]).where{bioentry_id.in(my{id_batch})}
+      Sunspot.index Bioentry.includes([[:bioentry_qualifier_values, :assembly => [:species => :scientific_name]], [:source_features => [:qualifiers => :term]]]).where{bioentry_id.in(my{id_batch})}
       Sunspot.commit
       progress_bar.increment!(id_batch.length)
     end
@@ -138,7 +138,7 @@ class Bioentry < ActiveRecord::Base
   end
   # returns taxon name if present version
   def version_info
-    "#{taxon_version.species_id==taxon_version.taxon_id ? '' : " > "+taxon_version.name} - #{taxon_version.version}"
+    "#{assembly.species_id==assembly.taxon_id ? '' : " > "+assembly.name} - #{assembly.version}"
   end
   # returns sequence label
   def display_name
@@ -176,7 +176,7 @@ class Bioentry < ActiveRecord::Base
   end
   # returns the species name. This is the scientific name of the species for associated taxon version
   def species_name
-    taxon_version.species.name
+    assembly.species.name
   end
   # returns the Taxon representing the superkingdom for associated taxon.
   # the selection is made using the nested set left_value and right_value
@@ -190,7 +190,7 @@ class Bioentry < ActiveRecord::Base
   end
   
   def taxon
-    taxon_version.nil? ? nil : taxon_version.taxon 
+    assembly.nil? ? nil : assembly.taxon 
   end
   # returns data from the taxon version gc_file
   # TODO: refactor and simplify this function
@@ -200,7 +200,7 @@ class Bioentry < ActiveRecord::Base
     points =((right-left)/(20*bases)).ceil
     points = 1 if points <= 0 
     step = ((right-left)/points).ceil
-    taxon_version.gc_file.summary_data(self.bioentry_id.to_s,left,right+step,points+1).map{|d| [d.round(4),step]}
+    assembly.gc_file.summary_data(self.bioentry_id.to_s,left,right+step,points+1).map{|d| [d.round(4),step]}
   end
   
   def keywords

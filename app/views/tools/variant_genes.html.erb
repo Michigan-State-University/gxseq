@@ -10,7 +10,7 @@
 
 <% form_tag request.path, :method => 'get' do %>
   <%= label_tag :taxonomy %><br/>
-  <%= select_tag(:taxon_version_id, options_from_collection_for_select(@taxon_versions,:id,:name_with_version,params[:taxon_version_id]), {:'data-onchange' => variant_genes_tools_url, :'data-with' => 'taxon_version_id', :'data-element' => :exp_info} )%>
+  <%= select_tag(:assembly_id, options_from_collection_for_select(@assemblies,:id,:name_with_version,params[:assembly_id]), {:'data-onchange' => variant_genes_tools_url, :'data-with' => 'assembly_id', :'data-element' => :exp_info} )%>
   <br/><br/>
 
 <div id="exp_info" style="float:left">
@@ -55,7 +55,7 @@
       <% end %>
       </table>
       <div style="float:right;margin:1em">
-        <%= link_to ("Download "+(image_tag "table.png")).html_safe, variant_genes_tools_path(:format => :csv,:set_a => params[:set_a], :set_b => params[:set_b], :taxon_version_id => params[:taxon_version_id])%>
+        <%= link_to ("Download "+(image_tag "table.png")).html_safe, variant_genes_tools_path(:format => :csv,:set_a => params[:set_a], :set_b => params[:set_b], :assembly_id => params[:assembly_id])%>
       </div>
     </div>
   </div>

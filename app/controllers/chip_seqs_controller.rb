@@ -19,18 +19,18 @@ class ChipSeqsController < ApplicationController
   ## Standard Rest
   def index
     query = (params[:query] || '').upcase
-    @chip_seqs = ChipSeq.accessible_by(current_ability).includes(:taxon_version => [:species => :scientific_name]).where{upper(name) =~ "%#{query}%"}.order("taxon_name.name ASC")
-    @species = @chip_seqs.map(&:taxon_version).map(&:species).uniq
+    @chip_seqs = ChipSeq.accessible_by(current_ability).includes(:assembly => [:species => :scientific_name]).where{upper(name) =~ "%#{query}%"}.order("taxon_name.name ASC")
+    @species = @chip_seqs.map(&:assembly).map(&:species).uniq
   end
 
   def new
     @chip_seq.assets.build
-    @taxon_versions = TaxonVersion.includes(:taxon => :scientific_name).order('taxon_name.name asc')
+    @assemblies = Assembly.includes(:taxon => :scientific_name).order('taxon_name.name asc')
   end
 
   def create
     @chip_seq.user = current_user
-    @taxon_versions = TaxonVersion.includes(:taxon => :scientific_name).order('taxon_name.name asc')
+    @assemblies = Assembly.includes(:taxon => :scientific_name).order('taxon_name.name asc')
     begin
       if @chip_seq.valid?
         @chip_seq.save
@@ -61,11 +61,11 @@ class ChipSeqsController < ApplicationController
   end
 
   def edit
-    @taxon_versions = TaxonVersion.includes(:taxon => :scientific_name).order('taxon_name.name asc')
+    @assemblies = Assembly.includes(:taxon => :scientific_name).order('taxon_name.name asc')
   end
 
   def update
-    @taxon_versions = TaxonVersion.includes(:taxon => :scientific_name).order('taxon_name.name asc')
+    @assemblies = Assembly.includes(:taxon => :scientific_name).order('taxon_name.name asc')
     if @chip_seq.update_attributes(params[:chip_seq])        
       if((w=@chip_seq.assets.map(&:warnings).flatten).empty?)
         flash[:notice] = 'ChipSeq was successfully updated.'

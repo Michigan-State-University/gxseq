@@ -19,7 +19,7 @@
 <% @blast_runs.each do |blast_run| %>
   <tr>
     <td><%= link_to blast_run.blast_database.name, admin_blast_databases_path if blast_run.blast_database %></td>
-    <td><%= blast_run.taxon_version.name_with_version if blast_run.taxon_version %></td>
+    <td><%= blast_run.assembly.name_with_version if blast_run.assembly %></td>
     <td><%= link_to 'Edit', edit_admin_blast_run_path(blast_run) %></td>
   </tr>
 <% end %>

@@ -14,18 +14,18 @@ class VariantsController < ApplicationController
   
   def index
     query = (params[:query] || '').upcase
-    @variants = Variant.accessible_by(current_ability).includes(:taxon_version => [:species => :scientific_name]).where{upper(name) =~ "%#{query}%"}.order("taxon_name.name ASC")
-    @species = @variants.map(&:taxon_version).map(&:species).uniq
+    @variants = Variant.accessible_by(current_ability).includes(:assembly => [:species => :scientific_name]).where{upper(name) =~ "%#{query}%"}.order("taxon_name.name ASC")
+    @species = @variants.map(&:assembly).map(&:species).uniq
   end
 
   def new
     @variant.assets.build
-    @taxon_versions = TaxonVersion.includes(:taxon => :scientific_name).order('taxon_name.name asc')
+    @assemblies = Assembly.includes(:taxon => :scientific_name).order('taxon_name.name asc')
   end
 
   def create
     @variant.user = current_user
-    @taxon_versions = TaxonVersion.includes(:taxon => :scientific_name).order('taxon_name.name asc')
+    @assemblies = Assembly.includes(:taxon => :scientific_name).order('taxon_name.name asc')
     begin
       if @variant.valid?
         @variant.save
@@ -50,11 +50,11 @@ class VariantsController < ApplicationController
   end
 
   def edit
-    @taxon_versions = TaxonVersion.includes(:taxon => :scientific_name).order('taxon_name.name asc')
+    @assemblies = Assembly.includes(:taxon => :scientific_name).order('taxon_name.name asc')
   end
 
   def update
-    @taxon_versions = TaxonVersion.includes(:taxon => :scientific_name).order('taxon_name.name asc')
+    @assemblies = Assembly.includes(:taxon => :scientific_name).order('taxon_name.name asc')
     if @variant.update_attributes(params[:variant])
       flash[:notice] = 'Variant was successfully updated.'
       redirect_to(@variant)

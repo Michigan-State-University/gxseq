@@ -1,2 +1,2 @@
-module TaxonVersionsHelper
+module AssemblysHelper
 end

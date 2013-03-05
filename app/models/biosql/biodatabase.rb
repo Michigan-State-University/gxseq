@@ -19,9 +19,9 @@ class Biodatabase < ActiveRecord::Base
     # generate the sequence data for bioentries
     begin
       puts "Syncing Taxon Version data"
-      TaxonVersion.all.each do |taxon_version|
-        taxon_version.generate_gc_data
-        taxon_version.create_tracks
+      Assembly.all.each do |assembly|
+        assembly.generate_gc_data
+        assembly.create_tracks
       end
     rescue
       puts $!

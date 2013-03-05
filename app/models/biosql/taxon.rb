@@ -5,24 +5,24 @@ class Taxon < ActiveRecord::Base
   set_primary_key :taxon_id
   has_and_belongs_to_many :biodatabases
   belongs_to :parent, :class_name => "Taxon", :foreign_key => "parent_taxon_id"
-  has_many :bioentries, :through => :taxon_versions, :order => :description
+  has_many :bioentries, :through => :assemblies, :order => :description
   has_many :taxon_names
   has_many :children, :class_name => "Taxon", :foreign_key => "parent_taxon_id"  
   has_one :scientific_name, :class_name => "TaxonName", :conditions => {:name_class => "scientific name"}
   has_one :taxon_genbank_common_name, :class_name => "TaxonName", :conditions=>"name_class = 'genbank common name'"
   # Version groups
-  has_many :taxon_versions
+  has_many :assemblies
   has_many :genomes
   has_many :transcriptomes
-  scope :with_taxon_versions, lambda {includes{[taxon_versions,scientific_name]}.where{taxon_versions.id != nil}}
+  scope :with_assemblies, lambda {includes{[assemblies,scientific_name]}.where{assemblies.id != nil}}
   scope :with_genomes, lambda {includes{[genomes,scientific_name]}.where{genomes.id != nil}}
   scope :with_transcriptomes, lambda {includes{[transcriptomes,scientific_name]}.where{transcriptomes.id != nil}}
   # Species groups - only successful if taxon is species
-  has_many :species_taxon_versions, :class_name => "TaxonVersion", :foreign_key => :species_id
+  has_many :species_assemblies, :class_name => "Assembly", :foreign_key => :species_id
   has_many :species_genomes, :class_name => "Genome", :foreign_key => :species_id
   has_many :species_transcriptomes, :class_name => "Transcriptome", :foreign_key => :species_id
-  has_many :in_use_children, :through => :species_taxon_versions, :source => :taxon
-  scope :with_species_taxon_versions, lambda {includes{[species_taxon_versions,scientific_name]}.where{species_taxon_versions.id != nil}}
+  has_many :in_use_children, :through => :species_assemblies, :source => :taxon
+  scope :with_species_assemblies, lambda {includes{[species_assemblies,scientific_name]}.where{species_assemblies.id != nil}}
   scope :with_species_genomes, lambda {includes{[species_genomes,scientific_name]}.where{species_genomes.id != nil}}
   scope :with_species_transcriptomes, lambda {includes{[species_transcriptomes,scientific_name]}.where{species_transcriptomes.id != nil}}
   

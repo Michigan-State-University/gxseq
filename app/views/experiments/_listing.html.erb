@@ -45,7 +45,7 @@
         <td width="15%"></td>
       </tr>
       <!-- Taxon Version -->
-      <% s.species_taxon_versions.accessible_by(current_ability).each_with_index do |t, t_idx| %>
+      <% s.species_assemblies.accessible_by(current_ability).each_with_index do |t, t_idx| %>
       <% next if t.send(exp_type+'s').empty? %>
       <% id = "#{s_idx + 1}-#{t_idx + 1}" %>      
         <tr id="<%= id %>" style="display:none" class="two">

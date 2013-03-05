@@ -40,7 +40,7 @@ class GeneModel < ActiveRecord::Base
   end
   
   # Sunspot search definition
-  searchable(:include => [[:bioentry => :taxon_version], [:cds => :product_assoc], [:mrna => :function_assoc], [:gene => [:product_assoc, :function_assoc]]]) do
+  searchable(:include => [[:bioentry => :assembly], [:cds => :product_assoc], [:mrna => :function_assoc], [:gene => [:product_assoc, :function_assoc]]]) do
     text :locus_tag_text, :stored => true do
       locus_tag
     end
@@ -69,20 +69,20 @@ class GeneModel < ActiveRecord::Base
     integer :end_pos, :stored => true
     integer :strand, :stored => true
     integer :rank, :stored => true
-    integer :taxon_version_id do
-      bioentry.taxon_version_id
+    integer :assembly_id do
+      bioentry.assembly_id
     end
     ## Sequence data
     # Taxon Version
-    text :taxon_version_name_with_version_text, :stored => true do
-     bioentry.taxon_version.name_with_version
+    text :assembly_name_with_version_text, :stored => true do
+     bioentry.assembly.name_with_version
     end
     # Species/Strain
     text :species_name_text, :stored => true do
-     bioentry.taxon_version.species.scientific_name.name rescue 'No Species'
+     bioentry.assembly.species.scientific_name.name rescue 'No Species'
     end
     text :taxon_name_text, :stored => true do
-     bioentry.taxon_version.taxon.scientific_name.name rescue 'No Taxon'
+     bioentry.assembly.taxon.scientific_name.name rescue 'No Taxon'
     end
     # Sequence
     text :sequence_name_text, :stored => true do
@@ -90,15 +90,15 @@ class GeneModel < ActiveRecord::Base
     end
     ## Filtering
     # Taxon Version
-    string :taxon_version_name_with_version do
-     bioentry.taxon_version.name_with_version
+    string :assembly_name_with_version do
+     bioentry.assembly.name_with_version
     end
     # Species/Strain
     string :species_name do
-     bioentry.taxon_version.species.scientific_name.name rescue 'No Species'
+     bioentry.assembly.species.scientific_name.name rescue 'No Species'
     end
     string :taxon_name do
-     bioentry.taxon_version.taxon.scientific_name.name rescue 'No Taxon'
+     bioentry.assembly.taxon.scientific_name.name rescue 'No Taxon'
     end
     # Sequence
     string :sequence_name do
@@ -111,7 +111,7 @@ class GeneModel < ActiveRecord::Base
     puts "Re-indexing #{gene_model_ids.length} entries"
     progress_bar = ProgressBar.new(gene_model_ids.length)
     gene_model_ids.each_slice(100) do |id_batch|
-      Sunspot.index GeneModel.includes([:bioentry => :taxon_version],[:cds => :product_assoc], [:mrna => :function_assoc], [:gene => [:product_assoc, :function_assoc]]).where{id.in(my{id_batch})}
+      Sunspot.index GeneModel.includes([:bioentry => :assembly],[:cds => :product_assoc], [:mrna => :function_assoc], [:gene => [:product_assoc, :function_assoc]]).where{id.in(my{id_batch})}
       Sunspot.commit
       progress_bar.increment!(id_batch.length)
     end

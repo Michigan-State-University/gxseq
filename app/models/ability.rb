@@ -32,21 +32,21 @@ class Ability
       #need to get more information about users managing groups
       #can :create, Group
       #Taxon
-      can :read, Taxon, :species_taxon_versions => {:group => {:users => {:id => user.id}}}
-      can :read, Taxon, :species_taxon_versions => {:experiments => {:group => {:id => user.group_ids}}}
-      #TaxonVersions
-      can :read, TaxonVersion, :group => {:users => {:id => user.id}}
-      can :read, TaxonVersion, :experiments => {:group => {:id => user.group_ids}}
+      can :read, Taxon, :species_assemblies => {:group => {:users => {:id => user.id}}}
+      can :read, Taxon, :species_assemblies => {:experiments => {:group => {:id => user.group_ids}}}
+      #Assemblys
+      can :read, Assembly, :group => {:users => {:id => user.id}}
+      can :read, Assembly, :experiments => {:group => {:id => user.group_ids}}
       #Sequence
-      can :read, Bioentry, :taxon_version => {:group => {:users => {:id => user.id}}}
-      can :read, Bioentry, :taxon_version => {:experiments => {:group => {:id => user.group_ids}}}
+      can :read, Bioentry, :assembly => {:group => {:users => {:id => user.id}}}
+      can :read, Bioentry, :assembly => {:experiments => {:group => {:id => user.group_ids}}}
       #Features
-      can [:read,:update, :toggle_favorite, :feature_counts], Seqfeature, :bioentry => {:taxon_version => {:group => {:users => {:id => user.id}}}}
-      can [:read,:update, :toggle_favorite, :feature_counts], Seqfeature, :bioentry => {:taxon_version => {:experiments => {:group => {:id => user.group_ids}}}}
+      can [:read,:update, :toggle_favorite, :feature_counts], Seqfeature, :bioentry => {:assembly => {:group => {:users => {:id => user.id}}}}
+      can [:read,:update, :toggle_favorite, :feature_counts], Seqfeature, :bioentry => {:assembly => {:experiments => {:group => {:id => user.group_ids}}}}
       can :create, Seqfeature
       #GeneModels
-      can [:read,:update], GeneModel, :bioentry => {:taxon_version => {:group => {:users => {:id => user.id}}}}
-      can [:read,:update], GeneModel, :bioentry => {:taxon_version => {:experiments => {:group => {:id => user.group_ids}}}}
+      can [:read,:update], GeneModel, :bioentry => {:assembly => {:group => {:users => {:id => user.id}}}}
+      can [:read,:update], GeneModel, :bioentry => {:assembly => {:experiments => {:group => {:id => user.group_ids}}}}
       #TODO: Update gene model create view before enabling
       #can :create, GeneModel
       #Samples
@@ -71,27 +71,27 @@ class Ability
       # They did allow users to view sequence and features if they could view any associated samples
       # Removed because these lookups take several seconds on mysql and only the admin can manage groups, samples, and sequence right now
       #
-      # can :read, Taxon, :species_taxon_versions => {:experiments => {:user_id => user.id}}
-      # can :read, TaxonVersion, :experiments => {:user_id => user.id}
-      # can :read, Bioentry, :taxon_version => {:experiments => {:user_id => user.id}}
-      # can [:read,:update, :toggle_favorite], Seqfeature, :bioentry => {:taxon_version => {:experiments => {:user_id => user.id}}}
-      # can [:read,:update], GeneModel, :bioentry => {:taxon_version => {:experiments => {:user_id => user.id}}}
+      # can :read, Taxon, :species_assemblies => {:experiments => {:user_id => user.id}}
+      # can :read, Assembly, :experiments => {:user_id => user.id}
+      # can :read, Bioentry, :assembly => {:experiments => {:user_id => user.id}}
+      # can [:read,:update, :toggle_favorite], Seqfeature, :bioentry => {:assembly => {:experiments => {:user_id => user.id}}}
+      # can [:read,:update], GeneModel, :bioentry => {:assembly => {:experiments => {:user_id => user.id}}}
     
     # Guest users have group based access but annotation is limited.
     elsif user.has_role?('guest')
       can :read, User, :id => user.id
       can :update, User, :id => user.id
       can :read, Group, :users => {:id => user.id}
-      can :read, Taxon, :species_taxon_versions => {:group => {:users => {:id => user.id}}}
-      can :read, Taxon, :species_taxon_versions => {:experiments => {:group => {:id => user.group_ids}}}
-      can :read, TaxonVersion, :group => {:users => {:id => user.id}}
-      can :read, TaxonVersion, :experiments => {:group => {:id => user.group_ids}}
-      can :read, Bioentry, :taxon_version => {:group => {:users => {:id => user.id}}}
-      can :read, Bioentry, :taxon_version => {:experiments => {:group => {:id => user.group_ids}}}
-      can [:read, :toggle_favorite], Seqfeature, :bioentry => {:taxon_version => {:group => {:users => {:id => user.id}}}}
-      can [:read, :toggle_favorite], Seqfeature, :bioentry => {:taxon_version => {:experiments => {:group => {:id => user.group_ids}}}}
-      can [:read,], GeneModel, :bioentry => {:taxon_version => {:group => {:users => {:id => user.id}}}}
-      can [:read,], GeneModel, :bioentry => {:taxon_version => {:experiments => {:group => {:id => user.group_ids}}}}
+      can :read, Taxon, :species_assemblies => {:group => {:users => {:id => user.id}}}
+      can :read, Taxon, :species_assemblies => {:experiments => {:group => {:id => user.group_ids}}}
+      can :read, Assembly, :group => {:users => {:id => user.id}}
+      can :read, Assembly, :experiments => {:group => {:id => user.group_ids}}
+      can :read, Bioentry, :assembly => {:group => {:users => {:id => user.id}}}
+      can :read, Bioentry, :assembly => {:experiments => {:group => {:id => user.group_ids}}}
+      can [:read, :toggle_favorite], Seqfeature, :bioentry => {:assembly => {:group => {:users => {:id => user.id}}}}
+      can [:read, :toggle_favorite], Seqfeature, :bioentry => {:assembly => {:experiments => {:group => {:id => user.group_ids}}}}
+      can [:read,], GeneModel, :bioentry => {:assembly => {:group => {:users => {:id => user.id}}}}
+      can [:read,], GeneModel, :bioentry => {:assembly => {:experiments => {:group => {:id => user.group_ids}}}}
       can :read, Experiment, :group => {:users => {:id => user.id}}
       can :track_data, Experiment, :group => {:users => {:id => user.id}}
       can :read, Track, :experiment => {:group => {:id => user.group_ids}}
@@ -103,11 +103,11 @@ class Ability
     else
       can :read, User, :id => user.id
       can :read, Group, :name => 'public'
-      can :read, Taxon, :species_taxon_versions => {:group => {:name => 'public'}}
-      can :read, TaxonVersion, :group => {:name => 'public'}
-      can :read, Bioentry, :taxon_version => {:group => {:name => 'public'}}
-      can :read, Seqfeature, :bioentry => {:taxon_version => {:group => {:name => 'public'}}}
-      can :read, GeneModel, :bioentry => {:taxon_version => {:group => {:name => 'public'}}}
+      can :read, Taxon, :species_assemblies => {:group => {:name => 'public'}}
+      can :read, Assembly, :group => {:name => 'public'}
+      can :read, Bioentry, :assembly => {:group => {:name => 'public'}}
+      can :read, Seqfeature, :bioentry => {:assembly => {:group => {:name => 'public'}}}
+      can :read, GeneModel, :bioentry => {:assembly => {:group => {:name => 'public'}}}
       can :read, Experiment, :group => {:name => 'public'}
       can :track_data, Experiment, :group => {:name => 'public'}
       can :read, Track, :experiment => {:group => {:name => 'public'}}

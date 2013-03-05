@@ -30,7 +30,6 @@ class CreateBiosqlDb < ActiveRecord::Migration
     add_index(:biodatabase, [:name], :unique => true, :name => :biodatabase_idx)
     
     create_table :bioentry, :primary_key => :bioentry_id do |t|
-      t.column :taxon_version_id, :integer, :limit => 10, :null => false # addition for versioned taxonomies
       t.column :bioentry_id, :integer, :limit => 10, :null => false
       t.column :biodatabase_id, :integer, :limit => 10, :null => false
       t.column :taxon_id, :integer, :limit => 10
@@ -42,10 +41,8 @@ class CreateBiosqlDb < ActiveRecord::Migration
       t.column :version, :string, :null => false
       t.timestamps
     end
-    add_index(:bioentry, [:taxon_version_id, :accession, :biodatabase_id, :version], :unique => true, :name => :bioentry_idx)
     # We do not set the 'identifier' column so it is not unique
     #add_index(:bioentry, [:taxon_version_id, :identifier, :biodatabase_id, :version], :unique => true, :name => :bioentry_idx_1)
-    add_index(:bioentry, :version, :name => :bioentry_idx_2)
     
     create_table :bioentry_dbxref, :id => false do |t|
       t.column :bioentry_id, :integer, :limit => 10, :null => false

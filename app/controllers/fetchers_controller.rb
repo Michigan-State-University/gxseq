@@ -133,7 +133,7 @@ class FetchersController < ApplicationController
       else
          if(params[:annoj_action] == 'lookup')
              bioentry = Bioentry.find(params['bioentry'])
-             bioentry_ids = bioentry.taxon_version.bioentries.map(&:id)
+             bioentry_ids = bioentry.assembly.bioentries.map(&:id)
              authorize! :read, bioentry
              data = []
              

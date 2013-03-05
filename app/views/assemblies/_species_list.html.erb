@@ -17,7 +17,7 @@
 		</td>
 		<td></td><td></td>
 	</tr>
-			<% species.species_taxon_versions.accessible_by(current_ability).each_with_index do |t_version, v_idx| %>
+			<% species.species_assemblies.accessible_by(current_ability).each_with_index do |t_version, v_idx| %>
 				<% id = "#{species_idx + 1}-#{v_idx + 1}" %>
 				<tr id="<%= id %>" class="item">
 					<td colspan="2"style="text-align:center">
@@ -30,12 +30,12 @@
 						<%= t_version.version %>
 					</td>
 					<td style="text-align:left">
-				    <%= link_to "Explore #{t_version.bioentries.count } entries", bioentries_path(:taxon_version =>t_version.id) %>
+				    <%= link_to "Explore #{t_version.bioentries.count } entries", bioentries_path(:assembly =>t_version.id) %>
 				    |
 				    <%= link_to "View First entry", t_version.bioentries.first%>
 				    <% if t_version.has_expression? %>
 				      |
-				      <%= link_to "Expression", expression_viewer_path(:taxon_version_id => t_version.id) %>
+				      <%= link_to "Expression", expression_viewer_path(:assembly_id => t_version.id) %>
 				    <% end %>
 					</td>
 				</tr>

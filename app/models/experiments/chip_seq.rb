@@ -37,7 +37,7 @@ class ChipSeq < Experiment
   end
 
   def create_tracks
-    create_histogram_track(:taxon_version => taxon_version) unless histogram_track
+    create_histogram_track(:assembly => assembly) unless histogram_track
   end
 
   def summary_data(start,stop,num,chrom)

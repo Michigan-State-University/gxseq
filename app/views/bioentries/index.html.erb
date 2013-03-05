@@ -10,7 +10,7 @@
 <% content_for :item_bar do -%>
   <div>
     <%= link_to "Download Fasta", bioentries_path(
-      :taxon_version => params[:taxon_version],
+      :assembly => params[:assembly],
       :biodatabase => params[:biodatabase],
       :taxon_type => params[:taxon_type],
       :keywords => params[:keywords],
@@ -21,7 +21,7 @@
   </div>
   <div>
     <%= link_to "Download Genbank", bioentries_path(
-      :taxon_version => params[:taxon_version],
+      :assembly => params[:assembly],
       :biodatabase => params[:biodatabase],
       :taxon_type => params[:taxon_type],
       :keywords => params[:keywords],
@@ -35,7 +35,7 @@
   <% form_tag bioentries_path, :method => :get do %>
     <div style="float:left">
       Filter by Taxonomy:<br/>
-      <%= select_tag 'taxon_version', options_for_select(@taxon_versions.collect{|s| [s.name_with_version,s.id]},params[:taxon_version]), {:include_blank => "No Filter", :onchange => "this.form.submit()"} %>
+      <%= select_tag 'assembly', options_for_select(@assemblies.collect{|s| [s.name_with_version,s.id]},params[:assembly]), {:include_blank => "No Filter", :onchange => "this.form.submit()"} %>
     </div>
     <!-- Remove Biodatabase filter until required -->
     <!-- <%# if @biodatabases.size > 1 %>
@@ -68,7 +68,7 @@
     <table class="listing">
       <thead>
         <th style="white-space:nowrap"><%= sort_link "Species", 'species_name' %></th>
-        <th style="white-space:nowrap"><%= sort_link "Taxon", 'taxon_version_name' %></th>
+        <th style="white-space:nowrap"><%= sort_link "Taxon", 'assembly_name' %></th>
         <th style="white-space:nowrap"><%= sort_link "Version", 'version' %></th>
         <th style="white-space:nowrap"><%= sort_link "Description", 'description' %></th>
         <th style="white-space:nowrap"><%= sort_link "Type", 'sequence_type' %></th>
@@ -79,7 +79,7 @@
       <% @search.hits.each do |hit| %>
       <tr>
         <td><%= highlight_result(hit,:species_name_text) %></td>
-        <td><%= highlight_result(hit,:taxon_version_name_text) %></td>
+        <td><%= highlight_result(hit,:assembly_name_text) %></td>
         <td><%= highlight_result(hit,:version_text) %></td>
         <td><%= highlight_result(hit,:description_text) %></td>
         <td><%= highlight_result(hit,:sequence_type_text) %></td>

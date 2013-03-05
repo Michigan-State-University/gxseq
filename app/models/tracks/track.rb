@@ -1,5 +1,5 @@
 class Track < ActiveRecord::Base
-  belongs_to :taxon_version
+  belongs_to :assembly
   belongs_to :experiment
   has_many :track_configurations, :dependent => :destroy
 
@@ -11,8 +11,8 @@ class Track < ActiveRecord::Base
     Experiment.all.each do |experiment|
       experiment.create_tracks
     end
-    TaxonVersion.all.each do |taxon_version|
-      taxon_version.create_tracks
+    Assembly.all.each do |assembly|
+      assembly.create_tracks
     end
   end
   

@@ -69,7 +69,7 @@ class GenericFeatureController < ApplicationController
              show = ["product"]
              bioentry = Bioentry.find(params['bioentry'])
              authorize! :read, bioentry
-             bioentry_ids = bioentry.taxon_version.bioentries.map(&:id)
+             bioentry_ids = bioentry.assembly.bioentries.map(&:id)
              features = Seqfeature.joins{qualifiers.term}.includes( [:locations, [:qualifiers => [:term]]]).order("term.name").where{qualifiers.term.name != 'translation'}.where("UPPER(value) like '%#{params[:query].upcase}%' AND bioentry_id in (#{bioentry_ids.join(',')})")
 
              data = []

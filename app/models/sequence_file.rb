@@ -1,6 +1,6 @@
 class SequenceFile < ActiveRecord::Base
   #TODO: Convert Asset,SequenceFile to polymorphic class
-  belongs_to :taxon_version
+  belongs_to :assembly
   has_attached_file :data, :path => ":rails_root/lib/data/sequence/gc/:filename"
   validates_attachment_presence :data
   

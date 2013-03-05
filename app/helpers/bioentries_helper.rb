@@ -31,10 +31,10 @@ module BioentriesHelper
     text += "genome :  '#{root_path}bioentries/metadata',\n"
     text += "refresh_path : '#{bioentry_url(bioentry)}',"
 		text += "bioentry  :  '#{bioentry.id}',\n"
-		text += "taxon_version_id : '#{bioentry.taxon_version_id}',\n"
+		text += "assembly_id : '#{bioentry.assembly_id}',\n"
 		text += "gene_id : '#{@gene_id}',\n" if(@gene_id)
 		text += "feature_id : '#{@feature_id}',\n" if(@feature_id)
-		text += "layouts_path : '#{track_layouts_path(:taxon_version_id => bioentry.taxon_version_id)}',"
+		text += "layouts_path : '#{track_layouts_path(:assembly_id => bioentry.assembly_id)}',"
 		text += "updateNodePath: '#{update_track_node_user_url}',\n"
 		
 		#initial view

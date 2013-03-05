@@ -6,11 +6,11 @@ class SeqfeaturesController < ApplicationController
   def index
     # Defaults
     params[:page]||=1
-    params[:c]||='taxon_version_name_with_version'
+    params[:c]||='assembly_name_with_version'
     order_d = (params[:d]=='down' ? 'desc' : 'asc')
     @presence_items = presence_items = ['gene_name','function','product']
     # Filter setup
-    @taxon_versions = TaxonVersion.accessible_by(current_ability).includes(:taxon => :scientific_name).order('taxon_name.name')
+    @assemblies = Assembly.accessible_by(current_ability).includes(:taxon => :scientific_name).order('taxon_name.name')
     # Find minimum set of id ranges accessible by current user. Set to -1 if no items are found. This will force empty search results
     authorized_id_set = current_user.authorized_seqfeature_ids
     authorized_id_set=[-1] if authorized_id_set.empty?
@@ -27,7 +27,7 @@ class SeqfeaturesController < ApplicationController
         keywords params[:keywords], :highlight => true
       end
       # Filters
-      with :taxon_version_id, params[:taxon_version_id] unless params[:taxon_version_id].blank?
+      with :assembly_id, params[:assembly_id] unless params[:assembly_id].blank?
       with :strand, params[:strand] unless params[:strand].blank?
       with(:type_term_id, params[:type_term_id]) unless params[:type_term_id].blank?
       unless params[:start_pos].blank?
@@ -188,14 +188,14 @@ class SeqfeaturesController < ApplicationController
 
   private
     def find_seqfeature
-      @seqfeature = Seqfeature.find(params[:id], :include => [:locations,[:bioentry => [:taxon_version]]])
+      @seqfeature = Seqfeature.find(params[:id], :include => [:locations,[:bioentry => [:assembly]]])
     end
     # TODO: refactor this method is duplicated from genes_controller
     def get_feature_data
       @format='edit'
       begin
         #get gene and attributes
-        @seqfeature = Seqfeature.find(params[:id], :include => [:locations,[:qualifiers => :term],[:bioentry => [:taxon_version]]])
+        @seqfeature = Seqfeature.find(params[:id], :include => [:locations,[:qualifiers => :term],[:bioentry => [:assembly]]])
         setup_graphics_data
         @locus = @seqfeature.locus_tag.value.upcase
         @bioentry = @seqfeature.bioentry

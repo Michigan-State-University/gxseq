@@ -1,2 +1,2 @@
-class Transcriptome < TaxonVersion
+class Transcriptome < Assembly
 end

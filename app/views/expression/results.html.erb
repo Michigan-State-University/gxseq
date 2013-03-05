@@ -3,7 +3,7 @@
 <% end -%>
 
 <% content_for :item_bar do -%>
-  <%= link_to "Update Selection", expression_viewer_path(:experiments => @experiments,:taxon_version_id => params[:taxon_version_id]), :class => "button" %>
+  <%= link_to "Update Selection", expression_viewer_path(:experiments => @experiments,:assembly_id => params[:assembly_id]), :class => "button" %>
   <%= link_to "Advanced Search",'#',:onclick => "$('advanced_search').toggle()", :class => "button" %>
   <%= render :partial => 'results_form' %>
 

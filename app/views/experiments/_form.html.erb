@@ -17,9 +17,9 @@
     <h3>Sequence Data</h3>
     <div style="float:left">
         <% if f.object.new_record? %>
-          <%= f.collection_select :taxon_version_id, @taxon_versions, :id, :name_with_version %>
+          <%= f.collection_select :assembly_id, @assemblies, :id, :name_with_version %>
         <% else %>
-          <%= f.collection_select :taxon_version_id, @taxon_versions, :id, :name_with_version, {}, :onchange => "$('bioentries_experiments_list').remove()" %>
+          <%= f.collection_select :assembly_id, @assemblies, :id, :name_with_version, {}, :onchange => "$('bioentries_experiments_list').remove()" %>
           <div id="bioentries_experiments_list">
             <% if f.object.bioentries_experiments.count < 50 %>
               <% f.fields_for :bioentries_experiments do |be| %>

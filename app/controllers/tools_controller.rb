@@ -35,15 +35,15 @@ class ToolsController < ApplicationController
   ## The Variant genes query is deprecated with the switch from Stored Mac to Tabix Variant format
   ##
   # def variant_genes
-  #   @taxon_versions = TaxonVersion.all
+  #   @assemblies = Assembly.all
   #   @variants, @variant_genes = [],[]
   #   if request.xhr?
-  #     if(params[:taxon_version_id])
-  #       @variants = TaxonVersion.find(params[:taxon_version_id]).variants rescue []
+  #     if(params[:assembly_id])
+  #       @variants = Assembly.find(params[:assembly_id]).variants rescue []
   #     end
   #     render :partial => 'variant_genes_experiments'
-  #   elsif params[:taxon_version_id]
-  #     t = TaxonVersion.find(params[:taxon_version_id]) rescue nil
+  #   elsif params[:assembly_id]
+  #     t = Assembly.find(params[:assembly_id]) rescue nil
   #     @variants = t.variants rescue []
   #     if(params[:set_a] && t)
   #       @variant_genes = GeneModel.find_differential_variants(params[:set_a],params[:set_b]||[])
@@ -54,9 +54,9 @@ class ToolsController < ApplicationController
   #       flash.now[:error] = "You must select at least 1 experiment from Set A and Set B"
   #     end
   #   else
-  #     t = TaxonVersion.first
+  #     t = Assembly.first
   #     @variants = t.variants rescue []
-  #     params[:taxon_version_id] = t.id rescue nil
+  #     params[:assembly_id] = t.id rescue nil
   #   end
   #   respond_to do |format|
   #     format.csv {

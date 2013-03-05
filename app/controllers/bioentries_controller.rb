@@ -3,10 +3,10 @@ class BioentriesController < ApplicationController
   def index
     # Defaults
     params[:page] ||=1
-    params[:c]||='taxon_version_name'
+    params[:c]||='assembly_name'
     # Filter setup
-    @taxon_versions = TaxonVersion.accessible_by(current_ability).includes(:taxon => :scientific_name).order('taxon_name.name')
-    @taxon_versions = @taxon_versions.where("taxon_versions.type = ?",params[:taxon_type]) unless params[:taxon_type].blank?
+    @assemblies = Assembly.accessible_by(current_ability).includes(:taxon => :scientific_name).order('taxon_name.name')
+    @assemblies = @assemblies.where("assemblies.type = ?",params[:taxon_type]) unless params[:taxon_type].blank?
     @biodatabases = Biodatabase.order('name')
     # Format
     respond_to do |wants|
@@ -75,7 +75,7 @@ class BioentriesController < ApplicationController
         end
         data=[]
         search.results.each do |entry|
-         # b = Bioentry.find(entry.id, :include => [:taxon_version,[:source_features => [:qualifiers => :term]]] )
+         # b = Bioentry.find(entry.id, :include => [:assembly,[:source_features => [:qualifiers => :term]]] )
           #add the datapoint
           data.push( {
             :id => entry.id,
@@ -103,24 +103,24 @@ class BioentriesController < ApplicationController
   def show
     @bioentry = Bioentry.find(params[:id])
     authorize! :read, @bioentry
-    taxon_version = @bioentry.taxon_version
+    assembly = @bioentry.assembly
     # the feature_id will be used to lookup the given feature on load. It will NOT set the position.
     @feature_id = params[:feature_id]
     @gene_id = params[:gene_id]
     ## get layout id
     # selecting default layout resets preferred layout
     if(params[:default])
-      current_user.preferred_track_layout=nil, taxon_version
+      current_user.preferred_track_layout=nil, assembly
       current_user.save!
       layout_id = nil
     # passing layout_id sets preferred layout
     elsif params[:layout_id]
       layout_id = params[:layout_id]
-      current_user.preferred_track_layout=layout_id, taxon_version
+      current_user.preferred_track_layout=layout_id, assembly
       current_user.save!
     # lookup preferred layout if no explicit tracks set
     else
-      layout_id = current_user.preferred_track_layout(taxon_version) unless params[:track]
+      layout_id = current_user.preferred_track_layout(assembly) unless params[:track]
     end
     ## Setup the Active Tracks
     # if we have a layout_id find the layout and set the active tracks
@@ -137,11 +137,11 @@ class BioentriesController < ApplicationController
       @active_tracks = Array(params[:tracks])
     # fallback on default tracks
     else
-      @active_tracks =[taxon_version.six_frame_track.try(:id),taxon_version.models_tracks.first.try(:id)]
+      @active_tracks =[assembly.six_frame_track.try(:id),assembly.models_tracks.first.try(:id)]
     end
     # Scope track access by ability
     # Active tracks will be ignored if not in this list
-    @all_tracks = taxon_version.tracks.accessible_by(current_ability)+taxon_version.models_tracks+taxon_version.generic_feature_tracks+[taxon_version.six_frame_track]
+    @all_tracks = assembly.tracks.accessible_by(current_ability)+assembly.models_tracks+assembly.generic_feature_tracks+[assembly.six_frame_track]
     # Setup the view
     @view ={
       :position => params[:position]||@layout.try(:position)||1,
@@ -186,28 +186,28 @@ class BioentriesController < ApplicationController
     bioentry = Bioentry.find(bioentry_id)
     # auth
     authorize! :read, bioentry
-    bioentry_tv = bioentry.taxon_version
+    bioentry_tv = bioentry.assembly
     bioentry_sp = bioentry_tv.species
-    taxon_versions = bioentry_sp.species_taxon_versions.accessible_by(current_ability).includes(:taxon)
+    assemblies = bioentry_sp.species_assemblies.accessible_by(current_ability).includes(:taxon)
     # Collect Species
-    Taxon.with_species_taxon_versions.accessible_by(current_ability).each do |taxon|
+    Taxon.with_species_assemblies.accessible_by(current_ability).each do |taxon|
       species_array.push({
-        :id => taxon.species_taxon_versions.first.bioentries.first.try(:id),
+        :id => taxon.species_assemblies.first.bioentries.first.try(:id),
         :name => taxon.name
       })
     end
     # Collect Strain/Variety/SubTaxon
-    taxon_versions.map(&:taxon).uniq.each do |taxon_strain|
+    assemblies.map(&:taxon).uniq.each do |taxon_strain|
       taxons.push({
-        :id => taxon_strain.taxon_versions.accessible_by(current_ability).first.bioentries.first.try(:id),
+        :id => taxon_strain.assemblies.accessible_by(current_ability).first.bioentries.first.try(:id),
         :name => (taxon_strain == bioentry_sp) ? "Generic Strain" : taxon_strain.name
       })
     end
     # Collect Version
-    taxon_versions.each do |taxon_version|
+    assemblies.each do |assembly|
       versions.push({
-        :id => taxon_version.bioentries.first.try(:id),
-        :name => taxon_version.version
+        :id => assembly.bioentries.first.try(:id),
+        :name => assembly.version
       })
     end
     # Using search form unless there is only 1 sequence
@@ -265,7 +265,7 @@ class BioentriesController < ApplicationController
           :selected => bioentry.generic_label,
           :use_search => use_bioentry_search,
           :search_url => bioentries_path(:format => :json),
-          :taxon_version_id => bioentry_tv.id
+          :assembly_id => bioentry_tv.id
         },
         :entry => {
           :accession => bioentry.accession,
@@ -398,7 +398,7 @@ class BioentriesController < ApplicationController
     @search = Bioentry.search do |s|
       # Text Keywords
       if params[:keywords]
-        s.keywords params[:keywords], :fields => [:accession_text,:description_text,:sequence_type_text,:sequence_name_text,:species_name_text,:taxon_version_name_text], :highlight => true
+        s.keywords params[:keywords], :fields => [:accession_text,:description_text,:sequence_type_text,:sequence_name_text,:species_name_text,:assembly_name_text], :highlight => true
       end
       # Auth      
       s.any_of do |any_s|
@@ -407,10 +407,10 @@ class BioentriesController < ApplicationController
         end
       end
       # Filters
-      s.with :taxon_version_id, params[:taxon_version] unless params[:taxon_version].blank?
+      s.with :assembly_id, params[:assembly] unless params[:assembly].blank?
       # TODO: Hash out use case for biodatabase segmentation
       #s.with :biodatabase_id, params[:biodatabase] unless params[:biodatabase].blank?
-      s.with :taxon_version_type, params[:taxon_type] unless params[:taxon_type].blank?
+      s.with :assembly_type, params[:taxon_type] unless params[:taxon_type].blank?
       # Sort
       s.order_by params[:c].to_sym, order_d
       # Paging + extras

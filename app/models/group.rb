@@ -1,8 +1,8 @@
 class Group < ActiveRecord::Base
   belongs_to :owner, :class_name => "User", :foreign_key => 'owner_id'
   has_and_belongs_to_many :users
-  has_many :taxon_versions
-  has_many :bioentries, :through => :taxon_versions
+  has_many :assemblies
+  has_many :bioentries, :through => :assemblies
   has_many :experiments
   validate :new_user_login
   before_save :add_new_user

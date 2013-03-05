@@ -53,9 +53,9 @@ class RnaSeq < Experiment
   # creates ReadsTracks if a bam is present otherwise HistogramTracks are created
   def create_tracks
     if(bam)
-      create_reads_track(:taxon_version => taxon_version) unless reads_track
+      create_reads_track(:assembly => assembly) unless reads_track
     else
-      create_histogram_track(:taxon_version => taxon_version) unless histogram_track
+      create_histogram_track(:assembly => assembly) unless histogram_track
     end
   end
   

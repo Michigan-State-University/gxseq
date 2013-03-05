@@ -23,7 +23,7 @@ class ReSeq < Experiment
   
   # TODO: Merge variant track / exp with re_seq
   def create_tracks
-    create_reads_track(:taxon_version => taxon_version) unless reads_track
+    create_reads_track(:assembly => assembly) unless reads_track
   end
   
   def summary_data(start,stop,num,chrom)

@@ -24,7 +24,7 @@
   	</tr>
   	<tr>
   		<td class="head">Taxonomy</td>
-  		<td class="odd"><%= @blast_run.taxon_version.taxon.scientific_name.name %></td>
+  		<td class="odd"><%= @blast_run.assembly.taxon.scientific_name.name %></td>
   	</tr>
   	<% @blast_run.parameters.each do |key,value| %>
     	<tr>
