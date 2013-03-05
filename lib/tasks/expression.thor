@@ -119,7 +119,7 @@ class Expression < Thor
         # Grab all of the matching features
         features = Seqfeature.find_all_with_locus_tags(batch_ids)
           .includes(:bioentry,:qualifiers => [:term])
-          .where{bioentry.taxon_version_id == my{experiment.taxon_version_id}}
+          .where{bioentry.assembly_id == my{experiment.assembly_id}}
           .where{display_name == my{options[:feature]}}
         seqfeature_ids.concat(features.map(&:seqfeature_id))
         feature_ids = features.collect{|f|f.locus_tag.value}

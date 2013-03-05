@@ -38,7 +38,7 @@ GenomeSuite::Application.routes.draw do
   end
   
   resources :seqfeature_qualifier_values
-  resources :taxon_versions
+  resources :assemblies
   resources :genomes
   resources :transcriptomes
   ##Browser

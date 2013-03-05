@@ -18,6 +18,6 @@ Paperclip.interpolates :blast_name do |attachment, style|
   attachment.instance.name
 end
 
-Paperclip.interpolates :taxon_version_name do |attachment, style|
-  attachment.instance.taxon_version_name
+Paperclip.interpolates :assembly_name do |attachment, style|
+  attachment.instance.assembly_name
 end

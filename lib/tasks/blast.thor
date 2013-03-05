@@ -4,7 +4,7 @@ class BlastDb < Thor
   #require 'progress_bar'
   desc "load FILE", 'load xml formatted blast results into the database'
   method_options %w(database -d) => :required,
-    %w(taxon_version_id -t) => :required,
+    %w(assembly_id -t) => :required,
     %w(remove_splice -r) => false,
     %w(use_search_index -u) => false,
     %w(feature_type -f) => 'Gene',
@@ -25,9 +25,9 @@ class BlastDb < Thor
       exit 0
     end
     # verify taxon
-    taxon_version = TaxonVersion.find_by_id(options[:taxon_version_id])
-    unless taxon_version
-      puts "Could not find taxonomy version with id:#{options[:taxon_version_id]}"
+    assembly = Assembly.find_by_id(options[:assembly_id])
+    unless assembly
+      puts "Could not find assembly with id:#{options[:assembly_id]}"
       exit 0
     end
     # verify type if provided
@@ -61,7 +61,7 @@ class BlastDb < Thor
       # initalize array to store feature ids
       # Create a new Blast run to store this report
       blast_run = BlastRun.new(
-        :taxon_version => taxon_version,
+        :assembly => assembly,
         :blast_database => blast_db,
         :parameters => blast_file.parameters,
         :program => blast_file.program,
@@ -84,7 +84,7 @@ class BlastDb < Thor
           # This is not default in case the index is unavailable
           search = Seqfeature.search do
             with :locus_tag_value, locus
-            with :taxon_version_id, options[:taxon_version_id]
+            with :assembly_id, options[:assembly_id]
             with :type_term_id, type_term_id
           end
           # verify that 1 and only 1 matching feature is found
@@ -100,7 +100,7 @@ class BlastDb < Thor
           end
         else
           # Use the database if sunspot is not available
-          features = Seqfeature.with_locus_tag(locus).includes(:bioentry).where('bioentry.taxon_version_id = ? and upper(display_name)=?',options[:taxon_version_id],options[:feature_type])
+          features = Seqfeature.with_locus_tag(locus).includes(:bioentry).where('bioentry.assembly_id = ? and upper(display_name)=?',options[:assembly_id],options[:feature_type])
           feature = features.first
           if features.size != 1
             puts "Found #{features.length} results for #{iter.query_def} skipping"

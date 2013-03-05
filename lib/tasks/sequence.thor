@@ -68,7 +68,7 @@ class Sequence < Thor
         # Setup taxon version and taxon ids just once for a transcriptome to speed up the load -  allows only one species per load
         if(is_transcriptome)
           species_taxon, strain_taxon = get_entry_taxonomy(data.entries.first,{:strain => strain,:species_id => species_id,:strain_id => strain_id})
-          taxon_version = Transcriptome.find_or_create_by_version_and_species_id_and_taxon_id(version,species_taxon.id,strain_taxon.id)
+          assembly = Transcriptome.find_or_create_by_version_and_species_id_and_taxon_id(version,species_taxon.id,strain_taxon.id)
           # link Biodatabase
           bio_db.taxons << species_taxon unless bio_db.taxons.include?(species_taxon)
         end
@@ -114,7 +114,7 @@ class Sequence < Thor
           unless(is_transcriptome)
             species_taxon, strain_taxon = get_entry_taxonomy(entry,{:strain => strain,:species_id => species_id,:strain_id => strain_id})
             # Get version
-            taxon_version = Genome.find_or_create_by_version_and_species_id_and_taxon_id(version,species_taxon.id,strain_taxon.id)
+            assembly = Genome.find_or_create_by_version_and_species_id_and_taxon_id(version,species_taxon.id,strain_taxon.id)
             # link Biodatabase
             bio_db.taxons << species_taxon unless bio_db.taxons.include?(species_taxon)
           end
@@ -164,13 +164,13 @@ class Sequence < Thor
           # Check for existing entry
           #testing for existence slows down transcriptome load
           #just allow it to die if Bioentry already exists
-          #unless(bioentry = Bioentry.find_by_taxon_version_id_and_biodatabase_id_and_accession_and_version(taxon_version.id,bio_db.id,entry_accession,entry_version))
+          #unless(bioentry = Bioentry.find_by_assembly_id_and_biodatabase_id_and_accession_and_version(assembly.id,bio_db.id,entry_accession,entry_version))
             # bioentry
             # use fast_insert to skip model creation and validation and speed up load... at the cost of orm access
             #bioentry = bio_db.bioentries.new(
             bioentry_id = Bioentry.fast_insert(
-            :taxon_version_id => taxon_version.id,
-            :taxon_id  => taxon_version.taxon_id,
+            :assembly_id => assembly.id,
+            :taxon_id  => assembly.taxon_id,
             :name => entry_accession,
             :accession => entry_accession,
             :identifier => 0,

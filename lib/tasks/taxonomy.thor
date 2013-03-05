@@ -162,7 +162,7 @@ class Taxonomy < Thor
       # delete any extras - check to make sure no deleted nodes are in use as taxon or species first
       t_versions = {}
       s_versions = {}
-      TaxonVersion.all.each do |tv| 
+      Assembly.all.each do |tv| 
         t_versions[tv.taxon_id]=tv
         s_versions[tv.species_id]=tv
       end
@@ -217,12 +217,12 @@ class Taxonomy < Thor
     puts "Done  ... in #{(days > 0) ? "#{days} days" : ''} #{Time.at(remainder).gmtime.strftime('%R:%S')}"
   end # end load_taxon task
   
-  # return all of the taxonomy version in the database
+  # return all of the assemblies in the database
   desc 'list','Report name and version of taxonomy for sequences loaded in the database'
   def list
-    puts "There are #{TaxonVersion.count} taxonomies used in the database"
+    puts "There are #{Assembly.count} taxonomies used in the database"
     puts "-\t-\tID\tSpecies\tStrain > Version\tentries"
-    TaxonVersion.includes(:taxon => :scientific_name).order('taxon_name.name asc, version asc').each_with_index do |tv,idx|
+    Assembly.includes(:taxon => :scientific_name).order('taxon_name.name asc, version asc').each_with_index do |tv,idx|
       puts "\t#{idx})\t#{tv.id}\t#{tv.species.scientific_name.name}\t#{tv.taxon.scientific_name.name} > #{tv.version}\t#{tv.bioentries.count}"
     end
   end
