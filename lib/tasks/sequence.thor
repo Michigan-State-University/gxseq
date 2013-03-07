@@ -96,7 +96,7 @@ class Sequence < Thor
           # Renumber the accession and store concordance
           if(prefix)
             new_accession = (sprintf "%s%06d", prefix, entry_count)
-            concordance_file.write("#{entry_accession}\t#{new_accession}")
+            concordance_file.write("#{entry_accession}\t#{new_accession}\n")
             entry_accession = new_accession
           end
           # grab the converted biosequence

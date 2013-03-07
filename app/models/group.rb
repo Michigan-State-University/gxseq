@@ -23,7 +23,7 @@ class Group < ActiveRecord::Base
   def add_new_user
     if(u = get_user_from_string(new_user))
       self.users << u
-      User.reset_cache
+      Ability.reset_cache
     end
   end
   

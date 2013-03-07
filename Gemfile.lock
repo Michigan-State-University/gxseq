@@ -8,7 +8,7 @@ GIT
 
 GIT
   remote: git://github.com/throwern/bioruby-samtools.git
-  revision: e29a4bc5b719117aa80deebd4cce2a7528c81b26
+  revision: 70aff085bf56db2a1e59ede23b35ec4a7689fdad
   specs:
     bio-samtools (0.4.2)
       bio (>= 1.4.2)

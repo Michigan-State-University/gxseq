@@ -3,7 +3,6 @@ class ChipChip < Experiment
   has_one :histogram_track, :foreign_key => "experiment_id", :dependent => :destroy
   has_one :big_wig, :foreign_key => "experiment_id"
   has_one :wig, :foreign_key => "experiment_id"  
-  after_save :set_abs_max
   has_peaks
   smoothable
 
@@ -63,11 +62,6 @@ class ChipChip < Experiment
     end
   end
 
-  def set_abs_max
-    bioentries_experiments.each do |be|
-      be.update_attribute(:abs_max, self.max(be.sequence_name)) rescue (logger.info "\n\nError Setting abs_max for experiment: #{self.inspect}\n\n")
-    end
-  end 
 end
 
 

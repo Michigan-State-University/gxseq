@@ -85,9 +85,9 @@ class VariantsController < ApplicationController
         limit = 5000
         only_variants_flag = (right-left>1000)
         bioentry_id = bioentry.id
-        be = variant.bioentries_experiments.find_by_bioentry_id(bioentry_id)
+        c_item = variant.concordance_items.find_by_bioentry_id(bioentry_id)
         data = {}
-        variant.get_data(be.sequence_name, left, right, {:limit => limit, :sample => sample, :split_hets => true, :only_variants => only_variants_flag}).each do |v|  
+        variant.get_data(c_item.reference_name, left, right, {:limit => limit, :sample => sample, :split_hets => true, :only_variants => only_variants_flag}).each do |v|  
           data[v[:type]] ||=[]
           data[v[:type]] << [v[:allele],v[:id],v[:pos],v[:ref].length,v[:ref],v[:alt],v[:qual]]
         end
@@ -99,9 +99,9 @@ class VariantsController < ApplicationController
         begin
           @bioentry = Bioentry.find(param['bioentry'])
           @experiment = Experiment.find(param['experiment'])
-          be = @experiment.bioentries_experiments.find_by_bioentry_id(@bioentry.id)
+          c_item = @experiment.concordance_items.find_by_bioentry_id(@bioentry.id)
           @position = param['pos']
-          @variants = @experiment.find_variants(be.sequence_name,param['pos'].to_i)
+          @variants = @experiment.find_variants(c_item.reference_name,param['pos'].to_i)
           render :partial => "item"
         rescue
           render :json => {
@@ -141,9 +141,9 @@ class VariantsController < ApplicationController
   
   def get_variants
     page = params[:page] || 1
-    @bioentry = Bioentry.find((params[:bioentry_id] || @variant.bioentries_experiments.first.bioentry))
-    be = @variant.bioentries_experiments.find_by_bioentry_id(@bioentry.id)
-    @sequence_name = be.sequence_name
+    @bioentry = Bioentry.find((params[:bioentry_id] || @variant.assembly.bioentries.first.id))
+    c_item = @variant.concordance_items.find_by_bioentry_id(@bioentry.id)
+    @sequence_name = c_item.reference_name
     @variants = []
     @limit = 100000
     begin

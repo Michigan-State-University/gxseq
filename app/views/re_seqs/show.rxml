@@ -1,13 +1,10 @@
 xml.instruct! :xml, :version  => "1.0", :encoding  => "UTF-8"
 xml.chart do
-  be = @re_seq.bioentries_experiments.where(:bioentry_id => @bioentry.id).first
-  bioentry = be.bioentry
+  c_item = @re_seq.concordance_items.where(:bioentry_id => @bioentry.id).first
+  bioentry = c_item.bioentry
   bc = bioentry.length
   num=400
-  @re_seq.summary_data(0,bioentry.length,num,be.sequence_name).each_with_index do |n,idx|
+  @re_seq.summary_data(0,bioentry.length,num,c_item.reference_name).each_with_index do |n,idx|
     xml.linedata(:x => (idx*(bc/num)).ceil, :y => n)
   end
-  # @rna_seq.peaks.with_bioentry(bioentry.id).each do |p|
-  #   xml.pointdata(:x => p.pos, :y => p.val)
-  # end
 end

@@ -16,7 +16,7 @@
   </p>
   <p>
     <b>Created By:</b>
-    <%= @asset.creator ? (link_to @asset.creator.display_name, profile_user_url(@asset.creator)) : 'Unknown'.html_safe %> <i><%= @asset.created_at %></i>
+    <%= @asset.creator ? (link_to @asset.creator.display_name, profile_user_url(@asset.creator)) : 'Unknown' %> <i><%= @asset.created_at %></i>
   </p>
   <p>
     <b>Last Updated:</b>

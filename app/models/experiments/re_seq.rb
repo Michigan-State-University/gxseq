@@ -51,12 +51,6 @@ class ReSeq < Experiment
     end
   end
   
-  def set_abs_max
-    bioentries_experiments.each do |be|
-      be.update_attribute(:abs_max, self.max(be.sequence_name)) rescue (logger.info "\n\nError Setting abs_max for experiment: #{self.inspect}\n\n")
-    end
-  end
-  
   def asset_types
     {"Bam" => "Bam"}
   end

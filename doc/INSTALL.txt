@@ -7,11 +7,8 @@ Create config files
 - ldap.yml
 - sunspot.yml
 - database.yml
-Load Taxon
-Load Genome(s) / Transcriptome(s)
-Load Samples
-Load Expression
-Load Blast Reports
+
+Load Samples,Expression
 
 ----------------
 Full Text Searching
@@ -37,10 +34,10 @@ Background Jobs
 Some of the long running tasks are sent to Delayed Job: https://github.com/collectiveidea/delayed_job for background processing (smoothing, conversion, etc..)
 
 At least one background worker must be running on the server. To start delayed job:
->script/delayed_job start
+>RAILS_ENV=production script/delayed_job start
 
 For multiple workers:
->script/delayed_job start -n 3
+>RAILS_ENV=production script/delayed_job start -n 3
 
 ----------------
 Remote Auth
@@ -62,7 +59,7 @@ See BLAST help from NCBI for more information: http://blast.ncbi.nlm.nih.gov/Bla
 ----------------
 Bedtools
 ----------------
-The bedtools utilities will be used to convert Bam datafiles to Bedgraph and then BigWig format if present
+The bedtools utilities will be used to convert Bam datafiles to Bedgraph format if present
 To enable this feature the bedtools_path must be set in config/settings.yml
 
 bedtools_path must include:
@@ -80,7 +77,7 @@ When using ORACLE the oracle schema provided by bio-SQL is NOT used. The standar
 However, Oracle reserves the use of the word 'comment'; therefore the 'comment' table is converted to the plural form 'comments' when working with an oracle adapter.
 
 The seqfeature -> display_name is used for Rails Single Table Inheritance. This is setup when loading features into the database.
-seqfeature_qualifier_value -> value is a varchar field with a maximum of 4000 characters.
+seqfeature_qualifier_value -> value is a string field with a maximum of 4000 characters.
 
 Left and Right nested set values for Taxon are NOT maintained during sequence load or default taxonomy load. Use taxonomy:load --nested_set if they are required.
 

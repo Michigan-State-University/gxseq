@@ -1,6 +1,36 @@
 class Ability
 
   include CanCan::Ability
+  
+  # This caching method is added to avoid long running queries.
+  # id ranges are computed and passed to sunspot during text searches
+  # the results are stored in class variables for future use.
+  #
+  # hash used for auth cache. keys are user_id, values are id ranges
+  @@seqfeature_auth_ids = {}
+  @@gene_model_auth_ids = {}
+  @@bioentry_auth_ids = {}
+  # clear out the auth cache
+  # The cache is reset when sample or group information changes
+  # see: GroupsController::remove_user, Group::add_user, Experiment::update_cache
+  def self.reset_cache
+    @@seqfeature_auth_ids = {}
+    @@gene_model_auth_ids = {}
+    @@bioentry_auth_ids = {}
+  end
+  # returns an array of seqfeature id ranges accessible by this user
+  # used to send authorized ids in index queries
+  def authorized_seqfeature_ids
+    @@seqfeature_auth_ids[@stored_user_id]||=Seqfeature.accessible_by(self).select_ids.to_ranges
+  end
+  # returns an array of gene model id ranges accessible by this user
+  def authorized_gene_model_ids
+    @@gene_model_auth_ids[@stored_user_id]||=GeneModel.accessible_by(self).select_ids.to_ranges
+  end
+  # returns an array of bioentry id ranges accessible by this user
+  def authorized_bioentry_ids
+    @@bioentry_auth_ids[@stored_user_id]||=Bioentry.accessible_by(self).select_ids.to_ranges
+  end
   # NOTE: There is an issue when combining abilities that reference the same table
   # when searching experiment->users and sequence->users we need to use different lookup method
   # group -> users -> id => user.id   vs.  group -> id => user.group_ids
@@ -13,8 +43,9 @@ class Ability
   #
   def initialize(user)
     # guest user (not logged in) == new user
-    user ||= User.new 
-    
+    user ||= User.new
+    # store the user id or nil for cache lookup
+    @stored_user_id = user.id
     # admin can view and edit everything
     if user.is_admin?
       can :manage, :all
@@ -34,7 +65,7 @@ class Ability
       #Taxon
       can :read, Taxon, :species_assemblies => {:group => {:users => {:id => user.id}}}
       can :read, Taxon, :species_assemblies => {:experiments => {:group => {:id => user.group_ids}}}
-      #Assemblys
+      #Assemblies
       can :read, Assembly, :group => {:users => {:id => user.id}}
       can :read, Assembly, :experiments => {:group => {:id => user.group_ids}}
       #Sequence
@@ -115,4 +146,5 @@ class Ability
       can :read, FeatureCount, :experiment => {:group => {:name => 'public'}}
     end
   end
+  
 end

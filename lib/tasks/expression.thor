@@ -39,7 +39,7 @@ class Expression < Thor
       begin
         concordance_file = File.open(options[:concordance],"r")
         concordance_file.each do |line|
-          locus_tag,file_id = line.chomp.split("\t")
+          file_id,locus_tag = line.chomp.split("\t")
           concordance_hash[file_id]=locus_tag
         end
       rescue
@@ -57,16 +57,16 @@ class Expression < Thor
       next if line[0] == '#'
       # open the file and check format
       if line.match(/\t/) 
-        data = line.split("\t")
+        data = line.parse_csv({ :col_sep => "\t" })
       else
-        data = line.split(",")
+        data = line.parse_csv
       end
       next unless data.size >=3
       dataset = []
       # grab the columns
-      dataset << data[options[:id_column]-1].gsub('"','')
-      dataset << data[options[:count_column]-1].gsub('"','')
-      dataset << data[options[:normalized_column]-1].gsub('"','')
+      dataset << data[options[:id_column]-1]
+      dataset << data[options[:count_column]-1]
+      dataset << data[options[:normalized_column]-1]
       # check data
       next unless dataset[1].match(number_reg) && dataset[2].match(number_reg)
       items << dataset
@@ -86,7 +86,7 @@ class Expression < Thor
         puts "truncating existing feature counts for experiment #{experiment.name}"
         FeatureCount.where(:experiment_id => experiment.id).delete_all
       when 'merge'
-        # delete existing later
+        # nothing done here, existing matches will be replaced later
       when 'raise'
         puts "Experiment already has #{counts} #{options[:feature]}s with expression. You need to supply an :existing option of 'truncate','append' or 'override' to continue"
         exit 0
@@ -121,18 +121,20 @@ class Expression < Thor
           .includes(:bioentry,:qualifiers => [:term])
           .where{bioentry.assembly_id == my{experiment.assembly_id}}
           .where{display_name == my{options[:feature]}}
+        # Add Id's to the running total array
         seqfeature_ids.concat(features.map(&:seqfeature_id))
+        # Collect the locus tags for this batch
         feature_ids = features.collect{|f|f.locus_tag.value}
         # check for missing locus
         if feature_ids.size < batch_ids.size
-          puts "#{(batch_ids - feature_ids).size} features were not found in this batch:\n#{batch_ids - feature_ids}"
+          puts "#{(batch_ids - feature_ids).size} features were not found in this batch:\n#{[batch_ids - feature_ids][0,5]} ..."
           if options[:skip_not_found]
             puts "\n-s supplied, ignoring missing features...\n"
           else
             exit 0
           end
         end
-        # print out a sample save
+        # print out a sample insert if test-only
         if options[:test]
           feature = features.first
           puts "Sample FeatureCount::

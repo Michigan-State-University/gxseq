@@ -33,7 +33,7 @@ class Bam < Asset
     bam = open_bam
     bam.index_stats.tap{
       bam.close
-    }    
+    }
   end
   
   def flagstat

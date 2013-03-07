@@ -1,15 +1,15 @@
-class BlastDb < Thor
+class Blast < Thor
   ENV['RAILS_ENV'] ||= 'development'
   require File.expand_path('config/environment.rb')
   #require 'progress_bar'
-  desc "load FILE", 'load xml formatted blast results into the database'
+  desc "create_run FILE", 'load xml formatted blast results into the database'
   method_options %w(database -d) => :required,
     %w(assembly_id -t) => :required,
     %w(remove_splice -r) => false,
     %w(use_search_index -u) => false,
     %w(feature_type -f) => 'Gene',
     :test => false
-  def load(input_file)
+  def create_run(input_file)
     # Parse input
     begin
       open_blast = File.open(input_file,'r')
@@ -19,7 +19,7 @@ class BlastDb < Thor
       exit 0
     end
     # verify database
-    blast_db = BlastDatabase.find_by_name(options[:database])
+    blast_db = BlastDatabase.find_by_name(options[:database]) || BlastDatabase.find_by_id(options[:database])
     unless blast_db
       puts "Could not find blast database with name: #{blast_db}"
       exit 0
@@ -125,9 +125,7 @@ class BlastDb < Thor
           accession = ''
           best_def = 'No Definition Found'
         end
-        # # create the new report entry text
-        # iter_report = header+iter.raw_xml+"\n  </BlastOutput_iterations>\n</BlastOutput>"
-        # iter.raw_xml
+        # create the new report entry text
         br = BlastReport.new(
           :blast_run => blast_run,
           :seqfeature_id => feature_id,
@@ -159,13 +157,13 @@ class BlastDb < Thor
       Seqfeature.reindex_all_by_id(seqfeature_ids)
     end
   end
-  desc "create", 'Create a new blast database for attaching blast results'
+  desc "create_db", 'Create a new blast database for attaching blast results'
   method_options %w(name -n) => :required,
     %w(link -l) => nil,
     %w(abbreviation -a) => nil,
     %w(taxon_id -t) => nil,
     %w(description -d) => nil
-  def create
+  def create_db
     taxon_id = (t = Taxon.find_by_taxon_id(options[:taxon_id])) ? t.taxon_id : nil
     b = BlastDatabase.new(
       :name => options[:name],
@@ -175,5 +173,23 @@ class BlastDb < Thor
       :description => options[:description]
     )
     b.save!
+  end
+  
+  desc 'list_db','Print information about blast databases'
+  def list_db
+    dbs = BlastDatabase.scoped
+    puts "-\tID\tName\tAbbr\tTaxonID\tTaxonName\tDescription\tLink"
+    dbs.each do |db|
+      puts "\t#{db.id}\t#{db.name}\t#{db.abbreviation}\t#{db.taxon.try(:id)||'?'}\t#{db.taxon.try(:name)||'?'}\t#{db.description}\t#{db.link_ref}"
+    end
+  end
+  
+  desc 'list_run','Print information about blast databases'
+  def list_run
+    runs = BlastRun.scoped
+    puts "-\tID\tDbName\tAssembly\tProgram\tVersion\tSystemFile\tParameters"
+    runs.each do |run|
+      puts "\t#{run.id}\t#{run.blast_database.name}\t#{run.assembly.name_with_version}\t#{run.program}\t#{run.version}\t#{run.db}\t#{run.parameters}"
+    end
   end
 end

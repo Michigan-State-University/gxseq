@@ -13,6 +13,7 @@ class Assembly < ActiveRecord::Base
   has_many :tracks
   has_many :models_tracks
   has_many :generic_feature_tracks
+  has_many :concordance_sets
   has_one :six_frame_track
   # TODO: fix or remove protein sequence track
   #has_one :protein_sequence_track
@@ -72,7 +73,8 @@ class Assembly < ActiveRecord::Base
     # Cleanup the tmp files
     begin;FileUtils.rm("tmp/assembly_#{self.id}_gc_data.txt");rescue;puts $!;end
     begin;FileUtils.rm("tmp/assembly_#{self.id}_gc_chrom.txt");rescue;puts $!;end
-    begin;FileUtils.rm("tmp/assembly_#{self.id}_gc.bw");rescue;puts $!;end    
+    begin;FileUtils.rm("tmp/assembly_#{self.id}_gc.bw");rescue;puts $!;end
+    puts
   end
   
   # initializes tracks creating any that do not exist. Returns an array of new tracks

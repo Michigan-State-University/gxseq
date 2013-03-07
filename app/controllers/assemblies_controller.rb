@@ -1,4 +1,4 @@
-class AssemblysController < ApplicationController
+class AssembliesController < ApplicationController
 
   before_filter :find_assembly, :only => [:show, :edit, :update]
 
@@ -28,7 +28,12 @@ class AssemblysController < ApplicationController
       end
     end
   end
-
+  
+  def concordance_sets
+    @concordance_sets = Assembly.find(params[:assembly_id]).concordance_sets
+    render :partial => 'concordance_set_selection', :locals => {:concordance_sets => @concordance_sets}
+  end
+  
   private
     def find_assembly
       @assembly = Assembly.find(params[:id])

@@ -87,8 +87,8 @@ class Variant < Experiment
     #storing the possible alt alleles
     alleles = []
     #Get the sequence_variants within start and stop on given entry
-    be = self.bioentries_experiments.find_by_bioentry_id(bioentry_id)
-    usable_variants = self.get_data(be.sequence_name,start,stop,{:sample => sample,:only_variants => true}).reject{|a| a[:allele] != 1}.sort{|a,b|a[:pos]<=>b[:pos]}
+    c_item = self.concordance_items.find_by_bioentry_id(bioentry_id)
+    usable_variants = self.get_data(c_item.reference_name,start,stop,{:sample => sample,:only_variants => true}).reject{|a| a[:allele] != 1}.sort{|a,b|a[:pos]<=>b[:pos]}
     #Convert seq to array of indiv. bases
     seq_slice = bioentry.biosequence.seq[start-1,(stop-start)+1]
     if(seq_slice && seq_slice.length >=0)

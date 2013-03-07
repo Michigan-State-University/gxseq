@@ -12,7 +12,7 @@ class SeqfeaturesController < ApplicationController
     # Filter setup
     @assemblies = Assembly.accessible_by(current_ability).includes(:taxon => :scientific_name).order('taxon_name.name')
     # Find minimum set of id ranges accessible by current user. Set to -1 if no items are found. This will force empty search results
-    authorized_id_set = current_user.authorized_seqfeature_ids
+    authorized_id_set = current_ability.authorized_seqfeature_ids
     authorized_id_set=[-1] if authorized_id_set.empty?
     # Begin block
     @search = Seqfeature.search do

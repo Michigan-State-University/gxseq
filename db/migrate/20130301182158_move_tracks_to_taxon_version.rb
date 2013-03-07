@@ -6,7 +6,6 @@ class MoveTracksToTaxonVersion < ActiveRecord::Migration
     rename_column :tracks, :bioentry_id, :taxon_version_id
     # Change track layout foreign key
     rename_column :track_layouts, :bioentry_id, :taxon_version_id
-    Track.create_all
   end
 
   def self.down

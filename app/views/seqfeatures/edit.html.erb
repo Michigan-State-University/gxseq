@@ -10,6 +10,7 @@
 	<%= render :partial => "genes/sidebar", :locals => {:active => 'features'} %>
 <% end %>
 
+<%= #TODO: Add tests for Edit seqfeature and GeneModel %>
 <% if @seqfeature %>
 	<% content_for :top_bar do %>
 		<h1 class="pagetitle">
@@ -23,7 +24,7 @@
   <% content_for :item_bar do -%>
   	<div style="float:left">
   		<%= link_to "New Feature", new_seqfeature_path, :class => "button" %>
-  		<%= link_to "Open Sequence Viewer", bioentry_path(@seqfeature.bioentry,{:pos => @seqfeature.min_start,:feature_id => @seqfeature.id,:tracks => [@seqfeature.bioentry.six_frame_track.id,@seqfeature.bioentry.models_track.id,@seqfeature.bioentry.generic_feature_track.id]}), :class => 'button' %>
+  		<%= link_to "Open Sequence Viewer", bioentry_path(@seqfeature.bioentry,{:pos => @seqfeature.min_start,:feature_id => @seqfeature.id,:tracks => [@seqfeature.bioentry.assembly.six_frame_track.id,@seqfeature.bioentry.assembly.generic_feature_tracks.first.id]}), :class => 'button' %>
   	</div>
   	<%= render :partial => 'format_links' %>
   <% end -%>

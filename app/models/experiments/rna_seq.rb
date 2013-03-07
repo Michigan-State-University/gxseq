@@ -4,7 +4,6 @@ class RnaSeq < Experiment
   has_many :feature_counts, :foreign_key => "experiment_id", :dependent => :destroy
   has_one :bam, :foreign_key => "experiment_id"
   has_one :big_wig, :foreign_key => "experiment_id"
-  after_save :update_bioentry_concordance_from_bam
   smoothable
   
   def asset_types
@@ -14,42 +13,19 @@ class RnaSeq < Experiment
   def load_asset_data
     return false unless super
     begin
-      # Update the concordance again after indexing the bam
-      update_bioentry_concordance_from_bam
       if(bam && !big_wig)
         self.create_big_wig(:data => bam.create_big_wig)
         big_wig.load if big_wig
       end
       return true
-    rescue
+    rescue => e
+      puts e
       return false
     end
   end
-
-  # use the bam file to update all bioentries assigning external id's from the bam (internal load order vs bam file order)
-  # Now using bioentry sequence name method instead bioentry accession column
-  # TODO: refact this method to add comparison logic, check accession and name for matches and only 'autosort' the un-matched
-  # This will likely be wrong if accessions are not in order and the bam file uses accession rather than names
-  # however ordering by accession can be incorrect if the bam file uses names instead of accessions...
-  def update_bioentry_concordance_from_bam
-    if bam
-      external_ids = bam.target_info.keys.sort
-      if external_ids.length >= bioentries_experiments.count
-        bioentries_experiments.includes(:bioentry).sort{|a,b|a.bioentry.sequence_name<=>b.bioentry.sequence_name}.each_with_index do |bioentry_experiment,index|
-          bioentry_experiment.update_attribute(:sequence_name,external_ids[index])
-        end
-      end
-    end
-  end
   
-  # stores the maximum value for each bioentry in the join table
-  def set_abs_max
-    bioentries_experiments.each do |be|
-      be.update_attribute(:abs_max, self.max(be.sequence_name)) rescue (logger.info "\n\nError Setting abs_max for experiment: #{self.inspect}\n\n")
-    end
-  end
   
-  # generates tracks for each bioentry
+  # generates tracks depending on availabale assets
   # creates ReadsTracks if a bam is present otherwise HistogramTracks are created
   def create_tracks
     if(bam)

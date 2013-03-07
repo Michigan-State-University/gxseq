@@ -1,14 +1,14 @@
-class Experiments < Thor
+class Experiment < Thor
   ENV['RAILS_ENV'] ||= 'development'
   require File.expand_path('config/environment.rb')
   @@experiments = ['ChipChip','ChipSeq','RnaSeq','Variant','ReSeq']
   # List displays experiments in the database
   # Supply -t to filter by experiment type.
   # It is recommended to run this before loading expression to identify the correct experiment name/id
-  desc 'list',"Display all of the experiments in the system and their internal ID's\n\tfilter by type with -t: (#{Experiment.select('distinct type').map(&:type).join(',')})"
+  desc 'list',"Display all of the experiments in the system and their internal ID's\n\tfilter by type with -t: (#{::Experiment.select('distinct type').map(&:type).join(',')})"
   method_options %w(verbose -v) => false, %w(type -t) => nil
   def list
-    experiments = Experiment.includes(:assembly).order('experiments.type asc, assemblies.species_id asc, experiments.name asc')
+    experiments = ::Experiment.includes(:assembly).order('experiments.type asc, assemblies.species_id asc, experiments.name asc')
     if(options[:type])
       experiments = experiments.where("type = '#{options[:type]}'")
     end
@@ -27,17 +27,18 @@ class Experiments < Thor
   end
   
   desc 'create',"Create a new experiment"
-  method_option :type, :aliases => '-c',:required => true, :desc => "Provide the Class Name for the Experiment. (#{@@experiments.join(",")})"
+  method_option :type, :aliases => '-t',:required => true, :desc => "Provide the Class Name for the Experiment. (#{@@experiments.join(",")})"
   method_option :name, :aliases => '-n',:required => true, :desc  => 'Names must be unique within a taxonomy'
   method_option :description, :aliases => '-d', :type => :string, :desc => 'Description can store any extra metadata for the experiment'
-  method_option :assembly_id, :aliases => '-t', :type => :numeric, :required => true, :desc => 'Supply the ID for sequence taxonomy. Use thor taxonomy:list to lookup'
+  method_option :assembly_id, :aliases => '-a', :type => :numeric, :required => true, :desc => 'Supply the ID for sequence taxonomy. Use thor taxonomy:list to lookup'
+  method_option :concordance_set_id, :aliases => '-c', :type => :numeric, :required => true, :desc => 'Supply the ID for this experiments concordance set. Use thor concordance:list to lookup'
   method_option :data, :aliases => ['-f','--files'], :type => :hash, :required => true, :desc => 'Hash of Assets to load for this experiment; AssetType:path/to/file'
   method_option :username, :default => 'admin', :aliases => '-u', :desc => 'Login name for the experiment owner'
   method_option :group, :aliases => '-g', :desc => "Group name for this experiment"
   def create
     # Validate options
     unless owner = User.find_by_login(options[:username])
-      puts "User with login #{options[:username]} not found"
+      puts "User with login #{options[:username]} not found; supply a valid login for --username/-u"
       return
     end
     unless @@experiments.include?(options[:type])
@@ -47,54 +48,47 @@ class Experiments < Thor
     unless Assembly.find_by_id(options[:assembly_id])
       puts "No taxon with id #{options[:assembly_id]} found. Try: thor taxonomy:list"
     end
-    if(options[:group])
-      unless group = ::Group.find_by_name(options[:group])
-        puts "No Group found with name #{options[:group]}. Try: thor groups:list"
-        return
-      end
-    else
-      group = nil
+    unless group = ::Group.find_by_name(options[:group])
+      puts "No Group found with name #{options[:group]}. Try: thor groups:list"
+      return
+    end
+    unless ConcordanceSet.find_by_id(options[:concordance_set_id])
+      puts "No ConcordanceSet with id #{options[:concordance_set_id]}. Try: thor concordance:list"
+      return
     end
     # Validate assets and build
-    assets = []
     options[:data].each do |key,value|
       unless key.constantize.superclass == Asset && File.exists?(value)
         puts "#{key} File Not Found : #{value}"
         return
       end
-      #assets << key.constantize.new(:data => File.open(value,'r'))
     end
-    
-    Experiment.transaction do
+    puts "Arguments Look Good. Validating Experiment"
+    ::Experiment.transaction do
       # Create the new experiment
       experiment = options[:type].constantize.create(
         :name => options[:name],
         :description => options[:description],
         :assembly_id => options[:assembly_id],
+        :concordance_set_id => options[:concordance_set_id],
         :user => owner,
         :group => group
       )
       # Validate experiment
       unless experiment.valid?
         puts experiment.errors.inspect
+        return
       end
+      puts "Experiment Looks Good. Adding Assets"
       # Add the assets
-      options[:data].each do |key,value|
-        puts "trying #{key} : #{value}"
-        #experiment.send("create_#{type.underscore}",{:data => File.open(filename,'r')})
-        
-        # type.constantize.create(
-        #   :data => File.open(filename,'r'),
-        #   #:experiment => experiment
-        # )
-        
-        # b = Bam.create(:data => File.open(filename,'r'))
-        #b = key.constantize.new(:data => File.open(value,'r'))
-        puts b.inspect
+      options[:data].each do |key,filename|
+        puts "#{key}:#{filename}"
+        Asset.create(
+          :type => key,
+          :data => File.open(filename,'r'),
+          :experiment_id => experiment.id
+        )
       end
-      puts b.valid?
-      puts b.errors.inspect
-      raise "All Done\n\n\n\n"
     end
   end
 end

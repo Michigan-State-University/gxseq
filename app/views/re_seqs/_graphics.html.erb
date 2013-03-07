@@ -1,5 +1,11 @@
+<% content_for :head do %>
+	<%= render :partial => "common/extjs" %>
+	<%= render :partial => "common/extjs_css_gray" %>
+<% end %>
+
 <div id="graphics_container">
-  Displaying data for : <%= @bioentry.display_info %>. View in <%= link_to "Sequence Viewer", bioentry_path(@bioentry, :tracks => [@re_seq.tracks.first.id]) %>
+  <%= render :partial => 'experiments/bioentry_select', :locals => {:experiment => @re_seq, :bioentry => @bioentry} %>
+  View this in <%= link_to "Sequence Viewer", bioentry_path(@bioentry, :tracks => [@re_seq.assembly.tracks.first.id]) %>
   <div id='exp_chart'>
   	<%= swf_tag "mixed_plot.swf", 
   		:id => "#{@re_seq}_plot", 
@@ -13,5 +19,4 @@
   			:local_url => "#{root_path}re_seqs/"
   		} %>
   </div>
-  <%= select_tag :bioentry_id, options_from_collection_for_select(@re_seq.bioentries_experiments, :bioentry_id, :bioentry_short_name, @bioentry.id), :onChange => "window.location='#{re_seq_url(@re_seq)}?bioentry_id='+this.options[this.selectedIndex].value"%>
 </div>

@@ -38,7 +38,9 @@ GenomeSuite::Application.routes.draw do
   end
   
   resources :seqfeature_qualifier_values
-  resources :assemblies
+  resources :assemblies do
+    get 'concordance_sets', :on => :collection
+  end
   resources :genomes
   resources :transcriptomes
   ##Browser

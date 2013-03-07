@@ -6,7 +6,9 @@ class RenameTaxonVersionToAssembly < ActiveRecord::Migration
     rename_column :track_layouts, :taxon_version_id, :assembly_id
     rename_column :sequence_files, :taxon_version_id, :assembly_id
     rename_column :blast_runs, :taxon_version_id, :assembly_id
+    rename_column :experiments, :taxon_version_id, :assembly_id
     
+    # TODO: Test this, do we need to rename indexes after column rename?
     remove_index :sequence_files, :taxon_version_id
     add_index :sequence_files, :assembly_id
     
@@ -16,18 +18,19 @@ class RenameTaxonVersionToAssembly < ActiveRecord::Migration
   end
 
   def self.down
-    remove_index :experiments, :name => :experiment_idx1
-    add_index :experiments, [:taxon_version_id, :group_id, :user_id], :name => :experiment_idx1
     
-    remove_index :sequence_files, :assembly_id
-    add_index :sequence_files, :taxon_version_id
-    
+    rename_column :experiments, :assembly_id, :taxon_version_id
     rename_column :blast_runs, :assembly_id, :taxon_version_id
-    rename_column :table_name, :new_column_name, :column_name
-    rename_column :sequence_file, :new_column_name, :column_name
+    rename_column :sequence_files, :assembly_id, :taxon_version_id
     rename_column :track_layouts, :assembly_id, :taxon_version_id
     rename_column :tracks, :assembly_id, :taxon_version_id
     rename_column :bioentry, :assembly_id, :taxon_version_id
     rename_table :assemblies, :taxon_versions
+    
+    remove_index :experiments, :name => :experiment_idx1 rescue puts 'experiment_idx1 index not found'
+    add_index :experiments, [:taxon_version_id, :group_id, :user_id], :name => :experiment_idx1
+    
+    remove_index :sequence_files, :assembly_id rescue puts 'sequence_files index not found'
+    add_index :sequence_files, :taxon_version_id
   end
 end

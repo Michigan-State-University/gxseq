@@ -36,19 +36,20 @@ class FetchersController < ApplicationController
       bioentry = Bioentry.find(bioentry_id)
       exp = Experiment.find(param['experiment'])
       authorize! :track_data, exp
-      be = exp.bioentries_experiments.with_bioentry(bioentry_id)[0]
-      data = exp.summary_data(param['left'],param['right'],((param['right']-param['left'])/param['bases']),be.sequence_name)
+      c_item = exp.concordance_items.with_bioentry(bioentry_id)[0]
+      data = exp.summary_data(param['left'],param['right'],((param['right']-param['left'])/param['bases']),c_item.reference_name)
       #{(stop-start)/bases
       data.fill{|i| [param['left']+(i*param['bases']),data[i]]}
       #We Render the text directly for speed efficiency
       render :text =>"{\"success\":true,\"data\":#{data.inspect}}"
-    when 'abs_max'
-      exp = Experiment.find(param['experiment'])
-      authorize! :track_data, exp
-      bioentry_id = param['bioentry']
-      bioentry = Bioentry.find(bioentry_id)
-      authorize! :read, bioentry
-      render :text => exp.max(exp.get_chrom(bioentry_id)).to_s
+    # TODO: Remove abs max completely
+    # when 'abs_max'
+    #   exp = Experiment.find(param['experiment'])
+    #   authorize! :track_data, exp
+    #   bioentry_id = param['bioentry']
+    #   bioentry = Bioentry.find(bioentry_id)
+    #   authorize! :read, bioentry
+    #   render :text => exp.max(exp.get_chrom(bioentry_id)).to_s
     when 'peak_genes'
       @experiment = Experiment.find(param['experiment'])
       authorize! :track_data, @experiment

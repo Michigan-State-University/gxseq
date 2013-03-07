@@ -27,12 +27,7 @@ class Bioentry < ActiveRecord::Base
   
   ##Extensions
   has_many :gene_models, :dependent  => :destroy
-  has_many :bioentries_experiments
-  has_many :experiments, :through => :bioentries_experiments
-  has_many :chip_seqs, :through => :bioentries_experiments
-  has_many :chip_chips, :through => :bioentries_experiments
-  has_many :synthetics, :through => :bioentries_experiments
-  has_many :variants, :through => :bioentries_experiments
+  has_many :concordance_items
   has_many :peaks
   
   scope :with_version, lambda { |v| where("version = ?",v) }

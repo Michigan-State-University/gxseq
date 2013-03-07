@@ -437,10 +437,16 @@ var AnnoJ = (function()
     newSearch = "?pos="+loc.position
     newSearch += "&b="+loc.bases
     newSearch += "&p="+loc.pixels
-    Ext.each(GUI.TrackSelector.getActiveIDs(), function(active_id){
-      newSearch += "&tracks[]="+active_id
-    });
+    newSearch += activeTrackParams();
     window.history.replaceState("Data","Sequence Viewer",newSearch)
+  };
+  //Convert the active tracks into a parameter string
+  function activeTrackParams(){
+    text = '';
+    Ext.each(GUI.TrackSelector.getActiveIDs(), function(active_id){
+      text += "&tracks[]="+active_id
+    });
+    return text
   };
   //Load Track with data. Replacing internal setLocation with managed event.
   function handleFrame(track){
@@ -476,6 +482,7 @@ var AnnoJ = (function()
     Helpers         : {},
     postLayout			: postLayout,
     numberToSize    : numberToSize,
-    bytesToSize     : bytesToSize
+    bytesToSize     : bytesToSize,
+    activeTrackParams:activeTrackParams
   };
 })();

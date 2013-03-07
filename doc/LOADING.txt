@@ -1,0 +1,152 @@
+----------------
+Before Loading Sequence
+----------------
+
+Load the ncbi taxonomy tree if it has not beed done yet.
+
+	thor taxonomy:load
+
+
+Find the taxon Id for your transcriptome.
+
+	thor taxonomy:find "Escherichia coli" --rank 'species'
+	
+	-	-	TaxonID	Rank	Name	Name Class
+		0)	444	species	Escherichia coli	scientific name
+	
+
+Try to find a strain also
+
+	thor taxonomy:find "MG1655"
+	
+	-	-	TaxonID	Rank	Name	Name Class
+		0)	442828	no rank	Escherichia coli MG1655	synonym
+		1)	442828	no rank	Escherichia coli str. K-12 substr. MG1655	scientific name
+		
+----------------
+Loading A Genome
+----------------
+
+It is pretty simple to load a genome from a Genbank file.
+
+	thor sequence:load my_genome.gbk
+
+For more information about each sequence as it's loaded use the verbose flag
+	
+	thor sequence:load my_genome.gbk --verbose
+	
+----------------
+Loading A Transcriptome
+----------------
+
+Transcriptomes generally need more user input. Here are the command line in parts.
+
+-The --transcriptome flag is used to distinguish between Genome and Transcriptome in the listing 
+-A Transcriptome is probably in Fasta format so it would start something like this
+
+	thor sequence:load transcriptome_sequence_file.fa --transcriptome
+
+- Now add the species and/or strain information
+- If no strain_id is available thats okay, it will default to the species_id.
+
+	--species_id 444 --strain_id 442828
+		
+- For expression data you need a feature for every sequence, say an mRNA or Gene.
+- A Genbank might have these already but Fasta will not
+	
+	--add_entry_feature 'mRNA'
+
+- Fasta does not define the division or molecule type either.
+- The load will fail with several options displayed to choose from
+- You might use "HTC - unfinished high-throughput cDNA sequencing" and "mRNA - A cDNA sequence derived from mRNA"
+
+	--division 'HTC' --molecule_type 'mRNA'
+	
+- You might want to clean up the contig names from your assembly.
+- Supply a prefix to renumber_contigs and they will be numbered sequentially
+- outputs  prefix + 6 digit renumber .i.e   Prefix000001, Prefix999001
+
+	--renumber-contigs M01
+
+- The default source for all annotaitons is "EMBL/GenBank/SwissProt"
+- If your sequence is from a custom assembly or different database give it a custom source
+- Source names are displayed in the app and used to distinguish annotation sets
+
+	--source 'LabName'
+
+- The verbose output might be too much information for a transcriptome.
+- You can supply show_percent to get a simple progress meter instead
+
+	--show_percent
+
+- The Final Transcriptome Load line for a custom E. Coli MG1655 assembly
+
+thor sequence:load sequence_file.fa --transcriptome --species_id 444 --strain_id 442828 --add_entry_feature 'mRNA' --division 'HTC'  --molecule_type 'mRNA' --renumber-contigs M01 --source 'LabName' --show_percent
+
+----------------
+Loading A Concordance Set
+----------------
+
+After loading sequence data you need to load a Concordance Set before samples will work properly.
+An Assembly can have more than one Concordance Set and samples are assigned one when loaded. The
+Set is used to lookup reference_names for the sample.
+
+The sequence loader generates a concordance file for but you can use any concordance data that 
+matches your samples. The file is a simple tab-delimited format with one line per sequence and
+two columns: OutsideSampleId	DatabaseAccession
+
+First find out the assembly id for your species / strain / version
+
+	thor taxonomy:list
+	
+	There are 2 assemblies in the database
+	-	-	ID	Species	Strain > Version	entries
+		0)	1	Arabidopsis thaliana	Arabidopsis thaliana > TAIR9	7
+		1)	2	Escherichia coli	Escherichia coli str. K-12 substr. MG1655 > 2	1
+		
+Then add a concordance set to the assembly. Give it an appropriate name
+
+	thor concordance:load sequence_file.fa.concordance --assembly_id 2 --name 'labIds'
+
+You can list stored concordance sets to get more information
+
+	thor concordance:list
+	
+----------------
+Loading A Blast Database
+----------------
+The Blast Database is loaded for Blast Reports or Assemblies and allows users to run custom blasts.
+It can be created through the UI at admin/blast_databases or command line with thor:
+
+	thor blast:create_db --link 'www.outside_url.com/sequence/direct/link/' --abbreviation 'blast_db2' --description 'New Blast database' --taxon_id 444
+
+You can list stored databases to get more information
+
+	thor blast:list_db
+
+----------------
+Loading Blast Reports
+----------------
+
+Blast Reports can be added to the features of an assembly. They are  Blast Reports are tied to
+a Blast Database. They also need an assembly_id and the type of feature
+
+	thor blast:create_run --assembly_id 3 --feature_type 'mRNA' -d 2
+	
+You can list stored runs to get more information
+
+	thor blast:list_run
+	
+----------------
+Loading Samples
+----------------
+
+Samples can be loaded through the UI or command line.
+
+To use thor you must supply a sample type, unique name, assembly_id and concordance_set_id
+
+thor experiment:create --name 'sample_1' -description 'tissue_ dpa_ etc..' --type RnaSeq --assembly_id 3 --concordance_set_id 5 --data Bam:path/to/myfile.bam --group 'MyGroup'
+
+----------------
+Loading Expression
+----------------

@@ -113,7 +113,7 @@ AnnoJ.Navigator = function()
                      id : 'id'
                    },
                    extraParams : {
-                     taxon_version  : syndication.entries.taxon_version_id
+                     assembly  : syndication.entries.assembly_id
                    }
                  },
 
@@ -146,7 +146,7 @@ AnnoJ.Navigator = function()
                    select : function(box, items)
                    {
                      record = items[0] //we only use single selection
-                     window.location = (syndication.service.entry_url+"/"+record.data.id)
+                     window.location = (syndication.service.entry_url+"/"+record.data.id+'?'+AnnoJ.activeTrackParams())
                    }
                  }
                });

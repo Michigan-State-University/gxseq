@@ -1,4 +1,4 @@
-class Groups < Thor
+class Group < Thor
   ENV['RAILS_ENV'] ||= 'development'
   require File.expand_path('config/environment.rb')
   # return all of the assemblies in the database

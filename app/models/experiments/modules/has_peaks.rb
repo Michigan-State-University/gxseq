@@ -25,14 +25,14 @@ module HasPeaks
     def compute_peaks(opts={})
       self.update_attribute(:state,"computing")
       opts[:remove]||=false
-      bioentries_experiments.each do |be|
-        if(opts[:remove] && self.peaks.with_bioentry(be.bioentry_id).size > 0)
-          puts "Removing stored peaks for #{be.sequence_name}"
-          self.peaks.with_bioentry(be.bioentry_id).destroy_all
+      concordance_items.each do |c_item|
+        if(opts[:remove] && self.peaks.with_bioentry(c_item.bioentry_id).size > 0)
+          puts "Removing stored peaks for #{c_item.reference_name}"
+          self.peaks.with_bioentry(c_item.bioentry_id).destroy_all
         end
-        puts "Computing peaks for #{be.sequence_name}"
-        new_peaks = extract_peaks(be.sequence_name,opts)
-        add_peaks(be.bioentry_id, new_peaks)
+        puts "Computing peaks for #{c_item.reference_name}"
+        new_peaks = extract_peaks(c_item.reference_name,opts)
+        add_peaks(c_item.bioentry_id, new_peaks)
       end
     
       self.update_attribute(:state,"ready")
@@ -42,7 +42,7 @@ module HasPeaks
     
     protected
     # extract peaks from the underlying asset (big_wig)
-    # - :chrom => sequence_name in datafile
+    # - :chrom => reference_name in datafile
     # - :opts  => algorithm options. See compute_peaks
     def extract_peaks(chrom, opts)
       begin

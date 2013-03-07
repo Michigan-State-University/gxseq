@@ -57,7 +57,7 @@ class GroupsController < ApplicationController
       flash[:error] = "Error: Could not find user with id '#{params[:user_id]}'"
     end
     @group.users.delete(to_be_removed)
-    User.reset_cache
+    Ability.reset_cache
     redirect_to(edit_group_path(@group)) 
   end
 end

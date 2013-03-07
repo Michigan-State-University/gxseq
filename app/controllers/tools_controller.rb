@@ -1,14 +1,12 @@
 class ToolsController < ApplicationController
   def smooth
-    @experiments = Experiment.all(:order => :created_at, :conditions => "type in ('ChipChip','ChipSeq','RnaSeq')")    
+    @experiments = ChipChip.accessible_by(current_ability).order(:created_at)    
     #create a new smoothed dataset from the supplied experiment.
     if(request.post?)
       begin
         @original=Experiment.find(params[:experiment_id])
         # just to test validity
         @new_experiment = @original.clone({:name => params[:name], :description => params[:description]})
-        # needs an asset to be valid...
-        @new_experiment.assets.build({:type => "BigWig",:data => Tempfile.new('test.bigwig')})
         if(@new_experiment.valid?)
           @original.delay.create_smoothed_experiment( {:name => params[:name], :description => params[:description]}, # pass the exp options again (for use in backgorund job)
             {:window => params[:window].to_i,:type => params[:type],:cutoff => params[:cutoff]}

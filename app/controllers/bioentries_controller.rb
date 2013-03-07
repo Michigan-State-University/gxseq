@@ -141,7 +141,7 @@ class BioentriesController < ApplicationController
     end
     # Scope track access by ability
     # Active tracks will be ignored if not in this list
-    @all_tracks = assembly.tracks.accessible_by(current_ability)+assembly.models_tracks+assembly.generic_feature_tracks+[assembly.six_frame_track]
+    @all_tracks = assembly.tracks.accessible_by(current_ability)
     # Setup the view
     @view ={
       :position => params[:position]||@layout.try(:position)||1,
@@ -391,7 +391,7 @@ class BioentriesController < ApplicationController
     order_d = (params[:d]=='down' ? 'desc' : 'asc')
     params[:keywords] = params[:query] if params[:query]
     # Find minimum set of id ranges accessible by current user
-    authorized_id_set = Bioentry.accessible_by(current_ability).select_ids.to_ranges
+    authorized_id_set = current_ability.authorized_bioentry_ids
     # Set to -1 if no items are found. This will force empty search results
     authorized_id_set=[-1] if authorized_id_set.empty?
     # Begin block

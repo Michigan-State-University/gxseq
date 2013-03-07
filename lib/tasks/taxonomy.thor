@@ -218,9 +218,9 @@ class Taxonomy < Thor
   end # end load_taxon task
   
   # return all of the assemblies in the database
-  desc 'list','Report name and version of taxonomy for sequences loaded in the database'
+  desc 'list','Report name and version of assemblies loaded in the database'
   def list
-    puts "There are #{Assembly.count} taxonomies used in the database"
+    puts "There are #{Assembly.count} assemblies in the database"
     puts "-\t-\tID\tSpecies\tStrain > Version\tentries"
     Assembly.includes(:taxon => :scientific_name).order('taxon_name.name asc, version asc').each_with_index do |tv,idx|
       puts "\t#{idx})\t#{tv.id}\t#{tv.species.scientific_name.name}\t#{tv.taxon.scientific_name.name} > #{tv.version}\t#{tv.bioentries.count}"
@@ -230,9 +230,15 @@ class Taxonomy < Thor
   # The Find method performs a search against the database retrieving and displaying all taxon names that match.
   # It is recommended to run this before loading sequence to find the correct species and varietas names.
   desc 'find QUERY','Search the taxonomy tree to find matching entries. Helpful to verify taxonomy name before loading sequence'
+  method_option :rank, :desc => 'supply a rank name to limit results'
   def find(query)
     puts "-\t-\tTaxonID\tRank\tName\tName Class"
-    TaxonName.includes(:taxon).where("upper(name) like ? and taxon.taxon_id > 0","%#{query.upcase}%").order('taxon.node_rank asc, name asc').each_with_index do |taxon_name,idx|
+    taxon_names = TaxonName.includes(:taxon).limit(100)
+      .where{upper(name) =~ my{"%#{query.upcase}%"}}
+      .where{taxon.taxon_id > 0}
+      .order('taxon.node_rank asc, name asc')
+    taxon_names = taxon_names.where{taxon.node_rank == my{options[:rank]}} if options[:rank]
+    taxon_names.each_with_index do |taxon_name,idx|
       puts "\t#{idx})\t#{taxon_name.taxon.id}\t#{taxon_name.taxon.node_rank}\t#{taxon_name.name}\t#{taxon_name.name_class}"
     end
   end

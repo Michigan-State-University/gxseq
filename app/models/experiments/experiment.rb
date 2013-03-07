@@ -4,30 +4,30 @@ class Experiment < ActiveRecord::Base
   belongs_to :user
   belongs_to :assembly
   belongs_to :group
-  has_many :bioentries_experiments, :dependent => :destroy
-  #has_many through is ignoring the set_primary_key definition. Need to fix this!
-  #has_many :bioentries, :through => :bioentries_experiments
-  has_many :bioentries, :finder_sql => 'select b.* from bioentries_experiments be left outer join bioentry b on be.bioentry_id = b.bioentry_id where be.experiment_id =#{id}'
+  belongs_to :concordance_set
+  # TODO: Test this
+  has_many :bioentries, :through => :concordance_items
+  #has_many :bioentries, :finder_sql => 'select b.* from bioentries_experiments be left outer join bioentry b on be.bioentry_id = b.bioentry_id where be.experiment_id =#{id}'
   has_many :assets, :dependent => :destroy
   has_many :components
   has_many :tracks
-  validates_presence_of :user
+  
   # We don't force an assets presence. It might be added later or an expression only rna_seq
   # validates_presence_of :assets
+  validates_presence_of :user
+  validates_presence_of :assembly
+  validates_presence_of :concordance_set
   validates_presence_of :name
   validates_uniqueness_of :name, :scope => [:assembly_id,:type], :message => " has already been used"
   validates_length_of :name, :maximum => 35, :on => :create, :message => "must be less than 35 characters"
   validates_length_of :description, :maximum => 500, :on => :create, :message => "must be less than 500 characters"
-  validates_presence_of :assembly
-  
-  accepts_nested_attributes_for :bioentries_experiments, :allow_destroy => true
+
   accepts_nested_attributes_for :assets, :allow_destroy => true
   
   before_validation :initialize_assets, :on => :create
   before_create 'self.state = "pending"'
   before_save :update_cache
   after_create :initialize_experiment
-  after_save :update_taxon_join
   after_save :create_tracks
   
   has_paper_trail :ignore => [:state]
@@ -80,13 +80,13 @@ class Experiment < ActiveRecord::Base
   end
   
 ## Instance Methods
-  # update clone method for deep clone of bioentry <-> experiment association
-  # Used when cloning experiments for smoothing
+  # Association for concordance_items. nested association had odd behavior with concordance_set_id
+  def concordance_items
+    ConcordanceItem.where(:concordance_set_id => self.concordance_set_id)
+  end
+  # update clone method for deep clone of supplied attributes
   def clone(hsh={})
     e = super()
-    self.bioentries_experiments.each do |be|
-      e.bioentries_experiments << be.clone
-    end
     hsh.each_pair do |k,v|
       if(k.respond_to?('to_s') && e.respond_to?(k.to_s+"="))
         e.send(k.to_s+"=",v)
@@ -95,11 +95,11 @@ class Experiment < ActiveRecord::Base
     return e
   end
 
-  # write out a temporary chrom.sizes file using the sequence list
+  # write out a temporary chrom.sizes file using the concordance_set
   def get_chrom_file
     chr = Tempfile.new("chrom.sizes")
-    bioentries_experiments.each do |be|
-      chr.puts "#{be.sequence_name} #{be.bioentry.length}"
+    concordance_items.each do |c_item|
+      chr.puts "#{c_item.reference_name} #{c_item.bioentry.length}"
     end 
     chr.flush
     return chr
@@ -123,39 +123,9 @@ class Experiment < ActiveRecord::Base
   end
   handle_asynchronously :initialize_experiment  
   
-  # # Virtual Method Override - When the tv_id is set re-create the habtm for each sequence in the list.
-  # def assembly_id=(tv_id)    
-  #   if(tv_id.to_i == self.assembly_id)
-  #     return super(tv_id)
-  #   end
-  #   tv = Assembly.find_by_id(tv_id)
-  #   if(tv)
-  #     self.bioentries_experiments.destroy_all
-  #     # Find in batches for large sequence sets
-  #     tv.bioentries.select('bioentry_id,accession').find_in_batches(:batch_size => 500) do |batch|
-  #       batch.each do |b|
-  #         self.bioentries_experiments.build(:bioentry_id => b.bioentry_id,:sequence_name => b.accession,:experiment => self)
-  #       end
-  #     end
-  #     super(tv_id)
-  #   end
-  # end
-  
-  # TODO : MOVE TO TAXON ConcordanceSet
-  # remove and recreate all joins to the taxon after saving
-  def update_taxon_join
-    self.bioentries_experiments.destroy_all
-    # Find in batches and fast insert for large sequence sets
-    assembly.bioentries.select('bioentry_id,accession').find_in_batches(:batch_size => 500) do |batch|
-      batch.each do |b|
-        BioentriesExperiment.fast_insert(:bioentry_id => b.bioentry_id,:sequence_name => b.accession,:experiment_id => self.id)
-      end
-    end
-  end
-  
   # check if our group has changed and clear user cache if it has
   def update_cache
-    User.reset_cache if self.group_id_changed?
+    Ability.reset_cache if self.group_id_changed?
   end
   
   ## Convienence Methods
@@ -185,13 +155,13 @@ class Experiment < ActiveRecord::Base
     else
       id = bioentry.to_i
     end
-    bioentries_experiments.find_by_bioentry_id(id).sequence_name
+    concordance_items.find_by_bioentry_id(id).reference_name
   end
   # return the chrom name for a bioentry ... duplication? TODO Fix duplication
   def get_chrom(bioentry_id)
-    be = self.bioentries_experiments.where(:bioentry_id=>bioentry_id).first
-    if(be)
-      be.sequence_name
+    c_item = self.concordance_items.where(:bioentry_id=>bioentry_id).first
+    if(c_item)
+      c_item.reference_name
     else
       nil
     end

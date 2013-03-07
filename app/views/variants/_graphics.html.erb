@@ -1,7 +1,11 @@
+<% content_for :head do %>
+	<%= render :partial => "common/extjs" %>
+	<%= render :partial => "common/extjs_css_gray" %>
+<% end %>
+
 <div style="float:left;width:600px" id="graphics_container">
-  <%= select_tag :bioentry_id, options_from_collection_for_select(@variant.bioentries_experiments, :bioentry_id, :bioentry_short_name, @bioentry.id),:onChange => "window.location='#{url_for(@variant)}?bioentry_id='+this.options[this.selectedIndex].value"%>
-  <%= @bioentry.display_info %>: <br/><span style="float:right">View in <%= link_to( "Sequence Viewer",
-  bioentry_url( @bioentry, :tracks => @variant.tracks.map(&:id) ),:popup => true ) %><br/></span>
+  <%= render :partial => 'experiments/bioentry_select', :locals => {:experiment => @variant, :bioentry => @bioentry} %>
+  View this in <%= link_to( "Sequence Viewer", bioentry_url( @bioentry, :tracks => @variant.assembly.tracks.map(&:id) ),:popup => true ) %>
   <div class="table">
     <table class="listing">
       <thead>  
