@@ -1,13 +1,13 @@
 class Blast < Thor
   ENV['RAILS_ENV'] ||= 'development'
   require File.expand_path('config/environment.rb')
-  #require 'progress_bar'
+
   desc "create_run FILE", 'load xml formatted blast results into the database'
   method_options %w(database -d) => :required,
     %w(assembly_id -t) => :required,
     %w(remove_splice -r) => false,
     %w(use_search_index -u) => false,
-    %w(feature_type -f) => 'Gene',
+    %w(feature_type -f) => 'Gene', %w(concordance -c) => nil,
     :test => false
   def create_run(input_file)
     # Parse input
@@ -37,6 +37,20 @@ class Blast < Thor
         exit 0
       end
       type_term_id = type_term.id
+    end
+    # Check and parse concordance
+    concordance_hash={}
+    if(options[:concordance])
+      begin
+        concordance_file = File.open(options[:concordance],"r")
+        concordance_file.each do |line|
+          file_id,locus_tag = line.chomp.split("\t")
+          concordance_hash[file_id]=locus_tag
+        end
+      rescue
+        puts "*** Error opening concordance *** \n#{$!}"
+        exit 0
+      end
     end
     # Count iterations
     puts "Counting iterations"
@@ -77,7 +91,7 @@ class Blast < Thor
       blast_file.reports.each do |report|
         # move on if this query has no hits
         next unless report.hits.length > 0
-        locus = report.query_def
+        locus = concordance_hash[report.query_def] || report.query_def
         ## Lookup the feature_id from query_def
         if(options[:use_search_index])
           # Use the sunspot index to save time
