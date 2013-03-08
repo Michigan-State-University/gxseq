@@ -115,10 +115,10 @@ class Blast < Thor
           end
         else
           # Use the database if sunspot is not available
-          features = Seqfeature.with_locus_tag(locus).includes(:bioentry).where('bioentry.assembly_id = ? and upper(display_name)=?',options[:assembly_id],options[:feature_type])
+          features = Seqfeature.with_locus_tag(locus).includes(:bioentry).where('bioentry.assembly_id = ? and upper(display_name)=?',options[:assembly_id],options[:feature_type].upcase)
           feature = features.first
           if features.size != 1
-            puts "Found #{features.length} results for #{iter.query_def} skipping"
+            puts "Found #{features.length} results for #{report.query_def} skipping"
             next
           else
             feature_id=feature.id

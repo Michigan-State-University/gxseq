@@ -6,7 +6,7 @@ class CreateBlastRuns < ActiveRecord::Migration
       t.text :parameters
       t.string :program
       t.string :version
-      t.string :reference
+      t.string :reference, :limit => 500
       t.string :db
     end
   end
