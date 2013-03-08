@@ -60,7 +60,7 @@ class Blast < Thor
       total +=1 
       count +=1 if report.hits.length > 0
     end
-    unless(no? "Found: #{total} reports, #{count} have hits. Continue?[yes]", :green)
+    if(no? "Found: #{total} reports, #{count} have hits. Continue? ('n' or 'no' to cancel)", :green)
       puts '...exiting'
       exit 0
     end
