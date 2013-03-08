@@ -92,7 +92,8 @@ class Blast < Thor
       blast_file.reports.each do |report|
         # move on if this query has no hits
         next unless report.hits.length > 0
-        locus = concordance_hash[report.query_def] || report.query_def
+        query_def = report.query_def.split(" ")[0]
+        locus = concordance_hash[query_def] || query_def
         ## Lookup the feature_id from query_def
         if(options[:use_search_index])
           # Use the sunspot index to save time
