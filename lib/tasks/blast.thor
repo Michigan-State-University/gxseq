@@ -61,7 +61,7 @@ class Blast < Thor
       total +=1 
       count +=1 if report.hits.length > 0
     end
-    say "Found: #{total} reports, #{count} have hits. Continue?", :green)
+    say "Found: #{total} reports, #{count} have hits. Continue?", :green
     unless(yes? "(type 'y' or 'yes' to continue):")
       exit 0
     end
