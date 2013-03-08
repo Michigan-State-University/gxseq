@@ -173,27 +173,22 @@ class Sequence < Thor
             :taxon_id  => assembly.taxon_id,
             :name => entry_accession,
             :accession => entry_accession,
-            :identifier => 0,
+            :identifier => 0,   #We don not make use of the identifier column
             :division => entry_division,
             :description => entry.definition,
             :version => entry_version,
             :biodatabase_id => bio_db.id
             )
             # biosequence
-            bioseq = Biosequence.fast_insert(
-            :version => entry_version,
-            :length => entry_bioseq.length,
-            :alphabet => alphabet,
-            :seq  => entry.seq.upcase,
-            :bioentry_id => bioentry_id
+            #  Biosequence fast insert fails with oracle. Probably composite primary key issues
+            #  bioseq = Biosequence.fast_insert(
+             Biosequence.create(
+              :version => entry_version,
+              :length => entry_bioseq.length,
+              :alphabet => alphabet,
+              :seq  => entry.seq.upcase,
+              :bioentry_id => bioentry_id
             )
-            # entry and bioseq are built and then saved to allow indexer lookup of bioseq in callback
-            # 
-            #bioentry.save!
-            
-            # use our own internal id for bioentry->identifier
-            #** Skip this. It can be done in BioDB->sync but we don't use identifier anyway
-            #bioentry.update_attribute(:identifier, bioentry.id)
             
             # New Entry Feature?
             if(entry_feature)
