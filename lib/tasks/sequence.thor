@@ -396,7 +396,11 @@ class Sequence < Thor
     end
     # Turn on versioning before sync
     PaperTrail.enabled = true
-    # Sync the assembly with new sequence and features
+    # De-normalize GeneModel data
+    puts "Syncing Gene Models"
+    GeneModel.generate
+    # Sync the data with indexer and generate track data
+    puts "Syncing Assembly"
     assembly.sync
     # Done
     task_end_time = Time.now

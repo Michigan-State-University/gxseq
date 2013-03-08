@@ -51,8 +51,11 @@ class Assembly < ActiveRecord::Base
   end
   # Generates all denormalized data and indexes associations
   def sync
+    puts "Generating GC data:"
     generate_gc_data
+    puts "Creating Tracks"
     create_tracks
+    puts "Reindexing Associations"
     reindex
   end
   # create a big wig with the gc content data for this biosequence
