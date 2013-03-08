@@ -133,7 +133,7 @@ class Assembly < ActiveRecord::Base
   end
   # indexes associated genemodels
   def index_gene_models
-    model_ids = GeneModel.where{bioentry_id.in my{bioentries}}.select("id").collect(&:id)
+    model_ids = GeneModel.where{bioentry_id.in my{bioentry_ids}}.select("id")
     GeneModel.reindex_all_by_id(model_ids)
   end
   # indexes seqfeatures for all bioentries

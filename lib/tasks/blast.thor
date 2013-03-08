@@ -3,11 +3,11 @@ class Blast < Thor
   require File.expand_path('config/environment.rb')
 
   desc "create_run FILE", 'load xml formatted blast results into the database'
-  method_options %w(database -d) => :required,
+  method_options %w(blast_db -b) => :required,
     %w(assembly_id -t) => :required,
     %w(remove_splice -r) => false,
     %w(use_search_index -u) => false,
-    %w(feature_type -f) => 'Gene', %w(concordance -c) => nil,
+    %w(feature_type -f) => 'Gene', %w(concordance -d) => nil,
     :test => false
   def create_run(input_file)
     # Parse input
@@ -19,9 +19,9 @@ class Blast < Thor
       exit 0
     end
     # verify database
-    blast_db = BlastDatabase.find_by_name(options[:database]) || BlastDatabase.find_by_id(options[:database])
+    blast_db = BlastDatabase.find_by_name(options[:blast_db]) || BlastDatabase.find_by_id(options[:blast_db])
     unless blast_db
-      puts "Could not find blast database with name: #{blast_db}"
+      puts "Could not find blast database: #{options[:blast_db]}"
       exit 0
     end
     # verify taxon
