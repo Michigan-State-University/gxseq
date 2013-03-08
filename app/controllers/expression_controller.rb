@@ -159,7 +159,7 @@ class ExpressionController < ApplicationController
   # defaults
   def setup_defaults
     params[:per_page]||=50
-    params[:definition_type]||= @assembly.is_genome? ? 'description' : (@blast_runs.first.try(:name_with_id)||'description')
+    params[:definition_type]||= @assembly.default_feature_definition
     # setup order
     case params[:d]
     when 'ASC','asc','up'

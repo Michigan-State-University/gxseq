@@ -1,5 +1,5 @@
 class Genome < Assembly
-  def is_genome?
-    true
+  def default_feature_definition
+    'description'
   end
 end

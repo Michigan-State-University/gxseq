@@ -1,4 +1,10 @@
 ----------------
+General Process for New Data
+----------------
+
+-Identify Species and Load new Assembly (Genome/Transcriptome)
+-
+----------------
 Before Loading Sequence
 ----------------
 
@@ -47,6 +53,7 @@ Transcriptomes generally need more user input. Here are the command line in part
 	thor sequence:load transcriptome_sequence_file.fa --transcriptome
 
 - Now add the species and/or strain information
+- A Genbank file should define this but Fasta will not
 - If no strain_id is available thats okay, it will default to the species_id.
 
 	--species_id 444 --strain_id 442828

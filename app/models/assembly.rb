@@ -25,6 +25,30 @@ class Assembly < ActiveRecord::Base
   validates_presence_of :version
   validates_uniqueness_of :version, :scope => :taxon_id
   
+  # returns true if any bioentry -> seqfeature has feature_counts
+  def has_expression?
+    bioentries.joins{seqfeatures.feature_counts}.count('feature_counts.count') > 0
+  end
+  # returns name and version - use for display
+  def name_with_version
+    "#{name} ( #{version} )"
+  end
+  # returns scientific name of species
+  def name
+    taxon.name
+  end
+  # returns an array of all source terms used by features under this taxon
+  def source_terms
+    Term.source_tags.where(:term_id => self.source_term_ids)
+  end
+  # returns the ids of all source_terms used by entries attached to this taxon
+  def source_term_ids
+    Seqfeature.where(:bioentry_id => self.bioentry_ids).select('distinct source_term_id')
+  end
+  # returns the sum of bases for all bioentries
+  def total_bases
+    Biosequence.where(:bioentry_id => self.bioentry_ids).sum(:length)
+  end
   
   # create a big wig with the gc content data for this biosequence
   def generate_gc_data(opts={})
@@ -89,15 +113,6 @@ class Assembly < ActiveRecord::Base
     #result << protein_sequence_track || create_protein_sequence_track
     return result
   end
-  # returns an array of all source terms used by features under this taxon
-  def source_terms
-    Term.source_tags.where(:term_id => self.source_term_ids)
-  end
-  
-  # returns the ids of all source_terms used by entries attached to this taxon
-  def source_term_ids
-    Seqfeature.where(:bioentry_id => self.bioentry_ids).select('distinct source_term_id')
-  end
   
   def reindex
     #bioentries
@@ -111,26 +126,6 @@ class Assembly < ActiveRecord::Base
     Seqfeature.reindex_all_by_id(feature_ids)
   end
   
-  def name_with_version
-    "#{name} ( #{version} )"
-  end
-
-  def name
-    taxon.name
-  end
-
-  def has_expression?
-    # check if any bioentry -> seqfeature has feature_counts
-    bioentries.joins{seqfeatures.feature_counts}.count('feature_counts.count') > 0
-  end
-
-  def is_genome?
-    false
-  end
-  # returns the sum of bases for all bioentries
-  def total_bases
-    Biosequence.where(:bioentry_id => self.bioentry_ids).sum(:length)
-  end
   # Collects the seqfeatures for each bioentry and indexes them
   # optionally accepts {:type => 'feature_type'} to scope indexing
   def index_features(opts={})

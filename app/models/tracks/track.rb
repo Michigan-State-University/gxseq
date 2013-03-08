@@ -6,7 +6,7 @@ class Track < ActiveRecord::Base
   def name
     'Generic Track'
   end
-  
+  # TODO: Fixup return. Maybe show total created tracks?
   def self.create_all
     Experiment.all.each do |experiment|
       experiment.create_tracks
