@@ -6,7 +6,7 @@
     | <%= link_to_unless @format=='genbank', "Genbank", gene_path(@gene, :fmt => 'genbank') do |name| 
         "<u style='font-size:120%'>#{name}</u>".html_safe
       end %>
-		<% if @gene.bioentry.variants.size > 0 %>
+		<% if @gene.bioentry.assembly.variants.size > 0 %>
 		| <%= link_to_unless @format=='variants', "Variants", gene_path(@gene, :fmt => 'variants') do |name| 
         "<u style='font-size:120%'>#{name}</u>".html_safe
       end %>
