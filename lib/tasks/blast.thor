@@ -10,14 +10,6 @@ class Blast < Thor
     %w(feature_type -f) => 'Gene', %w(concordance -d) => nil,
     :test => false
   def create_run(input_file)
-    # Parse input
-    begin
-      open_blast = File.open(input_file,'r')
-      blast_file = Bio::Blast::Report.xmlparser(open_blast)
-    rescue
-      puts "*** Error opening input *** \n#{$!}"
-      exit 0
-    end
     # verify database
     blast_db = BlastDatabase.find_by_name(options[:blast_db]) || BlastDatabase.find_by_id(options[:blast_db])
     unless blast_db
@@ -52,6 +44,15 @@ class Blast < Thor
         exit 0
       end
     end
+    # Parse input
+    begin
+      puts "Opening blast report ... this could take a while"
+      open_blast = File.open(input_file,'r')
+      blast_file = Bio::Blast::Report.xmlparser(open_blast)
+    rescue
+      puts "*** Error opening input *** \n#{$!}"
+      exit 0
+    end
     # Count iterations
     puts "Counting iterations"
     count = 0
@@ -60,8 +61,8 @@ class Blast < Thor
       total +=1 
       count +=1 if report.hits.length > 0
     end
-    if(no? "Found: #{total} reports, #{count} have hits. Continue? ('n' or 'no' to cancel)", :green)
-      puts '...exiting'
+    say "Found: #{total} reports, #{count} have hits. Continue?", :green)
+    unless(yes? "(type 'y' or 'yes' to continue):")
       exit 0
     end
 
@@ -206,4 +207,5 @@ class Blast < Thor
       puts "\t#{run.id}\t#{run.blast_database.name}\t#{run.assembly.name_with_version}\t#{run.program}\t#{run.version}\t#{run.db}\t#{run.parameters}"
     end
   end
+  
 end
