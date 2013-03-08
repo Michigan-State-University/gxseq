@@ -7,6 +7,9 @@ General Process for New Data
 -Identify/Create BlastDatabase => taxonomy:list, blast:list_db, blast:create_db
 -Load Blast Report(s) => blast:create_run
 -Identify/Create Group => group:list, UI
+-Load Samples => experiment:create
+-load Expression => expression:load
+
 
 ----------------
 Before Loading Sequence

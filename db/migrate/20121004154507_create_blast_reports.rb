@@ -5,7 +5,7 @@ class CreateBlastReports < ActiveRecord::Migration
       t.references :blast_run, :null => false
       t.text :report
       t.string :hit_acc
-      t.string :hit_def
+      t.string :hit_def, :limit => 4000
       t.timestamps
     end
   end
