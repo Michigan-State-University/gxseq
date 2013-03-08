@@ -396,8 +396,8 @@ class Sequence < Thor
     end
     # Turn on versioning before sync
     PaperTrail.enabled = true
-    # Sync the database with new sequence and features
-    bio_db.sync_database
+    # Sync the assembly with new sequence and features
+    assembly.sync
     # Done
     task_end_time = Time.now
     puts "Finished - #{Time.now.strftime('%m/%d/%Y - %H:%M:%S')} :: #{Time.at(task_end_time - task_start_time).gmtime.strftime('%R:%S')}"

@@ -49,7 +49,12 @@ class Assembly < ActiveRecord::Base
   def total_bases
     Biosequence.where(:bioentry_id => self.bioentry_ids).sum(:length)
   end
-  
+  # Generates all denormalized data and indexes associations
+  def sync
+    generate_gc_data
+    create_tracks
+    reindex
+  end
   # create a big wig with the gc content data for this biosequence
   def generate_gc_data(opts={})
     destroy=opts[:destroy]||false
@@ -100,7 +105,6 @@ class Assembly < ActiveRecord::Base
     begin;FileUtils.rm("tmp/assembly_#{self.id}_gc.bw");rescue;puts $!;end
     puts
   end
-  
   # initializes tracks creating any that do not exist. Returns an array of new tracks
   # TODO: Remove tracks completely. Just lookup the data during SV configuration
   def create_tracks
@@ -113,20 +117,23 @@ class Assembly < ActiveRecord::Base
     #result << protein_sequence_track || create_protein_sequence_track
     return result
   end
-  
+  # Reindexes all associated data. Convienence method
   def reindex
-    #bioentries
+    index_bioentries
+    index_gene_models
+    index_features
+  end
+  # indexes associated bioentries
+  def index_bioentries
     bio_ids = bioentries.collect(&:id)
     Bioentry.reindex_all_by_id(bio_ids)
-    #genemodels
+  end
+  # indexes associated genemodels
+  def index_gene_models
     model_ids = GeneModel.where{bioentry_id.in my{bioentries}}.select("id").collect(&:id)
     GeneModel.reindex_all_by_id(model_ids)
-    #seqfeatures
-    feature_ids = Seqfeature.where{bioentry_id.in my{bioentries}}.select("seqfeature_id").collect(&:id)
-    Seqfeature.reindex_all_by_id(feature_ids)
   end
-  
-  # Collects the seqfeatures for each bioentry and indexes them
+  # indexes seqfeatures for all bioentries
   # optionally accepts {:type => 'feature_type'} to scope indexing
   def index_features(opts={})
     terms = Term.seqfeature_tags.select("term_id as type_term_id")
