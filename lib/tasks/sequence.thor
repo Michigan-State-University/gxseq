@@ -176,7 +176,8 @@ class Sequence < Thor
             :identifier => 0,
             :division => entry_division,
             :description => entry.definition,
-            :version => entry_version
+            :version => entry_version,
+            :biodatabase_id => bio_db.id
             )
             # biosequence
             bioseq = Biosequence.fast_insert(
