@@ -49,13 +49,13 @@ Ext.onReady(function(){
   var search = new Ext.form.ComboBox({
     store       : ds,
     valueField  : 'id',
-    width       : 250,
+    width       : 350,
     queryDelay  : 500,
     minChars    : 3,
     pageSize    : 10,
     hideTrigger : false,
     renderTo    : 'bioentry_searchbox',
-    emptyText   : '<%= bioentry.short_name %>',
+    emptyText   : '<%= bioentry.short_name %> - <%= bioentry.description %>',
     listConfig  : {
       loadingText  : 'Searching for Sequence...',
       //getInnerTpl: function() {
