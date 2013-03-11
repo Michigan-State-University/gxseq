@@ -1,7 +1,7 @@
 class RnaSeq < Experiment
   has_one :reads_track, :foreign_key => "experiment_id", :dependent => :destroy
   has_one :histogram_track, :foreign_key => "experiment_id", :dependent => :destroy
-  has_many :feature_counts, :foreign_key => "experiment_id", :dependent => :destroy
+  has_many :feature_counts, :foreign_key => "experiment_id", :dependent => :delete_all
   has_one :bam, :foreign_key => "experiment_id"
   has_one :big_wig, :foreign_key => "experiment_id"
   smoothable
