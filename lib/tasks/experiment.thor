@@ -49,7 +49,7 @@ class Experiment < Thor
       puts "No taxon with id #{options[:assembly_id]} found. Try: thor taxonomy:list"
     end
     unless group = ::Group.find_by_name(options[:group])
-      puts "No Group found with name #{options[:group]}. Try: thor groups:list"
+      puts "No Group found with name #{options[:group]}. Try: thor group:list"
       return
     end
     unless ConcordanceSet.find_by_id(options[:concordance_set_id])
@@ -90,5 +90,6 @@ class Experiment < Thor
         )
       end
     end
+    puts "..Done"
   end
 end

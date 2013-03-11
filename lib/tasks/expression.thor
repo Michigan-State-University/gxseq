@@ -18,7 +18,7 @@ class Expression < Thor
   desc 'load FILE',"Load feature counts into the database"
   method_options %w(experiment -e) => :required, :existing => 'raise', %w(feature -f) => 'Gene', 
     %w(id_column -i) => 1, %w(count_column -c) => 2, %w(normalized_column -n) => 3, %w(header -h) => false, 
-    %w(test -t) => false, %w(skip_not_found -s) => false, %w(concordance -d) => nil
+    %w(test -t) => false, %w(skip_not_found -s) => false, %w(concordance -d) => nil, :no_index => false
   def load(input_file)
     # Check input
     begin
@@ -166,7 +166,7 @@ class Expression < Thor
     if options[:test]
       reindex = ask('This is a test run, no changes were saved. Do you want to re-index the features anyway? To test re-indexing type \'yes\'; anything else to skip:')
     else
-      reindex = 'yes'
+      reindex = options[:no_index] ? 'no' : 'yes'
     end
     if reindex =='yes'
       Seqfeature.reindex_all_by_id(seqfeature_ids)
