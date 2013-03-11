@@ -264,12 +264,12 @@ AnnoJ.Navigator = function()
       function init(userConfig)
       {
         Ext.apply(config, userConfig, defaultConfig);
-        set(config.position);     
+        set(config.position);
         //update the slider component
         //Here because this only should be done once. Where else can we put it?
         self.Controls.slider.setMinValue(config.min);
         self.Controls.slider.setMaxValue(config.max);
-        self.Controls.slider.setValue(config.position);       
+        self.Controls.slider.setValue(config.position);
       };
       
       //Get the current position
@@ -440,7 +440,7 @@ AnnoJ.Navigator = function()
         var ratio = bases / pixels;
       
         width = self.Toolbar.getBox().width;
-        
+        console.log("Setting zoom to b: "+ bases+", p: "+ pixels)
         // Check boundaries
         ceiling = Position.config.max + (2*Position.config.padding*ratio)
         if(ratio*width > ceiling)
@@ -453,9 +453,8 @@ AnnoJ.Navigator = function()
           }
           //Max zoom for data shorter than one window
           else{
-            atMin = true;
             bases = 1;
-            pixels = Math.ceil(width/ceiling);
+            pixels = Math.floor(width/ceiling);
             if((bases/pixels) < config.min ) pixels = (bases/config.min)
           }
         }
