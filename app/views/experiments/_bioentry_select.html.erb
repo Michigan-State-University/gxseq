@@ -1,6 +1,6 @@
 <div>
   Displaying data for : <%= "#{bioentry.species_name} #{bioentry.version_info} : " %>
-  <% if bioentry.assembly.bioentries.count > 50 %>
+  <% if bioentry.assembly.bioentries.count < 50 %>
     <%= select_tag :bioentry_id, 
       options_from_collection_for_select(experiment.assembly.bioentries, 
         :id, 
