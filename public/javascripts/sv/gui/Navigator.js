@@ -440,7 +440,6 @@ AnnoJ.Navigator = function()
         var ratio = bases / pixels;
       
         width = self.Toolbar.getBox().width;
-        console.log("Setting zoom to b: "+ bases+", p: "+ pixels)
         // Check boundaries
         ceiling = Position.config.max + (2*Position.config.padding*ratio)
         if(ratio*width > ceiling)
