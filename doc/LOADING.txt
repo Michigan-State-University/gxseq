@@ -10,6 +10,19 @@ General Process for New Data
 -Load Samples => experiment:create
 -load Expression => expression:load
 
+----------------
+Common Commands
+----------------
+
+Print bam Names in Dir
+
+	ls lib/data/ohlrogge/camelina/ | grep "bam" | awk '{gsub(".bam","");print $0}' | xargs
+	
+Multiple Experiments and Expression
+	
+	LIBS="one two three"
+	
+	for x in $LIBS; do echo $x; thor experiment:create -t RnaSeq -n $x -a 10063 -c 10003 -g "Ohlrogge Lab" -d "$x Ohlrogge Lab CLC 6.0" -f Bam:lib/data/ohlrogge/camelina/$x.bam; thor expression:load lib/data/ohlrogge/camelina/$x.csv -e $x -f 'Mrna' -c 4 -n 2 -h -d lib/data/ohlrogge/camelina/csv_concordance --no_index; done
 
 ----------------
 Before Loading Sequence
@@ -86,7 +99,7 @@ Transcriptomes generally need more user input. Here are the command line in part
 - If your sequence is from a custom assembly or different database give it a custom source
 - Source names are displayed in the app and used to distinguish annotation sets
 
-	--source 'LabName'
+	--source_name 'LabName'
 
 - The verbose output might be too much information for a transcriptome.
 - You can supply show_percent to get a simple progress meter instead

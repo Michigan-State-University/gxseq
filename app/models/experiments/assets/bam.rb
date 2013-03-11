@@ -22,7 +22,7 @@ class Bam < Asset
   ## Instance Methods
   
   def open_bam    
-    Bio::DB::Sam.new(:bam=>data.path,:fasta => "").tap{|b|b.open}
+    Bio::DB::Sam.new(:bam=>data.path,:fasta => "").tap{|b|b.open} rescue false
   end
   
   # NOTE does NOT work with delayed_job background tasks
@@ -30,21 +30,21 @@ class Bam < Asset
   # returns hash of index data
   # { "sequence_1"  => {:length => 1000, :unmapped_reads => 10, :mapped_reads => 1000}, ... }
   def index_stats
-    bam = open_bam
+    return [] unless bam = open_bam
     bam.index_stats.tap{
       bam.close
     }
   end
   
   def flagstat
-    bam = open_bam
+    return nil unless bam = open_bam
     bam.flagstat.tap{
       bam.close
     }
   end
   
   def target_info
-    bam = open_bam
+    return [] unless bam = open_bam
     bam.target_info.tap{
       bam.close
     }
@@ -59,7 +59,7 @@ class Bam < Asset
   end
   # returns reads overlapping the supplied region
   def get_reads(left,right,seq)
-    bam = open_bam
+    return [] unless bam = open_bam
     bam.fetch(seq,left,right).tap{
       bam.close
     }
@@ -79,7 +79,7 @@ class Bam < Asset
   #   :qlen => qlen.to_i,
   #   :calend => calend.to_i,
   def find_read(read_id, chrom, pos)
-    bam = open_bam
+    return [] unless bam = open_bam
     read = nil
     qlen = nil
     calend = nil
@@ -128,7 +128,7 @@ class Bam < Asset
   # :format  =>  [name, start, length, strand, sequence]
   def get_reads_text(left,right,seq,opts)
     
-    bam = open_bam
+    return [] unless bam = open_bam
     
     read_limit = opts[:read_limit] || 10000
     include_seq = opts[:include_seq]
@@ -266,7 +266,7 @@ class Bam < Asset
   end
   
   def create_big_wig(opts={})
-    bam = open_bam
+    return false unless bam = open_bam
     puts "----"
     puts "#{Time.now} Creating BigWig File"
     # convert output to bed format
@@ -322,7 +322,7 @@ class Bam < Asset
   end
   
   def create_index
-    bam = open_bam
+    return false unless bam = open_bam
     puts "#{Time.now} Creating Bam Index"
     bam.load_index
     bam.close

@@ -5,14 +5,15 @@ class FeatureCount < ActiveRecord::Base
   def self.create_graph_data(feature_counts,hsh={})
     return [] if feature_counts.empty?
     base_counts = []
-    return_cnt = hsh[:cnt]||300
-    cutoff = hsh[:cutoff]||500
+    # Dynamic data count keeps return set close to 1k
+    max_data = hsh[:max_data]||(1000 / feature_counts.count.to_f).ceil
     count_type = hsh[:type]||'count'
     graph_length = feature_counts.first.seqfeature.length
     bioentry_id = feature_counts.first.seqfeature.bioentry_id
-    data_count = graph_length>cutoff ? return_cnt : graph_length
+    data_count = [graph_length,max_data].min
     feature_counts.each do |fc|
       bc = fc.experiment.summary_data(fc.seqfeature.min_start,fc.seqfeature.max_end,data_count,fc.experiment.sequence_name(bioentry_id))
+      next unless bc.length > 0
       total_sum = bc.inject{|sum,x| sum + x } || 1
       avg_read_length = total_sum / fc.count
       case count_type

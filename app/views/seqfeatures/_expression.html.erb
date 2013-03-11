@@ -1,4 +1,4 @@
-<div class='table'>
+<div class='table' width="100%" style='overflow-x:scroll'>
   <table class="listing">
   	<tr>
   	  <th></th>
@@ -19,5 +19,5 @@
   		<% end %>
   	</tr>
   </table>
-  <%= render :partial => "shared/base_count_chart", :locals => {:data => feature_counts_seqfeature_path(@gene,:format => :json)} %>
 </div>
+<%= render :partial => "shared/base_count_chart", :locals => {:data => feature_counts_seqfeature_path(@gene,:format => :json)} %>

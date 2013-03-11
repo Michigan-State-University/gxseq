@@ -169,6 +169,7 @@ class SeqfeaturesController < ApplicationController
   # [{:key => sample_name, :values => {:base => int, :count => float }}, ...]
   def feature_counts
     @feature_counts = FeatureCount.where(:seqfeature_id => params[:id]).accessible_by(current_ability)
+      .includes(:experiment).order('experiments.name')
     data = FeatureCount.create_graph_data(@feature_counts, {:type => (params[:type]||'rpkm')} )
     respond_with data
   end
