@@ -29,8 +29,13 @@ class RnaSeq < Experiment
   # creates ReadsTracks if a bam is present otherwise HistogramTracks are created
   def create_tracks
     if(bam)
-      create_reads_track(:assembly => assembly) unless reads_track
+      unless reads_track
+        create_reads_track(:assembly => assembly)
+        # replace the histogram track as soon as we have a bam
+        histogram_track.destroy if histogram_track
+      end
     else
+      # TODO: Test big wig only expression experiments. Need fix for Peaks .. data url etc..
       create_histogram_track(:assembly => assembly) unless histogram_track
     end
   end

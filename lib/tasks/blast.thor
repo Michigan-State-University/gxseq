@@ -4,7 +4,7 @@ class Blast < Thor
 
   desc "create_run FILE", 'load xml formatted blast results into the database'
   method_options %w(blast_db -b) => :required,
-    %w(assembly_id -t) => :required,
+    %w(assembly_id -a) => :required,
     %w(remove_splice -r) => false,
     %w(use_search_index -u) => false,
     %w(feature_type -f) => 'Gene', %w(concordance -d) => nil,
@@ -61,10 +61,7 @@ class Blast < Thor
       total +=1 
       count +=1 if report.hits.length > 0
     end
-    say "Found: #{total} reports, #{count} have hits. Continue?", :green
-    unless(yes? "(type 'y' or 'yes' to continue):")
-      exit 0
-    end
+    say "Found: #{total} reports, #{count} have hits", :green
 
     # Begin loading
     progress_bar = ProgressBar.new(count)
@@ -99,7 +96,7 @@ class Blast < Thor
           # Use the sunspot index to save time
           # This is not default in case the index is unavailable
           search = Seqfeature.search do
-            with :locus_tag_value, locus
+            with :locus_tag, locus
             with :assembly_id, options[:assembly_id]
             with :type_term_id, type_term_id
           end
@@ -116,7 +113,10 @@ class Blast < Thor
           end
         else
           # Use the database if sunspot is not available
-          features = Seqfeature.with_locus_tag(locus).includes(:bioentry).where('bioentry.assembly_id = ? and upper(display_name)=?',options[:assembly_id],options[:feature_type].upcase)
+          features = Seqfeature.with_locus_tag(locus)
+            .includes(:bioentry)
+            .where{bioentry.assembly_id == my{options[:assembly_id]}}
+            .where{seqfeature.type_term_id==my{type_term.id}}
           feature = features.first
           if features.size != 1
             puts "Found #{features.length} results for #{report.query_def} skipping"

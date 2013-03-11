@@ -20,7 +20,7 @@ Load the ncbi taxonomy tree if it has not beed done yet.
 	thor taxonomy:load
 
 
-Find the taxon Id for your transcriptome.
+Find the taxon Id for your sequence.
 
 	thor taxonomy:find "Escherichia coli" --rank 'species'
 	
