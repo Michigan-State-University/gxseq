@@ -69,6 +69,7 @@ class Blast < Thor
     seqfeature_ids = []
     # begin a transaction before making any changes
     BlastRun.transaction do
+      PaperTrail.enabled = false
       puts "Loading data. If interuppted, all changes will be reverted."
       # initalize array to store feature ids
       # Create a new Blast run to store this report
@@ -163,6 +164,7 @@ class Blast < Thor
       puts "**error: #{e}\n#{e.backtrace.join("\n")}"
       exit 0
     end
+    PaperTrail.enabled = true
     # Begin Re-index
     if options[:test]
       reindex = ask('This is as test run, no changes were saved. Do you want to re-index the features anyway? To test re-indexing type \'yes\'; anything else to skip:')
