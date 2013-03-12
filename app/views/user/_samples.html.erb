@@ -7,19 +7,21 @@
   <% else %>
       <table class="listing">
         <thead>
+          <th>Name</th>
           <th>Type</th>
           <th>Group</th>
-          <th>Name</th>
+          <th>Assembly</th>
           <th>Description</th>
           <th>Options</th>
         </thead>
         <% @samples.each do |sample| %>
           <tr>
-            <td><%= sample.type %></td>
-            <td><%= link_to sample.group.try(:name), sample.group %></td>
             <td><%= link_to sample.name, sample %></td>
-            <td><%= sample.description %></td>
-            <td>
+            <td><%= sample.type %></td>
+            <td style='text-align:left;white-space:nowrap'><%= link_to sample.group.try(:name), sample.group %></td>
+            <td style='white-space:nowrap'><%= sample.assembly.name_with_version %></td>
+            <td style='text-align:left'><%= sample.description %></td>
+            <td style='white-space:nowrap'>
               <%= link_to "View", sample %>
               <% if can? :update, sample %>
                 | <%= link_to "Edit", [:edit,sample] %>
