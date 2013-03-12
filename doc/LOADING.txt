@@ -14,15 +14,17 @@ General Process for New Data
 Common Commands
 ----------------
 
-Print bam Names in Dir
+- Print bam Names in Dir
 
 	ls lib/data/ohlrogge/camelina/ | grep "bam" | awk '{gsub(".bam","");print $0}' | xargs
 	
-Multiple Experiments and Expression
+- Load Multiple Experiments and Expression
 	
-	LIBS="one two three"
-	
-	for x in $LIBS; do echo $x; thor experiment:create -t RnaSeq -n $x -a 10063 -c 10003 -g "Ohlrogge Lab" -d "$x Ohlrogge Lab CLC 6.0" -f Bam:lib/data/ohlrogge/camelina/$x.bam; thor expression:load lib/data/ohlrogge/camelina/$x.csv -e $x -f 'Mrna' -c 4 -n 2 -h -d lib/data/ohlrogge/camelina/csv_concordance --no_index; done
+	LIBS="one two three";for x in $LIBS; do echo $x; thor experiment:create -t RnaSeq -n $x -a 10063 -c 10003 -g "Ohlrogge Lab" -d "$x Ohlrogge Lab CLC 6.0" -f Bam:lib/data/ohlrogge/camelina/$x.bam; thor expression:load lib/data/ohlrogge/camelina/$x.csv -e $x -f 'Mrna' -c 4 -n 2 -h -d lib/data/ohlrogge/camelina/csv_concordance --no_index; done
+ 
+- Run a blastx
+
+	blastall -p blastx -d /data/blastdb/swissprot -i contigs.fasta -e 10e-10 -o uniprot.xml -v 25 -b 25 -a 8 -m 7 -V F -f 14 -F "m S" &
 
 ----------------
 Before Loading Sequence

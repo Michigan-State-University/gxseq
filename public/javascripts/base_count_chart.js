@@ -124,8 +124,8 @@ BaseCountChart = function(){
       return "translate(" + 5 + "," + (topPadding + BoxSpace * i) + ")";
     });
     
-    keys.append("rect").attr("width", boxDim).attr("height", boxDim ).attr("rx", 4).attr("ry", 4).attr("fill", function(d) {
-      return color(d.key);
+    keys.append("rect").attr("width", boxDim).attr("height", boxDim ).attr("rx", 4).attr("ry", 4).attr("fill", function(d,i) {
+      return color(i);
     });
     
     return keys.append("text").text(function(d) {
@@ -144,10 +144,22 @@ BaseCountChart = function(){
         return d.count;
       });
     });
-    // why sort reverse?
-    data.sort(function(a, b) {
-      return b.maxCount - a.maxCount;
-    });
+    // Build the domain dynamically
+    // We want evenly spaced steps for each color value
+    var step = Math.ceil(data.length / 12)
+    domainArray = [0]
+    var curValue = 0;
+    while(curValue < data.length){
+      curValue += step
+      domainArray.push(curValue);
+    }
+    // Setup the color scale
+    color = d3.scale.linear().domain(domainArray).interpolate(d3.interpolateRgb).range(colorbrewer.Paired[12]);
+
+    // // why sort by count?
+    // data.sort(function(a, b) {
+    //   return b.maxCount - a.maxCount;
+    // });
     return start();
   };
 
@@ -178,8 +190,7 @@ BaseCountChart = function(){
     duration = 750;
     x = d3.scale.linear().range([pLeft,pRight]);
     y = d3.scale.linear().range([pBot,pTop]);
-    color = d3.scale.category10();
-
+    //color = d3.scale.category10();
     area = d3.svg.area().interpolate("basis").x(function(d) {
       return x(d.base);
     });
@@ -226,8 +237,8 @@ BaseCountChart = function(){
     // add some paths that will
     // be used to display the lines and
     // areas that make up the charts
-    requests.append("path").attr("class", "area").style("fill", function(d) {
-      return color(d.key);
+    requests.append("path").attr("class", "area").style("fill", function(d,i) {
+      return color(i);
     }).attr("d", function(d) {
       return area(d.values);
     });
