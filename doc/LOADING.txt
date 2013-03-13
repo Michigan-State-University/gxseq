@@ -6,6 +6,7 @@ General Process for New Data
 -Load Concordance Set for new Assembly => concordance:load
 -Identify/Create BlastDatabase => taxonomy:list, blast:list_db, blast:create_db
 -Load Blast Report(s) => blast:create_run
+--Must Restart Prod After blast report load (Class cache for blasts needs reload)
 -Identify/Create Group => group:list, UI
 -Load Samples => experiment:create
 -load Expression => expression:load
