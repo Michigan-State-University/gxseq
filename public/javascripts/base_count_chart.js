@@ -1,5 +1,5 @@
 BaseCountChart = function(){
-  var area, areas, color, containerId, createLegend, data, display, duration, height, hideLegend, legend, legendWidth, legendOffset, line, paddingBottom, paddingLeft, showLegend, stack, stackedAreas, start, streamgraph, svg, transitionTo, width, x, xAxis, y, yAxis;
+  var area, areas, color, containerId, createLegend, data,maxSortedData, display, duration, height, hideLegend, legend, legendWidth, legendOffset, line, paddingBottom, paddingLeft, showLegend, stack, stackedAreas, start, streamgraph, svg, transitionTo, width, x, xAxis, y, yAxis;
   var pLeft,pRight,pTop,pBot
   data = null;
   transitionTo = function(name) {
@@ -83,10 +83,16 @@ BaseCountChart = function(){
   };
 
   areas = function() {
+    // Get the maximum of the nested values
     y.domain([
-      0, d3.max(data[0].values.map(function(d) {
-        return d.count;
-      }))
+      0, d3.max(data.map(function(item) {
+        // return the maximum of this items values
+        return d3.max(item.values.map(function(d) {
+            return d.count;
+          })
+        )
+      })
+      )
     ]).range([height, 0]);
     
     line.y(function(d) {
@@ -155,11 +161,6 @@ BaseCountChart = function(){
     }
     // Setup the color scale
     color = d3.scale.linear().domain(domainArray).interpolate(d3.interpolateRgb).range(colorbrewer.Paired[12]);
-
-    // // why sort by count?
-    // data.sort(function(a, b) {
-    //   return b.maxCount - a.maxCount;
-    // });
     return start();
   };
 
