@@ -15,13 +15,13 @@ module ExpressionHelper
       text = hit.highlight(field_name).format {|fragment| "<b><u>#{fragment}</u></b>" }
     elsif hit.stored(field_name)
       text = Array(hit.stored(field_name)).join(',').html_safe
-    elsif hit.stored(:id)
-      text = hit.stored(:id).to_s
+    else
+      ''
     end
     if(Array(hit.stored(:favorite_user_ids)).include?(current_user.id) )
       text = "<b>#{text}</b>"
     end
-    return text.html_safe
+    return text.try(:html_safe)
   end
 end
 

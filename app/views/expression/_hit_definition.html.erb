@@ -3,10 +3,10 @@ if group_multi_select
   sliced_toggle(
     group_multi_select.collect{|definition|
       highlight_result(hit,definition+'_text')
-    }.compact.join(' | '),
+    }.join(' | ').html_safe,
     group_multi_select.collect{|definition|
       Array(hit.stored(definition+'_text')).first
-    }.compact.join(' | '),
+    }.join(' | '),
     Array(hit.stored(:id)).first
   )
 else

@@ -171,11 +171,11 @@ class ExpressionController < ApplicationController
     }
     # TODO: Replace with Faceted search for speed and numbered results
     # Get all the annotations in use by an assembly feature.
-    @extra_terms = Term.select('distinct term.term_id, term.name').joins(:ontology,[:qualifiers => [:seqfeature => :bioentry]])
+    extra_terms = Term.select('distinct term.term_id, term.name').joins(:ontology,[:qualifiers => [:seqfeature => :bioentry]])
       .where{(bioentry.assembly_id == my{@assembly.id}) & (ontology_id == Term.ano_tag_ont_id)}
-      .where{lower(term.name).in(['ec_number','function','gene','gene_synonym','product','protein_id','transcript_id'])}
+      .where{lower(term.name).in(['ec_number','function','gene','gene_synonym','product','protein_id','transcript_id','locus_tag'])}
     # Add to the list
-    @group_select_options['Annotation'].concat @extra_terms.map{|term| [term.name.humanize,term.name]}
+    @group_select_options['Annotation'].concat extra_terms.map{|term| [term.name.humanize,term.name]}
     # Get all the custom terms in use
     @terms = Term.includes(:ontology,[:qualifiers => [:seqfeature => :bioentry]])
       .where{ (seqfeature.type_term_id == my{@type_term_id}) & (bioentry.assembly_id == my{@assembly.id}) & (ontology_id.in(Term.custom_ontologies))}

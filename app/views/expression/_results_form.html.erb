@@ -40,7 +40,12 @@
     <% @experiments.each do |e| %>
       <%= hidden_field_tag 'experiments[]', e.id %>
     <% end %>
-    <h3></h3>
+
+    <div style="float:right;margin:2em">
+      Keywords: <%= text_field_tag "keywords",params[:keywords] %>
+    </div>
+    
+    <div style="clear:both"></div>
     
     <div style="float:right;margin-right:2em">
       Expression Type<br/>

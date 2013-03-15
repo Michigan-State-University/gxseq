@@ -68,7 +68,7 @@
       <%= select_tag :group_multi_select, grouped_options_for_select(@group_select_options, params[:group_multi_select]), {:multiple => true,:size => 5} %>
     </div>
     
-    <div style="float:right; margin-right:2em;margin:1em">
+    <div style="clear:both;float:right; margin-right:2em;margin:1em">
       <%= submit_tag 'Search', :class => "button" %>
     </div>
   <% end %>
