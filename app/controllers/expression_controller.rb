@@ -21,11 +21,20 @@ class ExpressionController < ApplicationController
         case params[:c]
         # dynamic 'exp_X' attribute
         when /exp_/
-          s.dynamic(:normalized_counts) do
+          s.dynamic(params[:value_type]) do
             order_by params[:c], order_d
           end
+        # dynamic blast search
+        when /blast_acc/
+          s.dynamic(:blast_acc) do
+            order_by params[:c].gsub('_acc',''), order_d
+          end
+        when /blast_id/
+          s.dynamic(:blast_id) do
+            order_by params[:c].gsub('_id',''), order_d
+          end
         when 'sum'
-          s.dynamic(:normalized_counts) do
+          s.dynamic(params[:value_type]) do
             order_by_function :sum, *experiment_symbols,  order_d
           end
         else
@@ -66,19 +75,29 @@ class ExpressionController < ApplicationController
         a_clause = [:div, [:sum, *a_experiment_symbols], "#{a_experiment_symbols.length}"]
         b_clause = [:div, [:sum, *b_experiment_symbols], "#{b_experiment_symbols.length}"]
         case params[:c]
+        # dynamic 'exp_X' attribute
         when 'exp_a'
-          s.dynamic(:normalized_counts) do
+          s.dynamic(params[:value_type]) do
             order_by_function *a_clause,  order_d
           end
         when 'exp_b'
-          s.dynamic(:normalized_counts) do
+          s.dynamic(params[:value_type]) do
             order_by_function *b_clause,  order_d
           end
         when 'ratio'
-          s.dynamic(:normalized_counts) do
+          s.dynamic(params[:value_type]) do
             # div by zero must be handled otherwise results may be invalid
             # So, we add a very small number to numerator and denominator
             order_by_function :div, [:sum,a_clause,infinity_offset], [:sum,b_clause,infinity_offset],  order_d
+          end
+        # dynamic blast search
+        when /blast_acc/
+          s.dynamic(:blast_acc) do
+            order_by params[:c].gsub('_acc',''), order_d
+          end
+        when /blast_id/
+          s.dynamic(:blast_id) do
+            order_by params[:c].gsub('_id',''), order_d
           end
         else
           s.order_by params[:c], order_d
@@ -144,22 +163,35 @@ class ExpressionController < ApplicationController
   
   # options for grouped select
   def setup_definition_select
+    # Setup the quick select box
     @group_select_options = {
-      'Combined' => [['Description','description'],['Everything','full_description']],
-      "Blast Reports" => @blast_runs.collect{|run|[run.name,run.name_with_id]},
-      'Annotation' => [['Function','function'],['Product','product']]
+      #'Combined' => [['Description','description'],['Everything','full_description']],
+      "Blast Reports" => @blast_runs.collect{|run|[run.name,"blast_#{run.id}"]},
+      'Annotation' => [['Description','description']]
     }
+    # TODO: Replace with Faceted search for speed and numbered results
+    # Get all the annotations in use by an assembly feature.
+    @extra_terms = Term.select('distinct term.term_id, term.name').joins(:ontology,[:qualifiers => [:seqfeature => :bioentry]])
+      .where{(bioentry.assembly_id == my{@assembly.id}) & (ontology_id == Term.ano_tag_ont_id)}
+      .where{lower(term.name).in(['ec_number','function','gene','gene_synonym','product','protein_id','transcript_id'])}
+    # Add to the list
+    @group_select_options['Annotation'].concat @extra_terms.map{|term| [term.name.humanize,term.name]}
     # Get all the custom terms in use
-    @terms = Term.includes(:ontology,[:qualifiers => [:seqfeature => :bioentry]]).where{ (seqfeature.type_term_id == my{@type_term_id}) & (bioentry.assembly_id == my{@assembly.id}) & (ontology_id.in(Term.custom_ontologies))}
+    @terms = Term.includes(:ontology,[:qualifiers => [:seqfeature => :bioentry]])
+      .where{ (seqfeature.type_term_id == my{@type_term_id}) & (bioentry.assembly_id == my{@assembly.id}) & (ontology_id.in(Term.custom_ontologies))}
     @terms.each do |term|
       @group_select_options[term.ontology.name] ||= []
       @group_select_options[term.ontology.name] << [term.name, term.name_with_id]
     end
+
+    
   end
   # defaults
   def setup_defaults
     params[:per_page]||=50
     params[:definition_type]||= @assembly.default_feature_definition
+    params[:value_type]||='normalized_counts'
+    @value_options = {'Normalized Counts' => 'normalized_counts', 'Raw Counts' => 'counts'}
     # setup order
     case params[:d]
     when 'ASC','asc','up'
@@ -193,16 +225,22 @@ class ExpressionController < ApplicationController
       end
       # Text Search
       unless params[:keywords].blank?
-        s.fulltext params[:keywords], :fields => [params[:definition_type]+'_text', :locus_tag_text], :highlight => true
+        if params[:group_multi_select]
+          s.fulltext params[:keywords], :fields => params[:group_multi_select].map{|s| s+'_text'}, :highlight => true
+        else
+          s.fulltext params[:keywords], :fields => [params[:definition_type]+'_text', :locus_tag_text], :highlight => true
+        end
       end
       # Remove empty
-      case params[:show_blank]
-      # don't show empty definitions
-      when 'n'
-        s.without params[:definition_type], nil
-      # only show empty definitions
-      when 'e'
-        s.with params[:definition_type], nil
+      unless params[:group_multi_select]
+        case params[:show_blank]
+        # don't show empty definitions
+        when 'n'
+          s.without params[:definition_type], nil
+        # only show empty definitions
+        when 'e'
+          s.with params[:definition_type], nil
+        end
       end
       # Favorites
       case params[:favorites_filter]
@@ -228,7 +266,7 @@ class ExpressionController < ApplicationController
         render :text => 'not found..'
       else
         @search.each_hit_with_result do |hit,feature|
-          render :partial => 'hit_definition', :locals => {:hit => hit, :feature => feature, :definition_type => params[:definition_type]}
+          render :partial => 'hit_definition', :locals => {:hit => hit, :feature => feature, :definition_type => params[:definition_type], :group_multi_select => params[:group_multi_select]}
           break
         end
       end

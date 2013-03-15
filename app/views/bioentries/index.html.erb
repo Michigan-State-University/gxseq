@@ -30,32 +30,22 @@
       :format => 'genbank'
     ), :class => "button", :confirm => "Depending on the volume of data available, it may take several minutes to complete your request. The File will be streamed to you as it is generated. Click OK to continue." %>
   </div>
+  
+  <div>
+    <% form_tag bioentries_path, :method => :get do %>
+      <div style="float:right;margin-bottom:0.5em">
+        Search:<br/>
+        <%= text_field_tag "keywords",params[:keywords] %>
+        <%= submit_tag 'Go', :class => 'button' %>
+      </div>
+      <div style="float:right;margin-right:2em">
+        Assembly:<br/>
+        <%= select_tag 'assembly', options_for_select(@assemblies.collect{|s| [s.name_with_version,s.id]},params[:assembly]), {:include_blank => "None", :onchange => "this.form.submit()"} %>
+      </div>
+    <% end -%>
+  </div>
 <% end -%>
-<div>
-  <% form_tag bioentries_path, :method => :get do %>
-    <div style="float:left">
-      Filter by Taxonomy:<br/>
-      <%= select_tag 'assembly', options_for_select(@assemblies.collect{|s| [s.name_with_version,s.id]},params[:assembly]), {:include_blank => "No Filter", :onchange => "this.form.submit()"} %>
-    </div>
-    <!-- Remove Biodatabase filter until required -->
-    <!-- <%# if @biodatabases.size > 1 %>
-    <div style="float:left">
-      Filter by Database:<br/>
-      <%#= select_tag 'biodatabase', options_for_select(@biodatabases.collect{|b| [b.name,b.id]},params[:biodatabase]), {:onchange => "this.form.submit()"} %>
-    </div>
-    <%# end %> -->
-    <div style="float:left">
-      Filter by Type:<br/>
-      <%= select_tag 'taxon_type', options_for_select(['Genome','Transcriptome'],params[:taxon_type]), {:include_blank => "No Filter", :onchange => "this.form.submit()"} %>
-    </div>
-    <div style="float:right">
-      Search:<br/>
-      <%= text_field_tag "keywords",params[:keywords] %>
-      <%= submit_tag 'Go' %>
-    </div>
-  <% end -%>
-</div>
-<br/ style="clear:both"><br/>
+
 <% if @search.nil? %>
   No Results Found...
 <% else %>

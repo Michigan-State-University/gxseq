@@ -1,18 +1,10 @@
-<% content_for :head do %>
-	<%#= render :partial => "common/extjs_css" %>
-	<%= render :partial => "common/extjs" %>
-<% end %>
-<%#= render :partial => "tools/sidebar", :locals => {:active => "expression"} %>
-
 <% content_for :top_bar do -%>
-  <h1 class="pagetitle">Expression Viewer</h1>
+  <h1 class="pagetitle">Expression Viewer  - Ratio for: <%= @assembly.name_with_version %></h1>
 <% end -%>
 
 <% content_for :item_bar do -%>
   <%= link_to "Update Selection", expression_viewer_path, :class => "button" %>
-  <%= link_to "Advanced Search",'#',:onclick => "$('advanced_search').toggle()", :class => "button" %>
   <%= render :partial => 'advanced_results_form' %>
-
 <% end -%>
 
 <% if @search.nil? %>
@@ -28,11 +20,11 @@
       <thead>
         <th style="white-space:nowrap"><%= sort_link "Locus", 'locus_tag_value' %></th>
         <th width="65%">Description</th>
-        <% if @blast_runs.count > 0 %>
-          <th>Blasts</th>
+        <% @blast_runs.each do |blast_run| %>
+          <th><%= sort_link blast_run.name, "blast_acc_#{blast_run.id}" %></th>
         <% end %>
-        <th width="5%" style="white-space:nowrap"><%=sort_link @a_experiments.map(&:name).to_sentence, 'exp_a' %></th>
-        <th width="5%" style="white-space:nowrap"><%=sort_link @b_experiments.map(&:name).to_sentence, 'exp_b' %></th>
+        <th width="5%" style="white-space:nowrap"><%=sort_link 'Set A', 'exp_a', :title => @a_experiments.map(&:name).to_sentence %></th>
+        <th width="5%" style="white-space:nowrap"><%=sort_link 'Set B', 'exp_b', :title => @b_experiments.map(&:name).to_sentence %></th>
         <th width="5%" style="white-space:nowrap"><%= sort_link "A / B", 'ratio' %></th>
         <th>Options</th>
       </thead>

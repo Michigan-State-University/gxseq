@@ -1,10 +1,9 @@
 <% content_for :top_bar do -%>
-  <h1 class="pagetitle">Expression Viewer</h1>
+  <h1 class="pagetitle">Expression Viewer - Matrix for: <%= @assembly.name_with_version %></h1>
 <% end -%>
 
 <% content_for :item_bar do -%>
   <%= link_to "Update Selection", expression_viewer_path(:experiments => @experiments,:assembly_id => params[:assembly_id]), :class => "button" %>
-  <%= link_to "Advanced Search",'#',:onclick => "$('advanced_search').toggle()", :class => "button" %>
   <%= render :partial => 'results_form' %>
 
 <% end -%>
@@ -22,8 +21,8 @@
       <thead>
         <th style="white-space:nowrap"><%= sort_link "Locus", 'locus_tag_value' %></th>
         <th width="65%">Definition</th>
-        <% if @blast_runs.count > 0 %>
-          <th>Blasts</th>
+        <% @blast_runs.each do |blast_run| %>
+          <th><%= sort_link blast_run.name, "blast_acc_#{blast_run.id}" %></th>
         <% end %>
         <% @experiments.each do |exp| %>
           <th width="5%" style="white-space:nowrap" ><%=sort_link exp.name,"exp_#{exp.id}" %></th>
@@ -37,7 +36,7 @@
           <% sum = 0 %>
           <% @experiments.each do |exp| %>
             <td>
-              <%= val = hit.stored(:normalized_counts,"exp_#{exp.id}").round %>
+              <%= val = hit.stored(params[:value_type],"exp_#{exp.id}").round %>
               <% sum += (val||0) %>
             </td>
           <% end %>

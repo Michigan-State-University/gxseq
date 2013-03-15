@@ -1,5 +1,5 @@
 <% form_tag expression_advanced_results_path, :method => :get do %>
-  <div style="float:right">
+  <div style="float:right;margin-bottom:0.5em">
     Search on definition and locus<br/>
     <%= text_field_tag "keywords",params[:keywords] %>
     <%= hidden_field_tag :assembly_id, params[:assembly_id] %>
@@ -12,19 +12,11 @@
     <% @b_experiments.each do |e| %>
       <%= hidden_field_tag 'b_experiments[]', e.id %>
     <% end %>
-    <%= submit_tag 'Go' %>
-  </div>
-  <div style="float:right;margin-right:2em">
-    Show Empty Results<br/>
-    <%= select_tag :show_blank, options_for_select({'Yes' => 'y','No' => 'n','Only Empty' => 'e'}, params[:show_blank]), {:onchange => 'this.form.submit()'} %>
+    <%= submit_tag 'Go', :class => 'button' %>
   </div>
   <div style="float:right;margin-right:2em">
     Definition Source<br/>
     <%= select_tag :definition_type, grouped_options_for_select(@group_select_options, params[:definition_type]), {:onchange => 'this.form.submit()'} %>
-  </div>
-  <div style="float:right;margin-right:2em">
-    Infinite Values<br/>
-    <%= select_tag :infinite_order, options_for_select({'First' => 'f','Last' => 'l'}, params[:infinite_order]), {:onchange => 'this.form.submit()'} %>
   </div>
   <div style="float:right;margin-right:2em">
     Filter Favorites<br/>
@@ -32,8 +24,18 @@
   </div>
 <% end -%>
 
-<div style="<%=  params[:advanced_search] ? '' : 'display:none;clear:both'%>" id="advanced_search">
-  <h2 class="pagetitle"><br/><hr/></h2>
+<div class="item_bar_options">
+  <span id='arrow_slide_down' style="<%= params[:advanced_search] ? 'display:none' : '' %>">
+    <%= image_tag('arrow_slide_down.png',:size => '12x12') %>
+  </span>
+  <span id='arrow_slide_up' style="<%= params[:advanced_search] ? '' : 'display:none' %>">
+    <%= image_tag('arrow_slide_up.png',:size => '12x12') %>
+  </span>
+  <%= link_to "(Advanced Options)",'#',:onclick => "$('advanced_search').toggle();$('arrow_slide_down').toggle();$('arrow_slide_up').toggle()"%>
+</div>
+
+<div style="<%=  params[:advanced_search] ? 'clear:both' : 'display:none;clear:both'%>" id="advanced_search">
+  <h2 class="pagetitle"><br/><hr/><br/></h2>
   <% form_tag expression_advanced_results_path, :method => :get do %>
     <%= hidden_field_tag :advanced_search, true %>
     <%= hidden_field_tag :assembly_id, params[:assembly_id] %>
@@ -45,11 +47,29 @@
       <%= hidden_field_tag 'b_experiments[]', e.id %>
     <% end %>
     <h3></h3>
-    Keywords:  <%= text_field_tag "keywords",params[:keywords] %><br/>
-    <br/>
-    <h3>Match these fields:</h3>
-    Locus Tag: <%= text_field_tag "locus_tag",params[:locus_tag] %><br/>
-
-    <%= submit_tag 'Search', :style => "float:left", :class => "button" %>
+    
+    <div style="float:right;margin-right:2em">
+      Expression Type<br/>
+      <%= select_tag :value_type, options_for_select(@value_options, params[:value_type])%>
+    </div>
+    
+    <div style="float:right;margin-right:2em">
+      Infinite Values<br/>
+      <%= select_tag :infinite_order, options_for_select({'High' => 'f','Low' => 'l'}, params[:infinite_order]) %>
+    </div>
+    
+    <div style="float:right;margin-right:2em">
+      Show Empty Results<br/>
+      <%= select_tag :show_blank, options_for_select({'Yes' => 'y','No' => 'n','Only Empty' => 'e'}, params[:show_blank])%>
+    </div>
+    
+    <div style="clear:both;float:right; margin:2em">
+      Definition Builder<br/>
+      <%= select_tag :group_multi_select, grouped_options_for_select(@group_select_options, params[:group_multi_select]), {:multiple => true,:size => 5} %>
+    </div>
+    
+    <div style="float:right; margin-right:2em;margin:1em">
+      <%= submit_tag 'Search', :class => "button" %>
+    </div>
   <% end %>
 </div>

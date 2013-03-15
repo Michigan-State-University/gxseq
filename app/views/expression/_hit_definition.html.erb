@@ -1,5 +1,18 @@
-<%= hit.stored(definition_type+'_text') ? sliced_toggle(
-    highlight_result(hit,definition_type+'_text'),
-    Array(hit.stored(definition_type+'_text')).first||'',
+<%=
+if group_multi_select
+  sliced_toggle(
+    group_multi_select.collect{|definition|
+      highlight_result(hit,definition+'_text')
+    }.compact.join(' | '),
+    group_multi_select.collect{|definition|
+      Array(hit.stored(definition+'_text')).first
+    }.compact.join(' | '),
     Array(hit.stored(:id)).first
-  ) : '' %>
+  )
+else
+  hit.stored(definition_type+'_text') ? sliced_toggle(
+      highlight_result(hit,definition_type+'_text'),
+      Array(hit.stored(definition_type+'_text')).first||'',
+      Array(hit.stored(:id)).first
+    ) : ''
+end %>

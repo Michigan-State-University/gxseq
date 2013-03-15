@@ -29,6 +29,9 @@ class Seqfeature < ActiveRecord::Base
   # Use :qualifiers when including the entire attribute set. Use _assoc when including a small subset (1 or 2)
   has_one :product_assoc, :class_name => "SeqfeatureQualifierValue", :foreign_key => "seqfeature_id", :include => :term, :conditions => "term.name = 'product'"
   has_one :function_assoc, :class_name => "SeqfeatureQualifierValue", :foreign_key => "seqfeature_id", :include => :term, :conditions => "term.name = 'function'"
+  has_one :transcript_id_assoc, :class_name => "SeqfeatureQualifierValue", :foreign_key => "seqfeature_id", :include => :term, :conditions => "term.name = 'transcript_id'"
+  has_one :protein_id_assoc, :class_name => "SeqfeatureQualifierValue", :foreign_key => "seqfeature_id", :include => :term, :conditions => "term.name = 'protein_id'"
+  
   # For index eager loading we add gene_models here but only Gene features will have gene_models
   # TODO: Test this for side effects against create/update gene
   has_many :gene_models, :foreign_key => :gene_id, :inverse_of => :gene
@@ -109,16 +112,22 @@ class Seqfeature < ActiveRecord::Base
   
   # index methods, should overriden to include associated items
   def indexed_description
-    description
+    description.presence
   end
   def indexed_full_description
-    full_description
+    full_description.presence
   end
   def indexed_product
-    product
+    product.try(:value)
   end
   def indexed_function
-    function
+    function.try(:value)
+  end
+  def indexed_transcript_id
+    transcript_id.try(:value)
+  end
+  def indexed_protein_id
+    protein_id.try(:value)
   end
   # generates a Seqfeature scope with all features having the same locus tag as self.
   # self will be included in the result
@@ -185,10 +194,10 @@ class Seqfeature < ActiveRecord::Base
   ### SQV types - allows for quick reference through eager load of :qualifiers
   # NOTE: These could be converted to STI classes but the table has no primary key
   # single sqv
-  ['chromosome','organelle','plasmid','mol_type', 'locus_tag','gene','gene_synonym','product','function','codon_start','protein_id','transcript_id'].each do |sqv|
+  ['chromosome','organelle','plasmid','mol_type', 'locus_tag','gene','gene_synonym','product','function','codon_start','protein_id','transcript_id','ec_number'].each do |sqv|
   define_method sqv.to_sym do
     annotation_qualifiers.each do |q|
-        if q.term&&q.term.name == sqv
+        if q.term&&q.term.name.downcase == sqv
            return q
         end
      end
@@ -353,35 +362,64 @@ class Seqfeature < ActiveRecord::Base
     s.text :description_text, :stored => true do
       indexed_description
     end
-    s.text :full_description_text, :stored => true do
-      indexed_full_description
-    end
-    s.text :assembly_name_with_version_text, :stored => true do
-     bioentry.assembly.name_with_version
-    end
+    # s.text :full_description_text, :stored => true do
+    #   indexed_full_description
+    # end
+    # s.text :assembly_name_with_version_text, :stored => true do
+    #  bioentry.assembly.name_with_version
+    # end
     s.text :function_text, :stored => true do
       indexed_function
     end
     s.text :product_text, :stored => true do
       indexed_product
     end
+    s.text :gene_text, :stored => true do
+      gene
+    end
+    s.text :gene_synonym_text, :stored => true do
+      gene_synonym
+    end
+    s.text :protein_id_text do
+      indexed_protein_id
+    end
+    s.text :transcript_id_text do
+      indexed_transcript_id
+    end
+    s.text :ec_number do
+      ec_number
+    end
+    
     s.string :display_name
     s.string :description do
       indexed_description
     end
-    s.string :full_description do
-      indexed_full_description
+    # s.string :full_description do
+    #   indexed_full_description
+    # end
+    s.string :gene do
+      gene.try(:value)
     end
-    s.string :protein_id
-    s.string :transcript_id
+    s.string :gene_synonym do
+      gene_synonym.try(:value)
+    end
+    s.string :ec_number do
+      ec_number.try(:value)
+    end
     s.string :function do
       indexed_function
     end
     s.string :product do
       indexed_product
     end
+    s.string :protein_id do
+      indexed_protein_id
+    end
+    s.string :transcript_id do
+      indexed_transcript_id
+    end
     s.string :locus_tag do
-      locus_tag ? locus_tag.value : nil
+      locus_tag.try(:value)
     end
     s.string :sequence_name do
       bioentry.display_name
@@ -392,9 +430,9 @@ class Seqfeature < ActiveRecord::Base
     s.string :version_name do
       bioentry.version_info
     end
-    s.string :assembly_name_with_version do
-     bioentry.assembly.name_with_version
-    end
+    # s.string :assembly_name_with_version do
+    #  bioentry.assembly.name_with_version
+    # end
     s.integer :id, :stored => true
     s.integer :bioentry_id, :stored => true
     s.integer :type_term_id, :references => Term
@@ -411,6 +449,7 @@ class Seqfeature < ActiveRecord::Base
     end
     s.integer :favorite_user_ids, :multiple => true, :stored => true
     
+    # Dynamic fields need to be a string. Number fields will not be parsed correctly in the query
     # dynamic feature expression
     s.dynamic_float :normalized_counts, :stored => true do
       feature_counts.inject({}){|h,x| h["exp_#{x.experiment_id}"]=x.normalized_count;h}
@@ -419,23 +458,20 @@ class Seqfeature < ActiveRecord::Base
       feature_counts.inject({}){|h,x| h["exp_#{x.experiment_id}"]=x.count;h}
     end
     # dynamic blast reports
-    s.dynamic_string :blast_def, :stored => true do
-      blast_reports.inject({}){|hash,report| hash[report.blast_database.name+"_#{report.blast_run.id}"]=report.hit_def;hash}
-    end
     s.dynamic_string :blast_acc, :stored => true do
-      blast_reports.inject({}){|hash,report| hash[report.blast_database.name+"_#{report.blast_run.id}"]=report.hit_acc;hash}
+      blast_reports.inject({}){|hash,report| hash["blast_#{report.blast_run_id}"]=report.hit_acc;hash}
     end
     s.dynamic_string :blast_id, :stored => true do
-      blast_reports.inject({}){|hash,report| hash[report.blast_database.name+"_#{report.blast_run.id}"]=report.id;hash}
+      blast_reports.inject({}){|hash,report| hash["blast_#{report.blast_run_id}"]=report.id;hash}
     end
     # Fake dynamic blast text - defined for 'every' blast_run on 'every' seqfeature
     # TODO: find another way to allow scoped blast_def full text search without searching all of the definitions
     BlastRun.all.each do |blast_run|
-      s.string blast_run.name_with_id.to_sym, do
+      s.string "blast_#{blast_run.id}".to_sym, do
         report = blast_reports.select{|b| b.blast_run_id == blast_run.id }.first
         report ? report.hit_def : nil
       end
-      s.text "#{blast_run.name_with_id}_text".to_sym, :stored => true do
+      s.text "blast_#{blast_run.id}_text".to_sym, :stored => true do
         report = blast_reports.select{|b| b.blast_run_id == blast_run.id }.first
         report ? report.hit_def : nil
       end
@@ -456,7 +492,7 @@ class Seqfeature < ActiveRecord::Base
   end
   
   # search definition
-  searchable(:include => [:bioentry,:type_term,:qualifiers,:feature_counts,:blast_reports,:locations,:favorite_users,:gene_models => [:cds => [:product_assoc, :function_assoc], :mrna => [:product_assoc, :function_assoc]]]) do |search|
+  searchable(:include => [:bioentry,:qualifiers,:feature_counts,:blast_reports,:locations,:favorite_users,:gene_models => [:cds => [:product_assoc, :protein_id_assoc], :mrna => [:function_assoc, :transcript_id_assoc]]]) do |search|
     full_search_block(search)
   end
 end

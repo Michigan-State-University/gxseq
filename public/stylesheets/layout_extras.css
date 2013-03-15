@@ -404,3 +404,10 @@ tr.alignment {
 tr.alignment pre {
   margin:0px;
 }
+
+.item_bar_options {
+  position:absolute;
+  background-color:white;
+  right:.5em;
+  bottom:-.75em;
+}

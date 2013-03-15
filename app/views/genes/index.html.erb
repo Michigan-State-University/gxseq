@@ -15,15 +15,25 @@
 <!-- Filter / Search items here -->
 	<div style="float:left">
 		<%= link_to "New Gene", send("new_gene_path"), :class => "button" if can? :create, GeneModel.new%>
-		<%= link_to "Advanced Search",'#',:onclick => "$('advanced_search').toggle();", :class => "button" %>
 	</div>
 	<div style="float:right">
 	  <% form_tag genes_path, :method => :get do %>
 	    Search:<br/>
       <%= text_field_tag "keywords",params[:keywords] %>
-      <%= submit_tag 'Go' %>
+      <%= submit_tag 'Go', :class => 'button' %>
 	  <% end %>
 	</div>
+	
+	<div class="item_bar_options">
+    <span id='arrow_slide_down' style="<%= params[:advanced_search] ? 'display:none' : '' %>">
+      <%= image_tag('arrow_slide_down.png',:size => '12x12') %>
+    </span>
+    <span id='arrow_slide_up' style="<%= params[:advanced_search] ? '' : 'display:none' %>">
+      <%= image_tag('arrow_slide_up.png',:size => '12x12') %>
+    </span>
+    <%= link_to "(Advanced Options)",'#',:onclick => "$('advanced_search').toggle();$('arrow_slide_down').toggle();$('arrow_slide_up').toggle()"%>
+  </div>
+  
 	<br/ style="clear:both">
 	<div id='advanced_search' style="<%= params[:advanced_search] ? '' : 'display:none' %>">
 	  <br/>
@@ -31,7 +41,7 @@
 	  <br/>
   	<% form_tag genes_path, :method => :get do %>
   	  <%= hidden_field :advanced_search, true %>
-      <div style="float:left">
+      <div style="float:right">
         Keywords:<br/>
         <%= text_field_tag "keywords",params[:keywords], :size => 50 %><br/>
         <br/>
@@ -44,12 +54,9 @@
           TO
           <%= text_field_tag "end_pos",params[:end_pos], :size => 10 %><br/>
         </div>
-        <div style="float:left;margin-right:1em">
+        <br/style="clear:both"><br/>
           Strand:<br/>
           <%= select_tag 'strand', options_for_select(@search.facet(:strand).rows.collect{|s| ["#{s.value.to_i > 0 ? 'Forward (5\' -> 3\')' : 'Reverse (3\' -> 5\')'} (#{s.count})",s.value]},params[:strand]), {:include_blank => "No Filter"} %><br/>
-        </div>
-        <div style="clear:both">
-        </div>
         <br/>
         <% @presence_items.each do |presence_item| %>
           <div style="float:left;margin-right:1em">
@@ -58,9 +65,9 @@
           </div>
         <% end %>
       </div>
-      <div style="clear:both">
+      <div style="clear:both;float:right;margin:1em">
         <br/>
-        <%= submit_tag 'Search' %>
+        <%= submit_tag 'Search', :class => 'button' %>
       </div>
     <% end -%>
   </div>

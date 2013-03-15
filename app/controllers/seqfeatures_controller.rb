@@ -6,7 +6,7 @@ class SeqfeaturesController < ApplicationController
   def index
     # Defaults
     params[:page]||=1
-    params[:c]||='assembly_name_with_version'
+    params[:c]||='assembly_id'
     order_d = (params[:d]=='down' ? 'desc' : 'asc')
     @presence_items = presence_items = ['gene_name','function','product']
     # Filter setup

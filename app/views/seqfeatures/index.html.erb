@@ -5,46 +5,56 @@
 <% content_for :item_bar do %>
 <!-- Filter / Search items here -->
 	<div style="float:left">
-		<%= link_to "Advanced Search",'#',:onclick => "$('advanced_search').toggle();", :class => "button" %>
 	</div>
-	<div style="float:right">
+	<div style="float:right;margin-bottom:0.5em">
 	  <% form_tag seqfeatures_path, :method => :get do %>
 	    Search:<br/>
       <%= text_field_tag "keywords",params[:keywords] %>
-      <%= submit_tag 'Go' %>
+      <%= submit_tag 'Go', :class => 'button' %>
 	  <% end %>
 	</div>
+	
+	<div class="item_bar_options">
+    <span id='arrow_slide_down' style="<%= params[:advanced_search] ? 'display:none' : '' %>">
+      <%= image_tag('arrow_slide_down.png',:size => '12x12') %>
+    </span>
+    <span id='arrow_slide_up' style="<%= params[:advanced_search] ? '' : 'display:none' %>">
+      <%= image_tag('arrow_slide_up.png',:size => '12x12') %>
+    </span>
+    <%= link_to "(Advanced Options)",'#',:onclick => "$('advanced_search').toggle();$('arrow_slide_down').toggle();$('arrow_slide_up').toggle()"%>
+  </div>
+  
 	<br/ style="clear:both">
+  
 	<div id='advanced_search' style="<%= params[:advanced_search] ? '' : 'display:none' %>">
-	  <br/>
-	  <hr/>
-	  <br/>
+	  <br/><hr/><br/>
   	<% form_tag seqfeatures_path, :method => :get do %>
   	  <%= hidden_field :advanced_search, true %>
-      <div style="float:left">
+      <div style="float:right">
         Keywords:<br/>
         <%= text_field_tag "keywords",params[:keywords], :size => 50 %><br/>
         <br/>
-        Taxonomy:<br/>
+        Assembly:<br/>
         <%= select_tag 'assembly_id', options_for_select(@assemblies.collect{|s| [s.name_with_version,s.id]},params[:assembly_id]), {:include_blank => "No Filter"} %><br/>
         <br/>
         Type:<br/>
         <%= select_tag 'type_term_id', options_for_select(@search.facet(:type_term_id).rows.collect{|s| ["#{s.instance.try(:name)} (#{s.count})",s.value]},params[:type_term_id]), {:include_blank => "No Filter"} %><br/>
         <br/>
-        <div style="float:left;margin-right:1em">
+        <div style="float:right;margin-right:1em">
           Location:<br/>
           <%= text_field_tag "start_pos",params[:start_pos], :size => 10 %>
           TO
           <%= text_field_tag "end_pos",params[:end_pos], :size => 10 %><br/>
         </div>
-        <div style="float:left;margin-right:1em">
+        <div style="float:right;margin-right:1em">
           Strand:<br/>
           <%= select_tag 'strand', options_for_select(@search.facet(:strand).rows.collect{|s| ["#{s.value.to_i > 0 ? 'Forward (5\' -> 3\')' : 'Reverse (3\' -> 5\')'} (#{s.count})",s.value]},params[:strand]), {:include_blank => "No Filter"} %><br/>
         </div>
       </div>
-      <div style="clear:both">
+      <div style="clear:both"></div>
+      <div style="float:right;margin:1em">
         <br/>
-        <%= submit_tag 'Search' %>
+        <%= submit_tag 'Search', :class => 'button' %>
       </div>
     <% end -%>
   </div>
@@ -67,7 +77,7 @@
         <th style="white-space:nowrap"><%= sort_link "Start Pos", 'start_pos' %></th>
         <th style="white-space:nowrap"><%= sort_link "End Pos", 'end_pos' %></th>
         <th style="white-space:nowrap"><%= sort_link "Strand", 'strand' %></th>
-        <th style="white-space:nowrap"><%= sort_link "Taxon", 'assembly_name_with_version' %></th>
+        <th style="white-space:nowrap">Taxon</th>
         <th>Options</th>
       </thead>
       <% @search.each_hit_with_result do |hit,feature| %>
@@ -84,7 +94,7 @@
         <td><%= highlight_result(hit,:start_pos) %></td>
         <td><%= highlight_result(hit,:end_pos) %></td>
         <td><%= (hit.stored(:strand) > 0 ? '<span style="color:green">F</span>' : '<span style="color:darkred">R</span>').html_safe if hit.stored(:strand) %></td>
-        <td style="white-space:nowrap"><%= highlight_result(hit,:assembly_name_with_version_text) %></td>
+        <td style="white-space:nowrap"><%= feature.bioentry.assembly.name_with_version %></td>
         <td style="white-space:nowrap">
           <%= link_to 'Details', seqfeature_path(feature) %>
           |

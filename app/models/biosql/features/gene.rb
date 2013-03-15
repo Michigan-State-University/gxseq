@@ -55,7 +55,6 @@ class Gene < Seqfeature
     vals = [product.try(:value)]
     gene_models.each do |gm|
       vals << gm.cds.try(:product_assoc).try(:value)
-      vals << gm.mrna.try(:product_assoc).try(:value)
     end
     vals.compact.uniq.join("; ").presence
   end
@@ -63,8 +62,23 @@ class Gene < Seqfeature
   def indexed_function
     vals = [function.try(:value)]
     gene_models.each do |gm|
-      vals << gm.cds.try(:function_assoc).try(:value)
       vals << gm.mrna.try(:function_assoc).try(:value)
+    end
+    vals.compact.uniq.join("; ").presence
+  end
+  # returns uniq protein_ids for all gene models
+  def indexed_protein_id
+    vals = []
+    gene_models.each do |gm|
+      vals << gm.cds.try(:protein_id_assoc).try(:value)
+    end
+    vals.compact.uniq.join("; ").presence
+  end
+  # returns uniq transcript_ids for all gene models
+  def indexed_transcript_id
+    vals = []
+    gene_models.each do |gm|
+      vals << gm.mrna.try(:transcript_id_assoc).try(:value)
     end
     vals.compact.uniq.join("; ").presence
   end

@@ -373,6 +373,8 @@ ul.nav a.active {
 	font-weight:bold;
 	padding-top:5px;
 	padding-bottom:20px;
+	padding-left:5px;
+	padding-right:5px;
 	border:none;
 	background: #ffbd3e;
 	background: -webkit-gradient(
@@ -466,6 +468,7 @@ div.table {
 /*  width:614px;*/
     width:100%;
 	margin:0 0 37px 0;
+	overflow-x:scroll;
 	}
 table.listing {
     font-size: 100%;

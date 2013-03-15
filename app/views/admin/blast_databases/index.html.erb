@@ -23,13 +23,13 @@
   <table class="listing">
   	<thead>
   	    <th width="20%"><%= sort_link "ID", :abbreviation %></th>
-  	  	<th width="20%"><%= sort_link "Name", :name %></th>
+  	  	<th width="10%"><%= sort_link "Name", :name %></th>
   	  	<th width="20%"><%= sort_link "Description", :description %></th>
     		<th width="10%"><%= sort_link "Link Ref", :link_ref %></th>
     		<th width="10%"><%= sort_link "Taxonomy", :taxon_id %></th>
     		<th width="10%"><%= sort_link "Blast Runs", 'blast_runs.count' %></th>
-      	<th width="12%"><%= sort_link "Created", :created_at %></th>
-      	<th width="12%"><%= sort_link "Updated", :updated_at %></th>
+      	<th width="10%"><%= sort_link "Created", :created_at %></th>
+      	<th width="10%"><%= sort_link "Updated", :updated_at %></th>
   			<th>Options</th>
   	</thead>
   
@@ -37,8 +37,8 @@
   		<tr>
   		  <td class="style2"><%= blast_db.abbreviation %></th>
 		  	<td class="style2"><%= blast_db.name %></th>
-		  	<td class="style2"><%= blast_db.description %></th>
-    		<td class="style3"><%= blast_db.link_ref %></td>
+		  	<td><%= blast_db.description %></th>
+    		<td><div id=<%= blast_db.id %></div><%= sliced_toggle(blast_db.link_ref,blast_db.link_ref,blast_db.id)  %></td>
     		<td class="style3"><%= blast_db.taxon.name if blast_db.taxon %></td>
     		<td class="style3"><%= link_to blast_db.blast_runs.count, admin_blast_runs_path(:blast_database_id => blast_db.id) %></td>
     		<td class="style3"><%= blast_db.created_at.strftime('%b %d \'%y') %></td>

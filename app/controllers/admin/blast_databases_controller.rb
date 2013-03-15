@@ -33,7 +33,7 @@ class Admin::BlastDatabasesController < Admin::AdminController
     respond_to do |wants|
       if @blast_database.save
         flash[:notice] = 'BlastDatabase was successfully created.'
-        wants.html { redirect_to(@blast_database) }
+        wants.html { redirect_to(admin_blast_databases_path) }
       else
         wants.html { render :action => "new" }
       end
@@ -45,7 +45,7 @@ class Admin::BlastDatabasesController < Admin::AdminController
     respond_to do |wants|
       if @blast_database.update_attributes(params[:blast_database])
         flash[:notice] = 'BlastDatabase was successfully updated.'
-        wants.html { redirect_to(@blast_database) }
+        wants.html { redirect_to(admin_blast_databases_path) }
       else
         wants.html { render :action => "edit" }
       end
