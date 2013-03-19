@@ -77,8 +77,10 @@ class Seqfeature < ActiveRecord::Base
     seqfeature_ids.each_slice(batch_size) do |id_batch|
       Sunspot.index Seqfeature.includes([:bioentry,:type_term,:qualifiers,:feature_counts,:blast_reports,:locations,:favorite_users])
         .where{seqfeature_id.in(my{id_batch})}
-      Sunspot.commit
       progress_bar.increment!(id_batch.length)
+      if((progress_bar.count%10000)==0)
+        Sunspot.commit
+      end
     end
     Sunspot.commit
   end
@@ -382,7 +384,7 @@ class Seqfeature < ActiveRecord::Base
     s.text :transcript_id_text, :stored => true do
       indexed_transcript_id
     end
-    s.text :ec_number, :stored => true do
+    s.text :ec_number_text, :stored => true do
       ec_number
     end
     # Sortable string value
@@ -414,15 +416,16 @@ class Seqfeature < ActiveRecord::Base
     s.string :locus_tag do
       locus_tag.try(:value)
     end
-    s.string :sequence_name do
-      bioentry.display_name
-    end
-    s.string :species_name do
-      bioentry.species_name
-    end
-    s.string :version_name do
-      bioentry.version_info
-    end
+    # Removed until needed
+    # s.string :sequence_name do
+    #   bioentry.display_name
+    # end
+    # s.string :species_name do
+    #   bioentry.species_name
+    # end
+    # s.string :version_name do
+    #   bioentry.version_info
+    # end
     # IDs
     s.integer :id, :stored => true
     s.integer :bioentry_id, :stored => true
@@ -457,7 +460,7 @@ class Seqfeature < ActiveRecord::Base
     # Fake dynamic blast text - defined for 'every' blast_run on 'every' seqfeature
     # TODO: find another way to allow scoped blast_def full text search without searching all of the definitions
     BlastRun.all.each do |blast_run|
-      s.string "blast_#{blast_run.id}".to_sym, do
+      s.string "blast_#{blast_run.id}".to_sym do
         report = blast_reports.select{|b| b.blast_run_id == blast_run.id }.first
         report ? report.hit_def : nil
       end
@@ -470,11 +473,11 @@ class Seqfeature < ActiveRecord::Base
     Term.custom_ontologies.each do |ont|
       ont.terms.each do |ont_term|
         s.string "term_#{ont_term.id}".to_sym do
-          a = self.custom_qualifiers.select{|q| q.term.ontology_id == ont_term.id}.collect(&:value).join('; ')
+          a = self.custom_qualifiers.select{|q| q.term_id == ont_term.id}.collect(&:value).join('; ')
           a.empty? ? nil : a
         end
         s.text "term_#{ont_term.id}_text".to_sym, :stored => true do
-          a = self.custom_qualifiers.select{|q| q.term.ontology_id == ont_term.id}.collect(&:value).join('; ')
+          a = self.custom_qualifiers.select{|q| q.term_id == ont_term.id}.collect(&:value).join('; ')
           a.empty? ? nil : a
         end
       end

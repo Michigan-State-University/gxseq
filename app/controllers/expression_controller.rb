@@ -186,7 +186,7 @@ class ExpressionController < ApplicationController
       .where{ ontology_id.in(Term.custom_ontologies) }
     custom_terms.each do |term|
       @group_select_options[term.ontology.name] ||= []
-      @group_select_options[term.ontology.name] << [term.name, "term_#{ont_term.id}"]
+      @group_select_options[term.ontology.name] << [term.name, "term_#{term.id}"]
     end
 
     
@@ -236,14 +236,28 @@ class ExpressionController < ApplicationController
           s.fulltext params[:keywords], :fields => [params[:definition_type]+'_text', :locus_tag_text], :highlight => true
         end
       end
-      # Remove empty
-      unless params[:multi_definition_type]
-        case params[:show_blank]
-        # don't show empty definitions
-        when 'n'
+      # Remove empty      
+      case params[:show_blank]
+      # don't show empty definitions
+      when 'n'
+        if params[:multi_definition_type]
+          s.any_of do |any_s|
+            params[:multi_definition_type].each do |def_type|
+              any_s.without def_type, nil
+            end
+          end
+        else
           s.without params[:definition_type], nil
-        # only show empty definitions
-        when 'e'
+        end
+      # only show empty definitions
+      when 'e'
+        if params[:multi_definition_type]
+          s.any_of do |any_s|
+            params[:multi_definition_type].each do |def_type|
+              any_s.with def_type, nil
+            end
+          end
+        else
           s.with params[:definition_type], nil
         end
       end
