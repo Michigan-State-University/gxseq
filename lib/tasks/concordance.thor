@@ -1,11 +1,11 @@
 class Concordance < Thor
   ENV['RAILS_ENV'] ||= 'development'
-  require File.expand_path('config/environment.rb')
-  require 'csv'
   desc 'load FILE','Load a new sequence concordance set into the database. FILE is tab delimited, one entry per line: OriginalSequenceID  DatabaseAccession'
   method_option :assembly_id, :aliases => '-a', :required => true, :desc => "Id for the assembly this concordance data describes. Use thor taxonomy:list for help"
   method_option :name, :aliases => '-n', :required => true, :desc => "Name for the new set. Must be unique to the assembly. Use thor concordance:list for help"
   def load(input_file)
+    require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
+    require 'csv'
     assembly = Assembly.find(options[:assembly_id])
     entry_count = assembly.bioentries.count
     # pull in all the data - it might take a while but we want to validate the count
@@ -43,6 +43,7 @@ class Concordance < Thor
   desc 'list','Print information about concordance sets in the database'
   method_option :assembly_id, :aliases => '-a', :desc => "Only print information for the give assembly id. Use thor taxonomy:list for help"
   def list
+    require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     concords = ConcordanceSet.scoped
     concords.where(:assembly_id => options[:assembly_id]) if options[:assembly_id]
     puts "-\tID\tName\tAssemblyID\tAssemblyName"

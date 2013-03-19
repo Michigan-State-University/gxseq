@@ -1,10 +1,10 @@
 <%=
-if group_multi_select
+if multi_definition_type
   sliced_toggle(
-    group_multi_select.collect{|definition|
+    multi_definition_type.collect{|definition|
       highlight_result(hit,definition+'_text')
     }.join(' | ').html_safe,
-    group_multi_select.collect{|definition|
+    multi_definition_type.collect{|definition|
       Array(hit.stored(definition+'_text')).first
     }.join(' | '),
     Array(hit.stored(:id)).first

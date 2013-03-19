@@ -16,36 +16,17 @@
   </div>
   <div style="float:right;margin-right:2em">
     Definition Source<br/>
-    <%= select_tag :definition_type, grouped_options_for_select(@group_select_options, params[:definition_type]), {:onchange => 'this.form.submit()'} %>
+    <%= select_tag :definition_type, grouped_options_for_select(@group_select_options, params[:definition_type]) %>
   </div>
   <div style="float:right;margin-right:2em">
     Filter Favorites<br/>
-    <%= select_tag :favorites_filter, options_for_select({'None' => 'n', 'My Favorites' => 'user', 'All Favorites' => 'all'}, params[:favorites_filter]), {:onchange => 'this.form.submit()'} %>
+    <%= select_tag :favorites_filter, options_for_select({'None' => 'n', 'My Favorites' => 'user', 'All Favorites' => 'all'}, params[:favorites_filter]) %>
   </div>
-<% end -%>
 
-<div class="item_bar_options">
-  <span id='arrow_slide_down' style="<%= params[:advanced_search] ? 'display:none' : '' %>">
-    <%= image_tag('arrow_slide_down.png',:size => '12x12') %>
-  </span>
-  <span id='arrow_slide_up' style="<%= params[:advanced_search] ? '' : 'display:none' %>">
-    <%= image_tag('arrow_slide_up.png',:size => '12x12') %>
-  </span>
-  <%= link_to "(Advanced Options)",'#',:onclick => "$('advanced_search').toggle();$('arrow_slide_down').toggle();$('arrow_slide_up').toggle()"%>
-</div>
-
-<div style="<%=  params[:advanced_search] ? 'clear:both' : 'display:none;clear:both'%>" id="advanced_search">
-  <h2 class="pagetitle"><br/><hr/><br/></h2>
-  <% form_tag expression_advanced_results_path, :method => :get do %>
-    <%= hidden_field_tag :advanced_search, true %>
-    <%= hidden_field_tag :assembly_id, params[:assembly_id] %>
-    <%= hidden_field_tag :type_term_id, params[:type_term_id] %>
-    <% @a_experiments.each do |e| %>
-      <%= hidden_field_tag 'a_experiments[]', e.id %>
-    <% end %>
-    <% @b_experiments.each do |e| %>
-      <%= hidden_field_tag 'b_experiments[]', e.id %>
-    <% end %>
+  <%= render :partial => 'item_bar_toggle' %>
+  
+  <!-- Advanced Options -->
+  <div style="display:none;clear:both" id="advanced_search">
     
     <div style="float:right;margin-right:2em">
       Expression Type<br/>
@@ -62,17 +43,14 @@
       <%= select_tag :show_blank, options_for_select({'Yes' => 'y','No' => 'n','Only Empty' => 'e'}, params[:show_blank])%>
     </div>
     
-    <div style="clear:both;float:right;margin:2em">
-      Keywords: <%= text_field_tag "keywords",params[:keywords] %>
-    </div>
-    
-    <div style="clear:both;float:right">
+    <div style="clear:both;float:right;margin-right:2em;margin:1em">
       Definition Builder<br/>
-      <%= select_tag :group_multi_select, grouped_options_for_select(@group_select_options, params[:group_multi_select]), {:multiple => true,:size => 5} %>
+      <%= select_tag :multi_definition_type, grouped_options_for_select(@group_select_options, params[:multi_definition_type]), {:multiple => true,:size => 5} %>
     </div>
     
     <div style="clear:both;float:right; margin-right:2em;margin:1em">
       <%= submit_tag 'Search', :class => "button" %>
     </div>
-  <% end %>
-</div>
+  </div>
+  
+<% end %>

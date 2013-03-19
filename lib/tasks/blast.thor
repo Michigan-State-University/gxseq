@@ -1,7 +1,5 @@
 class Blast < Thor
   ENV['RAILS_ENV'] ||= 'development'
-  require File.expand_path('config/environment.rb')
-
   desc "create_run FILE", 'load xml formatted blast results into the database'
   method_options %w(blast_db -b) => :required,
     %w(assembly_id -a) => :required,
@@ -10,6 +8,7 @@ class Blast < Thor
     %w(feature_type -f) => 'Gene', %w(concordance -d) => nil,
     :test => false
   def create_run(input_file)
+    require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     # verify database
     blast_db = BlastDatabase.find_by_name(options[:blast_db]) || BlastDatabase.find_by_id(options[:blast_db])
     unless blast_db
@@ -182,6 +181,7 @@ class Blast < Thor
     %w(taxon_id -t) => nil,
     %w(description -d) => nil
   def create_db
+    require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     taxon_id = (t = Taxon.find_by_taxon_id(options[:taxon_id])) ? t.taxon_id : nil
     b = BlastDatabase.new(
       :name => options[:name],
@@ -195,6 +195,7 @@ class Blast < Thor
   
   desc 'list_db','Print information about blast databases'
   def list_db
+    require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     dbs = BlastDatabase.scoped
     puts "-\tID\tName\tAbbr\tTaxonID\tTaxonName\tDescription\tLink"
     dbs.each do |db|
@@ -204,6 +205,7 @@ class Blast < Thor
   
   desc 'list_run','Print information about blast databases'
   def list_run
+    require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     runs = BlastRun.scoped
     puts "-\tID\tDbName\tAssembly\tProgram\tVersion\tSystemFile\tParameters"
     runs.each do |run|

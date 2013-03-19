@@ -1,7 +1,5 @@
 class Expression < Thor
   ENV['RAILS_ENV'] ||= 'development'
-  require File.expand_path('config/environment.rb')
-  require 'progress_bar'
   # Insert expression results into the database. Expression is attached to an RNA-Seq experiment and a seqfeature
   # The file is expected to have at least three columns. The id (locus_tag) column, the count(mapped reads) column and the normalized(rpkm) column
   # These columns can be defined in the options with 1-based indexes
@@ -20,6 +18,8 @@ class Expression < Thor
     %w(id_column -i) => 1, %w(count_column -c) => 2, %w(normalized_column -n) => 3, %w(header -h) => false, 
     %w(test -t) => false, %w(skip_not_found -s) => false, %w(concordance -d) => nil, :no_index => false
   def load(input_file)
+    require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
+    require 'progress_bar'
     # Check input
     begin
       datafile = File.open(input_file,"r")

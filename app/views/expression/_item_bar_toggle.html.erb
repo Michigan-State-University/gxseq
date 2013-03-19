@@ -1,0 +1,9 @@
+<div class="item_bar_options">
+  <span id='arrow_slide_down' style="<%= params[:advanced_search] ? 'display:none' : '' %>">
+    <%= image_tag('arrow_slide_down.png',:size => '12x12') %>
+  </span>
+  <span id='arrow_slide_up' style="<%= params[:advanced_search] ? '' : 'display:none' %>">
+    <%= image_tag('arrow_slide_up.png',:size => '12x12') %>
+  </span>
+  <%= link_to "(Advanced Options)",'#',:onclick => "$('advanced_search').toggle();$('arrow_slide_down').toggle();$('arrow_slide_up').toggle()"%>
+</div>

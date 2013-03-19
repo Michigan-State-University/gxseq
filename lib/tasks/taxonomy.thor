@@ -1,13 +1,13 @@
 class Taxonomy < Thor
   ENV['RAILS_ENV'] ||= 'development'
-  require File.expand_path('config/environment.rb')
-  require 'net/ftp'
-  require 'zlib'
-  require 'progress_bar'
   #TODO: Update thor task help docs, Need more descriptive output
   desc 'load',"Load ncbi taxonomy data into the database"
   method_options :directory => "lib/data/taxdata/",:download => true, :verbose => false, :nested_set => false, :check_count => false
   def load
+    require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
+    require 'net/ftp'
+    require 'zlib'
+    require 'progress_bar'
     download = options[:download]
     nested_set = options[:nested_set]
     verbose = options[:verbose]
@@ -220,6 +220,7 @@ class Taxonomy < Thor
   # return all of the assemblies in the database
   desc 'list','Report name and version of assemblies loaded in the database'
   def list
+    require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     puts "There are #{Assembly.count} assemblies in the database"
     puts "-\t-\tID\tSpecies\tStrain > Version\tentries"
     Assembly.includes(:taxon => :scientific_name).order('taxon_name.name asc, version asc').each_with_index do |tv,idx|
@@ -232,6 +233,7 @@ class Taxonomy < Thor
   desc 'find QUERY','Search the taxonomy tree to find matching entries. Helpful to verify taxonomy name before loading sequence'
   method_option :rank, :desc => 'supply a rank name to limit results'
   def find(query)
+    require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     puts "-\t-\tTaxonID\tRank\tName\tName Class"
     taxon_names = TaxonName.includes(:taxon).limit(100)
       .where{upper(name) =~ my{"%#{query.upcase}%"}}

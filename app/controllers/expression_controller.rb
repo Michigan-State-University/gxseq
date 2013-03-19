@@ -169,19 +169,24 @@ class ExpressionController < ApplicationController
       "Blast Reports" => @blast_runs.collect{|run|[run.name,"blast_#{run.id}"]},
       'Annotation' => [['Description','description']]
     }
-    # TODO: Replace with Faceted search for speed and numbered results
+    # TODO: Replace with Faceted search for speed and numbered results, would require term and/or ontology index
     # Get all the annotations in use by an assembly feature.
-    extra_terms = Term.select('distinct term.term_id, term.name').joins(:ontology,[:qualifiers => [:seqfeature => :bioentry]])
-      .where{(bioentry.assembly_id == my{@assembly.id}) & (ontology_id == Term.ano_tag_ont_id)}
+    anno_terms = Term.select('distinct term.term_id, term.name')
+      .joins(:ontology,[:qualifiers => [:seqfeature => :bioentry]])
+      .where{ bioentry.assembly_id == my{@assembly.id} }
+      .where{ ontology_id == Term.ano_tag_ont_id }
       .where{lower(term.name).in(['ec_number','function','gene','gene_synonym','product','protein_id','transcript_id','locus_tag'])}
     # Add to the list
-    @group_select_options['Annotation'].concat extra_terms.map{|term| [term.name.humanize,term.name]}
+    @group_select_options['Annotation'].concat anno_terms.map{|term| [term.name.humanize,term.name]}
     # Get all the custom terms in use
-    @terms = Term.includes(:ontology,[:qualifiers => [:seqfeature => :bioentry]])
-      .where{ (seqfeature.type_term_id == my{@type_term_id}) & (bioentry.assembly_id == my{@assembly.id}) & (ontology_id.in(Term.custom_ontologies))}
-    @terms.each do |term|
+    custom_terms = Term.select('distinct term.term_id, term.name, term.ontology_id')
+      .joins(:ontology,[:qualifiers => [:seqfeature => :bioentry]])
+      .where{ seqfeature.type_term_id == my{@type_term_id} }
+      .where{ bioentry.assembly_id == my{@assembly.id} }
+      .where{ ontology_id.in(Term.custom_ontologies) }
+    custom_terms.each do |term|
       @group_select_options[term.ontology.name] ||= []
-      @group_select_options[term.ontology.name] << [term.name, term.name_with_id]
+      @group_select_options[term.ontology.name] << [term.name, "term_#{ont_term.id}"]
     end
 
     
@@ -225,14 +230,14 @@ class ExpressionController < ApplicationController
       end
       # Text Search
       unless params[:keywords].blank?
-        if params[:group_multi_select]
-          s.fulltext params[:keywords], :fields => params[:group_multi_select].map{|s| s+'_text'}, :highlight => true
+        if params[:multi_definition_type]
+          s.fulltext params[:keywords], :fields => params[:multi_definition_type].map{|s| s+'_text'}, :highlight => true
         else
           s.fulltext params[:keywords], :fields => [params[:definition_type]+'_text', :locus_tag_text], :highlight => true
         end
       end
       # Remove empty
-      unless params[:group_multi_select]
+      unless params[:multi_definition_type]
         case params[:show_blank]
         # don't show empty definitions
         when 'n'
@@ -266,7 +271,7 @@ class ExpressionController < ApplicationController
         render :text => 'not found..'
       else
         @search.each_hit_with_result do |hit,feature|
-          render :partial => 'hit_definition', :locals => {:hit => hit, :feature => feature, :definition_type => params[:definition_type], :group_multi_select => params[:group_multi_select]}
+          render :partial => 'hit_definition', :locals => {:hit => hit, :feature => feature, :definition_type => params[:definition_type], :multi_definition_type => params[:multi_definition_type]}
           break
         end
       end

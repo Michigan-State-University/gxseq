@@ -1,13 +1,13 @@
 class Experiment < Thor
   ENV['RAILS_ENV'] ||= 'development'
-  require File.expand_path('config/environment.rb')
   @@experiments = ['ChipChip','ChipSeq','RnaSeq','Variant','ReSeq']
   # List displays experiments in the database
   # Supply -t to filter by experiment type.
   # It is recommended to run this before loading expression to identify the correct experiment name/id
-  desc 'list',"Display all of the experiments in the system and their internal ID's\n\tfilter by type with -t: (#{::Experiment.select('distinct type').map(&:type).join(',')})"
+  desc 'list',"Display all of the experiments in the system and their internal ID's\n\tfilter by type with -t: (#{@@experiments.join(',')})"
   method_options %w(verbose -v) => false, %w(type -t) => nil
   def list
+    require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     experiments = ::Experiment.includes(:assembly).order('experiments.type asc, assemblies.species_id asc, experiments.name asc')
     if(options[:type])
       experiments = experiments.where("type = '#{options[:type]}'")
@@ -36,6 +36,7 @@ class Experiment < Thor
   method_option :username, :default => 'admin', :aliases => '-u', :desc => 'Login name for the experiment owner'
   method_option :group, :aliases => '-g', :desc => "Group name for this experiment"
   def create
+    require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     # Validate options
     unless owner = User.find_by_login(options[:username])
       puts "User with login #{options[:username]} not found; supply a valid login for --username/-u"

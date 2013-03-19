@@ -1,7 +1,5 @@
 class Sequence < Thor
   ENV['RAILS_ENV'] ||= 'development'
-  require File.expand_path('config/environment.rb')
-  
   desc 'load FILE','Load genomic sequence into the database'
   method_options :verbose => false, :show_percent => false, :version => "1", :source_name => "EMBL/GenBank/SwissProt"
   method_options :transcriptome => false
@@ -14,6 +12,7 @@ class Sequence < Thor
   method_option :renumber_contigs, :type => :string, :desc => "Renumber each contig with the supplied prefix. Outputs genome.concordance"
   method_option :database, :default => 'Public', :desc  => "Name of Biodatabase to use. Not used by app"
   def load(input_file)
+    require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     # setup
     version = options[:version]
     database = options[:database]

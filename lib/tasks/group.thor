@@ -1,9 +1,9 @@
 class Group < Thor
   ENV['RAILS_ENV'] ||= 'development'
-  require File.expand_path('config/environment.rb')
   # return all of the assemblies in the database
   desc 'list','Report information about groups in the database'
   def list
+    require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     # Use explicit top-level namspace because of Thor::Group class
     groups = ::Group.all
     max_name_count = groups.map{|g|g.name.length}.max + 3
