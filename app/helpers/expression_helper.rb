@@ -1,5 +1,4 @@
 module ExpressionHelper
-  #TODO: Test track id collection
   def stored_locus_link(hit,experiments)
     if (bioentry_id = Array(hit.stored(:bioentry_id)).first)
       link_to( Array(hit.stored(:locus_tag_text)).first, bioentry_path(bioentry_id,

@@ -121,7 +121,7 @@ module ApplicationHelper
           :onclick =>" $('slice_#{dom_id}_full').toggle();
           $('slice_#{dom_id}_short').toggle();
           $('toggle_#{dom_id}_open').toggle();
-          $('toggle_#{dom_id}_close').toggle();")+'&nbsp;'.html_safe+full_text.html_safe,
+          $('toggle_#{dom_id}_close').toggle();")+'&nbsp;'.html_safe+full_text.try(:html_safe),
         :id => "slice_#{dom_id}_full",
         :style => "display:none;text-align:left")
     ].join.html_safe
