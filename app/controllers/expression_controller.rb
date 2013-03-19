@@ -231,7 +231,7 @@ class ExpressionController < ApplicationController
       # Text Search
       unless params[:keywords].blank?
         if params[:multi_definition_type]
-          s.fulltext params[:keywords], :fields => params[:multi_definition_type].map{|s| s+'_text'}, :highlight => true
+          s.fulltext params[:keywords], :fields => [params[:multi_definition_type].map{|s| s+'_text'},:locus_tag_text].flatten, :highlight => true
         else
           s.fulltext params[:keywords], :fields => [params[:definition_type]+'_text', :locus_tag_text], :highlight => true
         end
@@ -252,9 +252,9 @@ class ExpressionController < ApplicationController
       # only show empty definitions
       when 'e'
         if params[:multi_definition_type]
-          s.any_of do |any_s|
+          s.all_of do |all_s|
             params[:multi_definition_type].each do |def_type|
-              any_s.with def_type, nil
+              all_s.with def_type, nil
             end
           end
         else

@@ -7,9 +7,9 @@ class CreateFeatureCounts < ActiveRecord::Migration
       t.decimal :normalized_count, :precision => 10, :scale => 2
       t.timestamps
     end
+    add_index :feature_counts, :seqfeature_id, :name => :idx_feature
     add_index :feature_counts, [:experiment_id,:seqfeature_id], :name => :idx_exp_and_feature
     add_index :seqfeature, [:type_term_id,:seqfeature_id], :name => :idx_type_term
-    GS_STAGE.FEATURE_COUNTS("EXPERIMENT_ID","SEQFEATURE_ID")GS_STAGE.SEQFEATURE("TYPE_TERM_ID","SEQFEATURE_ID")
   end
 
   def self.down
