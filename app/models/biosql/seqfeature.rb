@@ -356,18 +356,14 @@ class Seqfeature < ActiveRecord::Base
   
   # search block - allows reuse in subclasses
   def self.full_search_block(s)
+    # Text Searchable
+    # must be stored for highlighted results
     s.text :locus_tag_text, :stored => true do
      locus_tag.value if locus_tag
     end
     s.text :description_text, :stored => true do
       indexed_description
     end
-    # s.text :full_description_text, :stored => true do
-    #   indexed_full_description
-    # end
-    # s.text :assembly_name_with_version_text, :stored => true do
-    #  bioentry.assembly.name_with_version
-    # end
     s.text :function_text, :stored => true do
       indexed_function
     end
@@ -380,23 +376,20 @@ class Seqfeature < ActiveRecord::Base
     s.text :gene_synonym_text, :stored => true do
       gene_synonym
     end
-    s.text :protein_id_text do
+    s.text :protein_id_text, :stored => true do
       indexed_protein_id
     end
-    s.text :transcript_id_text do
+    s.text :transcript_id_text, :stored => true do
       indexed_transcript_id
     end
-    s.text :ec_number do
+    s.text :ec_number, :stored => true do
       ec_number
     end
-    
+    # Sortable string value
     s.string :display_name
     s.string :description do
       indexed_description
     end
-    # s.string :full_description do
-    #   indexed_full_description
-    # end
     s.string :gene do
       gene.try(:value)
     end
@@ -430,9 +423,7 @@ class Seqfeature < ActiveRecord::Base
     s.string :version_name do
       bioentry.version_info
     end
-    # s.string :assembly_name_with_version do
-    #  bioentry.assembly.name_with_version
-    # end
+    # IDs
     s.integer :id, :stored => true
     s.integer :bioentry_id, :stored => true
     s.integer :type_term_id, :references => Term
@@ -448,8 +439,7 @@ class Seqfeature < ActiveRecord::Base
       max_end
     end
     s.integer :favorite_user_ids, :multiple => true, :stored => true
-    
-    # Dynamic fields need to be a string. Number fields will not be parsed correctly in the query
+    # field names need to start with non numeric characters. Numbers cause solr query errors
     # dynamic feature expression
     s.dynamic_float :normalized_counts, :stored => true do
       feature_counts.inject({}){|h,x| h["exp_#{x.experiment_id}"]=x.normalized_count;h}
@@ -479,11 +469,11 @@ class Seqfeature < ActiveRecord::Base
     # More fake dynamic text ... for custom ontologies and annotation
     Term.custom_ontologies.each do |ont|
       ont.terms.each do |ont_term|
-        s.string ont_term.name_with_id.to_sym do
+        s.string "term_#{ont_term.id}".to_sym do
           a = self.custom_qualifiers.select{|q| q.term.ontology_id == ont_term.id}.collect(&:value).join('; ')
           a.empty? ? nil : a
         end
-        s.text "#{ont_term.name_with_id}_text".to_sym, :stored => true do
+        s.text "term_#{ont_term.id}_text".to_sym, :stored => true do
           a = self.custom_qualifiers.select{|q| q.term.ontology_id == ont_term.id}.collect(&:value).join('; ')
           a.empty? ? nil : a
         end

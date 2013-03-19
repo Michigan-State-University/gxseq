@@ -73,11 +73,6 @@ class Term < ActiveRecord::Base
       return false
     end
   end
-  ## INSTANCE METHODS
-  #
-  def name_with_id
-    "#{name.gsub(/\s+/, "_")}_#{id}"
-  end
 end
 
 
