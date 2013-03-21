@@ -31,6 +31,10 @@ class Ability
   def authorized_bioentry_ids
     @@bioentry_auth_ids[@stored_user_id]||=Bioentry.accessible_by(self).select_ids.to_ranges
   end
+  # returns the user_id for this ability so we can reference it in controller
+  def user_id
+    @stored_user_id
+  end
   # NOTE: There is an issue when combining abilities that reference the same table
   # when searching experiment->users and sequence->users we need to use different lookup method
   # group -> users -> id => user.id   vs.  group -> id => user.group_ids

@@ -16,7 +16,8 @@
   </div>
   <div style="float:right;margin-right:2em">
     Definition Source<br/>
-    <%= select_tag :definition_type, grouped_options_for_select(@group_select_options, params[:definition_type]) %>
+    <%= select_tag :definition_type, grouped_options_for_select(@group_select_options, params[:definition_type]),
+    {:onchange => '$("def_builder").value = null'} %>
   </div>
   <div style="float:right;margin-right:2em">
     Filter Favorites<br/>
@@ -45,7 +46,7 @@
     
     <div style="clear:both;float:right;margin-right:2em;margin:1em">
       Definition Builder<br/>
-      <%= select_tag :multi_definition_type, grouped_options_for_select(@group_select_options, params[:multi_definition_type]), {:multiple => true,:size => 5} %>
+      <%= select_tag :multi_definition_type, grouped_options_for_select(@group_select_options, params[:multi_definition_type]), {:multiple => true, :size => 5, :id => 'def_builder'} %>
     </div>
     
     <div style="clear:both;float:right; margin-right:2em;margin:1em">

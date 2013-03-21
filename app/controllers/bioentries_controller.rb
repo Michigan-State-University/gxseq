@@ -21,7 +21,6 @@ class BioentriesController < ApplicationController
         fasta_search = base_search do |s|
           s.paginate(:page => 1, :per_page => Bioentry.count)
         end
-        logger.info "\n\n\n\n#{fasta_search.total}\n\n\n\n"
         # set disposition to attachment
         headers["Content-disposition"] = 'attachment;'
         # use custom proc for response body

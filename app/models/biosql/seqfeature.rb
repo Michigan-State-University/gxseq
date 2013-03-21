@@ -350,14 +350,238 @@ class Seqfeature < ActiveRecord::Base
 
     return data
   end
+  # Expression search methods
+  # TODO: Think about moving to new Expression or Search class instead
+  # Set A vs Set B. Currently called by advanced_results action
+  def self.ratio_search(current_ability,assembly_id,type_term_id,a_experiments,b_experiments,opts)
+    # Default options
+    sort_column = opts[:c]||'ratio'
+    value_type = opts[:value_type]||'normalized_counts'
+    order_d = (['ASC','asc','up'].include?(opts[:d]) ? :asc : :desc)
+    # Infinite location setup
+    infinity_offset = (opts[:infinite_order] == 'l' ? '-0.000001' : '0.000001' )
+    # Order by experiment ratio setup
+    a_clause = [:div, [:sum, *a_experiments.collect{|e| "exp_#{e.id}".to_sym}], "#{a_experiments.length}"]
+    b_clause = [:div, [:sum, *b_experiments.collect{|e| "exp_#{e.id}".to_sym}], "#{b_experiments.length}"]
+    # Run base search with additional options
+    base_search(current_ability,assembly_id,type_term_id,opts) do |s|
+      # Sorting
+      case sort_column
+      # dynamic 'exp_X' attribute
+      when 'exp_a'
+        s.dynamic(value_type) do
+          order_by_function *a_clause,  order_d
+        end
+      when 'exp_b'
+        s.dynamic(value_type) do
+          order_by_function *b_clause,  order_d
+        end
+      when 'ratio'
+        s.dynamic(value_type) do
+          # div by zero must be handled otherwise results may be invalid
+          # So, we add a very small number to numerator and denominator
+          order_by_function :div, a_clause, [:sum,b_clause,infinity_offset],  order_d
+        end
+      # dynamic blast search
+      when /blast_acc/
+        s.dynamic(:blast_acc) do
+          order_by sort_column.gsub('_acc',''), order_d
+        end
+      when /blast_id/
+        s.dynamic(:blast_id) do
+          order_by sort_column.gsub('_id',''), order_d
+        end
+      else
+        s.order_by sort_column, order_d
+      end
+      # Custom settings
+      yield (s)
+    end
+  end
+  # Returns a csv string from a ratio search result. No header is present
+  def self.ratio_search_to_csv(search,a_experiments,b_experiments,blast_runs,opts)
+    result = []
+    search.hits.each do |hit|
+      data1 = [
+        # Locus
+        Array(hit.stored(:locus_tag_text)).first,
+        # Definition
+        (
+        if opts[:multi_definition_type]
+          opts[:multi_definition_type].collect{|definition| Array(hit.stored(definition+'_text')).first }.join(' | ')
+        else
+          Array(hit.stored(opts[:definition_type]+'_text')).first
+        end
+        )
+      ]
+      # Blast(s)
+      data2 = blast_runs.collect{|blast_run| hit.stored(:blast_acc, "blast_#{blast_run.id}") }
+      # Counts
+      data3 = [
+        # Set A
+        "%.2f" % (a_avg=a_experiments.inject(0.0){|sum, exp| sum+=(hit.stored(opts[:value_type],"exp_#{exp.id}")||0)}/a_experiments.length),
+        # Set B
+        "%.2f" % (b_avg=b_experiments.inject(0.0){|sum, exp| sum+=(hit.stored(opts[:value_type],"exp_#{exp.id}")||0)}/b_experiments.length),
+        # Ratio
+        b_avg == 0 ? 'Inf' : "%.2f" % (a_avg/b_avg)
+      ]
+      result << (data1+data2+data3).to_csv
+    end
+    return result.join("")
+  end
+  # 1 column per sample. Currently called by results action
+  def self.matrix_search(current_ability,assembly_id,type_term_id,experiments,opts)
+    # Default options
+    sort_column = opts[:c]||'sum'
+    value_type = opts[:value_type]||'normalized_counts'
+    order_d = (['ASC','asc','up'].include?(opts[:d]) ? :asc : :desc)
+    experiment_symbols = experiments.collect{|e| "exp_#{e.id}".to_sym}
+    # begin the sunspot search definition
+    base_search(current_ability,assembly_id,type_term_id,opts) do |s|
+      # Sorting
+      case sort_column
+      # dynamic 'exp_X' attribute
+      when /exp_/
+        s.dynamic(value_type) do
+          order_by sort_column, order_d
+        end
+      # dynamic blast search
+      when /blast_acc/
+        s.dynamic(:blast_acc) do
+          order_by sort_column.gsub('_acc',''), order_d
+        end
+      when /blast_id/
+        s.dynamic(:blast_id) do
+          order_by sort_column.gsub('_id',''), order_d
+        end
+      # sum function
+      when 'sum'
+        s.dynamic(value_type) do
+          order_by_function :sum, *experiment_symbols,  order_d
+        end
+      # default
+      else
+        s.order_by sort_column, order_d
+      end
+      # Custom settings
+      yield (s)
+    end
+  end
+  # Returns a csv string for a matrix search result. No header is present
+  def self.matrix_search_to_csv(search,experiments,blast_runs,opts)
+    result = []
+    search.hits.each do |hit|
+      data1 = [
+        # Locus
+        Array(hit.stored(:locus_tag_text)).first,
+        # Definition
+        (
+        if opts[:multi_definition_type]
+          opts[:multi_definition_type].collect{|definition| Array(hit.stored(definition+'_text')).first }.join(' | ')
+        else
+          Array(hit.stored(opts[:definition_type]+'_text')).first
+        end
+        )
+      ]
+      # Blast(s)
+      data2 = blast_runs.collect{|blast_run| hit.stored(:blast_acc, "blast_#{blast_run.id}") }
+      # Counts
+      sum=0
+      val=0
+      data3 = []
+      experiments.each do |exp|
+        val = hit.stored(opts[:value_type],"exp_#{exp.id}")
+        sum += (val||0)
+        data3 << val
+      end
+      data3 << sum
+      result << (data1+data2+data3).to_csv
+    end
+    return result.join("")
+  end
+  def self.base_search(ability,assembly_id,type_term_id,opts={})
+    # Find minimum set of id ranges accessible by current user
+    # Set to -1 if no items are found. This will force empty search results
+    authorized_id_set = ability.authorized_seqfeature_ids
+    authorized_id_set=[-1] if authorized_id_set.empty?
+    # Optional arguments
+    locus_tag = opts[:locus_tag]
+    keywords = opts[:keywords]
+    multi_definition_type = opts[:multi_definition_type]
+    definition_type = opts[:definition_type]
+    favorites = opts[:favorites_filter]
+    seqfeature_id = opts[:seqfeature_id]
+    empty_filter = opts[:show_blank]
+    # Begin search block
+    Seqfeature.search do |s|
+      # Auth
+      s.any_of do |any_s|
+        authorized_id_set.each do |id_range|
+          any_s.with :id, id_range
+        end
+      end
+      # limit to the current assembly
+      s.with(:assembly_id, assembly_id.to_i)
+      # limit to the supplied type
+      s.with(:type_term_id, type_term_id.to_i)
+      # Search Filters - locus_tag is an example
+      unless locus_tag.blank?
+        s.with :locus_tag, locus_tag
+      end
+      # Text Search
+      unless keywords.blank?
+        if multi_definition_type
+          s.fulltext keywords, :fields => [multi_definition_type.map{|s| s+'_text'},:locus_tag_text].flatten, :highlight => true
+        else
+          s.fulltext keywords, :fields => [definition_type+'_text', :locus_tag_text], :highlight => true
+        end
+      end
+      # Remove empty      
+      case empty_filter
+      # don't show empty definitions
+      when 'n'
+        if multi_definition_type
+          s.any_of do |any_s|
+            multi_definition_type.each do |def_type|
+              any_s.without def_type, nil
+            end
+          end
+        else
+          s.without definition_type, nil
+        end
+      # only show empty definitions
+      when 'e'
+        if multi_definition_type
+          s.all_of do |all_s|
+            multi_definition_type.each do |def_type|
+              all_s.with def_type, nil
+            end
+          end
+        else
+          s.with definition_type, nil
+        end
+      end
+      # Favorites
+      case favorites
+      when 'user'
+        s.with :favorite_user_ids, ability.user_id
+      when 'all'
+        s.without :favorite_user_ids, nil
+      end
+      # scope to id
+      # we use this search so we can insert a highlighted text result after an update
+      if(seqfeature_id)
+        s.with :id, seqfeature_id
+      end
+      # Any custom search settings
+      yield(s)
+    end
+  end
   
   protected
-  
   ## Sunspot search definition
   ## TODO: Document Search attributes
-  
-  # search block - allows reuse in subclasses
-  def self.full_search_block(s)
+  searchable(:include => [:bioentry,:qualifiers,:feature_counts,:blast_reports,:locations,:favorite_users,:gene_models => [:cds => [:product_assoc, :protein_id_assoc], :mrna => [:function_assoc, :transcript_id_assoc]]]) do |s|
     # Text Searchable
     # must be stored for highlighted results
     s.text :locus_tag_text, :stored => true do
@@ -416,16 +640,6 @@ class Seqfeature < ActiveRecord::Base
     s.string :locus_tag do
       locus_tag.try(:value)
     end
-    # Removed until needed
-    # s.string :sequence_name do
-    #   bioentry.display_name
-    # end
-    # s.string :species_name do
-    #   bioentry.species_name
-    # end
-    # s.string :version_name do
-    #   bioentry.version_info
-    # end
     # IDs
     s.integer :id, :stored => true
     s.integer :bioentry_id, :stored => true
@@ -482,11 +696,6 @@ class Seqfeature < ActiveRecord::Base
         end
       end
     end
-  end
-  
-  # search definition
-  searchable(:include => [:bioentry,:qualifiers,:feature_counts,:blast_reports,:locations,:favorite_users,:gene_models => [:cds => [:product_assoc, :protein_id_assoc], :mrna => [:function_assoc, :transcript_id_assoc]]]) do |search|
-    full_search_block(search)
   end
 end
 

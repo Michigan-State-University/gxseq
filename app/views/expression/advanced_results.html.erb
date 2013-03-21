@@ -4,6 +4,7 @@
 
 <% content_for :item_bar do -%>
   <%= link_to "Update Selection", expression_viewer_path, :class => "button" %>
+  <%= link_to "Download", url_for( params.merge(:format=>:csv)), :class => "button" %>
   <%= render :partial => 'advanced_results_form' %>
 <% end -%>
 
@@ -31,9 +32,11 @@
       <% @search.each_hit_with_result do |hit,feature| %>
         <tr>
           <%= render :partial => "id_def_and_blast", :locals => {:hit => hit, :feature => feature, :experiments => @a_experiments+@b_experiments, :blast_runs => @blast_runs} %>
-          <td><%= "%.0f" % (a_avg=@a_experiments.inject(0.0){|sum, exp| sum+=(hit.stored(:normalized_counts,"exp_#{exp.id}")||0)}/@a_experiments.length) %></td>
-          <td><%= "%.0f" % (b_avg=@b_experiments.inject(0.0){|sum, exp| sum+=(hit.stored(:normalized_counts,"exp_#{exp.id}")||0)}/@b_experiments.length) %></td>
-          <td><%= b_avg == 0 ? '&#8734'.html_safe : "%.2f" % (a_avg/b_avg) %></td>
+          <td><%= "%.0f" % (a_avg=@a_experiments.inject(0.0){|sum, exp| sum+=(hit.stored(params[:value_type],"exp_#{exp.id}")||0)}/@a_experiments.length) %></td>
+          <td><%= "%.0f" % (b_avg=@b_experiments.inject(0.0){|sum, exp| sum+=(hit.stored(params[:value_type],"exp_#{exp.id}")||0)}/@b_experiments.length) %></td>
+          <td>
+            <%= b_avg == 0 ? '&infin;'.html_safe : "%.2f" % (a_avg/b_avg) %>
+          </td>
           <td style="white-space:nowrap">
             <%= link_to 'Details', seqfeature_path(feature) %>
             |
