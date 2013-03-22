@@ -1,0 +1,31 @@
+<p>
+  <%= link_to 'New Blast', new_blast_path, :class => 'button' %>
+</p>
+<br/>
+<p>
+  When you use the <%= link_to 'Blast Tool', new_blast_path %> to run custom searches the results are stored here. Your <%= BlastRun.recent_limit %> most recent runs will be kept in the database for future reference.
+</p>
+<br/>
+<div class='table'>
+<table class='listing'>
+  <thead>
+    <th>Blast Db</th>
+    <th>Type</th>
+    <th>Queries</th>
+    <th>Hits</th>
+    <th>Reports</th>
+    <th>Options</th>
+  </thead>
+
+<% @user.blast_runs.each do |blast_run| %>
+  <tr>
+    <td><%= blast_run.blast_database.description if blast_run.blast_database %></td>
+    <td><%= blast_run.program %></td>
+    <td><%= blast_run.blast_reports.limit(5).collect{|br|br.report.query_def}.to_sentence.truncate(50) %></td>
+    <td><%= blast_run.blast_reports.limit(5).collect{|br|br.hit_acc}.to_sentence.truncate(50) %></td>
+    <td><%= blast_run.blast_reports.count %></td>
+    <td><%= link_to "View", blast_run %></td>
+  </tr>
+<% end %>
+</table>
+</div>

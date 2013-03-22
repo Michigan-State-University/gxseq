@@ -121,6 +121,10 @@ GenomeSuite::Application.routes.draw do
   match "expression/results"
   match "expression/advanced_viewer"
   match "expression/advanced_results"
+  resources :blasts do
+    post 'new', :on => :member
+  end
+  resources :blast_runs
   resources :blast_reports do
     get 'alignment', :on => :member
   end

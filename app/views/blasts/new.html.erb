@@ -1,0 +1,37 @@
+<%= render :partial => "tools/sidebar", :locals => {:active => 'blast'}  %>
+
+<% content_for :top_bar do -%>
+  <h1 class="pagetitle">New Blast Search</h1>
+<% end -%>
+
+<% content_for :item_bar do -%>
+<div class="clear">
+  <div class="border">
+		<% form_tag blasts_path do %>
+			<p>
+				<label for="sequence" class="query">Enter FASTA sequence:</label><br/>
+				<%= text_area "blast", "sequence", :cols => 150, :rows => 15, :value => params[:blast][:sequence] %>
+			</p>
+			<p>
+				<label for="blast_database_id" class="query">Select Database:</label><br/>
+				<%= collection_select "blast", "blast_database_id", @blast_databases, "id", "description",{:selected => params[:blast][:blast_database_id]} %>
+			</p>
+      
+			<p>
+				<label for="program" class="query">Program:</label><br/>
+				<%= select_tag "blast[program]",
+					options_for_select(['blastn','tblastn','blastx','tblastx','blastp'], params[:blast][:program]) %>
+			</p>
+			<p>
+				<label for="evalue" class="query">E-Value:</label><br/>
+				<%= select_tag "blast[evalue]", options_for_select(@evalues,params[:blast][:evalue]) %>
+			</p>
+			<p >
+				<label for="matrix" class="query">Matrix:</label><br/>
+				<%= select_tag "blast[matrix]", options_for_select(@matrices,params[:blast][:matrix]) %>
+			</p>
+			<%= submit_tag "Submit", :class => 'button' %>
+		<% end %>
+	</div>
+</div>
+<% end -%>

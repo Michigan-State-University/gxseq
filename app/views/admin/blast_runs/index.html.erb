@@ -8,19 +8,48 @@
 <% end -%>
 
 <%= render :partial => "admin/sidebar" %>
-<div class='table'>
+<h2 class="pagetitle" style='cursor:pointer;width:100px' onclick="$('system_blast_listing').toggle()"> System (<%= @blast_runs.where(:user_id => nil).count %>)</h2>
+<div class='table' id='system_blast_listing'>
 <table class='listing'>
   <thead>
     <th>Blast Db</th>
-    <th>Taxon Version</th>
+    <th>Assembly</th>
+    <th>Reports</th>
     <th>Options</th>
   </thead>
 
-<% @blast_runs.each do |blast_run| %>
+<% @blast_runs.where(:user_id => nil).each do |blast_run| %>
   <tr>
     <td><%= link_to blast_run.blast_database.name, admin_blast_databases_path if blast_run.blast_database %></td>
-    <td><%= blast_run.assembly.name_with_version if blast_run.assembly %></td>
-    <td><%= link_to 'Edit', edit_admin_blast_run_path(blast_run) %></td>
+    <td><%= link_to blast_run.assembly.name_with_version, blast_run.assembly if blast_run.assembly %></td>
+    <td><%= blast_run.blast_reports.count %></td>
+    <td>
+      <%= link_to 'View', blast_run %>
+      |
+      <%= link_to 'Edit', edit_admin_blast_run_path(blast_run) %>
+    </td>
+  </tr>
+<% end %>
+</table>
+</div>
+
+<h2 class="pagetitle"> Users (<%= @blast_runs.where{user_id != nil}.count %>)</h2>
+
+<div class='table'>
+<table class='listing'>
+  <thead>
+    <th>User</th>
+    <th>Blast Db</th>
+    <th>Reports</th>
+    <th>Options</th>
+  </thead>
+
+<% @blast_runs.where{user_id != nil}.each do |blast_run| %>
+  <tr>
+    <td><%= blast_run.user.login %></td>
+    <td><%= link_to blast_run.blast_database.name, admin_blast_databases_path if blast_run.blast_database %></td>
+    <td><%= blast_run.blast_reports.count %></td>
+    <td><%= link_to 'View', blast_run %></td>
   </tr>
 <% end %>
 </table>

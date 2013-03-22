@@ -12,6 +12,7 @@ class User < ActiveRecord::Base
   has_many :favorite_seqfeatures
   has_many :seqfeatures, :through => :favorite_seqfeatures
   has_many :experiments
+  has_many :blast_runs, :order => 'id desc'
   has_one :private_group, :class_name => "Group", :include => :owner, :foreign_key => 'owner_id', :conditions => "name = users.login", :dependent => :destroy
   validates_uniqueness_of :login
   validates_presence_of :login

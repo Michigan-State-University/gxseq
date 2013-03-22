@@ -1,0 +1,15 @@
+<td style="width:100px;white-space:nowrap">
+  <%= link_to (hit.accession), blast_db.link_ref + hit.accession %>
+</td>
+<td style='text-align:left' id='hit_<%= idx %>'>
+	<%= sliced_toggle((params[:incoming_query] ? highlight(hit.definition, params[:incoming_query]) : hit.definition),nil,"hit_#{idx}") %>
+</td>
+<td>
+	<%= hit.hsps.inject(0){|sum,hsp| sum+=hsp.score} %>
+</td>
+<td style="width:100px;white-space:nowrap">
+	<%= hit.evalue %>
+</td>
+<td>
+	<%= link_to "[Alignment]",alignment_blast_report_path(blast_report.id, :hit_accession => hit.accession), :remote => true %>
+</td>

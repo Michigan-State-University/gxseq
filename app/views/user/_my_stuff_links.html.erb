@@ -1,6 +1,9 @@
-<div style="float:left;" id="format_links">
+<div style="float:right;" id="format_links">
   <h2>
       <%= link_to_unless active_link =='favorites', "Favorites",user_path(user, :fmt => 'favorites') do |name| 
+        "<u style='font-size:120%'>#{name}</u>".html_safe
+      end %>
+    | <%= link_to_unless active_link =='blasts', "Recent Blasts", user_path(user, :fmt => 'blasts') do |name| 
         "<u style='font-size:120%'>#{name}</u>".html_safe
       end %>
     | <%= link_to_unless active_link =='groups', "Groups", user_path(user, :fmt => 'groups') do |name| 
@@ -11,6 +14,9 @@
               "<u style='font-size:120%'>#{name}</u>".html_safe
             end %> -->
     | <%= link_to_unless active_link =='samples', "Samples", user_path(user, :fmt => 'samples') do |name| 
+        "<u style='font-size:120%'>#{name}</u>".html_safe
+      end %>
+    | <%= link_to_unless active_link =='profile', "My Profile", user_path(user, :fmt => 'profile') do |name| 
         "<u style='font-size:120%'>#{name}</u>".html_safe
       end %>
 </div>

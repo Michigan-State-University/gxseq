@@ -177,7 +177,7 @@ class Blast < Thor
   desc "create_db", 'Create a new blast database for attaching blast results'
   method_options %w(name -n) => :required,
     %w(link -l) => nil,
-    %w(abbreviation -a) => nil,
+    %w(filepath -p) => nil,
     %w(taxon_id -t) => nil,
     %w(description -d) => nil
   def create_db
@@ -186,7 +186,7 @@ class Blast < Thor
     b = BlastDatabase.new(
       :name => options[:name],
       :link_ref => options[:link],
-      :abbreviation => options[:abbreviation],
+      :filepath => options[:filepath],
       :taxon_id => taxon_id,
       :description => options[:description]
     )
@@ -197,9 +197,9 @@ class Blast < Thor
   def list_db
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     dbs = BlastDatabase.scoped
-    puts "-\tID\tName\tAbbr\tTaxonID\tTaxonName\tDescription\tLink"
+    puts "-\tID\tName\tPath\tTaxonID\tTaxonName\tDescription\tLink"
     dbs.each do |db|
-      puts "\t#{db.id}\t#{db.name}\t#{db.abbreviation}\t#{db.taxon.try(:id)||'?'}\t#{db.taxon.try(:name)||'?'}\t#{db.description}\t#{db.link_ref}"
+      puts "\t#{db.id}\t#{db.name}\t#{db.filepath}\t#{db.taxon.try(:id)||'?'}\t#{db.taxon.try(:name)||'?'}\t#{db.description}\t#{db.link_ref}"
     end
   end
   

@@ -7,7 +7,7 @@ module ApplicationHelper
       :sequence => [genomes_path,[:bioentries,:genomes,:transcriptomes]],
       :features => [genes_path,[:genes,:seqfeatures]],
       :samples => [experiments_path,[:experiments, :chip_chips, :chip_seqs, :synthetics, :variants]],
-      :tools => [tools_path,[:tools,:expression]],
+      :tools => [tools_path,[:tools,:expression,:blast_runs]],
       :help => [faq_path,[:help]]
     }
   end
@@ -101,6 +101,7 @@ module ApplicationHelper
   end
 
   def sliced_toggle(small_text,full_text,dom_id)
+    full_text = small_text if full_text.nil?
     [
       (
         content_tag(:div,

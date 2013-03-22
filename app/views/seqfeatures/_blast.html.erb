@@ -1,15 +1,17 @@
 <%= form_tag (feature.kind_of?(Gene) ? gene_path(feature) : seqfeature_path(feature)), :method => :get do %>
     <div style="float:left">
-          Blast Results for:
-          <%= select_tag :blast_report_id, options_from_collection_for_select(@blast_reports,:id,:name,params[:blast_report_id]),:onchange => 'this.form.submit()' %>
+      Blast report for:
+      <%= select_tag :blast_report_id,
+      options_from_collection_for_select(@blast_reports, :id, :name_with_description, params[:blast_report_id]),
+      :onchange => 'this.form.submit()' %>
+      |
+      <%= link_to "View Full Report", @blast_report.blast_run %>
     </div>
     <%= hidden_field_tag :fmt, 'blast' %>
-    <br/>
 <% end -%>
 
+<div style="clear:both">
+</div>
 
 <%= render :partial => "blast_reports/listing" %>
 
-<% content_for :sidebar do -%>
-  <%= render :partial => "blast_reports/parameters" %>
-<% end %>

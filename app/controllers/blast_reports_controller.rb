@@ -1,6 +1,8 @@
 class BlastReportsController < ApplicationController
-
   before_filter :find_blast_report, :only => [:show, :alignment, :edit]
+  
+  def show
+  end
   
   def alignment
     @hit = @report.hits.find{|hit| hit.accession == params[:hit_accession]}

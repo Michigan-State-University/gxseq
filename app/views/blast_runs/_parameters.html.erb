@@ -1,0 +1,20 @@
+<div class="">
+  <table class="listing">
+    <thead>
+      <th>Database</th>
+      <th>Program</th>
+      <th>Version</th>
+      <% blast_run.parameters.each do |key,value| %>
+        <th><%= key %></th>
+      <% end %>
+    </thead>
+    <tr>
+      	<td><%= blast_run.name_with_description %></td>
+    		<td><%= blast_run.program %></td>
+    		<td><%= blast_run.version %></td>
+    	<% blast_run.parameters.each do |key,value| %>
+      		<td><%= value %></td>
+      <% end %>
+    </tr>
+  </table>
+</div>

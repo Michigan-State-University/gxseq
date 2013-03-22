@@ -10,27 +10,19 @@
   <% if can? :create, Group.new %>
     <%= link_to 'Create New Group', new_group_path, :class => 'button' %>
   <% end %>
+  <%= render :partial => "my_stuff_links", :locals => {:active_link => params[:fmt], :user => @user} %>
 <% end -%>
 
 <% content_for :sidebar do -%>
   <%#= render :partial => "home/sidebar", :active => 'account' %>
 <% end -%>
-<p>
-  <b>Login:</b>
-  <%=h @user.login %>
-</p>
-<br/>
-<p>
-  <b>Contact Email:</b>
-  <%=h @user.email %>
-</p>
-<br/>
+
 <!-- <p>
   <b>Role(s):</b>
   <%#=h @user.roles.collect{|r| r.name}.join(', ') %>
 </p> -->
-<h1 class="pagetitle" style="font-size:130%">My Stuff</h1>
-<%= render :partial => "my_stuff_links", :locals => {:active_link => params[:fmt], :user => @user} %>
+<h1 class="pagetitle" style="font-size:130%"><%= params[:fmt].camelize.humanize %></h1>
 <%= render :partial => params[:fmt] %>
+
 
 

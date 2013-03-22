@@ -411,3 +411,23 @@ tr.alignment pre {
   right:.5em;
   bottom:-.75em;
 }
+
+table.dropdown_blue {
+  font-size: 100%;
+  background:rgb(100,143,171);
+	border-spacing:0;
+  width:100%;
+	padding-left:10px;
+	margin:0;
+}
+table.dropdown_blue td {	
+  background:rgb(240,250,255);
+	color:#000;
+	padding:3px 5px;
+}
+table.grey tr:nth-child(odd) td {
+  background:#ECECEC;
+}
+table.dropdown_blue tr:nth-child(odd) td {
+  background:#fff;
+}

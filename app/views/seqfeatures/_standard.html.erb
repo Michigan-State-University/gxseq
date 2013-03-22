@@ -36,13 +36,20 @@
   </div>
   <!-- Sequence -->
   <div class="border">
-    <h2>Sequence: <%= @seqfeature.na_sequence ? @seqfeature.na_sequence.size : 0 %>bp</h2>
+    <% na_seq = @seqfeature.na_sequence %>
+    <h2>Sequence: <%= na_seq ? na_seq.size : 0 %>bp
+      <%= render :partial => "blasts/link_with_sequence", :locals => {:sequence => na_seq, :desc => "#{@seqfeature.label} NA sequence"} %>
+    </h2>
     <table>
       <tr class='odd'>
         <td style="font-family:'Courier';"><pre style="overflow-x:scroll"><%= formatted_sequence(@seqfeature.na_sequence,{:rows => 10, :delimiter => "\n"}) %></pre></td>
       </tr>
     </table>
-    <h2>Protein: <%= @seqfeature.protein_sequence ? @seqfeature.protein_sequence.size : 0 %>aa</h2>
+    <% protein_seq = @seqfeature.protein_sequence%>
+    <h2>
+      Protein: <%= protein_seq ? protein_seq.size : 0 %>aa 
+      <%= render :partial => "blasts/link_with_sequence", :locals => {:sequence => protein_seq, :desc => "#{@seqfeature.label} Protein sequence"} %>
+    </h2>
     <table>
       <tr class='odd'>
         <td style="font-family:'Courier';"><pre style="overflow-x:scroll"><%= formatted_sequence(@seqfeature.protein_sequence,{:rows => 10, :delimiter => "\n"}) %></pre></td>

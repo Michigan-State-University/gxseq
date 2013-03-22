@@ -119,7 +119,9 @@
 							<td><%= gene_model.na_sequence.size if gene_model.na_sequence %></td>
 						</tr>
 						<tr class=<%= cycle("odd","even") %>>
-							<td class="keyword">NA Sequence</td>
+							<td class="keyword">NA Sequence<br/>
+							  <%= render :partial => "blasts/link_with_sequence", :locals => {:sequence => gene_model.na_sequence, :desc => "#{gene_model.locus_tag} NA sequence"} %>
+							</td>
 							<td style="font-family:'Courier';"><pre style="overflow-x:scroll"><%= formatted_sequence(gene_model.na_sequence,{:rows => 10, :delimiter => "\n"}) %></pre></td>
 						</tr>
 						<% if gene_model.cds.protein_id %>
@@ -142,7 +144,9 @@
 							<td><%= gene_model.protein_sequence.size if gene_model.protein_sequence %></td>
 						</tr>
 						<tr class=<%= cycle("odd","even") %>>
-							<td class="keyword">Protein Sequence</td>
+							<td class="keyword">Protein Sequence<br/>
+							  <%= render :partial => "blasts/link_with_sequence", :locals => {:sequence => gene_model.protein_sequence, :desc => "#{gene_model.locus_tag} Protein sequence"} %>
+							</td>
 							<td style="font-family:'Courier';"><pre style="overflow-x:scroll"><%= formatted_sequence(gene_model.protein_sequence,{:rows => 10, :delimiter => "\n"}) %></pre></td>
 						</tr>
 					</table>

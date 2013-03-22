@@ -22,28 +22,28 @@
 <div class="table">
   <table class="listing">
   	<thead>
-  	    <th width="20%"><%= sort_link "ID", :abbreviation %></th>
-  	  	<th width="10%"><%= sort_link "Name", :name %></th>
-  	  	<th width="20%"><%= sort_link "Description", :description %></th>
-    		<th width="10%"><%= sort_link "Link Ref", :link_ref %></th>
-    		<th width="10%"><%= sort_link "Taxonomy", :taxon_id %></th>
-    		<th width="10%"><%= sort_link "Blast Runs", 'blast_runs.count' %></th>
-      	<th width="10%"><%= sort_link "Created", :created_at %></th>
-      	<th width="10%"><%= sort_link "Updated", :updated_at %></th>
+  	    <th><%= sort_link "ID", :name %></th>
+  	  	<th><%= sort_link "Filepath", :filepath %></th>
+  	  	<th><%= sort_link "Description", :description %></th>
+    		<th><%= sort_link "Link Ref", :link_ref %></th>
+    		<th><%= sort_link "Taxonomy", :taxon_id %></th>
+    		<th><%= sort_link "Blast Runs", 'blast_runs.count' %></th>
+      	<th><%= sort_link "Created", :created_at %></th>
+      	<th><%= sort_link "Updated", :updated_at %></th>
   			<th>Options</th>
   	</thead>
   
   	<% for blast_db in @blast_databases %>
   		<tr>
-  		  <td class="style2"><%= blast_db.abbreviation %></th>
-		  	<td class="style2"><%= blast_db.name %></th>
-		  	<td><%= blast_db.description %></th>
-    		<td><div id=<%= blast_db.id %></div><%= sliced_toggle(blast_db.link_ref,blast_db.link_ref,blast_db.id)  %></td>
-    		<td class="style3"><%= blast_db.taxon.name if blast_db.taxon %></td>
-    		<td class="style3"><%= link_to blast_db.blast_runs.count, admin_blast_runs_path(:blast_database_id => blast_db.id) %></td>
-    		<td class="style3"><%= blast_db.created_at.strftime('%b %d \'%y') %></td>
-    		<td class="style3"><%= blast_db.updated_at.strftime('%b %d \'%y') %></td>
-	    	<td class="style1">
+		  	<td><%= blast_db.name %></td>
+		  	<td><%= blast_db.filepath %></td>
+		  	<td><%= blast_db.description %></td>
+    		<td><%= blast_db.link_ref %></td>
+    		<td><%= blast_db.taxon.name if blast_db.taxon %></td>
+    		<td><%= link_to blast_db.blast_runs.count, admin_blast_runs_path(:blast_database_id => blast_db.id) %></td>
+    		<td><%= blast_db.created_at.strftime("%b %d '%y") %></td>
+    		<td><%= blast_db.updated_at.strftime("%b %d '%y") %></td>
+	    	<td>
 				  <%= link_to '[Edit]', edit_admin_blast_database_path(blast_db) %>
 				</td>
   	  </tr>
