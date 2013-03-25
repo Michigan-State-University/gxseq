@@ -55,7 +55,7 @@ class BlastsController < ApplicationController
   
   private
   def setup_defaults
-    @blast_databases = BlastDatabase.all
+    @blast_databases = BlastDatabase.accessible_by(current_ability)
     @evalues = %w(100 10 5 0.1 0.01 1e-5 1e-10 1e-50)
     @matrices = %w(PAM30 PAM70 BLOSUM45 BLOSUM62 BLOSUM80)
     @hits = %w(10 25 50 100)

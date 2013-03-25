@@ -152,7 +152,10 @@ GenomeSuite::Application.routes.draw do
         post 'retry'
       end
     end
-    resources :blast_databases
+    resources :blast_databases do
+      get :autocomplete_taxon_name_taxon_id, :on => :collection
+      get :autocomplete_group_id, :on => :collection
+    end
     resources :blast_runs
     resources :ontologies
     resources :terms

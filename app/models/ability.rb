@@ -98,7 +98,8 @@ class Ability
       #Expression
       can :read, FeatureCount, :experiment => {:group => {:users => {:id => user.id}}}
       can :read, FeatureCount, :experiment => {:user_id => user.id}
-      #
+      #Blast Database
+      can :read, BlastDatabase, :group => {:users => {:id => user.id}}
       # TODO: coordinate user_id,owner_id,owns? methods for consistency (Experiment,Group,What Else?)
       # Need explicit create to allow new experiments
       #

@@ -1,10 +1,19 @@
+<% content_for :head do -%>
+  <%= stylesheet_link_tag 'formtastic_overrides' %>
+  <%= stylesheet_link_tag 'jquery-ui-1.9.2' %>
+  <%= javascript_include_tag "jquery-latest.min.js" %>
+  <%= javascript_include_tag "jquery-ui-1.9.2.js" %>
+  <%= javascript_include_tag "autocomplete-rails.js" %>
+<% end -%>
+
 <%= semantic_form_for [:admin,@blast_database] do |f| %>
   <%= f.inputs do %>
     <%= f.input :name %>
     <%= f.input :filepath %>
     <%= f.input :description %>
     <%= f.input :link_ref %>
-    <%= f.input :taxon_id %>
+    <%= f.input :taxon_id, :as => :autocomplete, :url => autocomplete_taxon_name_taxon_id_admin_blast_databases_path, :input_html => {:id_element => '#blast_database_taxon_id'} %>
+    <%= f.input :group_id, :as => :autocomplete, :url => autocomplete_group_id_admin_blast_databases_path, :input_html => {:id_element => '#blast_database_group_id'} %>
   <% end %>
 
   <%= f.actions do %>

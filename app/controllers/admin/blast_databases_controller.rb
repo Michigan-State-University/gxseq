@@ -1,7 +1,9 @@
 class Admin::BlastDatabasesController < Admin::AdminController
 
   before_filter :find_blast_database, :only => [:show, :edit, :update, :destroy]
-
+  autocomplete :taxon_name, :taxon_id, :full => true, :full_model => true, :column_name => 'name'
+  autocomplete :group, :id, :full => true, :full => true, :column_name => 'name'
+  skip_authorize_resource :only => :autocomplete_taxon_name_taxon_id
   # GET /blast_databases
   def index
     @blast_databases = BlastDatabase.scoped
@@ -65,5 +67,19 @@ class Admin::BlastDatabasesController < Admin::AdminController
     def find_blast_database
       @blast_database = BlastDatabase.find(params[:id])
     end
-
+    #
+    # Returns a hash with three keys actually used by the Autocomplete jQuery-ui
+    # Can be overriden to show whatever you like
+    # Hash also includes a key/value pair for each method in extra_data
+    #
+    def json_for_autocomplete(items, method, extra_data=[])
+      items.collect do |item|
+        hash = {"id" => item.id.to_s, "label" => item.send(method), "value" => item.send(method)}
+        extra_data.each do |datum|
+          hash[datum] = item.send(datum)
+        end if extra_data
+        # TODO: Come back to remove this if clause when test suite is better
+        hash
+      end
+    end
 end

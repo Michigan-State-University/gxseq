@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130321195904) do
+ActiveRecord::Schema.define(:version => 20130325195644) do
 
   create_table "assemblies", :force => true do |t|
     t.integer  "taxon_id",   :precision => 38, :scale => 0
@@ -139,6 +139,7 @@ ActiveRecord::Schema.define(:version => 20130321195904) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "filepath"
+    t.integer  "group_id",          :precision => 38, :scale => 0
   end
 
   create_table "blast_reports", :force => true do |t|
@@ -330,6 +331,7 @@ ActiveRecord::Schema.define(:version => 20130321195904) do
 
   add_index "location", ["seqfeature_id", "rank"], :name => "location_idx", :unique => true
   add_index "location", ["seqfeature_id"], :name => "location_idx_1"
+  add_index "location", ["term_id"], :name => "idx$$_32830001"
 
   create_table "location_qualifier_value", :id => false, :force => true do |t|
     t.integer  "location_id", :limit => 10, :precision => 10, :scale => 0, :null => false

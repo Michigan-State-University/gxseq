@@ -24,9 +24,10 @@
   	<thead>
   	    <th><%= sort_link "ID", :name %></th>
   	  	<th><%= sort_link "Filepath", :filepath %></th>
+  	  	<th><%= sort_link "Taxonomy", :taxon_id %></th>
+  	  	<th><%= sort_link "Group", :group_id %></th>
   	  	<th><%= sort_link "Description", :description %></th>
     		<th><%= sort_link "Link Ref", :link_ref %></th>
-    		<th><%= sort_link "Taxonomy", :taxon_id %></th>
     		<th><%= sort_link "Blast Runs", 'blast_runs.count' %></th>
       	<th><%= sort_link "Created", :created_at %></th>
       	<th><%= sort_link "Updated", :updated_at %></th>
@@ -37,9 +38,10 @@
   		<tr>
 		  	<td><%= blast_db.name %></td>
 		  	<td><%= blast_db.filepath %></td>
+		  	<td><%= blast_db.taxon.name if blast_db.taxon %></td>
+		  	<td><%= blast_db.group.name if blast_db.group %></td>
 		  	<td><%= blast_db.description %></td>
-    		<td><%= blast_db.link_ref %></td>
-    		<td><%= blast_db.taxon.name if blast_db.taxon %></td>
+    		<td><%= link_to 'Example', blast_db.link_ref, :title => blast_db.link_ref %></td>
     		<td><%= link_to blast_db.blast_runs.count, admin_blast_runs_path(:blast_database_id => blast_db.id) %></td>
     		<td><%= blast_db.created_at.strftime("%b %d '%y") %></td>
     		<td><%= blast_db.updated_at.strftime("%b %d '%y") %></td>
