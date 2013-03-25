@@ -4,9 +4,14 @@ class Admin::UsersController < Admin::AdminController
   
   # render index.html
   def index
-    # TODO - update search / pagination
-    #@users = User.search(:q => params[:q], :c => params[:c], :d => params[:d], :page => params[:page])
-    @users = User.all
+    params[:c]||=:last_sign_in_at
+    order_d = (params[:d]=='up' ? 'asc' : 'desc')
+    @users = User.order("#{params[:c]} #{order_d}")
+      .paginate(:page => params[:page])
+    if(params[:q])
+      query = "%#{params[:q]}%"
+      @users = @users.where{ (login =~ query) || (email =~ query) }
+    end
   end
   
   def edit

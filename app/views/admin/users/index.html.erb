@@ -5,12 +5,10 @@
 <% content_for :item_bar do %>
 <%= link_to 'New user', new_admin_user_path, :class => 'button' %>
 <div style="float:right">
-	<label>
-	    <input type="text" name="textfield"/>
-	</label>
-	<label>
-	    <input type="submit" name="Submit" value="Search" class="button" />
-	</label>
+  <%= form_tag admin_users_path, :method => :get do %>
+    <%= text_field_tag 'q', params[:q] %>
+    <%= submit_tag "Search", :class => 'button' %>
+	<% end %>
 </div>
 
 <% end %>
@@ -18,6 +16,9 @@
 <%= render :partial => "admin/sidebar" %>
 
 <div class="table">
+  <div class="pagination">
+    <span style="float:left"><%= will_paginate(@users) %></span>
+  </div>
   <table class="listing">
   	<thead>
   	  	<th width="20%"><%= sort_link "Email", :email %></th>

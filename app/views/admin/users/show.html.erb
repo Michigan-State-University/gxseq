@@ -14,6 +14,10 @@
   <b>Role(s):</b>
   <%=h @user.roles.collect{|r| r.name}.join(', ') %>
 </p>
+<p>
+  <b>Group(s):</b>
+  <%=h @user.groups.collect{|g| g.name}.join(', ') %>
+</p>
 
 <%= link_to 'Edit', edit_admin_user_path(@user) %> |
 <%= link_to 'Back', admin_users_path %>

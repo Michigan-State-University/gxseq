@@ -8,6 +8,7 @@ allenv: &ALLENV
   create_from_remote_user: true
   bedtools_path: path/to/bedtools/bin/
   blast_path: path/to/blast/bin/
+  default_remote_user_group: Trusted
   timeout: 600
   
 production:

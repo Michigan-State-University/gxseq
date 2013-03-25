@@ -22,12 +22,12 @@ module ApplicationHelper
     end
   end
 
-  # TODO possible refactor
+  # Renders a clickable sorting link with arrows
   def sort_link(title, column, options = {})
     condition = options[:unless] if options.has_key?(:unless)
     tooltip = options.delete(:tooltip) if options.has_key?(:tooltip)
     sort_dir = params[:d] == 'up' ? 'down' : 'up'
-    link_to_unless condition, "#{params[:c]==column ? (params[:d]=='up' ? image_tag('sort_up.png', :size => '11x11') : image_tag('sort_down.png', :size => '11x11')) : image_tag('sort_off.png', :size => '10x10')}#{title}<span>#{tooltip}</span>".html_safe, request.parameters.merge({:c => column, :d => sort_dir}), options
+    link_to_unless condition, "#{params[:c].to_s==column.to_s ? (params[:d]=='up' ? image_tag('sort_up.png', :size => '11x11') : image_tag('sort_down.png', :size => '11x11')) : image_tag('sort_off.png', :size => '10x10')}#{title}<span>#{tooltip}</span>".html_safe, request.parameters.merge({:c => column, :d => sort_dir}), options
   end
 
   # Helper for rendering Sequence in View

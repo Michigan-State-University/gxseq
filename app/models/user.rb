@@ -8,12 +8,13 @@ class User < ActiveRecord::Base
   has_and_belongs_to_many :groups
   has_and_belongs_to_many :roles
   has_many :track_layouts
-  has_many :favorites, :order => :type
+  has_many :favorites, :order => :type, :dependent => :destroy
   has_many :favorite_seqfeatures
   has_many :seqfeatures, :through => :favorite_seqfeatures
   has_many :experiments
-  has_many :blast_runs, :order => 'id desc'
-  has_one :private_group, :class_name => "Group", :include => :owner, :foreign_key => 'owner_id', :conditions => "name = users.login", :dependent => :destroy
+  has_many :blast_runs, :order => 'id desc', :dependent => :destroy
+  # Remove private_group for now, not useful without private samples/sequence
+  # has_one :private_group, :class_name => "Group", :include => :owner, :foreign_key => 'owner_id', :conditions => "name = users.login", :dependent => :destroy
   validates_uniqueness_of :login
   validates_presence_of :login
   before_create :get_ldap_email
@@ -82,14 +83,22 @@ class User < ActiveRecord::Base
   
   def setup_default_groups
     unless self.login.blank?
-      private_group = Group.new(:name => self.login, :owner => self)
-      private_group.users << self
-      begin
-        private_group.save!
-      rescue => e
-        server_error(e,"could not generate private group for #{self.inspect}")
-      end
+      # Remove private_group for now, not useful without private samples/sequence
+      # private_group = Group.new(:name => self.login, :owner => self)
+      # private_group.users << self
+      # begin
+      #   private_group.save!
+      # rescue => e
+      #   server_error(e,"could not generate private group for #{self.inspect}")
+      # end
     end
-    Group.public_group.users << self
+    begin
+      Group.public_group.users << self
+      if(APP_CONFIG[:default_remote_user_group]&&self.is_remote?)
+        Group.find_or_create_by_name(APP_CONFIG[:default_remote_user_group], :owner => User.find_by_login('admin')).users << self
+      end
+    rescue
+      server_error(e, "Error setting default user groups")
+    end
   end
 end
