@@ -3,7 +3,7 @@ class Admin::BlastRunsController < ApplicationController
   # GET /admin/blast_runs.xml
   def index
     @blast_runs = BlastRun.scoped
-
+    
     respond_to do |format|
       format.html # index.html.erb
       format.xml  { render :xml => @blast_runs }

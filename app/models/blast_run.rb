@@ -6,23 +6,29 @@ class BlastRun < ActiveRecord::Base
   delegate :taxon, :filepath, :name, :description, :name_with_description, :to => :blast_database, :allow_nil => true
   serialize :parameters, Hash
   validates_presence_of :blast_database
-  before_create :enforce_limit, :if => :user_id
+  # If there is no assembly we assume a one-off and will follow quota limits
+  before_create :enforce_limit, :unless => :assembly_id
   @@recent_limit = 15
   
-  # If a user_id is present we limit the number of stored blasts
+  # Check runs by user_id and enforce storage quota for all with nil assembly_id
+  # Removes the oldest run by id if storage limit is reached
   def enforce_limit
-    if( user=User.find(self.user_id) )
-      while user.blast_runs.count >= @@recent_limit
-        user.blast_runs.order('id asc').first.destroy
-      end
+    runs = BlastRun.where{user_id==my{self.user_id}}.where{assembly_id==nil}.order('id asc')
+    if(runs.count >= @@recent_limit)
+      runs.first.destroy
     end
   end
-  
+  # returns the recent runs quota set in class
   def self.recent_limit
     @@recent_limit
   end
-  
-  def self.local_blast(opts={})      
+  # returns the recent runs quota set in class
+  def self.recent_limit=(new_limit)
+    @@recent_limit=new_limit
+  end
+  # runs a blast using the supplied options and sequence
+  # returns Bio::Blast::Report
+  def self.local_blast(opts={})
     blastpath = APP_CONFIG[:blast_path]+'/blastall'
     return false if (program=opts[:program]).blank?
     return false if (sequence=opts[:sequence]).blank?

@@ -65,6 +65,13 @@ end
        end
       end
     end
+    # Speed up adapter lookup ~ 25% speedup
+    # https://github.com/sunspot/sunspot/issues/356
+    class Adapters::InstanceAdapter
+      def for(clazz)
+        return ActiveRecordInstanceAdapter
+      end
+    end
   end
 ## RUBY
 ##

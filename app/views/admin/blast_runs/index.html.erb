@@ -8,7 +8,7 @@
 <% end -%>
 
 <%= render :partial => "admin/sidebar" %>
-<h2 class="pagetitle" style='cursor:pointer;width:100px' onclick="$('system_blast_listing').toggle()"> System (<%= @blast_runs.where(:user_id => nil).count %>)</h2>
+<h2 class="pagetitle" style='cursor:pointer;width:100px' onclick="$('system_blast_listing').toggle()"> System (<%= @blast_runs.where{assembly_id != nil}.count %>)</h2>
 <div class='table' id='system_blast_listing'>
 <table class='listing'>
   <thead>
@@ -18,7 +18,7 @@
     <th>Options</th>
   </thead>
 
-<% @blast_runs.where(:user_id => nil).each do |blast_run| %>
+<% @blast_runs.where{assembly_id != nil}.each do |blast_run| %>
   <tr>
     <td><%= link_to blast_run.blast_database.name, admin_blast_databases_path if blast_run.blast_database %></td>
     <td><%= link_to blast_run.assembly.name_with_version, blast_run.assembly if blast_run.assembly %></td>
@@ -33,7 +33,7 @@
 </table>
 </div>
 
-<h2 class="pagetitle"> Users (<%= @blast_runs.where{user_id != nil}.count %>)</h2>
+<h2 class="pagetitle"> User (<%= @blast_runs.where(:assembly_id => nil).count %>)</h2>
 
 <div class='table'>
 <table class='listing'>
@@ -44,9 +44,9 @@
     <th>Options</th>
   </thead>
 
-<% @blast_runs.where{user_id != nil}.each do |blast_run| %>
+<% @blast_runs.where(:assembly_id => nil).each do |blast_run| %>
   <tr>
-    <td><%= blast_run.user.login %></td>
+    <td><%= blast_run.user.try(:login) || "Guest" %></td>
     <td><%= link_to blast_run.blast_database.name, admin_blast_databases_path if blast_run.blast_database %></td>
     <td><%= blast_run.blast_reports.count %></td>
     <td><%= link_to 'View', blast_run %></td>

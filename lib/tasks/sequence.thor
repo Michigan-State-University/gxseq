@@ -408,6 +408,115 @@ class Sequence < Thor
     check_feature_types(type_names)
   end
   
+  desc 'dump_features', 'Export sequence for annotated features'
+  method_options %w(assembly_id -a) => :required,
+    %w(feature_type -f) => 'Gene'
+  method_option :output, :required => true, :aliases => '-o', :desc => 'Output file name'
+  method_option :extra_flanking, :aliases => 'e', :default => 0, :desc => 'Number of extra flanking bases to include before and after annotation'
+  method_option :defline, :aliases => '-d', :default => 'description', :desc => 'Source for defline. Can be any stored index field. Ignored if blast is supplied'
+  method_option :blast_db, :aliases => '-b', :desc => 'Name or Id of blast database to use as definition source'
+  method_option :db_name, :aliases => '-n', :desc => 'Supply a name to create a corresponding blast database for the dumped data'
+  method_option :description, :desc => 'Optional description for the new database. Ignored without db_name'
+  def dump_features
+    require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
+    # lookup assembly
+    assembly = Assembly.find(options[:assembly_id])
+    # setup defline
+    if(options[:blast_db])
+      blast_db = BlastDatabase.find_by_name(options[:blast_db]) || BlastDatabase.find_by_id(options[:blast_db])
+      unless blast_db
+        puts "Could not find blast database: #{options[:blast_db]}"
+        exit 0
+      end
+      unless ( blast_run = assembly.blast_runs.find_by_blast_database_id(blast_db.id) )
+        puts "No Blast run for #{blast_db.name} found on #{assembly.name_with_version}"
+        puts "Options are: #{assembly.blast_runs.collect(&:name).to_sentence}"
+        exit 0
+      end
+      stored_def = "blast_#{blast_run.id}_text"
+    else
+      stored_def = 'description_text'
+    end
+    # Set output
+    out = File.open(options[:output],'w')
+    # Setup the search
+    search = Seqfeature.search do
+      with :display_name, options[:feature_type]
+      with :assembly_id, assembly.id
+      order_by :locus_tag
+      paginate(:page => 1, :per_page => 500)
+    end
+    current_page = 1
+    total_pages = search.hits.total_pages
+    bar = ProgressBar.new(search.total)
+    if(search.total > 0)
+      puts "Dumping #{search.total} entries..."
+    else
+      puts "0 entries found for -f #{options[:feature_type]}"
+      search = Seqfeature.search do
+        with :assembly_id, assembly.id
+        facet :display_name
+      end
+      if search.total > 0
+        puts "Try one of these:\n"
+        search.facet(:display_name).rows.each do |row|
+          puts "\t#{row.value} : #{row.count}"
+        end
+        exit 0
+      end
+    end
+    cur_bioentry_id = 0
+    cur_seq = nil
+    seqh = {}
+    # lookup/cache bioseq
+    Biosequence.where{bioentry_id.in search.hits.collect{|hit| hit.stored(:bioentry_id)}.flatten}.each do |bioseq|
+      seqh[bioseq.bioentry_id]=bioseq.seq
+    end
+    # write out initial data
+    search.hits.each do |hit|
+      # write defline
+      out << ">#{Array(hit.stored(:locus_tag_text)).first} #{Array(hit.stored(stored_def)).first}\n"
+      # Slice the sequence
+      start_pos = Array(hit.stored(:start_pos)).first
+      end_pos = Array(hit.stored(:end_pos)).first
+      out << "#{seqh[hit.stored(:bioentry_id)][start_pos-1,(end_pos-start_pos)+1].scan(/.{1,#{100}}/m).join("\n")}\n"
+    end
+    bar.increment!(search.hits.length)
+    # Start main loop - Work in batches to avoid large memory use
+    while(current_page < total_pages)
+      current_page+=1
+      search = Seqfeature.search do
+        with :display_name, options[:feature_type]
+        with :assembly_id, assembly.id
+        order_by :locus_tag
+        paginate(:page => current_page, :per_page => 500)
+      end
+      # lookup/cache bioseq
+      Biosequence.where{bioentry_id.in search.hits.collect{|hit| hit.stored(:bioentry_id)}.flatten}.each do |bioseq|
+        seqh[bioseq.bioentry_id]=bioseq.seq
+      end
+      search.hits.each do |hit|
+        # write defline
+        out << ">#{Array(hit.stored(:locus_tag_text)).first} #{Array(hit.stored(stored_def)).first}\n"
+        # Slice the sequence
+        start_pos = Array(hit.stored(:start_pos)).first
+        end_pos = Array(hit.stored(:end_pos)).first
+        out << "#{seqh[hit.stored(:bioentry_id)][start_pos-1,(end_pos-start_pos)+1].scan(/.{1,#{100}}/m).join("\n")}\n"
+      end
+      bar.increment!(search.hits.length)
+    end
+    # Create the blast database
+    if(options[:db_name])
+      BlastDatabase.create(
+        :name => options[:db_name],
+        :link_ref => '/seqfeatures/',
+        :filepath => File.basename(options[:output]),
+        :taxon_id => assembly.species_id,
+        :description => options[:description]
+      )
+    end
+  end
+  
   protected
   # Compare the types we loaded to the Classes that exist in the app
   def check_feature_types(type_names)

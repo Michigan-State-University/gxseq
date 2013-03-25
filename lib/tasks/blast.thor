@@ -197,9 +197,9 @@ class Blast < Thor
   def list_db
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     dbs = BlastDatabase.scoped
-    puts "-\tID\tName\tPath\tTaxonID\tTaxonName\tDescription\tLink"
+    puts "-\tID\tName\tPath\tTaxonID\tTaxonName\tDescription"
     dbs.each do |db|
-      puts "\t#{db.id}\t#{db.name}\t#{db.filepath}\t#{db.taxon.try(:id)||'?'}\t#{db.taxon.try(:name)||'?'}\t#{db.description}\t#{db.link_ref}"
+      puts "\t#{db.id}\t#{db.name}\t#{db.filepath}\t#{db.taxon.try(:id)||'?'}\t#{db.taxon.try(:name)||'?'}\t#{db.description}"
     end
   end
   
@@ -212,5 +212,4 @@ class Blast < Thor
       puts "\t#{run.id}\t#{run.blast_database.name}\t#{run.assembly.name_with_version}\t#{run.program}\t#{run.version}\t#{run.db}\t#{run.parameters}"
     end
   end
-  
 end

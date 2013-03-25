@@ -189,7 +189,8 @@ class SeqfeaturesController < ApplicationController
 
   private
     def find_seqfeature
-      @seqfeature = Seqfeature.find(params[:id], :include => [:locations,[:bioentry => [:assembly]]])
+      feature_id = Seqfeature.with_locus_tag(params[:id]).first.try(:id) || params[:id]
+      @seqfeature = Seqfeature.where{:id == feature_id}.includes(:locations,:qualifiers,[:bioentry => [:assembly]]).first
     end
     # TODO: refactor this method is duplicated from genes_controller
     def get_feature_data
