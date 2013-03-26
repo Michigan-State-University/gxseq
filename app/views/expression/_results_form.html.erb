@@ -1,7 +1,8 @@
 <% form_tag expression_results_path, :method => :get do %>
   <div style="float:right;margin-bottom:0.5em">
-    Search on definition and locus<br/>
-    <%= text_field_tag "keywords",params[:keywords] %>
+    Search definition and locus<br/>
+    <%= submit_tag 'Go', :class => 'button', :id => 'go_submit', :style => 'float:right;margin-left:-1em' %>
+    <%= text_field_tag "keywords",params[:keywords], :style => 'float:right;margin-right:2em' %>
     <%= hidden_field_tag :assembly_id, params[:assembly_id] %>
     <%= hidden_field_tag :type_term_id, params[:type_term_id] %>
     <%= hidden_field_tag :c, params[:c] if params[:c]%>
@@ -9,12 +10,11 @@
     <% @experiments.each do |e| %>
       <%= hidden_field_tag 'experiments[]', e.id %>
     <% end %>
-    <%= submit_tag 'Go', :class => 'button' %>
   </div>
   <div style="float:right;margin-right:2em">
     Definition Source<br/>
     <%= select_tag :definition_type, grouped_options_for_select(@group_select_options, params[:definition_type]),
-    {:onchange => '$("def_builder").value = null'} %>
+    {:id => 'def_type', :onchange => '$("def_builder").value = this.value'} %>
   </div>
   <div style="float:right;margin-right:2em">
     Filter Favorites<br/>
@@ -26,19 +26,27 @@
   <!-- Advanced Options -->
   <div style="display:none;clear:both" id="advanced_search">
     
-    <div style="float:right;margin-right:2em">
-      Expression Type<br/>
-      <%= select_tag :value_type, options_for_select(@value_options, params[:value_type])%>
+    <div style="width:12.5em;float:right">
+      <% @blast_runs.each do |blast_run| %>
+        <div style="clear:both;float:right;margin-right:2em">
+          Match <%= blast_run.name %> ID<br/>
+          <span style="font-size:85%">(case sensitive)</span><br/>
+          <%= text_field_tag "blast_acc[blast_#{blast_run.id}]",(params[:blast_acc]||{})["blast_#{blast_run.id}"] %>
+        </div>
+      <% end %>
+      <div style="float:left;margin-top:.5em">
+        Expression Type<br/>
+        <%= select_tag :value_type, options_for_select(@value_options, params[:value_type])%>
+      </div>
+      <div style="float:left;margin-top:.5em">
+        Show Empty Results<br/>
+        <%= select_tag :show_blank, options_for_select({'Yes' => 'y','No' => 'n','Only Empty' => 'e'}, params[:show_blank])%>
+      </div>
     </div>
-    
+
     <div style="float:right;margin-right:2em">
-      Show Empty Results<br/>
-      <%= select_tag :show_blank, options_for_select({'Yes' => 'y','No' => 'n','Only Empty' => 'e'}, params[:show_blank])%>
-    </div>
-    
-    <div style="clear:both;float:right;margin-right:2em;margin:1em">
       Definition Builder<br/>
-      <%= select_tag :multi_definition_type, grouped_options_for_select(@group_select_options, params[:multi_definition_type]), {:multiple => true, :size => 5, :id => 'def_builder'} %>
+      <%= select_tag :multi_definition_type, grouped_options_for_select(@group_select_options, (params[:multi_definition_type]||params[:definition_type])), {:multiple => true, :size => 7, :id => 'def_builder', :onchange => '$("def_type").value = this.value'} %>
     </div>
     
     <div style="clear:both;float:right; margin:1em">

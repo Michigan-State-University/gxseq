@@ -512,6 +512,7 @@ class Seqfeature < ActiveRecord::Base
     favorites = opts[:favorites_filter]
     seqfeature_id = opts[:seqfeature_id]
     empty_filter = opts[:show_blank]
+    blast_acc = opts[:blast_acc]
     # Begin search block
     Seqfeature.search do |s|
       # Auth
@@ -527,6 +528,13 @@ class Seqfeature < ActiveRecord::Base
       # Search Filters - locus_tag is an example
       unless locus_tag.blank?
         s.with :locus_tag, locus_tag
+      end
+      blast_acc.each do |key,value|
+        unless value.blank?
+          s.dynamic :blast_acc do
+            with(key,value)
+          end
+        end
       end
       # Text Search
       unless keywords.blank?
