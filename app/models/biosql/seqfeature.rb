@@ -529,10 +529,12 @@ class Seqfeature < ActiveRecord::Base
       unless locus_tag.blank?
         s.with :locus_tag, locus_tag
       end
-      blast_acc.each do |key,value|
-        unless value.blank?
-          s.dynamic :blast_acc do
-            with(key,value)
+      if(blast_acc)
+        blast_acc.each do |key,value|
+          unless value.blank?
+            s.dynamic :blast_acc do
+              with(key,value)
+            end
           end
         end
       end
