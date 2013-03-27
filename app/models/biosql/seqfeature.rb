@@ -107,7 +107,7 @@ class Seqfeature < ActiveRecord::Base
   
   # returns terms that should not be indexed or displayed in search results
   def self.excluded_search_terms 
-    ['translation','codon_start','note']
+    ['translation','codon_start','note','locus_tag']
   end
   
   ## INSTANCE METHODS
