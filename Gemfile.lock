@@ -77,12 +77,27 @@ GEM
       ffi
     bio-ucsc-util (0.1.2)
       ffi
+    brakeman (1.8.3)
+      activesupport
+      erubis (~> 2.6)
+      fastercsv (~> 1.5)
+      haml (~> 3.0)
+      highline (~> 1.6)
+      i18n
+      multi_json (~> 1.3)
+      ruby2ruby (~> 1.2)
+      ruby_parser (= 2.3.1)
+      sass (~> 3.0)
+      terminal-table (~> 1.4)
     builder (2.1.2)
     cancan (1.6.8)
+    cane (2.5.2)
+      parallel
     climate_control (0.0.3)
       activesupport (>= 3.0)
     cocaine (0.5.1)
       climate_control (>= 0.0.3, < 1.0)
+    coderay (1.0.9)
     colored (1.2)
     columnize (0.3.6)
     daemons (1.1.4)
@@ -95,9 +110,14 @@ GEM
       bcrypt-ruby (~> 2.1.2)
       orm_adapter (~> 0.0.3)
       warden (~> 1.0.3)
+    em-websocket (0.5.0)
+      eventmachine (>= 0.12.9)
+      http_parser.rb (~> 0.5.3)
     erubis (2.6.6)
       abstract (>= 1.0.0)
+    eventmachine (1.0.3)
     exception_notification (2.4.1)
+    fastercsv (1.5.5)
     fattr (2.2.1)
     ffi (1.0.11)
     flay (1.4.3)
@@ -108,17 +128,33 @@ GEM
       sexp_processor (~> 3.0)
     formtastic (2.2.1)
       actionpack (>= 3.0)
+    guard (1.6.2)
+      listen (>= 0.6.0)
+      lumberjack (>= 1.0.2)
+      pry (>= 0.9.10)
+      terminal-table (>= 1.4.3)
+      thor (>= 0.14.6)
+    guard-livereload (1.1.3)
+      em-websocket (>= 0.2.0)
+      guard (>= 1.5.0)
+      multi_json (~> 1.0)
+    haml (3.1.8)
     highline (1.6.13)
+    http_parser.rb (0.5.3)
     i18n (0.5.0)
     json (1.7.6)
     linecache19 (0.5.12)
       ruby_core_source (>= 0.1.4)
+    listen (0.7.3)
+    lumberjack (1.0.3)
     mail (2.2.19)
       activesupport (>= 2.3.6)
       i18n (>= 0.4.0)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
+    method_source (0.8.1)
     mime-types (1.19)
+    multi_json (1.7.2)
     mysql2 (0.2.11)
     net-ldap (0.2.2)
     newrelic_rpm (3.5.5.38)
@@ -135,6 +171,7 @@ GEM
       activesupport (>= 3.0.0)
       cocaine (~> 0.5.0)
       mime-types
+    parallel (0.6.3)
     polyamorous (0.5.0)
       activerecord (~> 3.0)
     polyglot (0.3.3)
@@ -143,6 +180,10 @@ GEM
       highline (~> 1.6.1)
       options (~> 2.3.0)
     progressbar (0.11.0)
+    pry (0.9.12)
+      coderay (~> 1.0.5)
+      method_source (~> 0.8)
+      slop (~> 3.4)
     rack (1.2.6)
     rack-mount (0.6.14)
       rack (>= 1.0.0)
@@ -174,6 +215,7 @@ GEM
       rdoc (~> 3.4)
       thor (~> 0.14.4)
     rake (10.0.3)
+    rb-fsevent (0.9.3)
     rdoc (3.12)
       json (~> 1.4)
     reek (1.2.12)
@@ -201,11 +243,14 @@ GEM
       archive-tar-minitar (>= 0.5.2)
     ruby_parser (2.3.1)
       sexp_processor (~> 3.0)
+    sass (3.2.7)
     sexp_processor (3.2.0)
+    slop (3.4.4)
     squeel (0.9.5)
       activerecord (~> 3.0)
       activesupport (~> 3.0)
       polyamorous (~> 0.5.0)
+    terminal-table (1.4.5)
     thor (0.14.6)
     treetop (1.4.12)
       polyglot
@@ -227,7 +272,9 @@ DEPENDENCIES
   bio-samtools (~> 0.4)!
   bio-tabix (~> 0.1)
   bio-ucsc-util (= 0.1.2)
+  brakeman
   cancan
+  cane
   composite_primary_keys (= 3.1.10)!
   daemons (= 1.1.4)
   delayed_job (~> 3)
@@ -238,6 +285,8 @@ DEPENDENCIES
   flay
   flog
   formtastic (~> 2.2.1)
+  guard
+  guard-livereload
   mysql2 (~> 0.2.0)
   newrelic_rpm
   paper_trail (~> 2)
@@ -247,6 +296,7 @@ DEPENDENCIES
   rails (= 3.0.9)
   rails3-jquery-autocomplete
   rails_best_practices
+  rb-fsevent
   reek
   ruby-debug19
   ruby-oci8

@@ -2,25 +2,32 @@ source 'http://rubygems.org'
 
 gem 'rails', '3.0.9'
 
-# Choose your database adapter
+# production specific settings
 group :production do
   gem 'activerecord-oracle_enhanced-adapter'
   gem 'ruby-oci8'
   gem 'newrelic_rpm'
 end
+# Development testing and update gems
 group :development, :test do
   gem 'ruby-oci8'
   gem 'mysql2', '~> 0.2.0'
   gem 'railroady'
   gem 'ruby-debug19'
   gem 'annotate', ">=2.5.0.pre1"
-  # Code analyzers
+  # Code analyzers and security
   gem 'reek'
   gem 'rails_best_practices'
   gem 'flay'
   gem 'flog'
+  gem 'cane'
+  gem 'brakeman'
+  # Real Time Updates - mac development
+  gem 'guard'
+  gem 'rb-fsevent', :require => false
+  gem 'guard-livereload'
 end
-
+# All the rest
 gem 'acts_as_api', '~>0.3'
 gem 'xmlparser'
 gem 'bio', '~> 1.4.3'
@@ -55,7 +62,6 @@ end
 gem 'progress_bar'
 gem 'cancan'
 gem 'rails3-jquery-autocomplete'
-
 # Deploy with Capistrano
 # gem 'capistrano'
 

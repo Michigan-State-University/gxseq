@@ -174,6 +174,43 @@ class Blast < Thor
       Seqfeature.reindex_all_by_id(seqfeature_ids)
     end
   end
+  
+  desc "annotate FILE", "Annotate blast results based on hit accession. Accepts 1 column file with accessions"
+  method_option :blast_run, :aliases => '-b', :desc => 'ID of blast run to annotate'
+  method_option :annotation, :aliases => '-a', :required => true, :desc  => 'Annotation string to add'
+  method_option :test_only, :aliases => '-t', :default => false, :desc => 'Do not save changes only test lookup and report counts'
+  def annotate(input_file)
+    require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
+    blast_run = BlastRun.find_by_id(options[:blast_run])
+    unless blast_run
+      puts "No blast run found for: #{options[:blast_run]}"
+      exit 0
+    end
+    puts "Importing file accessions"
+    id_hash = {}
+    File.open(input_file).each do |line|
+      id_hash[line.strip.chomp] = true
+    end
+    puts "Found #{id_hash.length}. First few lines: #{id_hash.keys[0,5].to_sentence}. Last line: #{id_hash.keys.last}"
+    bar = ProgressBar.new(blast_run.blast_reports.count)
+    matched = 0
+    puts "working on #{blast_run.blast_reports.count} reports"
+    BlastReport.transaction do
+      blast_run.blast_reports.select('id,hit_def,hit_acc').find_in_batches(:batch_size => 500) do |batch|
+        batch.each do |report|
+          if id_hash[report.hit_acc]
+            matched +=1
+            unless(options[:test_only])
+              report.update_attribute(:hit_def, "#{report.hit_def} #{options[:annotation]}")
+            end
+          end
+        end
+        bar.increment!(batch.length)
+      end
+      puts "Found #{matched} matching reports"
+    end
+  end
+  
   desc "create_db", 'Create a new blast database for attaching blast results'
   method_options %w(name -n) => :required,
     %w(link -l) => nil,
@@ -204,12 +241,20 @@ class Blast < Thor
   end
   
   desc 'list_run','Print information about blast databases'
+  method_option :include_user, :aliases => '-u', :default => false, :desc => "Include user initiated runs"
   def list_run
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     runs = BlastRun.scoped
     puts "-\tID\tDbName\tAssembly\tProgram\tVersion\tSystemFile\tParameters"
-    runs.each do |run|
+    runs.where{assembly_id != nil}.each do |run|
       puts "\t#{run.id}\t#{run.blast_database.name}\t#{run.assembly.name_with_version}\t#{run.program}\t#{run.version}\t#{run.db}\t#{run.parameters}"
+    end
+    if(options[:include_user])
+      puts "\nUser Runs"
+      puts "-\tID\tUser\tDbName\tProgram\tVersion\tSystemFile\tParameters"
+      runs.where{assembly_id == nil}.each do |run|
+        puts "\t#{run.id}\t#{run.user.try(:login)||'Guest'}\t#{run.blast_database.name}\t#{run.program}\t#{run.version}\t#{run.db}\t#{run.parameters}"
+      end
     end
   end
 end
