@@ -36,8 +36,8 @@
           <% sum = 0 %>
           <% @experiments.each do |exp| %>
             <td>
-              <%= val = hit.stored(params[:value_type],"exp_#{exp.id}").round %>
-              <% sum += (val||0) %>
+              <%= val = (hit.stored(params[:value_type],"exp_#{exp.id}")||0).round %>
+              <% sum += val %>
             </td>
           <% end %>
           <td><%= sum %></td>

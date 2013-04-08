@@ -7,7 +7,7 @@
   <% end %>
   <%= link_to(image_tag(Array(hit.stored(:favorite_user_ids)).include?(current_user.id) ? 'star.png' : 'star_gray.png'), toggle_favorite_seqfeature_path(feature_id), {:class => 'favorite',:id => "favorite_#{feature_id}",:remote => true,:'data-loading' => "#{image_tag("loading.gif")}"}) %>
 </td>
-<td id='<%= feature_id %>_definition'>
+<td id='<%= feature_id %>_definition' style='min-width:25em'>
   <%= render :partial => "hit_definition", :locals => {:hit => hit, :definition_type => params[:definition_type], :multi_definition_type => params[:multi_definition_type]} %>
 </td>
 <% @blast_runs.each do |blast_run| %>
