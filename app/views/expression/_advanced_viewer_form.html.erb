@@ -1,6 +1,9 @@
 <%= form_tag expression_advanced_results_path, :method => :get do %>
 <%= hidden_field_tag :assembly_id, assembly.try(:id) %>
 <%= hidden_field_tag :type_term_id, type_term_id %>
+Minimum Value:
+<%= select_tag :min_exp_value, options_for_select([0,10,50,100,500,1000,5000],(params[:min_exp_value]||50)) %>
+
 <div style="width:25em">
   <dl style="font-weight:bold;">
     <span style="float:left">Experiment</span>
@@ -13,10 +16,10 @@
     	  <%= experiment.name %>
     	</span>
     	<span style="float:right">
-    	  <%= check_box_tag "b_experiments[]", experiment.id %>
+    	  <%= check_box_tag "b_experiments[]", experiment.id, (params[:b_experiments] && params[:b_experiments].include?(experiment.id.to_s)) %>
     	</span>
     	<span style="float:right;margin-right:3em">
-    	  <%= check_box_tag "a_experiments[]", experiment.id %>
+    	  <%= check_box_tag "a_experiments[]", experiment.id, (params[:a_experiments] && params[:a_experiments].include?(experiment.id.to_s)) %>
     	</span>
     </div>
   <% end %>

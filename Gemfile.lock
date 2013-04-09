@@ -62,6 +62,8 @@ GEM
       activemodel (= 3.0.9)
       activesupport (= 3.0.9)
     activesupport (3.0.9)
+    acts-as-taggable-on (2.3.3)
+      rails (~> 3.0)
     acts_as_api (0.3.11)
       activemodel (>= 3.0.0)
       activesupport (>= 3.0.0)
@@ -266,6 +268,7 @@ PLATFORMS
 
 DEPENDENCIES
   activerecord-oracle_enhanced-adapter
+  acts-as-taggable-on (~> 2.3.1)
   acts_as_api (~> 0.3)
   annotate (>= 2.5.0.pre1)
   bio (~> 1.4.3)

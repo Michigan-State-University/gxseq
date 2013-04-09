@@ -3,7 +3,8 @@
 <% end -%>
 
 <% content_for :item_bar do -%>
-  <%= link_to "Update Selection", expression_viewer_path, :class => "button" %>
+  
+  <%= link_to "Update Selection", expression_viewer_path(params.merge(:fmt => 'advanced_viewer').reject{|k,v|['controller','action'].include?(k)} ), :class => "button" %>
   <%= link_to "Download", url_for( params.merge(:format=>:csv)), :class => "button" %>
   <%= render :partial => 'advanced_results_form' %>
 <% end -%>

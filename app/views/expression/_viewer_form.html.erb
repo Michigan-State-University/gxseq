@@ -1,3 +1,6 @@
+<%= link_to 'Select All','#', :onclick => 'jQuery(".exp_check").attr("checked", true );' %>
+|<%= link_to 'Select None','#', :onclick => 'jQuery(".exp_check").attr("checked", false );' %>
+
 <%= form_tag expression_results_path, :method => :get do %>
 <%= hidden_field_tag :assembly_id, assembly.try(:id) %>
 <%= hidden_field_tag :type_term_id, type_term_id %>
@@ -9,7 +12,7 @@
   <% experiment_options.each do |experiment| %>
     <div style="clear:both;">
     	<span style="float:left">
-    		<%= check_box_tag "experiments[]", experiment.id, (params[:experiments] && params[:experiments].include?(experiment.id.to_s))  %> 
+    		<%= check_box_tag "experiments[]", experiment.id, (params[:experiments] && params[:experiments].include?(experiment.id.to_s)), :class => 'exp_check'  %> 
     		<%= experiment.name %>
     	</span>
     	<span style="float:right"><%= number_with_delimiter( experiment.feature_counts.includes(:seqfeature).where{seqfeature.type_term_id == my{type_term_id}}.sum(:count) ) %></span>

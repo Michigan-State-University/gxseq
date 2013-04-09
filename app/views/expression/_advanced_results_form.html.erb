@@ -7,6 +7,7 @@
     <%= hidden_field_tag :type_term_id, params[:type_term_id] %>
     <%= hidden_field_tag :c, params[:c] if params[:c]%>
     <%= hidden_field_tag :d, params[:d] if params[:d]%>
+    <%= hidden_field_tag :min_exp_value, params[:min_exp_value] %>
     <% @a_experiments.each do |e| %>
       <%= hidden_field_tag 'a_experiments[]', e.id %>
     <% end %>
@@ -33,7 +34,7 @@
         <div style="clear:both;float:right;margin-right:2em">
           Match <%= blast_run.name %> ID<br/>
           <span style="font-size:85%">(case sensitive)</span><br/>
-          <%= text_field_tag "blast_acc[blast_#{blast_run.id}]"%>
+          <%= text_field_tag "blast_acc[blast_#{blast_run.id}]", (params[:blast_acc]||{})["blast_#{blast_run.id}"]%>
         </div>
       <% end %>
       

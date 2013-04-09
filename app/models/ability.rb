@@ -21,15 +21,15 @@ class Ability
   # returns an array of seqfeature id ranges accessible by this user
   # used to send authorized ids in index queries
   def authorized_seqfeature_ids
-    @@seqfeature_auth_ids[@stored_user_id]||=Seqfeature.accessible_by(self).select_ids.to_ranges
+    @@seqfeature_auth_ids[@stored_user_id]||=Seqfeature.accessible_by(self).select_ranges
   end
   # returns an array of gene model id ranges accessible by this user
   def authorized_gene_model_ids
-    @@gene_model_auth_ids[@stored_user_id]||=GeneModel.accessible_by(self).select_ids.to_ranges
+    @@gene_model_auth_ids[@stored_user_id]||=GeneModel.accessible_by(self).select_ranges
   end
   # returns an array of bioentry id ranges accessible by this user
   def authorized_bioentry_ids
-    @@bioentry_auth_ids[@stored_user_id]||=Bioentry.accessible_by(self).select_ids.to_ranges
+    @@bioentry_auth_ids[@stored_user_id]||=Bioentry.accessible_by(self).select_ranges
   end
   # returns the user_id for this ability so we can reference it in controller
   def user_id

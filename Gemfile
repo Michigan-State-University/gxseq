@@ -62,6 +62,7 @@ end
 gem 'progress_bar'
 gem 'cancan'
 gem 'rails3-jquery-autocomplete'
+gem 'acts-as-taggable-on', '~> 2.3.1'
 # Deploy with Capistrano
 # gem 'capistrano'
 

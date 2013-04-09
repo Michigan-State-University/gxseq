@@ -261,13 +261,37 @@ module ActiveRecord
     end
   end
   class Relation
-    # select_ids override select with primary key only.
+    # overrides select with primary key only and returns results
     def select_ids
       join_dependency = construct_join_dependency_for_association_find
       relation = except(:select).select("#{@table.table_name}.#{@klass.primary_key}")
       @klass.connection.select_all(apply_join_dependency(relation, join_dependency).to_sql).collect{|row| row[@klass.primary_key]}
     rescue ThrowResult
       []
+    end
+    # returns closed interval ranges for primary keys
+    def select_ranges
+      if Base.connection.adapter_name.downcase =~ /.*oracle.*/
+        join_dependency = construct_join_dependency_for_association_find
+        relation = except(:select)
+          .select("#{@table.table_name}.#{@klass.primary_key} as id,
+            lag(#{@table.table_name}.#{@klass.primary_key}) over (order by #{@table.table_name}.#{@klass.primary_key}) as prev,
+            lead(#{@table.table_name}.#{@klass.primary_key}) over (order by #{@table.table_name}.#{@klass.primary_key}) as next")
+          .order("#{@table.table_name}.#{@klass.primary_key}")
+          .group("#{@table.table_name}.#{@klass.primary_key}")
+        rel_sql = apply_join_dependency(relation, join_dependency).to_sql
+        low_sql = "Select id from (#{rel_sql}) where prev != (id-1) or prev is null order by id"
+        high_sql = "Select id from (#{rel_sql}) where next != (id+1) or next is null order by id"
+        lows = klass.connection.select_all(low_sql)
+        highs = @klass.connection.select_all(high_sql)
+        return_arr = []
+        lows.each_with_index do |l,ind|
+          return_arr << (l['id']..highs[ind]['id'])
+        end
+        return return_arr
+      else
+        select_ids.to_ranges
+      end
     end
   end
 end

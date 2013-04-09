@@ -1,3 +1,7 @@
+<% content_for :head do -%>
+  <%= javascript_include_tag "jquery-latest.min.js" %>
+<% end -%>
+
 <% content_for :top_bar do -%>
   <h1 class="pagetitle">Expression Viewer</h1>
 <% end -%>
@@ -16,32 +20,37 @@
 <% end %>
 <%= form_tag expression_viewer_path, :method => :get do %>
 <div style="float:left">
-  Sequence:<br/>
+  Assembly:<br/>
   <%= select_tag :assembly_id, options_from_collection_for_select(@assemblies, :id, :name_with_version, @assembly.try(:id)),{:onchange => "this.form.submit()"} %>
 </div>
 
-<div style="float:left">
+<div style="float:left;margin-left:1em">
   <% if @feature_types && @feature_types.facet(:type_term_id) && @feature_types.facet(:type_term_id).rows && @feature_types.facet(:type_term_id).rows.size > 1 %>
-  Feature:<br/>
+  Use:<br/>
   <%= select_tag :type_term_id, options_for_select(@feature_types.facet(:type_term_id).rows.map{|row| ["#{row.instance.name} - #{row.count}",row.value] },@type_term_id),{:onchange => "this.form.submit()"} %>
   <% end %>
+</div>
+
+<div style="float:left;margin-left:1em">
+  Generate: <br/>
+  <%= select_tag :form_type, options_for_select({'Matrix' => 'viewer', 'Ratio' => 'advanced_viewer'},params[:fmt]), :onchange => 'jQuery(".select_form").hide();$(this.value).show();' %>
 </div>
 
 <br style="clear:both"/>
 
 <% end -%>
 <br/><br/>
+<hr/>
 <div id="form_field">
-  <div id='viewer_form'>
-    Select Experiments for matrix or: <%= link_to "Build Ratio",'#',:onclick => "$('advanced_viewer_form').toggle();$('viewer_form').toggle()" %>
+  <div id='viewer' style="<%= params[:fmt]&&params[:fmt]!='viewer' ? 'display:none' : '' %>" class='select_form'>
 	<% if @experiment_options %>
 		<%= render :partial => 'viewer_form', :locals => {:experiment_options => @experiment_options, :assembly => @assembly, :type_term_id => @type_term_id} %>
 	<% end %>
 	</div>
-	<div id='advanced_viewer_form' style='display:none'>
-	  Select experiments for ratio or: <%= link_to "Build Matrix",'#',:onclick => "$('advanced_viewer_form').toggle();$('viewer_form').toggle()" %>
+	<div id='advanced_viewer' style="<%= params[:fmt]!='advanced_viewer' ? 'display:none' : '' %>" class='select_form'>
 	  <% if @experiment_options %>
 	  <%= render :partial => 'advanced_viewer_form', :locals => {:experiment_options => @experiment_options, :assembly => @assembly, :type_term_id => @type_term_id} %>
 	  <% end %>
 	</div>
+	
 </div>

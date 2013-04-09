@@ -314,7 +314,6 @@ class Seqfeature < ActiveRecord::Base
       #features = features.limit(500)
       features << opts[:feature] if opts[:feature]
     end
-    logger.info "\n\n#{(features.size)}\nx:#{x}\n"
     features.each do |fea|
       data.push(
       [
@@ -365,6 +364,23 @@ class Seqfeature < ActiveRecord::Base
     b_clause = [:div, [:sum, *b_experiments.collect{|e| "exp_#{e.id}".to_sym}], "#{b_experiments.length}"]
     # Run base search with additional options
     base_search(current_ability,assembly_id,type_term_id,opts) do |s|
+      # Minimum Count
+      if opts[:min_exp_value]
+        s.any_of do |any_a|
+          a_experiments.each do |exp|
+            any_a.dynamic(value_type) do
+              with("exp_#{exp.id}").greater_than opts[:min_exp_value]
+            end
+          end
+        end
+        s.any_of do |any_b|
+          b_experiments.each do |exp|
+            any_b.dynamic(value_type) do
+              with("exp_#{exp.id}").greater_than opts[:min_exp_value]
+            end
+          end
+        end
+      end
       # Sorting
       case sort_column
       # dynamic 'exp_X' attribute
@@ -674,6 +690,10 @@ class Seqfeature < ActiveRecord::Base
     s.dynamic_float :counts, :stored => true do
       feature_counts.inject({}){|h,x| h["exp_#{x.experiment_id}"]=x.count;h}
     end
+    # TODO: Add acts_as_taggable indexed tags for better search/filtering of [Transcription Factor] tag
+    # # dynamic tags
+    # s.dynamic_boolean :tags do
+    # end
     # dynamic blast reports
     s.dynamic_string :blast_acc, :stored => true do
       blast_reports.inject({}){|hash,report| hash["blast_#{report.blast_run_id}"]=report.hit_acc;hash}
