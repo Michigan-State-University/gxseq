@@ -95,7 +95,7 @@ class Blast < Thor
         if(options[:use_search_index])
           # Use the sunspot index to save time
           # This is not default in case the index is unavailable
-          search = Seqfeature.search do
+          search = Bio::Feature::Seqfeature.search do
             with :locus_tag, locus
             with :assembly_id, options[:assembly_id]
             with :type_term_id, type_term_id
@@ -113,7 +113,7 @@ class Blast < Thor
           end
         else
           # Use the database if sunspot is not available
-          features = Seqfeature.with_locus_tag(locus)
+          features = Bio::Feature::Seqfeature.with_locus_tag(locus)
             .includes(:bioentry)
             .where{bioentry.assembly_id == my{options[:assembly_id]}}
             .where{seqfeature.type_term_id==my{type_term.id}}
@@ -171,7 +171,7 @@ class Blast < Thor
       reindex = 'yes'
     end
     if reindex =='yes'
-      Seqfeature.reindex_all_by_id(seqfeature_ids)
+      Bio::Feature::Seqfeature.reindex_all_by_id(seqfeature_ids)
     end
   end
   

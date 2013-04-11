@@ -34,7 +34,7 @@ class ReadsController < ApplicationController
         exp = Experiment.find(param['experiment'])
         render :text => exp.max(exp.get_chrom(param['bioentry'])).to_s
       when 'range'
-        bioentry = Bioentry.find(param['bioentry'])
+        bioentry = Bio::Bioentry.find(param['bioentry'])
         experiment = Experiment.find(param['experiment'])
         authorize! :track_data, experiment
         c_item = experiment.concordance_items.with_bioentry(bioentry)[0]
@@ -46,7 +46,7 @@ class ReadsController < ApplicationController
           data = data.fill{|i| [param['left']+(i*param['bases']),data[i].to_i]}
           render :text =>"{\"success\":true,\"data\":#{data.inspect}}"
       when 'reads'
-        bioentry = Bioentry.find(param['bioentry'])
+        bioentry = Bio::Bioentry.find(param['bioentry'])
         experiment = Experiment.find(param['experiment'])
         authorize! :track_data, experiment
         c_item = experiment.concordance_items.with_bioentry(bioentry)[0]
@@ -57,7 +57,7 @@ class ReadsController < ApplicationController
          reads_text = experiment.get_reads_text(param['left'],param['right'],c_item.reference_name,{:include_seq => true, :read_limit => param['read_limit']})
          render :text => "{\"success\":true,\"data\":{#{"\"notice\": \"#{reads_text[2]} of #{reads_text[1]} reads\","}\"reads\":["+reads_text[0]+"]}}"
       when 'describe'
-        bioentry_id = Bioentry.find(param['bioentry'])
+        bioentry_id = Bio::Bioentry.find(param['bioentry'])
         experiment = Experiment.find(param['experiment'])
         authorize! :track_data, experiment
         pos = param['pos']

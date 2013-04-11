@@ -77,7 +77,7 @@ class Variant < Experiment
   # 
   def get_sequence(start,stop,bioentry_id,sample=nil,opts={})
     color_html = opts[:html]
-    bioentry = Bioentry.find_by_bioentry_id(bioentry_id)
+    bioentry = Bio::Bioentry.find_by_bioentry_id(bioentry_id)
     return false unless bioentry
     #check boundaries
     start = 0 unless start >=0

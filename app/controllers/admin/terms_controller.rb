@@ -4,8 +4,8 @@ class Admin::TermsController < ApplicationController
 
   # GET /admin::_terms
   def index
-    @terms = Term.scoped
-    @ontologies = Ontology.all
+    @terms = Bio::Term.scoped
+    @ontologies = Bio::Ontology.all
     unless params[:ontology_id].blank?
       @terms = @terms.where{ontology_id == my{params[:ontology_id]}}
     end
@@ -30,7 +30,7 @@ class Admin::TermsController < ApplicationController
 
   # GET /admin::_terms/new
   def new
-    @term = Term.new
+    @term = Bio::Term.new
   # new.html.erb
   end
 
@@ -40,7 +40,7 @@ class Admin::TermsController < ApplicationController
 
   # POST /admin::_terms
   def create
-    @term = Term.new(params[:term])
+    @term = Bio::Term.new(params[:term])
 
     respond_to do |wants|
       if @term.save
@@ -75,7 +75,7 @@ class Admin::TermsController < ApplicationController
 
   private
     def find_term
-      @term = Term.find(params[:id])
+      @term = Bio::Term.find(params[:id])
     end
 
 end

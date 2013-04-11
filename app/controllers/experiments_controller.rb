@@ -21,7 +21,7 @@ class ExperimentsController < ApplicationController
   # 
   # def new
   #   @experiment = Experiment.new()
-  #   @bioentries = Bioentry.find(:all, :order => "name asc")
+  #   @bioentries = Bio::Bioentry.find(:all, :order => "name asc")
   # end
   # 
   # def create
@@ -30,7 +30,7 @@ class ExperimentsController < ApplicationController
   #      @experiment.save
   #      redirect_to @experiment
   #   else
-  #      @bioentries = Bioentry.all
+  #      @bioentries = Bio::Bioentry.all
   #      render :action => :new
   #   end
   # end
@@ -41,7 +41,7 @@ class ExperimentsController < ApplicationController
   # 
   # def edit
   #   @experiment = Experiment.find(params[:id])
-  #   @bioentries = Bioentry.all
+  #   @bioentries = Bio::Bioentry.all
   # end
   # 
   # def update

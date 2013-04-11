@@ -13,7 +13,7 @@ class GenericFeatureController < ApplicationController
          param = jrws['param']
          case jrws['method']
             when 'select' 
-              seqfeature_keys = Term.annotation_tags.collect {|x| x.name }
+              seqfeature_keys = Bio::Term.annotation_tags.collect {|x| x.name }
               render :json  => {
                :success  => true,
                :data  => seqfeature_keys            
@@ -44,9 +44,9 @@ class GenericFeatureController < ApplicationController
                }
             when 'describe'
               begin
-                @seqfeature = Seqfeature.find(param['id'])
+                @seqfeature = Bio::Feature::Seqfeature.find(param['id'])
                 authorize! :read, @seqfeature
-                @ontologies = Term.annotation_ontologies
+                @ontologies = Bio::Term.annotation_ontologies
                 render :partial => "seqfeatures/info.json"
               rescue
                 render :json => {
@@ -56,9 +56,9 @@ class GenericFeatureController < ApplicationController
               end
             when 'range'
               #Needs refactoring - some data being sent is redundant/unused
-                bioentry = Bioentry.find(param['bioentry'])
+                bioentry = Bio::Bioentry.find(param['bioentry'])
                 authorize! :read, bioentry
-                my_data = Seqfeature.get_track_data(param['left'],param['right'],param['bioentry']) 
+                my_data = Bio::Feature::Seqfeature.get_track_data(param['left'],param['right'],param['bioentry']) 
             render :json => {
               :success => true,
               :data => my_data
@@ -67,10 +67,13 @@ class GenericFeatureController < ApplicationController
       else
          if(params[:annoj_action] == 'lookup')
              show = ["product"]
-             bioentry = Bioentry.find(params['bioentry'])
+             bioentry = Bio::Bioentry.find(params['bioentry'])
              authorize! :read, bioentry
              bioentry_ids = bioentry.assembly.bioentries.map(&:id)
-             features = Seqfeature.joins{qualifiers.term}.includes( [:locations, [:qualifiers => [:term]]]).order("term.name").where{qualifiers.term.name != 'translation'}.where("UPPER(value) like '%#{params[:query].upcase}%' AND bioentry_id in (#{bioentry_ids.join(',')})")
+             features = Bio::Feature::Seqfeature.joins{qualifiers.term}
+              .includes( [:locations, [:qualifiers => [:term]]])
+              .order("term.name").where{qualifiers.term.name != 'translation'}
+              .where("UPPER(value) like '%#{params[:query].upcase}%' AND bioentry_id in (#{bioentry_ids.join(',')})")
 
              data = []
              features[params[:start].to_i,params[:limit].to_i].each do |feature|

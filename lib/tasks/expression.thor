@@ -117,7 +117,7 @@ class Expression < Thor
           batch_hsh[concordance_hash[item[0]]]=item
         end
         # Grab all of the matching features
-        features = Seqfeature.find_all_with_locus_tags(batch_ids)
+        features = Bio::Feature::Seqfeature.find_all_with_locus_tags(batch_ids)
           .includes(:bioentry,:qualifiers => [:term])
           .where{bioentry.assembly_id == my{experiment.assembly_id}}
           .where{display_name == my{options[:feature]}}
@@ -169,7 +169,7 @@ class Expression < Thor
       reindex = options[:no_index] ? 'no' : 'yes'
     end
     if reindex =='yes'
-      Seqfeature.reindex_all_by_id(seqfeature_ids)
+      Bio::Feature::Seqfeature.reindex_all_by_id(seqfeature_ids)
     end
     puts "..Done"
   end#End load method

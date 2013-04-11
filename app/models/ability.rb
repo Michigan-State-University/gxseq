@@ -21,7 +21,7 @@ class Ability
   # returns an array of seqfeature id ranges accessible by this user
   # used to send authorized ids in index queries
   def authorized_seqfeature_ids
-    @@seqfeature_auth_ids[@stored_user_id]||=Seqfeature.accessible_by(self).select_ranges
+    @@seqfeature_auth_ids[@stored_user_id]||=Bio::Feature::Seqfeature.accessible_by(self).select_ranges
   end
   # returns an array of gene model id ranges accessible by this user
   def authorized_gene_model_ids
@@ -29,7 +29,7 @@ class Ability
   end
   # returns an array of bioentry id ranges accessible by this user
   def authorized_bioentry_ids
-    @@bioentry_auth_ids[@stored_user_id]||=Bioentry.accessible_by(self).select_ranges
+    @@bioentry_auth_ids[@stored_user_id]||=Bio::Bioentry.accessible_by(self).select_ranges
   end
   # returns the user_id for this ability so we can reference it in controller
   def user_id
@@ -67,18 +67,18 @@ class Ability
       #need to get more information about users managing groups
       #can :create, Group
       #Taxon
-      can :read, Taxon, :species_assemblies => {:group => {:users => {:id => user.id}}}
-      can :read, Taxon, :species_assemblies => {:experiments => {:group => {:id => user.group_ids}}}
+      can :read, Bio::Taxon, :species_assemblies => {:group => {:users => {:id => user.id}}}
+      can :read, Bio::Taxon, :species_assemblies => {:experiments => {:group => {:id => user.group_ids}}}
       #Assemblies
       can :read, Assembly, :group => {:users => {:id => user.id}}
       can :read, Assembly, :experiments => {:group => {:id => user.group_ids}}
       #Sequence
-      can :read, Bioentry, :assembly => {:group => {:users => {:id => user.id}}}
-      can :read, Bioentry, :assembly => {:experiments => {:group => {:id => user.group_ids}}}
+      can :read, Bio::Bioentry, :assembly => {:group => {:users => {:id => user.id}}}
+      can :read, Bio::Bioentry, :assembly => {:experiments => {:group => {:id => user.group_ids}}}
       #Features
-      can [:read,:update, :toggle_favorite, :feature_counts], Seqfeature, :bioentry => {:assembly => {:group => {:users => {:id => user.id}}}}
-      can [:read,:update, :toggle_favorite, :feature_counts], Seqfeature, :bioentry => {:assembly => {:experiments => {:group => {:id => user.group_ids}}}}
-      can :create, Seqfeature
+      can [:read,:update, :toggle_favorite, :feature_counts], Bio::Feature::Seqfeature, :bioentry => {:assembly => {:group => {:users => {:id => user.id}}}}
+      can [:read,:update, :toggle_favorite, :feature_counts], Bio::Feature::Seqfeature, :bioentry => {:assembly => {:experiments => {:group => {:id => user.group_ids}}}}
+      can :create, Bio::Feature::Seqfeature
       #GeneModels
       can [:read,:update], GeneModel, :bioentry => {:assembly => {:group => {:users => {:id => user.id}}}}
       can [:read,:update], GeneModel, :bioentry => {:assembly => {:experiments => {:group => {:id => user.group_ids}}}}
@@ -118,14 +118,14 @@ class Ability
       can :read, User, :id => user.id
       can :update, User, :id => user.id
       can :read, Group, :users => {:id => user.id}
-      can :read, Taxon, :species_assemblies => {:group => {:users => {:id => user.id}}}
-      can :read, Taxon, :species_assemblies => {:experiments => {:group => {:id => user.group_ids}}}
+      can :read, Bio::Taxon, :species_assemblies => {:group => {:users => {:id => user.id}}}
+      can :read, Bio::Taxon, :species_assemblies => {:experiments => {:group => {:id => user.group_ids}}}
       can :read, Assembly, :group => {:users => {:id => user.id}}
       can :read, Assembly, :experiments => {:group => {:id => user.group_ids}}
-      can :read, Bioentry, :assembly => {:group => {:users => {:id => user.id}}}
-      can :read, Bioentry, :assembly => {:experiments => {:group => {:id => user.group_ids}}}
-      can [:read, :toggle_favorite], Seqfeature, :bioentry => {:assembly => {:group => {:users => {:id => user.id}}}}
-      can [:read, :toggle_favorite], Seqfeature, :bioentry => {:assembly => {:experiments => {:group => {:id => user.group_ids}}}}
+      can :read, Bio::Bioentry, :assembly => {:group => {:users => {:id => user.id}}}
+      can :read, Bio::Bioentry, :assembly => {:experiments => {:group => {:id => user.group_ids}}}
+      can [:read, :toggle_favorite], Bio::Feature::Seqfeature, :bioentry => {:assembly => {:group => {:users => {:id => user.id}}}}
+      can [:read, :toggle_favorite], Bio::Feature::Seqfeature, :bioentry => {:assembly => {:experiments => {:group => {:id => user.group_ids}}}}
       can [:read,], GeneModel, :bioentry => {:assembly => {:group => {:users => {:id => user.id}}}}
       can [:read,], GeneModel, :bioentry => {:assembly => {:experiments => {:group => {:id => user.group_ids}}}}
       can :read, Experiment, :group => {:users => {:id => user.id}}
@@ -140,10 +140,10 @@ class Ability
     else
       can :read, User, :id => user.id
       can :read, Group, :name => 'public'
-      can :read, Taxon, :species_assemblies => {:group => {:name => 'public'}}
+      can :read, Bio::Taxon, :species_assemblies => {:group => {:name => 'public'}}
       can :read, Assembly, :group => {:name => 'public'}
-      can :read, Bioentry, :assembly => {:group => {:name => 'public'}}
-      can :read, Seqfeature, :bioentry => {:assembly => {:group => {:name => 'public'}}}
+      can :read, Bio::Bioentry, :assembly => {:group => {:name => 'public'}}
+      can :read, Bio::Feature::Seqfeature, :bioentry => {:assembly => {:group => {:name => 'public'}}}
       can :read, GeneModel, :bioentry => {:assembly => {:group => {:name => 'public'}}}
       can :read, Experiment, :group => {:name => 'public'}
       can :track_data, Experiment, :group => {:name => 'public'}

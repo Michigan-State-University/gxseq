@@ -4,7 +4,7 @@ class Admin::OntologiesController < ApplicationController
 
   # GET /ontologies
   def index
-    @ontologies = Ontology.scoped
+    @ontologies = Bio::Ontology.scoped
     unless params[:query].blank?
       @ontologies = @ontologies.where{(upper(name)=~my{"%#{params[:query].upcase}%"})|(upper(definition)=~my{"%#{params[:query].upcase}%"})}
     end
@@ -18,7 +18,7 @@ class Admin::OntologiesController < ApplicationController
 
   # GET /ontologies/new
   def new
-    @ontology = Ontology.new
+    @ontology = Bio::Ontology.new
   # new.html.erb
   end
 
@@ -28,7 +28,7 @@ class Admin::OntologiesController < ApplicationController
 
   # POST /ontologies
   def create
-    @ontology = Ontology.new(params[:ontology])
+    @ontology = Bio::Ontology.new(params[:ontology])
 
     respond_to do |wants|
       if @ontology.save
@@ -66,7 +66,7 @@ class Admin::OntologiesController < ApplicationController
 
   private
     def find_ontology
-      @ontology = Ontology.find(params[:id])
+      @ontology = Bio::Ontology.find(params[:id])
     end
 
 end

@@ -24,7 +24,7 @@ class Annotation < Thor
       puts "Blast Run '#{options[:blast_run]}' not found. Try: thor blast:list_runs for help"
       exit 0
     end
-    ontology = Ontology.find_by_name(options[:ontology]) || Ontology.find_by_ontology_id(options[:ontology])
+    ontology = Bio::Ontology.find_by_name(options[:ontology]) || Bio::Ontology.find_by_ontology_id(options[:ontology])
     unless ontology
       puts "Ontology '#{options[:ontology]}' not found."
       exit 0
@@ -63,7 +63,7 @@ class Annotation < Thor
     features = []
     # Wrap in a transaction to avoid partial load
     begin
-    Seqfeature.transaction do
+    Bio::Feature::Seqfeature.transaction do
       # First get the new term
       puts "Find or Create - #{ontology.name} :: #{options[:new_annotation]}"
       new_term = Term.find_or_create_by_name_and_ontology_id(options[:new_annotation],ontology.id)
@@ -71,7 +71,7 @@ class Annotation < Thor
       progress_bar = ProgressBar.new(items.length)
       items.each do |key,values|
         # grab Seqfeatures using seqfeature ids from reports with this key
-        features = Seqfeature.where{seqfeature_id.in(BlastReport.select('seqfeature_id').where{hit_acc==my{key}}.where{blast_run_id==my{blast_run.id}})}
+        features = Bio::Feature::Seqfeature.where{seqfeature_id.in(BlastReport.select('seqfeature_id').where{hit_acc==my{key}}.where{blast_run_id==my{blast_run.id}})}
         features.each do |feature|
           if(options[:feature_type]&&feature.display_name!=options[:feature_type])
             next
@@ -83,7 +83,7 @@ class Annotation < Thor
               puts "Adding #{new_term.name} - feature id: #{feature.id}, type: #{feature.display_name}, value: #{value}"
             end
             # We cannot use the fast_insert method because of composite keys and active_record is quite slow so we insert by hand
-            Seqfeature.connection.execute("INSERT INTO SEQFEATURE_QUALIFIER_VALUE (seqfeature_id,term_id,value,rank)
+            Bio::Feature::Seqfeature.connection.execute("INSERT INTO SEQFEATURE_QUALIFIER_VALUE (seqfeature_id,term_id,value,rank)
             VALUES(#{feature.id},#{new_term.id},'#{value}',#{idx+1})")
           end
         end

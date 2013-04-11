@@ -9,7 +9,7 @@ group :production do
   gem 'newrelic_rpm'
 end
 # Development testing and update gems
-group :development, :test do
+group :development do
   gem 'activerecord-oracle_enhanced-adapter'
   gem 'ruby-oci8'
   gem 'mysql2', '~> 0.2.0'
@@ -29,8 +29,9 @@ group :development, :test do
   gem 'guard'
   gem 'rb-fsevent', :require => false
   gem 'guard-livereload'
-  # Testing
   gem 'cucumber'
+end
+group :test do
   gem 'cucumber-rails'
   gem 'database_cleaner'
   gem 'factory_girl'

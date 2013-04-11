@@ -3,7 +3,7 @@ class LocationsController < ApplicationController
 
   # GET /locations
   def index
-    @locations = Location.all
+    @locations = Bio::Location.all
     redirect_to root_path
   # index.html.erb
   end
@@ -15,7 +15,7 @@ class LocationsController < ApplicationController
 
   # GET /locations/new
   def new
-    @location = Location.new
+    @location = Bio::Location.new
   # new.html.erb
   end
 
@@ -25,7 +25,7 @@ class LocationsController < ApplicationController
 
   # POST /locations
   def create
-    @location = Location.new(params[:location])
+    @location = Bio::Location.new(params[:location])
 
     respond_to do |wants|
       if @location.save
@@ -60,7 +60,7 @@ class LocationsController < ApplicationController
 
   private
     def find_location
-      @location = Location.find(params[:id])
+      @location = Bio::Location.find(params[:id])
     end
 
 end

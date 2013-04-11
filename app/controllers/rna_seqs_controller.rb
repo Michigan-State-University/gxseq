@@ -41,7 +41,7 @@ class RnaSeqsController < ApplicationController
   def show
     #TODO: consolidate the entry_id/bioentry_id parameter
     entry_id = params[:entry_id] || params[:bioentry_id]
-    @bioentry = Bioentry.find(entry_id || @rna_seq.assembly.bioentries.first.id)
+    @bioentry = Bio::Bioentry.find(entry_id || @rna_seq.assembly.bioentries.first.id)
     respond_to do |format|
       format.html {}
       format.xml { render :layout => false }

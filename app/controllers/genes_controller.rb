@@ -73,11 +73,11 @@ class GenesController < ApplicationController
   end
   
   def create
-    authorize! :create, Gene.new
+    authorize! :create, Bio::Feature::Gene.new
     begin
-      @taxons = Bioentry.all_taxon
+      @taxons = Bio::Bioentry.all_taxon
       @assemblies = Assembly.accessible_by(current_ability).order(:name)
-      @gene = Gene.new(params[:gene])
+      @gene = Bio::Feature::Gene.new(params[:gene])
       
       @bioentry = @gene.bioentry
       @assembly = @gene.bioentry.assembly
@@ -86,7 +86,7 @@ class GenesController < ApplicationController
       seq_src_ont_id = Term.seq_src_ont_id
       @seq_src_term_id = Term.default_source_term.id
       if(@gene.valid?)
-        Gene.transaction do
+        Bio::Feature::Gene.transaction do
           @gene.save
           redirect_to [:edit,@gene], :notice => "Gene Created Successfully"
         end
@@ -116,7 +116,7 @@ class GenesController < ApplicationController
       #Note: Find related features (by locus tag until we have a parent<->child relationship)
       @features = @gene.find_related_by_locus_tag
     when 'history'
-      @changelogs = Version.order('id desc').where(:parent_id => @gene.id).where(:parent_type => 'Gene')
+      @changelogs = Version.order('id desc').where(:parent_id => @gene.id).where(:parent_type => 'Bio::Feature::Gene')
     when 'expression'
       @feature_counts = @gene.feature_counts.accessible_by(current_ability)
       #@d3_data = FeatureCount.create_graph_data(@feature_counts,{:type => 'json-rpkm'})
@@ -142,7 +142,7 @@ class GenesController < ApplicationController
   def update
     authorize! :update, @gene
     begin
-      Gene.transaction do
+      Bio::Feature::Gene.transaction do
         if(@gene.update_attributes(params[:gene]))
           redirect_to [:edit,@gene], :notice => "Gene Updated successfully"
         else
@@ -171,12 +171,12 @@ class GenesController < ApplicationController
     begin
       params[:assembly_id]||=params[:genes][:assembly_id] rescue nil
       params[:bioentry_id]||=params[:genes][:bioentry_id] rescue nil
-      @gene = Gene.new
+      @gene = Bio::Feature::Gene.new
     if(params[:assembly_id] && @assembly = Assembly.accessible_by(current_ability).find(params[:assembly_id]))
       @bioentries = @assembly.bioentries
       params[:bioentry_id]=@bioentries.first.id if @bioentries.count ==1
-      if(params[:bioentry_id] && @bioentry = Bioentry.accessible_by(current_ability).find(params[:bioentry_id]))
-        @gene = Gene.new(:bioentry_id => @bioentry.id)
+      if(params[:bioentry_id] && @bioentry = Bio::Bioentry.accessible_by(current_ability).find(params[:bioentry_id]))
+        @gene = Bio::Feature::Gene.new(:bioentry_id => @bioentry.id)
         # add the first blank gene model.
         @gene.gene_models.build
         # Add the locus_tag qualifier. This is required for all genes
@@ -197,9 +197,9 @@ class GenesController < ApplicationController
   
   def lookup_gene
     # See if we have a locus or id
-    gene_id = Gene.with_locus_tag(params[:id]).first.try(:id) || params[:id]
+    gene_id = Bio::Feature::Gene.with_locus_tag(params[:id]).first.try(:id) || params[:id]
     # Lookup gene by id
-    @gene = Gene.where(:seqfeature_id => gene_id).includes(
+    @gene = Bio::Feature::Gene.where(:seqfeature_id => gene_id).includes(
       [ 
         :locations,
         [:qualifiers => :term],
@@ -207,13 +207,13 @@ class GenesController < ApplicationController
         [:gene_models => [:cds => [:locations, [:qualifiers => :term]],:mrna => [:locations, [:qualifiers => :term]]]],
       ]).first
     # Lookup all genes with the same locus tag for warning display
-    @genes = Gene.with_locus_tag( @gene.locus_tag.value)
+    @genes = Bio::Feature::Gene.with_locus_tag( @gene.locus_tag.value)
   end
   
   def get_gene_data
     begin
       #get gene and attributes
-      @gene = Gene.find(params[:id], :include => [:locations, [:bioentry => [:assembly]],[:gene_models => [:cds => [:locations, [:qualifiers => :term]],:mrna => [:locations, [:qualifiers => :term]]]],[:qualifiers => :term]])
+      @gene = Bio::Feature::Gene.find(params[:id], :include => [:locations, [:bioentry => [:assembly]],[:gene_models => [:cds => [:locations, [:qualifiers => :term]],:mrna => [:locations, [:qualifiers => :term]]]],[:qualifiers => :term]])
       setup_graphics_data      
       @locus = @gene.locus_tag.value.upcase
       @bioentry = @gene.bioentry

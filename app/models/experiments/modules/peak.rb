@@ -12,7 +12,7 @@ class Peak < ActiveRecord::Base
       }
   # TODO: too slow for hundreds of peaks convert to a single statement. Maybe a scope on gene? --with_experiment_peaks
   def nearest_genes
-    Gene.joins{
+    Bio::Feature::Gene.joins{
         [locations, qualifiers.term]
       }.where{
         (bioentry_id == my{bioentry_id}) &
