@@ -1,2 +1,0 @@
-class MatPeptide < Seqfeature  
-end

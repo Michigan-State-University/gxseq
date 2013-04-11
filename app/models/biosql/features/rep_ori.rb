@@ -1,2 +1,0 @@
-class RepOri < Seqfeature  
-end

@@ -1,1 +1,0 @@
-class Gap < Seqfeature; end;

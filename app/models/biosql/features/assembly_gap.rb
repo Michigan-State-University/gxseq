@@ -1,1 +1,0 @@
-class AssemblyGap < Seqfeature; end;
