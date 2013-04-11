@@ -27,7 +27,7 @@ class Assembly < ActiveRecord::Base
   
   # returns true if any bioentry -> seqfeature has feature_counts
   def has_expression?
-    bioentries.joins{seqfeatures.feature_counts}.count('feature_counts.count') > 0
+    !bioentries.joins{seqfeatures.feature_counts}.except(:order).first.nil?
   end
   # returns name and version - use for display
   def name_with_version

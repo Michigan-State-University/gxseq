@@ -703,6 +703,7 @@ class Seqfeature < ActiveRecord::Base
     end
     # Fake dynamic blast text - defined for 'every' blast_run on 'every' seqfeature
     # TODO: find another way to allow scoped blast_def full text search without searching all of the definitions
+    begin
     BlastRun.all.each do |blast_run|
       s.string "blast_#{blast_run.id}".to_sym do
         report = blast_reports.select{|b| b.blast_run_id == blast_run.id }.first
@@ -725,6 +726,9 @@ class Seqfeature < ActiveRecord::Base
           a.empty? ? nil : a
         end
       end
+    end
+    rescue
+      puts "Could not define dynamic text in Seqfeature searchable definition. BlastRun and/or Term missing"
     end
   end
 end

@@ -1,8 +1,8 @@
 # Load settings.yml into APP_CONFIG constant
 begin
-  APP_CONFIG = YAML.load_file("#{::Rails.root.to_s}/config/settings.yml")[::Rails.env].symbolize_keys
-rescue
- puts "Error reading settings file.\nCheck config/settings.yml.sample for more information"
+  APP_CONFIG = YAML.load_file("#{File.expand_path File.dirname(__FILE__)}/../settings.yml")[::Rails.env].symbolize_keys
+rescue => e
+ puts "Error reading settings file.\nCheck config/settings.yml.sample for more information \n\t**#{e}\n\n"
 end
 
 # Set default accession_link for bioentries

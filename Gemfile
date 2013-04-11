@@ -10,11 +10,14 @@ group :production do
 end
 # Development testing and update gems
 group :development, :test do
+  gem 'activerecord-oracle_enhanced-adapter'
   gem 'ruby-oci8'
   gem 'mysql2', '~> 0.2.0'
   gem 'railroady'
   gem 'ruby-debug19'
   gem 'annotate', ">=2.5.0.pre1"
+  gem 'better_errors'
+  gem 'binding_of_caller'
   # Code analyzers and security
   gem 'reek'
   gem 'rails_best_practices'
@@ -26,7 +29,14 @@ group :development, :test do
   gem 'guard'
   gem 'rb-fsevent', :require => false
   gem 'guard-livereload'
+  # Testing
+  gem 'cucumber'
+  gem 'cucumber-rails'
+  gem 'database_cleaner'
+  gem 'factory_girl'
+  gem 'simplecov'
 end
+
 # All the rest
 gem 'acts_as_api', '~>0.3'
 gem 'xmlparser'

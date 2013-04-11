@@ -1,7 +1,7 @@
 class Ability
 
   include CanCan::Ability
-  
+  #include Term::Ability
   # This caching method is added to avoid long running queries.
   # id ranges are computed and passed to sunspot during text searches
   # the results are stored in class variables for future use.

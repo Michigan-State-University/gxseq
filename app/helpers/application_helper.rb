@@ -16,7 +16,7 @@ module ApplicationHelper
   def application_top_navbar_items
     content_tag( :ul, :id => "top-navigation") do
       top_navbar_items.collect{ |k,v|
-        content_tag :li, link_to(k.to_s.capitalize,v[0], :class => ('active' if v[1].include?(params[:controller].to_sym)) ),
+        content_tag :li, link_to(k.to_s.capitalize,v[0], :class => ('active' if v[1].include?(params[:controller].to_sym)) )
       }.join.html_safe +
       ((current_user && current_user.is_admin?) ? content_tag(:li, link_to("Admin", admin_root_path, :class => ('active' if params[:controller]=~/^admin/))) : '')
     end
