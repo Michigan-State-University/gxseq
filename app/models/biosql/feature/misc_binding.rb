@@ -1,4 +1,4 @@
-class Bio::Feature::MiscBinding < Bio::Feature::Seqfeature  
+class Biosql::Feature::MiscBinding < Biosql::Feature::Seqfeature  
 end
 # == Schema Information
 #

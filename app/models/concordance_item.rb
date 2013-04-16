@@ -1,6 +1,6 @@
 class ConcordanceItem < ActiveRecord::Base
   belongs_to :concordance_set
-  belongs_to :bioentry, :class_name => "Bio::Bioentry"
+  belongs_to :bioentry, :class_name => "Biosql::Bioentry"
   validates_presence_of :reference_name
   validates_presence_of :bioentry
   

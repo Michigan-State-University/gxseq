@@ -2,7 +2,7 @@ class GcFile < SequenceFile
   def open_bw
     begin
       @err = nil
-      @bw ||=Bio::Ucsc::BigWig.open(data.path)
+      @bw ||=Biosql::Ucsc::BigWig.open(data.path)
     rescue => e
       @err = e
       # in case file doesn't exist or is bad format

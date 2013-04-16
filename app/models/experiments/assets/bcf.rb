@@ -7,7 +7,7 @@ class Bcf < Asset
   end
   
   def open_bcf
-    return Bio::DB::SAM::Bcf.new(data.path)
+    return Biosql::DB::SAM::Bcf.new(data.path)
   end
   
   def create_index
@@ -29,7 +29,7 @@ class Bcf < Asset
     # fetch function - expects pointers to Bcf1T and BcfHdrT
     # limits reads using a reservoir sampling algorithm
     fetch_function = lambda do |bcf_p, hdr_p|
-      b_struct = Bio::DB::SAM::Tools::Bcf::Bcf1T.new(bcf_p)
+      b_struct = Biosql::DB::SAM::Tools::Bcf::Bcf1T.new(bcf_p)
       # skip invalid variants
       if(b_struct[:n_gi] > 0)
         if(sample_idx)
@@ -60,7 +60,7 @@ class Bcf < Asset
       next if only_variants && b_struct[:alt] == b_struct[:ref] || b_struct[:alt] == '.'
       
       # store the variant(s)
-      v = Bio::DB::SAM::Variant.new(bcf_p,hdr_p)
+      v = Biosql::DB::SAM::Variant.new(bcf_p,hdr_p)
       # check gt info
       v1 = {}
       v1[:allele]=1

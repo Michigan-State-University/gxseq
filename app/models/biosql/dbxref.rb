@@ -1,4 +1,4 @@
-class Bio::Dbxref < ActiveRecord::Base
+class Biosql::Dbxref < ActiveRecord::Base
   set_table_name "dbxref"
   set_primary_key :dbxref_id
   has_many :dbxref_qualifier_values, :class_name => "DbxrefQualifierValue"

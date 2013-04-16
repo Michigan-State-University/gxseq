@@ -60,7 +60,7 @@ module HasPeaks
       #format: [start,end,value,pos]
       puts "saving #{data.size} peaks"
       return false if !data.kind_of?(Array)
-      bc=Bio::Bioentry.find(bioentry_id).length
+      bc=Biosql::Bioentry.find(bioentry_id).length
       begin
         Experiment.transaction do
           data.each do |d|

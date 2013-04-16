@@ -1,4 +1,4 @@
-class Bio::Biodatabase < ActiveRecord::Base
+class Biosql::Biodatabase < ActiveRecord::Base
   set_table_name "biodatabase"
   set_primary_key :biodatabase_id
   has_and_belongs_to_many :taxons
@@ -34,7 +34,7 @@ class Bio::Biodatabase < ActiveRecord::Base
       Bioentry.solr_reindex(:batch_size => 50,:progress_bar => progress_bar)
       puts "Re-indexing features"
       progress_bar = ProgressBar.new(Seqfeature.count)
-      Bio::Feature::Seqfeature.solr_reindex(:batch_size => 50,:progress_bar => progress_bar)
+      Biosql::Feature::Seqfeature.solr_reindex(:batch_size => 50,:progress_bar => progress_bar)
       puts "Re-indexing gene_models"
       progress_bar = ProgressBar.new(GeneModel.count)
       GeneModel.solr_reindex(:batch_size => 50,:progress_bar => progress_bar)

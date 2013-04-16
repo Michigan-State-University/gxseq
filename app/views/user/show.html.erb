@@ -1,4 +1,4 @@
-<% content_for :head do %>
+<%= content_for :head do %>
   <%= render :partial => "common/extjs_css" %>
 <% end %>
 <% content_for :top_bar do -%>
@@ -13,9 +13,9 @@
   <%= render :partial => "my_stuff_links", :locals => {:active_link => params[:fmt], :user => @user} %>
 <% end -%>
 
-<% content_for :sidebar do -%>
+<%# content_for :sidebar do -%>
   <%#= render :partial => "home/sidebar", :active => 'account' %>
-<% end -%>
+<%# end -%>
 
 <!-- <p>
   <b>Role(s):</b>

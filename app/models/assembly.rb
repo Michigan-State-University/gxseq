@@ -1,5 +1,5 @@
 class Assembly < ActiveRecord::Base
-  has_many :bioentries, :order => "name asc", :dependent => :destroy
+  has_many :bioentries, :class_name => "Biosql::Bioentry", :order => "name asc", :dependent => :destroy
   has_many :experiments
   #TODO experiment STI - can this be dynamic?
   has_many :chip_chips, :order => "experiments.name asc"
@@ -18,8 +18,8 @@ class Assembly < ActiveRecord::Base
   # TODO: fix or remove protein sequence track
   #has_one :protein_sequence_track
   has_one :gc_file
-  belongs_to :taxon, :class_name => "Bio::Taxon"
-  belongs_to :species, :class_name => "Bio::Taxon", :foreign_key => :species_id
+  belongs_to :taxon, :class_name => "Biosql::Taxon"
+  belongs_to :species, :class_name => "Biosql::Taxon", :foreign_key => :species_id
   belongs_to :group
   validates_presence_of :taxon
   validates_presence_of :version
@@ -39,15 +39,15 @@ class Assembly < ActiveRecord::Base
   end
   # returns an array of all source terms used by features under this taxon
   def source_terms
-    Bio::Term.source_tags.where(:term_id => self.source_term_ids)
+    Biosql::Term.source_tags.where(:term_id => self.source_term_ids)
   end
   # returns the ids of all source_terms used by entries attached to this taxon
   def source_term_ids
-    Bio::Feature::Seqfeature.where(:bioentry_id => self.bioentry_ids).select('distinct source_term_id')
+    Biosql::Feature::Seqfeature.where(:bioentry_id => self.bioentry_ids).select('distinct source_term_id')
   end
   # returns the sum of bases for all bioentries
   def total_bases
-    Bio::Biosequence.where(:bioentry_id => self.bioentry_ids).sum(:length)
+    Biosql::Biosequence.where(:bioentry_id => self.bioentry_ids).sum(:length)
   end
   # Generates all denormalized data and indexes associations
   def sync
@@ -129,7 +129,7 @@ class Assembly < ActiveRecord::Base
   # indexes associated bioentries
   def index_bioentries
     bio_ids = bioentries.collect(&:id)
-    Bio::Bioentry.reindex_all_by_id(bio_ids)
+    Biosql::Bioentry.reindex_all_by_id(bio_ids)
   end
   # indexes associated genemodels
   def index_gene_models
@@ -139,13 +139,13 @@ class Assembly < ActiveRecord::Base
   # indexes seqfeatures for all bioentries
   # optionally accepts {:type => 'feature_type'} to scope indexing
   def index_features(opts={})
-    terms = Bio::Term.seqfeature_tags.select("term_id as type_term_id")
+    terms = Biosql::Term.seqfeature_tags.select("term_id as type_term_id")
     terms = terms.where{name==my{opts[:type]}} if opts[:type]
-    feature_ids = Bio::Feature::Seqfeature.where{bioentry_id.in(my{self.bioentry_ids})}.where{type_term_id.in(terms)}.select("seqfeature_id").collect(&:id)
-    Bio::Feature::Seqfeature.reindex_all_by_id(feature_ids)
+    feature_ids = Biosql::Feature::Seqfeature.where{bioentry_id.in(my{self.bioentry_ids})}.where{type_term_id.in(terms)}.select("seqfeature_id").collect(&:id)
+    Biosql::Feature::Seqfeature.reindex_all_by_id(feature_ids)
   end
 
   def bioentry_ids
-    Bio::Bioentry.select('bioentry_id').where{assembly_id == my{id}}
+    Biosql::Bioentry.select('bioentry_id').where{assembly_id == my{id}}
   end
 end

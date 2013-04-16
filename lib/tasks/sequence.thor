@@ -10,7 +10,7 @@ class Sequence < Thor
   method_option :division
   method_option :molecule_type
   method_option :renumber_contigs, :type => :string, :desc => "Renumber each contig with the supplied prefix. Outputs genome.concordance"
-  method_option :database, :default => 'Public', :desc  => "Name of Bio::Biodatabase to use. Not used by app"
+  method_option :database, :default => 'Public', :desc  => "Name of Biosql::Biodatabase to use. Not used by app"
   def load(input_file)
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     # setup
@@ -43,38 +43,38 @@ class Sequence < Thor
     task_start_time = Time.now
     # Parse input
     begin
-      data = Bio::FlatFile.open(input_file,"r")
+      data = Biosql::FlatFile.open(input_file,"r")
     rescue
       puts "*** Error parsing input *** \n#{$!}"
       exit 0
     end
     # Check file format
     supported_file_types= ['genbank','fasta']
-    file_type = data.dbclass.name.gsub(/Bio::/,'').downcase.gsub(/format/,'')
+    file_type = data.dbclass.name.gsub(/Biosql::/,'').downcase.gsub(/format/,'')
     unless(supported_file_types.include?(file_type))
       raise "Unsupported file type #{file_type}\nPlease provide a #{supported_file_types.to_sentence(:last_word_connector => ' or ', :two_words_connector => ' or ')}"
     end
     # Open the concordance if we need it
     concordance_file = File.open(input_file+'.concordance','w') if prefix
     # Setup namespace and source term
-    bio_db = Bio::Biodatabase.find_or_create_by_name(database)
-    seq_src_term = Term.find_or_create_by_name_and_ontology_id(source_name,Term.seq_src_ont_id)
+    bio_db = Biosql::Biodatabase.find_or_create_by_name(database)
+    seq_src_term = Biosql::Term.find_or_create_by_name_and_ontology_id(source_name,Term.seq_src_ont_id)
     # Turn off versioning before mass load. We don't store the creates from scripted loaders
     PaperTrail.enabled = false
     # Put this all in a transaction, just in case. We don't want partial bioentries
     begin
-      Bio::Biodatabase.transaction do
+      Biosql::Biodatabase.transaction do
         # Setup taxon version and taxon ids just once for a transcriptome to speed up the load -  allows only one species per load
         if(is_transcriptome)
           species_taxon, strain_taxon = get_entry_taxonomy(data.entries.first,{:strain => strain,:species_id => species_id,:strain_id => strain_id})
           assembly = Transcriptome.find_or_create_by_version_and_species_id_and_taxon_id(version,species_taxon.id,strain_taxon.id)
-          # link Bio::Biodatabase
+          # link Biosql::Biodatabase
           bio_db.taxons << species_taxon unless bio_db.taxons.include?(species_taxon)
         end
         # Setup the entry_feature term id once and grab the locus term id
         if(entry_feature)
-          entry_feature_type_term_id = Term.find_or_create_by_name_and_ontology_id(entry_feature,Term.seq_key_ont_id).id
-          locus_term_id = Term.find_or_create_by_name_and_ontology_id('locus_tag', Term.ano_tag_ont_id).id
+          entry_feature_type_term_id = Biosql::Term.find_or_create_by_name_and_ontology_id(entry_feature,Term.seq_key_ont_id).id
+          locus_term_id = Biosql::Term.find_or_create_by_name_and_ontology_id('locus_tag', Biosql::Term.ano_tag_ont_id).id
         end
         # Reset the IO stream
         data.rewind
@@ -114,7 +114,7 @@ class Sequence < Thor
             species_taxon, strain_taxon = get_entry_taxonomy(entry,{:strain => strain,:species_id => species_id,:strain_id => strain_id})
             # Get version
             assembly = Genome.find_or_create_by_version_and_species_id_and_taxon_id(version,species_taxon.id,strain_taxon.id)
-            # link Bio::Biodatabase
+            # link Biosql::Biodatabase
             bio_db.taxons << species_taxon unless bio_db.taxons.include?(species_taxon)
           end
 
@@ -163,11 +163,11 @@ class Sequence < Thor
           # Check for existing entry
           #testing for existence slows down transcriptome load
           #just allow it to die if Bioentry already exists
-          #unless(bioentry = Bio::Bioentry.find_by_assembly_id_and_biodatabase_id_and_accession_and_version(assembly.id,bio_db.id,entry_accession,entry_version))
+          #unless(bioentry = Biosql::Bioentry.find_by_assembly_id_and_biodatabase_id_and_accession_and_version(assembly.id,bio_db.id,entry_accession,entry_version))
             # bioentry
             # use fast_insert to skip model creation and validation and speed up load... at the cost of orm access
             #bioentry = bio_db.bioentries.new(
-            bioentry_id = Bio::Bioentry.fast_insert(
+            bioentry_id = Biosql::Bioentry.fast_insert(
             :assembly_id => assembly.id,
             :taxon_id  => assembly.taxon_id,
             :name => entry_accession,
@@ -180,8 +180,8 @@ class Sequence < Thor
             )
             # biosequence
             #  Biosequence fast insert fails with oracle. Probably composite primary key issues
-            #  bioseq = Bio::Biosequence.fast_insert(
-             Bio::Biosequence.create(
+            #  bioseq = Biosql::Biosequence.fast_insert(
+             Biosql::Biosequence.create(
               :version => entry_version,
               :length => entry_bioseq.length,
               :alphabet => alphabet,
@@ -191,14 +191,14 @@ class Sequence < Thor
             
             # New Entry Feature?
             if(entry_feature)
-              new_seqfeature_id=Bio::Feature::Seqfeature.fast_insert(
+              new_seqfeature_id=Biosql::Feature::Seqfeature.fast_insert(
                 :bioentry_id => bioentry_id,
                 :type_term_id => entry_feature_type_term_id,
                 :source_term_id => seq_src_term.id,
                 :rank => 1,
                 :display_name => entry_feature.downcase.camelize
               )
-              Bio::Location.fast_insert(
+              Biosql::Location.fast_insert(
                 :seqfeature_id => new_seqfeature_id,
                 :start_pos => 1,
                 :end_pos => entry_bioseq.length,
@@ -214,14 +214,14 @@ class Sequence < Thor
               comment_rank=0
               entry_bioseq.comments.each do |c|
                 comment_rank+=1
-                Bio::Comment.create(
+                Biosql::Comment.create(
                 :bioentry_id => bioentry_id,
                 :comment_text => c,
                 :rank  => comment_rank
                 )
               end
             elsif(entry_bioseq.comments.kind_of?(String) && !entry_bioseq.comments.empty?)
-              Bio::Comment.create(
+              Biosql::Comment.create(
               :bioentry_id => bioentry_id,
               :comment_text => entry_bioseq.comments,
               :rank => 0
@@ -230,13 +230,13 @@ class Sequence < Thor
             # bioentry dblinks
             b_dbx_rank = 1
             if(entry.gi && entry.gi.to_i > 0)
-              new_xref= Bio::Dbxref.create(
+              new_xref= Biosql::Dbxref.create(
               :dbname => "GI",
               :accession => entry.gi.gsub(/g|G|i|I\:/, "").to_i,
               :version => entry_version
               )
               #getting errors on first create attempt(from nil primary key?) so inserting manually
-              #be_xref = Bio::BioentryDbxref.create(:bioentry_id => bioentry.id, :dbxref_id => new_xref.id, :rank => b_dbx_rank) 
+              #be_xref = Biosql::BioentryDbxref.create(:bioentry_id => bioentry.id, :dbxref_id => new_xref.id, :rank => b_dbx_rank) 
               base.connection.execute("INSERT INTO bioentry_dbxref(bioentry_id,dbxref_id,rank) VALUES(#{bioentry_id},#{new_xref.id},#{b_dbx_rank})")        
               b_dbx_rank+=1
             end
@@ -248,11 +248,11 @@ class Sequence < Thor
                 ref_authors = reference.authors.map{|a|a.gsub(/(\,)(\s)(\w)/,'\1\3')}.to_sentence unless reference.authors.nil?
                 ref_location = "#{reference.journal ? reference.journal : 'Unpublished'}#{reference.volume.empty? ? '' : ' '+reference.volume}#{reference.issue.empty? ? '' : ' ('+reference.issue+'),'}#{reference.pages.empty? ? '' : ' '+reference.pages}#{reference.year.empty? ? '' : ' ('+reference.year+')'}"
                 ref_crc = Zlib::crc32("#{ref_authors ? ref_authors : '<undef>'}#{reference.title ? reference.title : '<undef>'}#{ref_location}")
-                unless (new_reference = Bio::Reference.find_by_crc(ref_crc))
+                unless (new_reference = Biosql::Reference.find_by_crc(ref_crc))
                   # create dbxref
                   new_dbxref_id = nil
                   unless(reference.pubmed.nil? || reference.pubmed.empty?)
-                    new_dbxref = Bio::Dbxref.create(
+                    new_dbxref = Biosql::Dbxref.create(
                     :dbname => "PUBMED",
                     :accession => reference.pubmed,
                     :version => 0  # NOTE: Not sure when to update reference version?
@@ -260,7 +260,7 @@ class Sequence < Thor
                     new_dbxref_id = new_dbxref.id
                   end
                   # create reference
-                  new_reference = Bio::Reference.create(
+                  new_reference = Biosql::Reference.create(
                   :dbxref_id => new_dbxref_id,
                   :location => ref_location,
                   :title => reference.title,
@@ -270,7 +270,7 @@ class Sequence < Thor
                 end
                 entry_reference_count +=1
                 # link reference to bioentry
-                Bio::BioentryReference.create(
+                Biosql::BioentryReference.create(
                 :bioentry_id => bioentry_id,
                 :reference_id => new_reference.id,
                 :start_pos => reference.sequence_position ? reference.sequence_position.split('-')[0] : 0,
@@ -284,8 +284,8 @@ class Sequence < Thor
               ## keywords
               rank = 1
               entry.keywords.each do |keyword|
-                key_term = Term.find_or_create_by_name_and_ontology_id("keyword", Term.ano_tag_ont_id)
-                Bio::BioentryQualifierValue.create(
+                key_term = Biosql::Term.find_or_create_by_name_and_ontology_id("keyword", Biosql::Term.ano_tag_ont_id)
+                Biosql::BioentryQualifierValue.create(
                 :bioentry_id => bioentry_id,
                 :term_id => key_term.id,
                 :value => keyword,
@@ -298,8 +298,8 @@ class Sequence < Thor
             if entry_bioseq.secondary_accessions
               rank = 1
               entry_bioseq.secondary_accessions.each do |accession|
-                acc_term = Term.find_or_create_by_name_and_ontology_id("secondary_accession", Term.ano_tag_ont_id)
-                Bio::BioentryQualifierValue.create(
+                acc_term = Biosql::Term.find_or_create_by_name_and_ontology_id("secondary_accession", Biosql::Term.ano_tag_ont_id)
+                Biosql::BioentryQualifierValue.create(
                 :bioentry_id => bioentry_id,
                 :term_id => acc_term.id,
                 :value => accession,
@@ -311,9 +311,9 @@ class Sequence < Thor
             if(entry.respond_to?(:date))
               ## date
               unless(entry.date.nil? || entry.date.empty?)
-                Bio::BioentryQualifierValue.create(
+                Biosql::BioentryQualifierValue.create(
                 :bioentry_id => bioentry_id,
-                :term_id => Term.find_or_create_by_name_and_ontology_id("date_modified", Term.ano_tag_ont_id).id,
+                :term_id => Biosql::Term.find_or_create_by_name_and_ontology_id("date_modified", Biosql::Term.ano_tag_ont_id).id,
                 :value => entry.date,
                 :rank => 1)
               end
@@ -328,14 +328,14 @@ class Sequence < Thor
                 feature=f.clone
                 feature_count+=1
                 # term
-                type_term_id=seq_key_terms["#{feature.feature}"] || (seq_key_terms["#{feature.feature}"] = Term.find_or_create_by_name_and_ontology_id(feature.feature,Term.seq_key_ont_id).id)      
+                type_term_id=seq_key_terms["#{feature.feature}"] || (seq_key_terms["#{feature.feature}"] = Biosql::Term.find_or_create_by_name_and_ontology_id(feature.feature,Term.seq_key_ont_id).id)      
                 feat_rank["#{feature.feature}"]||=0
                 feat_rank["#{feature.feature}"]+=1
                 # store the type name
                 type_name = feature.feature.downcase.camelize.gsub(/\W/,"").gsub(/_+/,"")
                 type_names.push(type_name).uniq!
                 # seqfeature
-                new_seqfeature_id=Bio::Feature::Seqfeature.fast_insert(
+                new_seqfeature_id=Biosql::Feature::Seqfeature.fast_insert(
                 :bioentry_id => bioentry_id,
                 :type_term_id => type_term_id,
                 :source_term_id => seq_src_term.id,
@@ -347,7 +347,7 @@ class Sequence < Thor
                 strand = (feature.position=~/complement/ ? -1 : 1)
                 rank = 1
                 feature.position.scan(/(\d+)\.\.(\d+)/){ |l1,l2|
-                  Bio::Location.fast_insert(
+                  Biosql::Location.fast_insert(
                   :seqfeature_id => new_seqfeature_id,
                   :start_pos => l1,
                   :end_pos => l2,
@@ -360,7 +360,7 @@ class Sequence < Thor
                 # qualifiers
                 qual_rank.clear
                 feature.qualifiers.each do |qualifier|
-                  qual_term_id = anno_tag_terms["#{qualifier.qualifier}"] || (anno_tag_terms["#{qualifier.qualifier}"] = Term.find_or_create_by_name_and_ontology_id(qualifier.qualifier, Term.ano_tag_ont_id).id)
+                  qual_term_id = anno_tag_terms["#{qualifier.qualifier}"] || (anno_tag_terms["#{qualifier.qualifier}"] = Biosql::Term.find_or_create_by_name_and_ontology_id(qualifier.qualifier, Biosql::Term.ano_tag_ont_id).id)
                   qual_rank["#{qualifier.qualifier}"]||=0
                   qual_rank["#{qualifier.qualifier}"]+=1
                   base.connection.execute("INSERT INTO SEQFEATURE_QUALIFIER_VALUE (seqfeature_id, term_id,value,rank)
@@ -446,7 +446,7 @@ class Sequence < Thor
     # Set output
     out = File.open(options[:output],'w')
     # Setup the search
-    search = Bio::Feature::Seqfeature.search do
+    search = Biosql::Feature::Seqfeature.search do
       with :display_name, options[:feature_type]
       with :assembly_id, assembly.id
       order_by :locus_tag
@@ -459,7 +459,7 @@ class Sequence < Thor
       puts "Dumping #{search.total} entries..."
     else
       puts "0 entries found for -f #{options[:feature_type]}"
-      search = Bio::Feature::Seqfeature.search do
+      search = Biosql::Feature::Seqfeature.search do
         with :assembly_id, assembly.id
         facet :display_name
       end
@@ -475,7 +475,7 @@ class Sequence < Thor
     cur_seq = nil
     seqh = {}
     # lookup/cache bioseq
-    Bio::Biosequence.where{bioentry_id.in search.hits.collect{|hit| hit.stored(:bioentry_id)}.flatten}.each do |bioseq|
+    Biosql::Biosequence.where{bioentry_id.in search.hits.collect{|hit| hit.stored(:bioentry_id)}.flatten}.each do |bioseq|
       seqh[bioseq.bioentry_id]=bioseq.seq
     end
     # write out initial data
@@ -491,14 +491,14 @@ class Sequence < Thor
     # Start main loop - Work in batches to avoid large memory use
     while(current_page < total_pages)
       current_page+=1
-      search = Bio::Feature::Seqfeature.search do
+      search = Biosql::Feature::Seqfeature.search do
         with :display_name, options[:feature_type]
         with :assembly_id, assembly.id
         order_by :locus_tag
         paginate(:page => current_page, :per_page => 500)
       end
       # lookup/cache bioseq
-      Bio::Biosequence.where{bioentry_id.in search.hits.collect{|hit| hit.stored(:bioentry_id)}.flatten}.each do |bioseq|
+      Biosql::Biosequence.where{bioentry_id.in search.hits.collect{|hit| hit.stored(:bioentry_id)}.flatten}.each do |bioseq|
         seqh[bioseq.bioentry_id]=bioseq.seq
       end
       search.hits.each do |hit|
@@ -531,7 +531,7 @@ class Sequence < Thor
         Object.const_get name
       rescue
         puts " -- #{name} not found"
-        puts "class Bio::Feature::#{name} < Bio::Feature::Seqfeature; end;"
+        puts "class Biosql::Feature::#{name} < Biosql::Feature::Seqfeature; end;"
       end
     end
   end
@@ -558,24 +558,24 @@ class Sequence < Thor
     # setup user supplied species
     species_taxon = nil
     if(opts[:species_id])
-      species_taxon = Taxon.find(opts[:species_id])
+      species_taxon = Biosql::Taxon.find(opts[:species_id])
     end
     # setup user supplied strain/variety
     strain_taxon = nil
     if(opts[:strain])
-      strain_taxon = (TaxonName.find_by_name(opts[:strain]) || create_taxon(opts[:strain],'varietas')).try(:taxon) 
+      strain_taxon = (Biosql::TaxonName.find_by_name(opts[:strain]) || create_taxon(opts[:strain],'varietas')).try(:taxon) 
     elsif(opts[:strain_id])
-      strain_taxon = TaxonName.find(opts[:strain_id]).taxon
+      strain_taxon = Biosql::TaxonName.find(opts[:strain_id]).taxon
     end
     
     # look at organism
     if(entry.respond_to?(:organism))
-      if(tn = TaxonName.find_by_name(entry.organism) )
+      if(tn = Biosql::TaxonName.find_by_name(entry.organism) )
         org_taxon = tn.taxon
       else
         t = nil
         entry.source_features.find do |source|
-          unless (results = source.qualifiers.select{|q| q.qualifier=='db_xref' && q.value.match(/taxon/)}.collect{|q| Taxon.find_by_ncbi_taxon_id(q.value.match(/taxon:(\d+)/)[1])}).empty?
+          unless (results = source.qualifiers.select{|q| q.qualifier=='db_xref' && q.value.match(/taxon/)}.collect{|q| Biosql::Taxon.find_by_ncbi_taxon_id(q.value.match(/taxon:(\d+)/)[1])}).empty?
             t = results.first
             true
           end
@@ -587,14 +587,14 @@ class Sequence < Thor
 
     # species not supplied
     if species_taxon.nil?
-      species_taxon = strain_taxon.try(:species) || org_taxon || Taxon.unknown
+      species_taxon = strain_taxon.try(:species) || org_taxon || Biosql::Taxon.unknown
     # species supplied - check strain
     else
       strain_taxon ||= species_taxon
     end
     # check for ancestry
     unless species_taxon.parent_taxon_id
-      species_taxon.update_attribute(:parent_taxon_id,Taxon.root.taxon_id)
+      species_taxon.update_attribute(:parent_taxon_id,Biosql::Taxon.root.taxon_id)
     end
     unless strain_taxon.parent_taxon_id
       strain_taxon.update_attribute(:parent_taxon_id,species_taxon.taxon_id)
@@ -608,13 +608,13 @@ class Sequence < Thor
       raise 'No Taxon Available - Try taxonomy:load or taxonomy:find'
     end
     begin
-      unless (Taxon.count > 0)
+      unless (Biosql::Taxon.count > 0)
         response = "*** The taxonomy tree is empty. You should load it before running this script with - 'thor taxonomy:load'  Type 'yes' to continue:"
         unless response == 'yes'
           exit 0
         end
       end
-      taxon = Taxon.create(:node_rank  => node_rank, :genetic_code => '1', :mito_genetic_code  => '1', :non_ncbi => 1)
+      taxon = Biosql::Taxon.create(:node_rank  => node_rank, :genetic_code => '1', :mito_genetic_code  => '1', :non_ncbi => 1)
       taxon.taxon_names.create(:name => taxon_name, :name_class => "scientific name")
     rescue
       puts "Error creating taxon\n#{$!}"

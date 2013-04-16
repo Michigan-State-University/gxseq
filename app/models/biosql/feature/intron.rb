@@ -1,4 +1,4 @@
-class Bio::Feature::Intron < Bio::Feature::Seqfeature  
+class Biosql::Feature::Intron < Biosql::Feature::Seqfeature  
 end
 # == Schema Information
 #

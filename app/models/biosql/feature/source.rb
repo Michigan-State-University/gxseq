@@ -1,4 +1,4 @@
-class Bio::Feature::Source < Bio::Feature::Seqfeature
+class Biosql::Feature::Source < Biosql::Feature::Seqfeature
   #TODO: comment,refactor and condense multiple methods
   def label
     generic_label

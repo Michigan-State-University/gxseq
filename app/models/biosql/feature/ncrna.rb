@@ -1,4 +1,4 @@
-class Bio::Feature::Ncrna < Bio::Feature::Seqfeature
+class Biosql::Feature::Ncrna < Biosql::Feature::Seqfeature
   def name
     "ncRNA"
   end

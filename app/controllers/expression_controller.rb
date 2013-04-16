@@ -13,7 +13,7 @@ class ExpressionController < ApplicationController
     respond_to do |format|
       # Base html query
       format.html{
-        @search = Bio::Feature::Seqfeature.matrix_search(current_ability,@assembly.id,@type_term_id,@experiments,params) do |s|
+        @search = Biosql::Feature::Seqfeature.matrix_search(current_ability,@assembly.id,@type_term_id,@experiments,params) do |s|
           s.paginate(:page => params[:page], :per_page => params[:per_page])
         end
         # Check for seqfeature update
@@ -21,7 +21,7 @@ class ExpressionController < ApplicationController
       }
       format.csv{
         # Use the initial query to get total pages
-        search = Bio::Feature::Seqfeature.matrix_search(current_ability,@assembly.id,@type_term_id,@experiments,params) do |s|
+        search = Biosql::Feature::Seqfeature.matrix_search(current_ability,@assembly.id,@type_term_id,@experiments,params) do |s|
           s.paginate(:page => 1, :per_page => 1000)
         end
         current_page = 1
@@ -32,14 +32,14 @@ class ExpressionController < ApplicationController
           # Add the header
           out.write (['Locus','Definition']+@blast_runs.map(&:name)+@experiments.map(&:name)+['Sum']).to_csv
           # Write the first page
-          out.write Bio::Feature::Seqfeature.matrix_search_to_csv(search,@experiments,@blast_runs,params)
+          out.write Biosql::Feature::Seqfeature.matrix_search_to_csv(search,@experiments,@blast_runs,params)
           # Write any additional pages
           while(current_page < total_pages)
             current_page+=1
-            search = Bio::Feature::Seqfeature.matrix_search(current_ability,@assembly.id,@type_term_id,@experiments,params) do |s|
+            search = Biosql::Feature::Seqfeature.matrix_search(current_ability,@assembly.id,@type_term_id,@experiments,params) do |s|
               s.paginate(:page => current_page, :per_page => 1000)
             end
-            out.write Bio::Feature::Seqfeature.matrix_search_to_csv(search,@experiments,@blast_runs,params)
+            out.write Biosql::Feature::Seqfeature.matrix_search_to_csv(search,@experiments,@blast_runs,params)
           end
         }
       }
@@ -61,7 +61,7 @@ class ExpressionController < ApplicationController
     respond_to do |format|
       # Base html query
       format.html{
-        @search = Bio::Feature::Seqfeature.ratio_search(current_ability,@assembly.id,@type_term_id,@a_experiments,@b_experiments,params) do |s|
+        @search = Biosql::Feature::Seqfeature.ratio_search(current_ability,@assembly.id,@type_term_id,@a_experiments,@b_experiments,params) do |s|
           s.paginate(:page => params[:page], :per_page => params[:per_page])
         end
         # Check for seqfeature update
@@ -70,7 +70,7 @@ class ExpressionController < ApplicationController
       # Streaming csv render
       format.csv{
         # Use the initial query to get total pages
-        search = Bio::Feature::Seqfeature.ratio_search(current_ability,@assembly.id,@type_term_id,@a_experiments,@b_experiments,params) do |s|
+        search = Biosql::Feature::Seqfeature.ratio_search(current_ability,@assembly.id,@type_term_id,@a_experiments,@b_experiments,params) do |s|
           s.paginate(:page => 1, :per_page => 1000)
         end
         current_page = 1
@@ -81,14 +81,14 @@ class ExpressionController < ApplicationController
           # Add the header
           out.write (['Locus','Definition']+@blast_runs.map(&:name)+['Set A','Set B','A / B']).to_csv
           # Write the first page
-          out.write Bio::Feature::Seqfeature.ratio_search_to_csv(search,@a_experiments,@b_experiments,@blast_runs,params)
+          out.write Biosql::Feature::Seqfeature.ratio_search_to_csv(search,@a_experiments,@b_experiments,@blast_runs,params)
           # Write any additional pages
           while(current_page < total_pages)
             current_page+=1
-            search = Bio::Feature::Seqfeature.ratio_search(current_ability,@assembly.id,@type_term_id,@a_experiments,@b_experiments,params) do |s|
+            search = Biosql::Feature::Seqfeature.ratio_search(current_ability,@assembly.id,@type_term_id,@a_experiments,@b_experiments,params) do |s|
               s.paginate(:page => current_page, :per_page => 1000)
             end
-            out.write Bio::Feature::Seqfeature.ratio_search_to_csv(search,@a_experiments,@b_experiments,@blast_runs,params)
+            out.write Biosql::Feature::Seqfeature.ratio_search_to_csv(search,@a_experiments,@b_experiments,@blast_runs,params)
           end
         }
       }
@@ -113,7 +113,9 @@ class ExpressionController < ApplicationController
     # lookup the extra taxon data
     get_assembly_data if @assembly
     # get all expression features
-    @feature_types = Bio::Feature::Seqfeature.facet_types_with_expression_and_assembly_id(@assembly.id) if @assembly
+    @feature_types = Biosql::Feature::Seqfeature.facet_types_with_expression_and_assembly_id(@assembly.id) if @assembly
+    logger.info "\n\nFeature Types: #{@feature_types.facet(:type_term_id).rows.inspect}\n\n"
+    
     # setup default type_term if not supplied in params
     @type_term_id ||=@feature_types.facet(:type_term_id).rows.first.try(:value) if @feature_types
   end
@@ -159,19 +161,19 @@ class ExpressionController < ApplicationController
     }
     # TODO: Replace with Faceted search for speed and numbered results, would require term and/or ontology index
     # Get all the annotations in use by an assembly feature.
-    anno_terms = Bio::Term.select('distinct term.term_id, term.name')
+    anno_terms = Biosql::Term.select('distinct term.term_id, term.name')
       .joins(:ontology,[:qualifiers => [:seqfeature => :bioentry]])
       .where{ bioentry.assembly_id == my{@assembly.id} }
-      .where{ ontology_id == Bio::Term.ano_tag_ont_id }
+      .where{ ontology_id == Biosql::Term.ano_tag_ont_id }
       .where{lower(term.name).in(['ec_number','function','gene','gene_synonym','product','protein_id','transcript_id','locus_tag'])}
     # Add to the list
     @group_select_options['Annotation'].concat anno_terms.map{|term| [term.name.humanize,term.name]}
     # Get all the custom terms in use
-    custom_terms = Bio::Term.select('distinct term.term_id, term.name, term.ontology_id')
+    custom_terms = Biosql::Term.select('distinct term.term_id, term.name, term.ontology_id')
       .joins(:ontology,[:qualifiers => [:seqfeature => :bioentry]])
       .where{ seqfeature.type_term_id == my{@type_term_id} }
       .where{ bioentry.assembly_id == my{@assembly.id} }
-      .where{ ontology_id.in(Bio::Term.custom_ontologies) }
+      .where{ ontology_id.in(Biosql::Term.custom_ontologies) }
     custom_terms.each do |term|
       @group_select_options[term.ontology.name] ||= []
       @group_select_options[term.ontology.name] << [term.name, "term_#{term.id}"]

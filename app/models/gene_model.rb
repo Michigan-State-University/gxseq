@@ -1,12 +1,12 @@
 class GeneModel < ActiveRecord::Base
   # de-normalization of seqfeature data
   # Dependent on Location, Seqfeature(Gene, CDS) and SeqfeatureQualifierValue(locus_tag). Incorporates Seqfeature(Mrna) if exists
-  belongs_to :gene, :class_name => 'Bio::Feature::Gene', :inverse_of => :gene_models
-  belongs_to :mrna, :class_name => 'Bio::Feature::Mrna', :inverse_of => :gene_model
-  belongs_to :cds, :class_name => 'Bio::Feature::Cds', :inverse_of => :gene_model
-  belongs_to :bioentry, :class_name => 'Bio::Bioentry'
-  has_many :cds_locations, :class_name => "Bio::Location", :foreign_key => :seqfeature_id, :primary_key => :cds_id, :dependent  => :destroy
-  has_many :mrna_locations, :class_name => "Bio::Location", :foreign_key => :seqfeature_id, :primary_key => :mrna_id, :dependent  => :destroy
+  belongs_to :gene, :class_name => 'Biosql::Feature::Gene', :inverse_of => :gene_models
+  belongs_to :mrna, :class_name => 'Biosql::Feature::Mrna', :inverse_of => :gene_model
+  belongs_to :cds, :class_name => 'Biosql::Feature::Cds', :inverse_of => :gene_model
+  belongs_to :bioentry, :class_name => 'Biosql::Bioentry'
+  has_many :cds_locations, :class_name => "Biosql::Location", :foreign_key => :seqfeature_id, :primary_key => :cds_id, :dependent  => :destroy
+  has_many :mrna_locations, :class_name => "Biosql::Location", :foreign_key => :seqfeature_id, :primary_key => :mrna_id, :dependent  => :destroy
   
   validates_presence_of :gene
   validates_presence_of :bioentry
@@ -20,7 +20,7 @@ class GeneModel < ActiveRecord::Base
   
   has_paper_trail :meta => {
     :parent_id => Proc.new { |gm| gm.gene_id },
-    :parent_type => "Bio::Feature::Gene"
+    :parent_type => "Biosql::Feature::Gene"
   }
   acts_as_api
   
@@ -410,7 +410,7 @@ class GeneModel < ActiveRecord::Base
       progress_bar = ProgressBar.new(total_new_genes)
       GeneModel.transaction do
         # new gene features
-        Bio::Feature::Gene.find_in_batches(:batch_size=>250, :include => [[:qualifiers => :term],:locations], :conditions => "NOT EXISTS (select id from gene_models where gene_id=#{Gene.primary_key})") do |new_genes|        
+        Biosql::Feature::Gene.find_in_batches(:batch_size=>250, :include => [[:qualifiers => :term],:locations], :conditions => "NOT EXISTS (select id from gene_models where gene_id=#{Gene.primary_key})") do |new_genes|        
           new_gene_locus = new_genes.delete_if{|g|g.locus_tag.nil?}.map{|g|g.locus_tag.value}.join("', '")
           # cds lookup
           cds_by_locus = {}
@@ -421,7 +421,7 @@ class GeneModel < ActiveRecord::Base
           AND term.name = 'locus_tag'
           and value in('#{new_gene_locus}')
           and NOT EXISTS (select id from gene_models where cds_id=seqfeature.seqfeature_id)").map{|h| h['seqfeature_id'].to_i}.join("', '")
-          Bio::Feature::Cds.find_in_batches(:include => [[:qualifiers => :term], :locations], :conditions => "seqfeature.seqfeature_id in('#{cds_ids}')") do |cds_batch|
+          Biosql::Feature::Cds.find_in_batches(:include => [[:qualifiers => :term], :locations], :conditions => "seqfeature.seqfeature_id in('#{cds_ids}')") do |cds_batch|
             cds_batch.each do |cds|
               cds_by_locus[cds.locus_tag.value]||=[]
               cds_by_locus[cds.locus_tag.value] << [cds,cds.locations.map(&:start_pos).min,cds.locations.map(&:end_pos).max]
@@ -436,7 +436,7 @@ class GeneModel < ActiveRecord::Base
           AND term.name = 'locus_tag'
           and value in('#{new_gene_locus}')
           and NOT EXISTS (select id from gene_models where mrna_id=seqfeature.seqfeature_id)").map{|h| h['seqfeature_id'].to_i}.join("', '")
-          Bio::Feature::Mrna.find_in_batches(:include => [[:qualifiers => :term], :locations], :conditions => "seqfeature.seqfeature_id in('#{mrna_ids}')") do |mrna_batch|
+          Biosql::Feature::Mrna.find_in_batches(:include => [[:qualifiers => :term], :locations], :conditions => "seqfeature.seqfeature_id in('#{mrna_ids}')") do |mrna_batch|
             mrna_batch.each do |mrna|
               mrna_by_locus[mrna.locus_tag.value]||=[]
               mrna_by_locus[mrna.locus_tag.value] << [mrna,mrna.locations.map(&:start_pos).min,mrna.locations.map(&:end_pos).max]
@@ -554,7 +554,7 @@ class GeneModel < ActiveRecord::Base
   
   def self.check_new_locus_tags
     # Count the models we need to work with
-    genes_without_model = Bio::Feature::Gene.includes(:gene_models, :qualifiers => [:term]).where{gene_models.id == nil}
+    genes_without_model = Biosql::Feature::Gene.includes(:gene_models, :qualifiers => [:term]).where{gene_models.id == nil}
     total_new_genes = genes_without_model.count
     puts "There are #{total_new_genes} genes without Gene Models: #{Time.now.strftime('%D %H:%M')}"
     new_genes_with_locus = genes_without_model.where{qualifiers.term.name == 'locus_tag'}
@@ -579,9 +579,9 @@ class GeneModel < ActiveRecord::Base
   
   def self.set_locus_using_gene
     l = "Found 'gene' annotations for every Gene - checking cds and mrna: #{Time.now.strftime('%D %H:%M')}";puts l
-    new_gene_with_gene = Bio::Feature::Gene.includes(:gene_models, :qualifiers => [:term]).where{gene_models.id == nil}.where{qualifiers.term.name == 'gene'}
-    new_mrna_with_gene = Bio::Feature::Mrna.includes(:gene_model, :qualifiers => [:term]).where{gene_model.id == nil}.where{qualifiers.term.name == 'gene'}
-    new_cds_with_gene = Bio::Feature::Cds.includes(:gene_model, :qualifiers => [:term]).where{gene_model.id == nil}.where{qualifiers.term.name == 'gene'}
+    new_gene_with_gene = Biosql::Feature::Gene.includes(:gene_models, :qualifiers => [:term]).where{gene_models.id == nil}.where{qualifiers.term.name == 'gene'}
+    new_mrna_with_gene = Biosql::Feature::Mrna.includes(:gene_model, :qualifiers => [:term]).where{gene_model.id == nil}.where{qualifiers.term.name == 'gene'}
+    new_cds_with_gene = Biosql::Feature::Cds.includes(:gene_model, :qualifiers => [:term]).where{gene_model.id == nil}.where{qualifiers.term.name == 'gene'}
     puts "mrna: #{new_mrna_with_gene.count}"
     puts "cds: #{new_cds_with_gene.count}"
     printf "You should optimize or gather statistics before continuing\nCreate locus_tag's from 'gene' annotations? (Y/n):"
@@ -595,7 +595,7 @@ class GeneModel < ActiveRecord::Base
     if(answer=='Y')
       puts "Okay, creating new locus_tag values"
       GeneModel.transaction do 
-        locus_tag_term_id = Bio::Term.find_or_create_by_name_and_ontology_id('locus_tag', Bio::Term.ano_tag_ont_id).id
+        locus_tag_term_id = Biosql::Term.find_or_create_by_name_and_ontology_id('locus_tag', Biosql::Term.ano_tag_ont_id).id
         puts "--Working on Gene"
         progress_bar = ProgressBar.new(new_gene_with_gene.count)
         new_gene_with_gene.find_in_batches do |features|

@@ -23,7 +23,7 @@ class Blast < Thor
     end
     # verify type if provided
     if(options[:feature_type])
-      unless type_term = Term.where{(upper(name)==my{options[:feature_type].upcase}) & (ontology_id == Term.seq_key_ont_id)}.first
+      unless type_term = Biosql::Term.where{(upper(name)==my{options[:feature_type].upcase}) & (ontology_id == Biosql::Term.seq_key_ont_id)}.first
         puts "Could not find term: #{options[:feature_type]}"
         exit 0
       end
@@ -95,7 +95,7 @@ class Blast < Thor
         if(options[:use_search_index])
           # Use the sunspot index to save time
           # This is not default in case the index is unavailable
-          search = Bio::Feature::Seqfeature.search do
+          search = Biosql::Feature::Seqfeature.search do
             with :locus_tag, locus
             with :assembly_id, options[:assembly_id]
             with :type_term_id, type_term_id
@@ -113,7 +113,7 @@ class Blast < Thor
           end
         else
           # Use the database if sunspot is not available
-          features = Bio::Feature::Seqfeature.with_locus_tag(locus)
+          features = Biosql::Feature::Seqfeature.with_locus_tag(locus)
             .includes(:bioentry)
             .where{bioentry.assembly_id == my{options[:assembly_id]}}
             .where{seqfeature.type_term_id==my{type_term.id}}
@@ -171,7 +171,7 @@ class Blast < Thor
       reindex = 'yes'
     end
     if reindex =='yes'
-      Bio::Feature::Seqfeature.reindex_all_by_id(seqfeature_ids)
+      Biosql::Feature::Seqfeature.reindex_all_by_id(seqfeature_ids)
     end
   end
   
@@ -219,7 +219,7 @@ class Blast < Thor
     %w(description -d) => nil
   def create_db
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
-    taxon_id = (t = Taxon.find_by_taxon_id(options[:taxon_id])) ? t.taxon_id : nil
+    taxon_id = (t = Biosql::Taxon.find_by_taxon_id(options[:taxon_id])) ? t.taxon_id : nil
     b = BlastDatabase.new(
       :name => options[:name],
       :link_ref => options[:link],

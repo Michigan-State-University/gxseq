@@ -1,4 +1,4 @@
-class Bio::Reference < ActiveRecord::Base
+class Biosql::Reference < ActiveRecord::Base
   set_table_name "reference"
   set_primary_key :reference_id
   belongs_to :dbxref, :class_name => "Dbxref"

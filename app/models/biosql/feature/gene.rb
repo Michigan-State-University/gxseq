@@ -1,4 +1,4 @@
-class Bio::Feature::Gene < Bio::Feature::Seqfeature
+class Biosql::Feature::Gene < Biosql::Feature::Seqfeature
   #has_many :gene_models, :inverse_of => :gene
   before_validation :initialize_associations
   validates_associated :gene_models
@@ -30,29 +30,16 @@ class Bio::Feature::Gene < Bio::Feature::Seqfeature
   ##
   # returns uniq 'gene names; products; functions; and synonyms' for all gene models
   def indexed_description
-    names,prods,funcs,syns = [gene.try(:value)],[product.try(:value)],[function.try(:value)],[gene_synonym.try(:value)]
+    names,prods,funcs,syns = [gene.try(:value)],[product_assoc.try(:value)],[function_assoc.try(:value)],[gene_synonym.try(:value)]
     gene_models.each do |gm|
-      ['cds','mrna'].each do |feature|
-        prods << gm.send(feature).try(:product_assoc).try(:value)
-        funcs << gm.send(feature).try(:function_assoc).try(:value)
-      end
+      prods << gm.cds.try(:product_assoc).try(:value)
+      funcs << gm.mrna.try(:function_assoc).try(:value)
     end
     [names.compact.uniq,prods.compact.uniq,funcs.compact.uniq,syns.compact.uniq].flatten.join("; ").presence
   end
-  # returns uniq searchable attributes and any blast results for gene and function/product from all gene models
-  def indexed_full_description
-    vals = [search_qualifiers.map(&:value)]
-    gene_models.each do |gm|
-      ['cds','mrna'].each do |feature|
-        vals << gm.send(feature).try(:product_assoc).try(:value)
-        vals << gm.send(feature).try(:function_assoc).try(:value)
-      end
-    end
-    [vals,blast_description].flatten.compact.uniq.join('; ').presence
-  end
   # returns uniq products for all gene models
   def indexed_product
-    vals = [product.try(:value)]
+    vals = [product_assoc.try(:value)]
     gene_models.each do |gm|
       vals << gm.cds.try(:product_assoc).try(:value)
     end
@@ -60,7 +47,7 @@ class Bio::Feature::Gene < Bio::Feature::Seqfeature
   end
   # returns uniq functions for all gene models
   def indexed_function
-    vals = [function.try(:value)]
+    vals = [function_assoc.try(:value)]
     gene_models.each do |gm|
       vals << gm.mrna.try(:function_assoc).try(:value)
     end

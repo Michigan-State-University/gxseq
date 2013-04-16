@@ -1,1 +1,1 @@
-class Bio::Feature::AssemblyGap < Bio::Feature::Seqfeature; end;
+class Biosql::Feature::AssemblyGap < Biosql::Feature::Seqfeature; end;

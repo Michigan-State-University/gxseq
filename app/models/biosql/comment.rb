@@ -1,4 +1,4 @@
-class Bio::Comment < ActiveRecord::Base
+class Biosql::Comment < ActiveRecord::Base
   # comments have a primary key but also maintain a rank for their bioentry
   # comment is a reserved word in Oracle
   if(ActiveRecord::Base.connection.adapter_name.downcase =~/.*oracle.*/)

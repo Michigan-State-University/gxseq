@@ -1,4 +1,4 @@
-class Bio::Feature::RepOrigin < Bio::Feature::Seqfeature  
+class Biosql::Feature::RepOrigin < Biosql::Feature::Seqfeature  
 end
 # == Schema Information
 #

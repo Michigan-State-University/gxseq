@@ -1,18 +1,18 @@
 class Peak < ActiveRecord::Base
   belongs_to :experiment
-  belongs_to :bioentry
+  belongs_to :bioentry, :class_name => "Biosql::Bioentry"
   validates_presence_of :start_pos
   validates_presence_of :end_pos
   validates_presence_of :pos
   validates_presence_of :val
   validates_format_of :val, :with => /^[\d]+$|^[\d]*(\.\d+){0,1}$/, :on => :create, :message => "is invalid"
 
-  named_scope :with_bioentry, lambda { |id|
+  scope :with_bioentry, lambda { |id|
         { :conditions => { :bioentry_id => id } }
       }
   # TODO: too slow for hundreds of peaks convert to a single statement. Maybe a scope on gene? --with_experiment_peaks
   def nearest_genes
-    Bio::Feature::Gene.joins{
+    Biosql::Feature::Gene.joins{
         [locations, qualifiers.term]
       }.where{
         (bioentry_id == my{bioentry_id}) &

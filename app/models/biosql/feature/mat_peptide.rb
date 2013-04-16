@@ -1,2 +1,2 @@
-class Bio::Feature::MatPeptide < Bio::Feature::Seqfeature  
+class Biosql::Feature::MatPeptide < Biosql::Feature::Seqfeature  
 end

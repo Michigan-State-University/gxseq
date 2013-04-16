@@ -1,4 +1,4 @@
-class Bio::BioentryRelationship < ActiveRecord::Base
+class Biosql::BioentryRelationship < ActiveRecord::Base
   set_table_name "bioentry_relationship"
   set_primary_key "bioentry_relationship_id"
   belongs_to :object_bioentry, :class_name => "Bioentry"

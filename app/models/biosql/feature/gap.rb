@@ -1,1 +1,1 @@
-class Bio::Feature::Gap < Bio::Feature::Seqfeature; end;
+class Biosql::Feature::Gap < Biosql::Feature::Seqfeature; end;

@@ -22,7 +22,7 @@ class Bam < Asset
   ## Instance Methods
   
   def open_bam    
-    Bio::DB::Sam.new(:bam=>data.path,:fasta => "").tap{|b|b.open} rescue false
+    Biosql::DB::Sam.new(:bam=>data.path,:fasta => "").tap{|b|b.open} rescue false
   end
   
   # NOTE does NOT work with delayed_job background tasks
@@ -84,16 +84,16 @@ class Bam < Asset
     qlen = nil
     calend = nil
     fetchFunc = Proc.new do |bam_alignment,header|
-      data = Bio::DB::SAM::Tools.bam_format1(header,bam_alignment)      
+      data = Biosql::DB::SAM::Tools.bam_format1(header,bam_alignment)      
       sam_data = data.read_string.split("\t")
       LibC.free data
       if(sam_data[0]==read_id)
         # parse extra information
-        al = Bio::DB::SAM::Tools::Bam1T.new(bam_alignment)
+        al = Biosql::DB::SAM::Tools::Bam1T.new(bam_alignment)
         core = al[:core]
         cigar = al[:data][core[:l_qname]]
-        calend = Bio::DB::SAM::Tools.bam_calend(core,cigar)
-        qlen = Bio::DB::SAM::Tools.bam_cigar2qlen(core,cigar)
+        calend = Biosql::DB::SAM::Tools.bam_calend(core,cigar)
+        qlen = Biosql::DB::SAM::Tools.bam_cigar2qlen(core,cigar)
         read = sam_data
         -1
       else
@@ -159,17 +159,17 @@ class Bam < Asset
       # 10  SEQ     query SEQuence on the same strand as the reference
       # 11  QUAL    query QUALity (ASCII-33 gives the Phred base quality)
       # 12+ OPT     variable OPTional fields in the format TAG:VTYPE:VALUE
-      data = Bio::DB::SAM::Tools.bam_format1(header,bam_alignment)      
+      data = Biosql::DB::SAM::Tools.bam_format1(header,bam_alignment)      
       sam_data = data.read_string.split("\t")
       # remove the C reference to sam string
       LibC.free data
       
       # parse extra information
-      al = Bio::DB::SAM::Tools::Bam1T.new(bam_alignment)
+      al = Biosql::DB::SAM::Tools::Bam1T.new(bam_alignment)
       core = al[:core]
       cigar = al[:data][core[:l_qname]]
-      calend = Bio::DB::SAM::Tools.bam_calend(core,cigar)
-      qlen = Bio::DB::SAM::Tools.bam_cigar2qlen(core,cigar)
+      calend = Biosql::DB::SAM::Tools.bam_calend(core,cigar)
+      qlen = Biosql::DB::SAM::Tools.bam_cigar2qlen(core,cigar)
       [sam_data,qlen,calend]
     end
     

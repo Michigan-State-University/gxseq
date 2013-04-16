@@ -4,7 +4,7 @@ class SeqfeatureQualifierValuesController < ApplicationController
   
   # GET /seqfeature_qualifier_values
   def index
-    @seqfeature_qualifier_values = Bio::SeqfeatureQualifierValue.all
+    @seqfeature_qualifier_values = Biosql::SeqfeatureQualifierValue.all
   # index.html.erb
   end
 
@@ -15,7 +15,7 @@ class SeqfeatureQualifierValuesController < ApplicationController
 
   # GET /seqfeature_qualifier_values/new
   def new
-    @seqfeature_qualifier_value = Bio::SeqfeatureQualifierValue.new
+    @seqfeature_qualifier_value = Biosql::SeqfeatureQualifierValue.new
   # new.html.erb
   end
 
@@ -25,7 +25,7 @@ class SeqfeatureQualifierValuesController < ApplicationController
 
   # POST /seqfeature_qualifier_values
   def create
-    @seqfeature_qualifier_value = Bio::SeqfeatureQualifierValue.new(params[:seqfeature_qualifier_value])
+    @seqfeature_qualifier_value = Biosql::SeqfeatureQualifierValue.new(params[:seqfeature_qualifier_value])
 
     respond_to do |wants|
       if @seqfeature_qualifier_value.save
@@ -60,7 +60,7 @@ class SeqfeatureQualifierValuesController < ApplicationController
 
   private
     def find_seqfeature_qualifier_value
-      @seqfeature_qualifier_value = Bio::SeqfeatureQualifierValue.find(params[:id])
+      @seqfeature_qualifier_value = Biosql::SeqfeatureQualifierValue.find(params[:id])
     end
 
 end

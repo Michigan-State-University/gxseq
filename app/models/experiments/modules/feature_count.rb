@@ -1,5 +1,5 @@
 class FeatureCount < ActiveRecord::Base
-  belongs_to :seqfeature
+  belongs_to :seqfeature, :class_name => "Biosql::Feature::Seqfeature"
   belongs_to :experiment
   # Convert an array of feature_counts into graphable data
   def self.create_graph_data(feature_counts,hsh={})

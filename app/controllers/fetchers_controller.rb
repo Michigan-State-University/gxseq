@@ -33,7 +33,7 @@ class FetchersController < ApplicationController
          }         
     when 'range'
       bioentry_id = param['bioentry']
-      bioentry = Bio::Bioentry.find(bioentry_id)
+      bioentry = Biosql::Bioentry.find(bioentry_id)
       exp = Experiment.find(param['experiment'])
       authorize! :track_data, exp
       c_item = exp.concordance_items.with_bioentry(bioentry_id)[0]
@@ -47,21 +47,21 @@ class FetchersController < ApplicationController
     #   exp = Experiment.find(param['experiment'])
     #   authorize! :track_data, exp
     #   bioentry_id = param['bioentry']
-    #   bioentry = Bio::Bioentry.find(bioentry_id)
+    #   bioentry = Biosql::Bioentry.find(bioentry_id)
     #   authorize! :read, bioentry
     #   render :text => exp.max(exp.get_chrom(bioentry_id)).to_s
     when 'peak_genes'
       @experiment = Experiment.find(param['experiment'])
       authorize! :track_data, @experiment
       @bioentry_id = param['bioentry']
-      bioentry = Bio::Bioentry.find(@bioentry_id)
+      bioentry = Biosql::Bioentry.find(@bioentry_id)
       authorize! :read, bioentry
       render :partial => 'peaks/gene_list.json' #exp.peaks.with_bioentry(param['bioentry']).order(:pos).to_json(:only => [:id,:pos, :val], :methods => :genes_link)
     when 'peak_locations'
       exp = Experiment.find(param['experiment'])
       authorize! :track_data, exp
       bioentry_id = param['bioentry']
-      bioentry = Bio::Bioentry.find(bioentry_id)
+      bioentry = Biosql::Bioentry.find(bioentry_id)
       authorize! :read, bioentry
       render :text => exp.peaks.with_bioentry(param['bioentry']).order(:pos).map{|p|{:pos => p.pos, :id => p.id}}.to_json
     end
@@ -74,7 +74,7 @@ class FetchersController < ApplicationController
          param = jrws['param']
          case jrws['method']
             when 'select'    
-              seqfeature_keys = Bio::Term.annotation_tags.collect {|x| x.name }
+              seqfeature_keys = Biosql::Term.annotation_tags.collect {|x| x.name }
               render :json  => {
                :success  => true,
                :data  => seqfeature_keys            
@@ -107,7 +107,7 @@ class FetchersController < ApplicationController
               
               begin
                 begin
-                  @gene_model = GeneModel.find_by_id(param['id']) || Bio::Feature::Seqfeature.find(param['id']).gene_model
+                  @gene_model = GeneModel.find_by_id(param['id']) || Biosql::Feature::Seqfeature.find(param['id']).gene_model
                 end
                 authorize! :read, @gene_model
                 @cds = @gene_model.cds
@@ -123,7 +123,7 @@ class FetchersController < ApplicationController
               end
             when 'range'
               #Needs refactoring - some data being sent is redundant/unused
-              bioentry = Bio::Bioentry.find(param['bioentry'])
+              bioentry = Biosql::Bioentry.find(param['bioentry'])
               authorize! :read, bioentry
               my_data = GeneModel.get_track_data(param['left'],param['right'],param['bioentry'],500) 
             render :json => {
@@ -133,14 +133,14 @@ class FetchersController < ApplicationController
          end
       else
          if(params[:annoj_action] == 'lookup')
-             bioentry = Bio::Bioentry.find(params['bioentry'])
+             bioentry = Biosql::Bioentry.find(params['bioentry'])
              bioentry_ids = bioentry.assembly.bioentries.map(&:id)
              authorize! :read, bioentry
              data = []
              
              if(params[:query] && !params[:query].blank?)
                query = params[:query].upcase
-               qualifiers = Bio::SeqfeatureQualifierValue.limit(1000).includes([:term,:seqfeature]).where{seqfeature.bioentry_id.in bioentry_ids}.where{seqfeature.display_name.in GeneModel.seqfeature_types }.where{term.name.not_in(Seqfeature.excluded_search_terms)}.where{upper(value)=~"%#{query}%"}
+               qualifiers = Biosql::SeqfeatureQualifierValue.limit(1000).includes([:term,:seqfeature]).where{seqfeature.bioentry_id.in bioentry_ids}.where{seqfeature.display_name.in GeneModel.seqfeature_types }.where{term.name.not_in(Seqfeature.excluded_search_terms)}.where{upper(value)=~"%#{query}%"}
                ids = qualifiers.collect{|q|q.seqfeature.id}
                gene_models = GeneModel.where{(cds_id.in ids) | (mrna_id.in ids) | (gene_id.in ids)}.includes{[gene.qualifiers, cds.qualifiers, mrna.qualifiers]}.paginate({:page => params[:page],:per_page => params[:limit]})
              else
@@ -158,7 +158,7 @@ class FetchersController < ApplicationController
                       if fea = gene_model.send(feature)
                           fea.qualifiers.each do |q|
                               # don't match non-search terms
-                              next if(Bio::Feature::Seqfeature.excluded_search_terms.include?(q.term.name))
+                              next if(Biosql::Feature::Seqfeature.excluded_search_terms.include?(q.term.name))
                               # avoid repeats
                               next if(q.term.name=='locus_tag'||q.term.name=='gene') unless feature =='gene'
                               # highlight the first matching qualifier for this feature

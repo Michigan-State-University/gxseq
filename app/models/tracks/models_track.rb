@@ -1,5 +1,5 @@
 class ModelsTrack < Track
-  belongs_to :source_term, :class_name => "Bio::Term", :foreign_key => :source_term_id
+  belongs_to :source_term, :class_name => "Biosql::Term", :foreign_key => :source_term_id
   def path
     "Genome"
   end

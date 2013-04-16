@@ -1,4 +1,4 @@
-class Bio::Feature::Seqfeature < ActiveRecord::Base
+class Biosql::Feature::Seqfeature < ActiveRecord::Base
   set_table_name "seqfeature"
   set_primary_key :seqfeature_id
   has_paper_trail :meta => {
@@ -7,9 +7,9 @@ class Bio::Feature::Seqfeature < ActiveRecord::Base
   }
   set_sequence_name "SEQFEATURE_SEQ"
   set_inheritance_column :display_name
-  belongs_to :bioentry
-  belongs_to :type_term, :class_name => "Bio::Term", :foreign_key => "type_term_id"
-  belongs_to :source_term, :class_name => "Bio::Term", :foreign_key =>"source_term_id"
+  belongs_to :bioentry, :class_name => "Bioentry"
+  belongs_to :type_term, :class_name => "Term", :foreign_key => "type_term_id"
+  belongs_to :source_term, :class_name => "Term", :foreign_key =>"source_term_id"
   has_many :seqfeature_dbxrefs, :class_name => "SeqfeatureDbxref", :foreign_key => "seqfeature_id", :dependent  => :delete_all
   has_many :qualifiers, :include => :term, :class_name => "SeqfeatureQualifierValue",
     :order => "term.ontology_id desc,term.name,seqfeature_qualifier_value.rank", :dependent  => :delete_all,
@@ -23,6 +23,7 @@ class Bio::Feature::Seqfeature < ActiveRecord::Base
   #extensions
   has_many :feature_counts
   has_many :blast_reports
+  has_many :blast_reports_without_report, :class_name => "BlastReport", :select => [:id,:hit_acc,:hit_def,:seqfeature_id,:blast_run_id]
   has_many :favorite_seqfeatures, :foreign_key => :favorite_item_id
   has_many :favorite_users, :through => :favorite_seqfeatures, :source => :user
   # Define attributes to simplify eager_loading. _assoc suffix avoids name collision with dynamic qualifier methods
@@ -41,7 +42,7 @@ class Bio::Feature::Seqfeature < ActiveRecord::Base
     { :include => [:qualifiers => [:term]], :conditions => "upper(seqfeature_qualifier_value.value) = '#{locus_tag.upcase}'"}
   }
   # validations
-  accepts_nested_attributes_for :qualifiers, :allow_destroy => true, :reject_if => lambda { |q| (q[:id] && SeqfeatureQualifierValue.find(q[:id]).term.name =='locus_tag') || (q[:value].blank?) }
+  accepts_nested_attributes_for :qualifiers, :allow_destroy => true, :reject_if => lambda { |q| (q[:id] && Biosql::SeqfeatureQualifierValue.find(q[:id]).term.name =='locus_tag') || (q[:value].blank?) }
   accepts_nested_attributes_for :locations, :allow_destroy => true
   validates_presence_of :locations, :message => "Must have at least 1 location"
   validates_presence_of :bioentry
@@ -54,14 +55,6 @@ class Bio::Feature::Seqfeature < ActiveRecord::Base
   end
 
   ## CLASS METHODS
-  
-  # def self.sti_name
-  #   name.demodulize
-  # end
-  # 
-  # def find_sti_class(type_name)
-  #   compute_type(type_name)
-  # end
   
   # Use sunspot search to return a type_term_id facet for all seqfeatures with a given assembly_id
   def self.facet_types_with_expression_and_assembly_id(assembly_id)
@@ -83,7 +76,7 @@ class Bio::Feature::Seqfeature < ActiveRecord::Base
     puts "Re-indexing #{seqfeature_ids.length} features"
     progress_bar = ProgressBar.new(seqfeature_ids.length)
     seqfeature_ids.each_slice(batch_size) do |id_batch|
-      Sunspot.index self.includes([:bioentry,:type_term,:qualifiers,:feature_counts,:blast_reports,:locations,:favorite_users])
+      Sunspot.index self.includes([:bioentry,:type_term,:qualifiers,:feature_counts,:blast_reports_without_report,:locations,:favorite_users])
         .where{seqfeature_id.in(my{id_batch})}
       progress_bar.increment!(id_batch.length)
       if((progress_bar.count%10000)==0)
@@ -124,14 +117,11 @@ class Bio::Feature::Seqfeature < ActiveRecord::Base
   def indexed_description
     description.presence
   end
-  def indexed_full_description
-    full_description.presence
-  end
   def indexed_product
-    product.try(:value)
+    product_assoc.try(:value)
   end
   def indexed_function
-    function.try(:value)
+    product_assoc.try(:value)
   end
   def indexed_transcript_id
     transcript_id.try(:value)
@@ -175,7 +165,7 @@ class Bio::Feature::Seqfeature < ActiveRecord::Base
   end
   # All non Genbank terms concatenated
   def custom_description
-    Bio::Term.custom_ontologies.collect{|ont| ont.terms.collect{|term| self.qualifiers.select{|q| q.term_id == term.id} }}.flatten.compact.map(&:value).join('; ') 
+    Biosql::Term.custom_ontologies.collect{|ont| ont.terms.collect{|term| self.qualifiers.select{|q| q.term_id == term.id} }}.flatten.compact.map(&:value).join('; ') 
   end
   # All Genbank terms concatenated
   def genbank_description
@@ -191,15 +181,15 @@ class Bio::Feature::Seqfeature < ActiveRecord::Base
   end
   # All attributes from the Genbank ontology
   def annotation_qualifiers
-    qualifiers.select{|q| q.term.ontology_id == Bio::Term.ano_tag_ont_id}
+    qualifiers.select{|q| q.term.ontology_id == Biosql::Term.ano_tag_ont_id}
   end
   # All annotation attributes for display / search
   def search_qualifiers
-    qualifiers.select{|q| !Seqfeature.excluded_search_terms.include?(q.term.name) }
+    qualifiers.select{|q| !Biosql::Feature::Seqfeature.excluded_search_terms.include?(q.term.name) }
   end
   # All attributes from custom ontologies
   def custom_qualifiers
-    qualifiers.select{|q| q.term.ontology_id != Bio::Term.ano_tag_ont_id}
+    qualifiers.select{|q| q.term.ontology_id != Biosql::Term.ano_tag_ont_id}
   end
   ### SQV types - allows for quick reference through eager load of :qualifiers
   # NOTE: These could be converted to STI classes but the table has no primary key
@@ -293,8 +283,8 @@ class Bio::Feature::Seqfeature < ActiveRecord::Base
   # creates a term for display_name if one cannot be found
   def initialize_associations
     if type_term_id.nil? && display_name
-      seq_key_ont_id = Bio::Term.seq_key_ont_id
-      self.type_term_id = Bio::Term.find_or_create_by_name_and_ontology_id(self.display_name,seq_key_ont_id).id
+      seq_key_ont_id = Biosql::Term.seq_key_ont_id
+      self.type_term_id = Biosql::Term.find_or_create_by_name_and_ontology_id(self.display_name,seq_key_ont_id).id
     end
     if !self.rank || self.rank==0 && self.bioentry_id && self.type_term_id
       self.rank = (self.bioentry.seqfeatures.where(:type_term_id => self.type_term_id).maximum(:rank)||0) + 1
@@ -615,7 +605,7 @@ class Bio::Feature::Seqfeature < ActiveRecord::Base
   protected
   ## Sunspot search definition
   ## TODO: Document Search attributes
-  searchable(:include => [:bioentry,:qualifiers,:feature_counts,:blast_reports,:locations,:favorite_users,:gene_models => [:cds => [:product_assoc, :protein_id_assoc], :mrna => [:function_assoc, :transcript_id_assoc]]]) do |s|
+  searchable(:include => [:bioentry,:qualifiers,:feature_counts,:blast_reports_without_report,:locations,:favorite_users,:product_assoc,:function_assoc,:gene_models => [:cds => [:product_assoc, :protein_id_assoc], :mrna => [:function_assoc, :transcript_id_assoc]]]) do |s|
     # Text Searchable
     # must be stored for highlighted results
     s.text :locus_tag_text, :stored => true do
@@ -677,8 +667,8 @@ class Bio::Feature::Seqfeature < ActiveRecord::Base
     # IDs
     s.integer :id, :stored => true
     s.integer :bioentry_id, :stored => true
-    s.integer :type_term_id, :references => Bio::Term
-    s.integer :source_term_id, :references => Bio::Term
+    s.integer :type_term_id, :references => Biosql::Term
+    s.integer :source_term_id, :references => Biosql::Term
     s.integer :strand, :stored => true
     s.integer :assembly_id do
       bioentry.assembly_id
@@ -704,26 +694,26 @@ class Bio::Feature::Seqfeature < ActiveRecord::Base
     # end
     # dynamic blast reports
     s.dynamic_string :blast_acc, :stored => true do
-      blast_reports.inject({}){|hash,report| hash["blast_#{report.blast_run_id}"]=report.hit_acc;hash}
+      blast_reports_without_report.inject({}){|hash,report| hash["blast_#{report.blast_run_id}"]=report.hit_acc;hash}
     end
     s.dynamic_string :blast_id, :stored => true do
-      blast_reports.inject({}){|hash,report| hash["blast_#{report.blast_run_id}"]=report.id;hash}
+      blast_reports_without_report.inject({}){|hash,report| hash["blast_#{report.blast_run_id}"]=report.id;hash}
     end
     # Fake dynamic blast text - defined for 'every' blast_run on 'every' seqfeature
     # TODO: find another way to allow scoped blast_def full text search without searching all of the definitions
     begin
     BlastRun.all.each do |blast_run|
       s.string "blast_#{blast_run.id}".to_sym do
-        report = blast_reports.select{|b| b.blast_run_id == blast_run.id }.first
+        report = blast_reports_without_report.select{|b| b.blast_run_id == blast_run.id }.first
         report ? report.hit_def : nil
       end
       s.text "blast_#{blast_run.id}_text".to_sym, :stored => true do
-        report = blast_reports.select{|b| b.blast_run_id == blast_run.id }.first
+        report = blast_reports_without_report.select{|b| b.blast_run_id == blast_run.id }.first
         report ? report.hit_def : nil
       end
     end
     # More fake dynamic text ... for custom ontologies and annotation
-    Bio::Term.custom_ontologies.each do |ont|
+    Biosql::Term.custom_ontologies.each do |ont|
       ont.terms.each do |ont_term|
         s.string "term_#{ont_term.id}".to_sym do
           a = self.custom_qualifiers.select{|q| q.term_id == ont_term.id}.collect(&:value).join('; ')
@@ -735,13 +725,13 @@ class Bio::Feature::Seqfeature < ActiveRecord::Base
         end
       end
     end
-    rescue
-      puts "Could not define dynamic text in Seqfeature searchable definition. BlastRun and/or Term missing"
+    rescue => e
+      puts "Could not define dynamic text in Seqfeature searchable definition. BlastRun and/or Term missing\n#{e}\n"
     end
   end
 end
-# TODO: Look into 
-Bio::Feature::Seqfeature.store_full_sti_class = false
+# TODO: Look into Storing STI
+Biosql::Feature::Seqfeature.store_full_sti_class = false
 
 # == Schema Information
 #

@@ -6,11 +6,11 @@ class Tabix < Asset
   end
   
   def open_tabix(opts={})
-    return Bio::Tabix::TFile.open(data.path,opts)
+    return Biosql::Tabix::TFile.open(data.path,opts)
   end
   
   def create_index(opts={})
-    Bio::Tabix::TFile.build_index(self.data.path,opts)
+    Biosql::Tabix::TFile.build_index(self.data.path,opts)
   end
   
   def get_data(seq,start,stop,opts={})

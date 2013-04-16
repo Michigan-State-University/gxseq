@@ -2,7 +2,7 @@ class BigWig < Asset
   def open_bw
     begin
       @err = nil
-      Bio::Ucsc::BigWig.open(data.path)
+      Biosql::Ucsc::BigWig.open(data.path)
     rescue => e
       @err
       @bw = nil

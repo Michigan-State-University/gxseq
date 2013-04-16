@@ -1,5 +1,5 @@
-class BioentriesController < ApplicationController
-  authorize_resource :except => [:metadata, :track_data]
+class Biosql::BioentriesController < ApplicationController
+  authorize_resource :except => [:metadata, :track_data], :class => "Biosql::Bioentry"
   def index
     # Defaults
     params[:page] ||=1
@@ -7,7 +7,7 @@ class BioentriesController < ApplicationController
     # Filter setup
     @assemblies = Assembly.accessible_by(current_ability).includes(:taxon => :scientific_name).order('taxon_name.name')
     @assemblies = @assemblies.where("assemblies.type = ?",params[:taxon_type]) unless params[:taxon_type].blank?
-    @biodatabases = Bio::Biodatabase.order('name')
+    @biodatabases = Biosql::Biodatabase.order('name')
     # Format
     respond_to do |wants|
       wants.html {
@@ -19,7 +19,7 @@ class BioentriesController < ApplicationController
       wants.fasta {
         ## Search block - hack to get around forced paging, 
         fasta_search = base_search do |s|
-          s.paginate(:page => 1, :per_page => Bio::Bioentry.count)
+          s.paginate(:page => 1, :per_page => Biosql::Bioentry.count)
         end
         # set disposition to attachment
         headers["Content-disposition"] = 'attachment;'
@@ -27,7 +27,7 @@ class BioentriesController < ApplicationController
         # NOTE: change to streaming Enumerator for rails 3.2
         self.response_body = proc {|resp, out|
           fasta_search.hits.each_slice(100) do |hits|
-            Bio::Bioentry.where(:bioentry_id => hits.map{|h| h.stored(:id)}).includes(:biosequence).each do |entry|
+            Biosql::Bioentry.where(:bioentry_id => hits.map{|h| h.stored(:id)}).includes(:biosequence).each do |entry|
               # write the entry header
               out.write entry.fasta_header
               # write each line of sequence
@@ -41,18 +41,18 @@ class BioentriesController < ApplicationController
       wants.genbank {
         ## Search block
         genbank_search = base_search do |s|
-          s.paginate(:page => 1, :per_page => Bio::Bioentry.count)
+          s.paginate(:page => 1, :per_page => Biosql::Bioentry.count)
         end
         # set disposition to attachment
         headers["Content-disposition"] = 'attachment;'
         # use custom proc for response body
         self.response_body = proc {|resp, out|
           genbank_search.hits.each_slice(100) do |hits|
-            Bio::Bioentry.where(:bioentry_id => hits.map{|h| h.stored(:id)}).includes(:biosequence).each do |entry|
+            Biosql::Bioentry.where(:bioentry_id => hits.map{|h| h.stored(:id)}).includes(:biosequence).each do |entry|
               # write the entry header
               out.write entry.genbank_header
               # process the features in batches (for manageable includes)
-              Bio::Feature::Seqfeature.where(:bioentry_id => entry.id).includes{[type_term,qualifiers.term,locations]}.find_in_batches(:batch_size => 500) do |feature_batch|
+              Biosql::Feature::Seqfeature.where(:bioentry_id => entry.id).includes{[type_term,qualifiers.term,locations]}.find_in_batches(:batch_size => 500) do |feature_batch|
                 # write the feature and qualifiers
                 feature_batch.each do |feature|
                   out.write feature.to_genbank(false)
@@ -74,7 +74,7 @@ class BioentriesController < ApplicationController
         end
         data=[]
         search.results.each do |entry|
-         # b = Bio::Bioentry.find(entry.id, :include => [:assembly,[:source_features => [:qualifiers => :term]]] )
+         # b = Biosql::Bioentry.find(entry.id, :include => [:assembly,[:source_features => [:qualifiers => :term]]] )
           #add the datapoint
           data.push( {
             :id => entry.id,
@@ -100,7 +100,7 @@ class BioentriesController < ApplicationController
   end
   
   def show
-    @bioentry = Bio::Bioentry.find(params[:id])
+    @bioentry = Biosql::Bioentry.find(params[:id])
     authorize! :read, @bioentry
     assembly = @bioentry.assembly
     # the feature_id will be used to lookup the given feature on load. It will NOT set the position.
@@ -152,12 +152,12 @@ class BioentriesController < ApplicationController
   end
   
   def edit
-    @bioentry = Bio::Bioentry.find(params[:id])
+    @bioentry = Biosql::Bioentry.find(params[:id])
     authorize! :update, @bioentry
   end
 
   def update
-    @bioentry = Bio::Bioentry.find(params[:id])
+    @bioentry = Biosql::Bioentry.find(params[:id])
     authorize! :update, @bioentry
     respond_to do |wants|
       if @bioentry.update_attributes(params[:bioentry])
@@ -182,14 +182,14 @@ class BioentriesController < ApplicationController
     versions = []
     taxons = []
     use_bioentry_search = false
-    bioentry = Bio::Bioentry.find(bioentry_id)
+    bioentry = Biosql::Bioentry.find(bioentry_id)
     # auth
     authorize! :read, bioentry
     bioentry_tv = bioentry.assembly
     bioentry_sp = bioentry_tv.species
     assemblies = bioentry_sp.species_assemblies.accessible_by(current_ability).includes(:taxon)
     # Collect Species
-    Taxon.with_species_assemblies.accessible_by(current_ability).each do |taxon|
+    Biosql::Taxon.with_species_assemblies.accessible_by(current_ability).each do |taxon|
       species_array.push({
         :id => taxon.species_assemblies.first.bioentries.first.try(:id),
         :name => taxon.name
@@ -310,19 +310,19 @@ class BioentriesController < ApplicationController
           }
        when 'sequence'
          bioentry_id = param['bioentry']
-         bioentry = Bio::Bioentry.find(bioentry_id)
+         bioentry = Biosql::Bioentry.find(bioentry_id)
          authorize! :read, bioentry
-         biosequence = Bio::Biosequence.find_by_bioentry_id(bioentry_id)
+         biosequence = Biosql::Biosequence.find_by_bioentry_id(bioentry_id)
          render :partial => "biosequence/show", :locals => {:biosequence => biosequence, :start => param['left'], :stop => param['right']}
        when 'range'
          bioentry_id = param['bioentry']
-         bioentry = Bio::Bioentry.find(bioentry_id)
+         bioentry = Biosql::Bioentry.find(bioentry_id)
          authorize! :read, bioentry
          left = param['left']
          right = param['right']
          length = right - left +1
          if(param['bases']==1 && param['pixels']>1)
-           bioseq = Bio::Biosequence.find_by_bioentry_id(bioentry_id.to_i)
+           bioseq = Biosql::Biosequence.find_by_bioentry_id(bioentry_id.to_i)
            sequence = bioseq.seq[ left, length ]
            data = bioseq.get_six_frames(left, right)
            render :json => {
@@ -339,7 +339,7 @@ class BioentriesController < ApplicationController
               }
            }            
          elsif(param['bases'] < 10 )
-           bioseq = Bio::Biosequence.find_by_bioentry_id(bioentry_id.to_i)
+           bioseq = Biosql::Biosequence.find_by_bioentry_id(bioentry_id.to_i)
            sequence = bioseq.seq[ left, length ]
            data = bioseq.get_six_frames(left, right)
            render :json => {
@@ -359,7 +359,7 @@ class BioentriesController < ApplicationController
               }
            }
          elsif(param['bases']>=10)
-           bioseq = Bio::Biosequence.where(:bioentry_id => bioentry_id.to_i).select("bioentry_id,version,length").first
+           bioseq = Biosql::Biosequence.where(:bioentry_id => bioentry_id.to_i).select("bioentry_id,version,length").first
            data =  bioentry.get_gc_content(left,length,param['bases'])
           render :json => {
              :success => true,
@@ -394,7 +394,7 @@ class BioentriesController < ApplicationController
     # Set to -1 if no items are found. This will force empty search results
     authorized_id_set=[-1] if authorized_id_set.empty?
     # Begin block
-    @search = Bio::Bioentry.search do |s|
+    @search = Biosql::Bioentry.search do |s|
       # Text Keywords
       if params[:keywords]
         s.keywords params[:keywords], :fields => [:accession_text,:description_text,:sequence_type_text,:sequence_name_text,:species_name_text,:assembly_name_text], :highlight => true

@@ -2,19 +2,19 @@
 class SyntheticsController < ApplicationController
    ##ajax routes
    def render_exp_type
-      @bioentries = Bio::Bioentry.find(:all, :order => "taxon_id asc, name")   
+      @bioentries = Biosql::Bioentry.find(:all, :order => "taxon_id asc, name")   
       @synthetic = Synthetic.new()
       @experiment_type = params[:experiment_type]
-      @synthetic.bioentry = Bio::Bioentry.find(params[:bioentry_id])
+      @synthetic.bioentry = Biosql::Bioentry.find(params[:bioentry_id])
       @types = @synthetic.bioentry.experiments.collect(&:type).uniq - ["Synthetic"]
       render :partial  => 'exp_type'
    end
    
    def render_form
-      @bioentries = Bio::Bioentry.find(:all, :order => "taxon_id asc, name") 
+      @bioentries = Biosql::Bioentry.find(:all, :order => "taxon_id asc, name") 
       @synthetic = Synthetic.new()
       @experiment_type = params[:experiment_type]
-      @synthetic.bioentry = Bio::Bioentry.find(params[:bioentry_id])
+      @synthetic.bioentry = Biosql::Bioentry.find(params[:bioentry_id])
       @types = @synthetic.bioentry.experiments.collect(&:type).uniq - ["Synthetic"]
       @experiments = @experiment_type.constantize.find(:all, :conditions => "bioentry_id=#{@synthetic.bioentry_id}")
       render :partial => 'form'
@@ -40,7 +40,7 @@ class SyntheticsController < ApplicationController
    end
    
    def new
-      @bioentries = Bio::Bioentry.find(:all, :order => "taxon_id asc, name")
+      @bioentries = Biosql::Bioentry.find(:all, :order => "taxon_id asc, name")
    end
    
    def create
@@ -60,7 +60,7 @@ class SyntheticsController < ApplicationController
               @experiments = @experiment_type.constantize.find(:all, :conditions => "bioentry_id=#{params[:synthetic][:bioentry_id]}")
               #@experiments = @synthetic.bioentry.experiments.find(:conditions => "type = #{@experiment_type}")
               @types = @synthetic.bioentry.experiments.collect(&:type).uniq - ["Synthetic"]
-              @bioentries = Bio::Bioentry.find(:all, :order => "taxon_id asc, name")
+              @bioentries = Biosql::Bioentry.find(:all, :order => "taxon_id asc, name")
               render :action => :new
             end
          end
@@ -73,7 +73,7 @@ class SyntheticsController < ApplicationController
    
    def edit
       @synthetic = Synthetic.find(params[:id])
-      @bioentries = Bio::Bioentry.find(:all, :order => "taxon_id asc, name")
+      @bioentries = Biosql::Bioentry.find(:all, :order => "taxon_id asc, name")
       @experiment_type = @synthetic.a_components.first.experiment.class.name
       @experiments = @synthetic.bioentry.send(@experiment_type.underscore.pluralize) - [@synthetic]      
       @types = @synthetic.bioentry.experiments.collect(&:type).uniq - ["Synthetic"]
@@ -105,7 +105,7 @@ class SyntheticsController < ApplicationController
                
                #reset instance variables
                @experiments = @synthetic.bioentry.experiments
-               @bioentries = Bio::Bioentry.find(:all, :order => "taxon_id asc, name")
+               @bioentries = Biosql::Bioentry.find(:all, :order => "taxon_id asc, name")
                render :action => :edit
             end
          end        

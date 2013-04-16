@@ -1,11 +1,11 @@
-class Bio::Location < ActiveRecord::Base
+class Biosql::Location < ActiveRecord::Base
   set_table_name "location"
   set_primary_key :location_id
   has_paper_trail :meta => {
     :parent_id => Proc.new { |l| (l.seqfeature.respond_to?(:gene_model) && l.seqfeature.gene_model) ? l.seqfeature.gene_model.gene_id : l.seqfeature.id},
     :parent_type => Proc.new { |l| (l.seqfeature.respond_to?(:gene_model) && l.seqfeature.gene_model) ? 'Gene' : l.seqfeature.class.name}
   }
-  belongs_to :seqfeature, :foreign_key => :seqfeature_id
+  belongs_to :seqfeature, :class_name => "Biosql::Feature::Seqfeature"
   belongs_to :dbxref, :class_name => "Dbxref"
   belongs_to :term, :class_name => "Term"
   has_many :location_qualifier_values, :class_name => "LocationQualifierValue"

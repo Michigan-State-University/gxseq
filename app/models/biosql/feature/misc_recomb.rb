@@ -1,4 +1,4 @@
-class Bio::Feature::MiscRecomb < Bio::Feature::Seqfeature  
+class Biosql::Feature::MiscRecomb < Biosql::Feature::Seqfeature  
 end
 # == Schema Information
 #

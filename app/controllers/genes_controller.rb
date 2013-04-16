@@ -73,20 +73,20 @@ class GenesController < ApplicationController
   end
   
   def create
-    authorize! :create, Bio::Feature::Gene.new
+    authorize! :create, Biosql::Feature::Gene.new
     begin
-      @taxons = Bio::Bioentry.all_taxon
+      @taxons = Biosql::Bioentry.all_taxon
       @assemblies = Assembly.accessible_by(current_ability).order(:name)
-      @gene = Bio::Feature::Gene.new(params[:gene])
+      @gene = Biosql::Feature::Gene.new(params[:gene])
       
       @bioentry = @gene.bioentry
       @assembly = @gene.bioentry.assembly
       @bioentries = @assembly.bioentries
-      @annotation_terms = Term.annotation_tags.order(:name).reject{|t|t.name=='locus_tag'}
-      seq_src_ont_id = Term.seq_src_ont_id
-      @seq_src_term_id = Term.default_source_term.id
+      @annotation_terms = Biosql::Term.annotation_tags.order(:name).reject{|t|t.name=='locus_tag'}
+      seq_src_ont_id = Biosql::Term.seq_src_ont_id
+      @seq_src_term_id = Biosql::Term.default_source_term.id
       if(@gene.valid?)
-        Bio::Feature::Gene.transaction do
+        Biosql::Feature::Gene.transaction do
           @gene.save
           redirect_to [:edit,@gene], :notice => "Gene Created Successfully"
         end
@@ -116,7 +116,7 @@ class GenesController < ApplicationController
       #Note: Find related features (by locus tag until we have a parent<->child relationship)
       @features = @gene.find_related_by_locus_tag
     when 'history'
-      @changelogs = Version.order('id desc').where(:parent_id => @gene.id).where(:parent_type => 'Bio::Feature::Gene')
+      @changelogs = Version.order('id desc').where(:parent_id => @gene.id).where(:parent_type => 'Biosql::Feature::Gene')
     when 'expression'
       @feature_counts = @gene.feature_counts.accessible_by(current_ability)
       #@d3_data = FeatureCount.create_graph_data(@feature_counts,{:type => 'json-rpkm'})
@@ -142,7 +142,7 @@ class GenesController < ApplicationController
   def update
     authorize! :update, @gene
     begin
-      Bio::Feature::Gene.transaction do
+      Biosql::Feature::Gene.transaction do
         if(@gene.update_attributes(params[:gene]))
           redirect_to [:edit,@gene], :notice => "Gene Updated successfully"
         else
@@ -167,26 +167,26 @@ class GenesController < ApplicationController
     @assembly = @bioentry = nil
     @assemblies = Assembly.includes(:taxon => :scientific_name).order('taxon_name.name').accessible_by(current_ability)
     # TODO: refactor this! Ontology doesn't belong here... Should prabably be selected...
-    @seq_src_term_id = Term.default_source_term.id
+    @seq_src_term_id = Biosql::Term.default_source_term.id
     begin
       params[:assembly_id]||=params[:genes][:assembly_id] rescue nil
       params[:bioentry_id]||=params[:genes][:bioentry_id] rescue nil
-      @gene = Bio::Feature::Gene.new
+      @gene = Biosql::Feature::Gene.new
     if(params[:assembly_id] && @assembly = Assembly.accessible_by(current_ability).find(params[:assembly_id]))
       @bioentries = @assembly.bioentries
       params[:bioentry_id]=@bioentries.first.id if @bioentries.count ==1
-      if(params[:bioentry_id] && @bioentry = Bio::Bioentry.accessible_by(current_ability).find(params[:bioentry_id]))
-        @gene = Bio::Feature::Gene.new(:bioentry_id => @bioentry.id)
+      if(params[:bioentry_id] && @bioentry = Biosql::Bioentry.accessible_by(current_ability).find(params[:bioentry_id]))
+        @gene = Biosql::Feature::Gene.new(:bioentry_id => @bioentry.id)
         # add the first blank gene model.
         @gene.gene_models.build
         # Add the locus_tag qualifier. This is required for all genes
         q = @gene.qualifiers.build
-        q.term = Term.find_by_name('locus_tag')
+        q.term = Biosql::Term.find_by_name('locus_tag')
         q.term_id = q.term.id
         # Add the blank location
         @gene.locations.build
         # get the annotation terms
-        @annotation_terms = Term.annotation_tags.order(:name).reject{|t|t.name=='locus_tag'}
+        @annotation_terms = Biosql::Term.annotation_tags.order(:name).reject{|t|t.name=='locus_tag'}
       end
     else
       @bioentries = []
@@ -197,9 +197,9 @@ class GenesController < ApplicationController
   
   def lookup_gene
     # See if we have a locus or id
-    gene_id = Bio::Feature::Gene.with_locus_tag(params[:id]).first.try(:id) || params[:id]
+    gene_id = Biosql::Feature::Gene.with_locus_tag(params[:id]).first.try(:id) || params[:id]
     # Lookup gene by id
-    @gene = Bio::Feature::Gene.where(:seqfeature_id => gene_id).includes(
+    @gene = Biosql::Feature::Gene.where(:seqfeature_id => gene_id).includes(
       [ 
         :locations,
         [:qualifiers => :term],
@@ -207,20 +207,20 @@ class GenesController < ApplicationController
         [:gene_models => [:cds => [:locations, [:qualifiers => :term]],:mrna => [:locations, [:qualifiers => :term]]]],
       ]).first
     # Lookup all genes with the same locus tag for warning display
-    @genes = Bio::Feature::Gene.with_locus_tag( @gene.locus_tag.value)
+    @genes = Biosql::Feature::Gene.with_locus_tag( @gene.locus_tag.value)
   end
   
   def get_gene_data
     begin
       #get gene and attributes
-      @gene = Bio::Feature::Gene.find(params[:id], :include => [:locations, [:bioentry => [:assembly]],[:gene_models => [:cds => [:locations, [:qualifiers => :term]],:mrna => [:locations, [:qualifiers => :term]]]],[:qualifiers => :term]])
+      @gene = Biosql::Feature::Gene.find(params[:id], :include => [:locations, [:bioentry => [:assembly]],[:gene_models => [:cds => [:locations, [:qualifiers => :term]],:mrna => [:locations, [:qualifiers => :term]]]],[:qualifiers => :term]])
       setup_graphics_data      
       @locus = @gene.locus_tag.value.upcase
       @bioentry = @gene.bioentry
-      @annotation_terms = Term.annotation_tags.order(:name).reject{|t|t.name=='locus_tag'}      
-      seq_src_ont_id = Term.seq_src_ont_id
+      @annotation_terms = Biosql::Term.annotation_tags.order(:name).reject{|t|t.name=='locus_tag'}      
+      seq_src_ont_id = Biosql::Term.seq_src_ont_id
       #TODO: Document seqfeature 'Source' uses and options for expansion
-      @seq_src_term_id = Term.default_source_term.id
+      @seq_src_term_id = Biosql::Term.default_source_term.id
     rescue
       logger.error "\n\n#{$!}\n\n#{caller.join("\n")}\n\n"
     end

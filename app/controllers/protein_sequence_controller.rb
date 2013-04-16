@@ -40,7 +40,7 @@ class ProteinSequenceController < ApplicationController
         when 'range'
            bioentry = param['bioentry']
            if(param['bases']>1)
-              bioseq = Bio::Bioentry.find(bioentry).biosequence
+              bioseq = Biosql::Bioentry.find(bioentry).biosequence
               left = param['left']
               right = param['right']
               length = right - left +1
@@ -52,7 +52,7 @@ class ProteinSequenceController < ApplicationController
               }             
            elsif(param['bases']==1)
               if(param['pixels']>=1)
-                 bioseq = Bio::Bioentry.find(bioentry).biosequence
+                 bioseq = Biosql::Bioentry.find(bioentry).biosequence
                  left = param['left']
                  right = param['right']
                  length = right - left +1

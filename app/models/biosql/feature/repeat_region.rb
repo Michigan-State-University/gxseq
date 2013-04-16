@@ -1,4 +1,4 @@
-class Bio::Feature::RepeatRegion < Bio::Feature::Seqfeature  
+class Biosql::Feature::RepeatRegion < Biosql::Feature::Seqfeature  
 end
 # == Schema Information
 #

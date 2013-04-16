@@ -1,9 +1,9 @@
-class Bio::Feature::SeqfeatureQualifierValue < ActiveRecord::Base
+class Biosql::SeqfeatureQualifierValue < ActiveRecord::Base
   set_table_name "seqfeature_qualifier_value"
   set_primary_keys :seqfeature_id, :term_id, :rank
 
   belongs_to :term
-  belongs_to :seqfeature, :inverse_of => :qualifiers
+  belongs_to :seqfeature, :class_name => "Biosql::Feature::Seqfeature", :inverse_of => :qualifiers
   validates_presence_of :seqfeature
   validates_presence_of :term_id
   validates_presence_of :value
@@ -40,7 +40,7 @@ class Bio::Feature::SeqfeatureQualifierValue < ActiveRecord::Base
   end
 
   def self.db_xref_id
-    @db_xref_id ||= (Term.find_or_create_by_name_and_ontology_id("db_xref",Ontology.find_or_create_by_name("Annotation Tags").id).id)
+    @db_xref_id ||= (Biosql::Term.find_or_create_by_name_and_ontology_id("db_xref",Biosql::Ontology.find_or_create_by_name("Annotation Tags").id).id)
   end
 
   def value(allow_interpolate=false)
@@ -49,7 +49,7 @@ class Bio::Feature::SeqfeatureQualifierValue < ActiveRecord::Base
       val = super()
       dbname,dbid=val.split(":")
       if(dbname && dbid)
-        "#{dbname}:<a href='#{Dbxref::XREF_LINKS[dbname.underscore.to_sym]}#{dbid}' target=#>#{dbid}</a>"
+        "#{dbname}:<a href='#{Biosql::Dbxref::XREF_LINKS[dbname.underscore.to_sym]}#{dbid}' target=#>#{dbid}</a>"
       else
         val
       end

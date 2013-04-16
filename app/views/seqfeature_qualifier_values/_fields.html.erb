@@ -1,7 +1,7 @@
 <ul class="nested-fields">
 	<%= f.inputs do %>
 		<% if f.object.new_record? && ( f.object.term.nil? || !f.object.term.name=='locus_tag')%>
-			<%= f.grouped_collection_select :term_id, Term.annotation_ontologies, :terms, :name, :term_id, :name %>
+			<%= f.grouped_collection_select :term_id, Biosql::Term.annotation_ontologies, :terms, :name, :term_id, :name %>
 		<% else %>
 			<li class="smalltext"><%= f.object.term.name %></li>
 			<%= f.hidden_field :term_id, :value => f.object.term_id %>

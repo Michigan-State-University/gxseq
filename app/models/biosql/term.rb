@@ -1,4 +1,4 @@
-class Bio::Term < ActiveRecord::Base
+class Biosql::Term < ActiveRecord::Base
   set_primary_key :term_id
   set_table_name "term"
   belongs_to :ontology, :class_name => "Ontology"
@@ -25,44 +25,44 @@ class Bio::Term < ActiveRecord::Base
   ## CLASS METHODS
   # ontology terms
   def self.annotation_tags
-    ::Term.where(:ontology_id => ano_tag_ont_id)
+    self.where(:ontology_id => ano_tag_ont_id)
   end
   def self.source_tags
-    ::Term.where(:ontology_id => seq_src_ont_id)
+    self.where(:ontology_id => seq_src_ont_id)
   end
   def self.seqfeature_tags
-    ::Term.where(:ontology_id => seq_key_ont_id)
+    self.where(:ontology_id => seq_key_ont_id)
   end
   # Default ontology setup
   def self.seq_src_ont_id
-    @seq_src_id ||= Ontology.find_or_create_by_name("SeqFeature Sources").id
+    @seq_src_id ||= Biosql::Ontology.find_or_create_by_name("SeqFeature Sources").try(:id)
   end
   def self.seq_key_ont_id
-    @seq_key_id ||= Ontology.find_or_create_by_name("SeqFeature Keys").id
+    @seq_key_id ||= Biosql::Ontology.find_or_create_by_name("SeqFeature Keys").try(:id)
   end
   def self.ano_tag_ont_id
-    @ano_tag_id ||= Ontology.find_or_create_by_name("Annotation Tags").id
+    @ano_tag_id ||= Biosql::Ontology.find_or_create_by_name("Annotation Tags").try(:id)
   end
   # All but seqfeature source and seqfeature keys
   def self.annotation_ontologies
-    @anno_ont ||= Ontology.where("ontology_id not in(#{seq_src_ont_id},#{seq_key_ont_id})").order("name desc")
+    @anno_ont ||= Biosql::Ontology.where("ontology_id not in(#{seq_src_ont_id},#{seq_key_ont_id})").order("name desc")
   end
   # All non standard ontologies
   def self.custom_ontologies
-    @custom_ont ||= Ontology.where("ontology_id not in(#{seq_src_ont_id},#{seq_key_ont_id},#{ano_tag_ont_id})")
+    @custom_ont ||= Biosql::Ontology.where("ontology_id not in(#{seq_src_ont_id},#{seq_key_ont_id},#{ano_tag_ont_id})")
   end
   # returns the default source term for use with seqfeature source_term
   def self.default_source_term
-    @default_src_tm ||= ::Term.find_or_create_by_name_and_ontology_id("EMBL/GenBank/SwissProt",self.seq_src_ont_id)
+    @default_src_tm ||= self.find_or_create_by_name_and_ontology_id("EMBL/GenBank/SwissProt",seq_src_ont_id)
   end
   
   def self.denormalize
     begin
       puts "Updating Location -> term_id"
-      Term.connection.execute("update location set term_id = (select seqfeature.type_term_id from seqfeature where seqfeature.seqfeature_id = location.seqfeature_id) where term_id is null")      
+      self.connection.execute("update location set term_id = (select seqfeature.type_term_id from seqfeature where seqfeature.seqfeature_id = location.seqfeature_id) where term_id is null")      
       puts "Updating Seqfeature -> display_name"
-      Term.transaction do
-        Bio::Feature::Seqfeature.where('display_name is null').includes(:type_term).each do |feature|
+      self.transaction do
+        Biosql::Feature::Seqfeature.where('display_name is null').includes(:type_term).each do |feature|
           feature.update_attribute(:display_name,feature.type_term.name.downcase.camelize)
         end
       end

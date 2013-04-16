@@ -1,6 +1,6 @@
 ## Taxon Nested Set is NOT maintained during sequence load or default taxonomy load.
 ## It WILL be out of sync until you call - taxon::rebuild_nested_set
-class Bio::Taxon < ActiveRecord::Base
+class Biosql::Taxon < ActiveRecord::Base
   set_table_name "taxon"
   set_primary_key :taxon_id
   has_and_belongs_to_many :biodatabases
@@ -37,18 +37,18 @@ class Bio::Taxon < ActiveRecord::Base
   end
   # find or create the root of the tree
   def self.root
-    if t = TaxonName.find_by_name('root')
+    if t = Biosql::TaxonName.find_by_name('root')
       return t.taxon
     else
-      return Taxon.where("parent_taxon_id == taxon_id OR parent_taxon_id is null").first || self.create_root
+      return self.where("parent_taxon_id == taxon_id OR parent_taxon_id is null").first || self.create_root
     end
   end
   # find or create the 'unknown' taxon
   def self.unknown
-    if t = TaxonName.find_by_name('unidentified')
+    if t = Biosql::TaxonName.find_by_name('unidentified')
       return t.taxon
     else
-      unknown = Taxon.create(:node_rank  => 'species', :genetic_code => '1', :mito_genetic_code  => '1', :non_ncbi => 1)
+      unknown = self.create(:node_rank  => 'species', :genetic_code => '1', :mito_genetic_code  => '1', :non_ncbi => 1)
       unknown.taxon_names.create(:name => 'unidentified', :name_class => "scientific name")
       return unknown
     end
@@ -65,8 +65,8 @@ class Bio::Taxon < ActiveRecord::Base
     # Nested set calculation
     begin
       puts "\t... rebuilding nested set left/right values\n" if verbose
-      progress_bar = ProgressBar.new(Taxon.count*2) # left and right for each taxon
-      Taxon.transaction do
+      progress_bar = ProgressBar.new(self.count*2) # left and right for each taxon
+      self.transaction do
         # start the recursive calculation on the root node
         update_nested_set(self.root.taxon_id.to_i,parent_child_map,Time.now,progress_bar)
       end
@@ -101,7 +101,7 @@ class Bio::Taxon < ActiveRecord::Base
   private 
   # create a new root
   def self.create_root
-    root = Taxon.create(:node_rank  => 'no rank', :genetic_code => '1', :mito_genetic_code  => '1', :non_ncbi => 1)
+    root = self.create(:node_rank  => 'no rank', :genetic_code => '1', :mito_genetic_code  => '1', :non_ncbi => 1)
     root.update_attribute(:parent_id,root.id) 
     root.taxon_names.create(:name => 'root', :name_class => "scientific name")
     root.taxon_names.create(:name => 'all', :name_class => "synonym")

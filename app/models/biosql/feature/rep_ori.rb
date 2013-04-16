@@ -1,2 +1,2 @@
-class Bio::Feature::RepOri < Bio::Feature::Seqfeature  
+class Biosql::Feature::RepOri < Biosql::Feature::Seqfeature  
 end

@@ -19,7 +19,7 @@ class Taxonomy < Thor
     # Nested Set calculation
     if(nested_set)
       puts "Rebuilding nested_set"
-      Taxon.rebuild_nested_set(verbose)
+      Biosql::Taxon.rebuild_nested_set(verbose)
       exit 0
     end
     puts "Loading NCBI Taxonomy"
@@ -99,7 +99,7 @@ class Taxonomy < Thor
     end
     # Taxon Insert / Update / Delete
     begin
-    Taxon.transaction do
+    Biosql::Taxon.transaction do
       db_time = Time.now.to_s(:db)
       node_ids_needing_parent_update = []
       # insert first ...
@@ -111,7 +111,7 @@ class Taxonomy < Thor
             # Try to find the database id of the parent_node
             parent_taxon_id = ncbi_to_db_id_map[ new_node[1] ]
             # Insert the new data and save id
-            ncbi_to_db_id_map[new_node[0]] = Taxon.fast_insert(
+            ncbi_to_db_id_map[new_node[0]] = Biosql::Taxon.fast_insert(
               :ncbi_taxon_id => new_node[0],
               :parent_taxon_id => parent_taxon_id,
               :node_rank => new_node[2],
@@ -235,7 +235,7 @@ class Taxonomy < Thor
   def find(query)
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     puts "-\t-\tTaxonID\tRank\tName\tName Class"
-    taxon_names = TaxonName.includes(:taxon).limit(100)
+    taxon_names = Biosql::TaxonName.includes(:taxon).limit(100)
       .where{upper(name) =~ my{"%#{query.upcase}%"}}
       .where{taxon.taxon_id > 0}
       .order('taxon.node_rank asc, name asc')

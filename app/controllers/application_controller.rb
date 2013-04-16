@@ -10,7 +10,7 @@ class ApplicationController < ActionController::Base
       redirect_to current_user
     else
       # Store the attempted url in the session so we can return after login
-      session["user_return_to"] = request.request_uri
+      session["user_return_to"] = request.fullpath
       redirect_to new_user_session_path
     end
   end

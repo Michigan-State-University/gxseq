@@ -1,11 +1,11 @@
-class Bio::Bioentry < ActiveRecord::Base
+class Biosql::Bioentry < ActiveRecord::Base
   set_table_name "bioentry"
   set_primary_key :bioentry_id
   belongs_to :biodatabase, :class_name => "Biodatabase"
   belongs_to :assembly
 
   has_one :biosequence, :dependent  => :destroy
-  has_one :biosequence_without_seq, :class_name => "Biosequence", :select => [:alphabet,:length,:version,:created_at,:updated_at]
+  has_one :biosequence_without_seq, :class_name => "Biosequence", :select => [:bioentry_id,:alphabet,:length,:version,:created_at,:updated_at]
   
   has_many :bioentry_dbxrefs, :class_name => "BioentryDbxref", :dependent  => :destroy
   has_many :bioentry_qualifier_values, :order=>"bioentry_id,term_id,rank", :class_name => "BioentryQualifierValue", :dependent  => :destroy
@@ -14,16 +14,16 @@ class Bio::Bioentry < ActiveRecord::Base
   has_many :object_bioentry_relationships, :class_name=>"BioentryRelationship", :foreign_key=>"object_bioentry_id", :dependent  => :destroy  
   has_many :object_bioentry_paths, :class_name=>"BioentryPath", :foreign_key=>"object_bioentry_id", :dependent  => :destroy 
   has_many :references, :through=>:bioentry_references, :class_name => "Reference"
-  has_many :seqfeatures, :order => "rank", :dependent  => :destroy
+  has_many :seqfeatures, :class_name => "Feature::Seqfeature", :order => "rank", :dependent  => :destroy
   has_many :subject_bioentry_relationships, :class_name=>"BioentryRelationship", :foreign_key=>"subject_bioentry_id", :dependent  => :destroy
   has_many :subject_bioentry_paths, :class_name=>"BioentryPath", :foreign_key=>"subject_bioentry_id", :dependent  => :destroy
   has_many :terms, :through=>:bioentry_qualifier_values, :class_name => "Term"
     
   #seqfeature types
-  has_many :source_features, :class_name => "Source"
-  has_many :gene_features, :class_name => "Gene"
-  has_many :cds_features, :class_name => "Cds"
-  has_many :mrna_features, :class_name => "Mrna"
+  has_many :source_features, :class_name => "Feature::Source"
+  has_many :gene_features, :class_name => "Feature::Gene"
+  has_many :cds_features, :class_name => "Feature::Cds"
+  has_many :mrna_features, :class_name => "Feature::Mrna"
   
   ##Extensions
   has_many :gene_models, :dependent  => :destroy
@@ -35,7 +35,7 @@ class Bio::Bioentry < ActiveRecord::Base
   acts_as_api
   
   # Sunspot search definition
-  searchable(:auto_index => false, :include => [[:bioentry_qualifier_values, :assembly => [:species => :scientific_name]], [:source_features => [:qualifiers => :term]]]) do
+  searchable(:auto_index => false, :include => [[:bioentry_qualifier_values, :biosequence_without_seq, :assembly => [:species => :scientific_name]], [:source_features => [:qualifiers => :term]]]) do
     text :qualifiers, :stored => true do
       qualifiers.map{|q|"#{q.name}: #{q.value}"}
     end
@@ -103,7 +103,7 @@ class Bio::Bioentry < ActiveRecord::Base
   end
   
   def self.all_species
-    Bioentry.includes(:taxon).all.collect(&:taxon).uniq.collect(&:species).uniq
+    self.includes(:taxon).all.collect(&:taxon).uniq.collect(&:species).uniq
   end
   
   # Convenience method for Re-indexing a subset of features
@@ -111,7 +111,7 @@ class Bio::Bioentry < ActiveRecord::Base
     puts "Re-indexing #{bioentry_ids.length} entries"
     progress_bar = ProgressBar.new(bioentry_ids.length)
     bioentry_ids.each_slice(100) do |id_batch|
-      Sunspot.index Bioentry.includes([[:bioentry_qualifier_values, :assembly => [:species => :scientific_name]], [:source_features => [:qualifiers => :term]]]).where{bioentry_id.in(my{id_batch})}
+      Sunspot.index Bioentry.includes([[:bioentry_qualifier_values, :biosequence_without_seq, :assembly => [:species => :scientific_name]], [:source_features => [:qualifiers => :term]]]).where{bioentry_id.in(my{id_batch})}
       Sunspot.commit
       progress_bar.increment!(id_batch.length)
     end
@@ -121,7 +121,8 @@ class Bio::Bioentry < ActiveRecord::Base
   
   # returns the length of associated biosequence
   def length
-    Biosequence.find_by_bioentry_id(self.id,:select => :length).length
+    #Biosql::Biosequence.find_by_bioentry_id(self.id,:select => :length).length
+    biosequence_without_seq.length
   end
   # returns all bioentry qualifiers
   def qualifiers
@@ -178,7 +179,7 @@ class Bio::Bioentry < ActiveRecord::Base
   # the nested set must be built or this method will not work correctly
   def superkingdom
     if(taxon.left_value && taxon.right_value)
-      Taxon.find(:first, :include => :taxon_names, :conditions => "node_rank='superkingdom' AND left_value < #{taxon.left_value} AND right_value > #{taxon.left_value}")
+      Biosql::Taxon.find(:first, :include => :taxon_names, :conditions => "node_rank='superkingdom' AND left_value < #{taxon.left_value} AND right_value > #{taxon.left_value}")
     else
       nil
     end

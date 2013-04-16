@@ -1,4 +1,4 @@
-class Bio::Feature::Mrna < Bio::Feature::Seqfeature
+class Biosql::Feature::Mrna < Biosql::Feature::Seqfeature
   # do not autosave or we will infinite loop, gene_model auto-saves mrna and cds
   has_one :gene_model, :inverse_of => :mrna, :autosave => false
   def name

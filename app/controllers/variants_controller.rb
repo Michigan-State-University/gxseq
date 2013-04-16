@@ -81,7 +81,7 @@ class VariantsController < ApplicationController
         sample = param['sample']
         left = param['left']
         right = param['right']
-        bioentry = Bio::Bioentry.find(param['bioentry'])
+        bioentry = Biosql::Bioentry.find(param['bioentry'])
         limit = 5000
         only_variants_flag = (right-left>1000)
         bioentry_id = bioentry.id
@@ -97,7 +97,7 @@ class VariantsController < ApplicationController
         }
       when 'describe'
         begin
-          @bioentry = Bio::Bioentry.find(param['bioentry'])
+          @bioentry = Biosql::Bioentry.find(param['bioentry'])
           @experiment = Experiment.find(param['experiment'])
           c_item = @experiment.concordance_items.find_by_bioentry_id(@bioentry.id)
           @position = param['pos']
@@ -115,7 +115,7 @@ class VariantsController < ApplicationController
           @variant = Track.find(param['id']).experiment
           @left = param['left']
           @right = param['right']
-          @bioentry = Bio::Bioentry.find(param['bioentry'])
+          @bioentry = Biosql::Bioentry.find(param['bioentry'])
           render :partial => "variants/info.json"
         rescue
           render :json => {
@@ -141,7 +141,7 @@ class VariantsController < ApplicationController
   
   def get_variants
     page = params[:page] || 1
-    @bioentry = Bio::Bioentry.find((params[:bioentry_id] || @variant.assembly.bioentries.first.id))
+    @bioentry = Biosql::Bioentry.find((params[:bioentry_id] || @variant.assembly.bioentries.first.id))
     c_item = @variant.concordance_items.find_by_bioentry_id(@bioentry.id)
     @sequence_name = c_item.reference_name
     @variants = []

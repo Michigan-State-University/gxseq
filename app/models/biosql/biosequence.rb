@@ -2,7 +2,7 @@ require 'stringio'
 require 'base64'
 require 'tempfile'
 
-class Bio::Biosequence < ActiveRecord::Base
+class Biosql::Biosequence < ActiveRecord::Base
   set_table_name "biosequence"
   set_primary_keys :bioentry_id, :version
   belongs_to :bioentry, :foreign_key => 'bioentry_id'
@@ -54,7 +54,7 @@ class Bio::Biosequence < ActiveRecord::Base
     if right > seq.length; right=seq.length;end
     trans_num = bioentry.taxon.genetic_code || 12
     my_array = []
-    Feature::Cds.find_all_by_location(left,right,bioentry.id).each do |cds|
+    Biosql::Feature::Cds.find_all_by_location(left,right,bioentry.id).each do |cds|
       gm = GeneModel.find(:all, :conditions => "bioentry_id = '#{bioentry.id}' AND start_pos < '#{right}' AND end_pos > '#{left}'AND cds_id = '#{cds.id}'")
       start_codon = 1
       cds.locations.each do |loc|

@@ -1,4 +1,4 @@
-class Bio::Feature::Promoter < Bio::Feature::Seqfeature  
+class Biosql::Feature::Promoter < Biosql::Feature::Seqfeature  
 end
 # == Schema Information
 #

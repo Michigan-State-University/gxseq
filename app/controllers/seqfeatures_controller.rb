@@ -15,7 +15,7 @@ class SeqfeaturesController < ApplicationController
     authorized_id_set = current_ability.authorized_seqfeature_ids
     authorized_id_set=[-1] if authorized_id_set.empty?
     # Begin block
-    @search = Bio::Feature::Seqfeature.search do
+    @search = Biosql::Feature::Seqfeature.search do
       # Auth      
       any_of do |any_s|
         authorized_id_set.each do |id_range|
@@ -84,11 +84,11 @@ class SeqfeaturesController < ApplicationController
     case @format
     when 'standard'
       setup_graphics_data
-      @ontologies = Term.annotation_ontologies
+      @ontologies = Biosql::Term.annotation_ontologies
     when 'genbank'
       #NOTE:  Find related features (by locus tag until we have a parent<->child relationship)
       @features = @seqfeature.find_related_by_locus_tag
-      @ontologies = [Bio::Ontology.find(Term.ano_tag_ont_id)]
+      @ontologies = [Biosql::Ontology.find(Term.ano_tag_ont_id)]
     when 'history'
       @changelogs = Version.order('id desc').where(:parent_id => @seqfeature.id).where(:parent_type => @seqfeature.class.name)
     when 'expression'
@@ -142,7 +142,7 @@ class SeqfeaturesController < ApplicationController
           wants.html { render :text => "success" }
         else
           flash[:notice] = 'Seqfeature was successfully updated.'
-          wants.html { redirect_to(@seqfeature.becomes(Bio::Feature::Seqfeature)) }
+          wants.html { redirect_to(@seqfeature.becomes(Biosql::Feature::Seqfeature)) }
         end
       else
         if request.xhr?
@@ -189,21 +189,21 @@ class SeqfeaturesController < ApplicationController
 
   private
     def find_seqfeature
-      feature_id = Bio::Feature::Seqfeature.with_locus_tag(params[:id]).first.try(:id) || params[:id]
-      @seqfeature = Bio::Feature::Seqfeature.where{seqfeature_id == feature_id}.includes(:locations,:qualifiers,[:bioentry => [:assembly]]).first
+      feature_id = Biosql::Feature::Seqfeature.with_locus_tag(params[:id]).first.try(:id) || params[:id]
+      @seqfeature = Biosql::Feature::Seqfeature.where{seqfeature_id == feature_id}.includes(:locations,:qualifiers,[:bioentry => [:assembly]]).first
     end
     # TODO: refactor this method is duplicated from genes_controller
     def get_feature_data
       @format='edit'
       begin
         #get gene and attributes
-        @seqfeature = Bio::Feature::Seqfeature.find(params[:id], :include => [:locations,[:qualifiers => :term],[:bioentry => [:assembly]]])
+        @seqfeature = Biosql::Feature::Seqfeature.find(params[:id], :include => [:locations,[:qualifiers => :term],[:bioentry => [:assembly]]])
         setup_graphics_data
         @locus = @seqfeature.locus_tag.value.upcase
         @bioentry = @seqfeature.bioentry
-        @annotation_terms = Term.annotation_tags.order(:name).reject{|t|t.name=='locus_tag'}
-        seq_src_ont_id = Term.seq_src_ont_id
-        @seq_src_term_id = Term.default_source_term.id
+        @annotation_terms = Biosql::Term.annotation_tags.order(:name).reject{|t|t.name=='locus_tag'}
+        seq_src_ont_id = Biosql::Term.seq_src_ont_id
+        @seq_src_term_id = Biosql::Term.default_source_term.id
       rescue
         logger.error "\n\n#{$!}\n\n#{caller.join("\n")}\n\n"
       end
@@ -213,7 +213,7 @@ class SeqfeaturesController < ApplicationController
       @skip_locations=@extjs=true
       @blast_reports = @seqfeature.blast_reports
       @changelogs = Version.order('id desc').where(:parent_id => @seqfeature.id).where(:parent_type => @seqfeature.class.name)
-      @changelogs = @changelogs.where{item_type != 'Bio::Location'}.where{item_type != 'GeneModel'}
+      @changelogs = @changelogs.where{item_type != 'Biosql::Location'}.where{item_type != 'GeneModel'}
     end
 
     def setup_graphics_data
@@ -226,7 +226,7 @@ class SeqfeaturesController < ApplicationController
       @bases = [((feature_size*1.1) / min_width).floor,1].max
       @view_start = @seqfeature.min_start - (feature_size*0.05).floor
       @view_stop = (@seqfeature.min_start+(feature_size*1.05)).ceil
-      @graphic_data = Bio::Feature::Seqfeature.get_track_data(@view_start,@view_stop,@seqfeature.bioentry_id,{:feature => @seqfeature})
+      @graphic_data = Biosql::Feature::Seqfeature.get_track_data(@view_start,@view_stop,@seqfeature.bioentry_id,{:feature => @seqfeature})
       @depth = 3
       @canvas_height = ( @depth * (@model_height * 2))+10 # each model and label plus padding
       @graphic_data=@graphic_data.to_json

@@ -1,4 +1,4 @@
-class Bio::Feature::MiscDifference < Bio::Feature::Seqfeature  
+class Biosql::Feature::MiscDifference < Biosql::Feature::Seqfeature  
 end
 # == Schema Information
 #

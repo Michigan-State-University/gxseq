@@ -12,32 +12,64 @@ GenomeSuite::Application.routes.draw do
   match 'sitemap' => 'help#sitemap', :as => :sitemap
   match 'intro' => 'help#index', :as => :intro
 
-  ##genome
-  resources :bioentries do
-    #get 'tracks'
-    collection do
-      get 'metadata'
-      get 'track_data'
+  ## biosql - both namespaced and simple urls direct to namespaced controllers
+  ##
+  # biosql namespaced helper, simple url
+  scope :module => 'biosql', :as => 'biosql' do
+    resources :bioentries do
+      collection do
+        get 'metadata'
+        get 'track_data'
+      end
+    end
+    resources :locations
+    resources :seqfeature_qualifier_values
+  end
+  # biosql simple helper, simple url
+  scope :module => 'biosql' do
+    resources :bioentries do
+      collection do
+        get 'metadata'
+        get 'track_data'
+      end
+    end
+    resources :locations
+    resources :seqfeature_qualifier_values
+  end
+  # feature namespaced helper, simple url
+  scope :module => 'biosql/feature', :as => 'biosql_feature' do
+    resources :seqfeatures do
+      get 'details', :on => :collection
+      member do
+        get 'toggle_favorite'
+        get 'feature_counts'
+      end
+    end
+    resources :genes do
+      collection do
+        get 'details'
+        get :autocomplete_bioentry_id
+      end
     end
   end
-  
-  resources :genes do
-    collection do
-      get 'details'
-      get :autocomplete_bioentry_id
+  # feature simple helper, simple url
+  scope :module => 'biosql/feature' do
+    resources :seqfeatures do
+      get 'details', :on => :collection
+      member do
+        get 'toggle_favorite'
+        get 'feature_counts'
+      end
+    end
+    resources :genes do
+      collection do
+        get 'details'
+        get :autocomplete_bioentry_id
+      end
     end
   end
 
-  resources :locations
-  resources :seqfeatures do
-    get 'details', :on => :collection
-    member do
-      get 'toggle_favorite'
-      get 'feature_counts'
-    end
-  end
-  
-  resources :seqfeature_qualifier_values
+  # Genome
   resources :assemblies do
     get 'concordance_sets', :on => :collection
   end
