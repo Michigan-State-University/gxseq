@@ -44,14 +44,14 @@ class Sequence < Thor
     task_start_time = Time.now
     # Parse input
     begin
-      data = Biosql::FlatFile.open(input_file,"r")
+      data = Bio::FlatFile.open(input_file,"r")
     rescue
       puts "*** Error parsing input *** \n#{$!}"
       exit 0
     end
     # Check file format
     supported_file_types= ['genbank','fasta']
-    file_type = data.dbclass.name.gsub(/Biosql::/,'').downcase.gsub(/format/,'')
+    file_type = data.dbclass.name.gsub(/Bio::/,'').downcase.gsub(/format/,'')
     unless(supported_file_types.include?(file_type))
       raise "Unsupported file type #{file_type}\nPlease provide a #{supported_file_types.to_sentence(:last_word_connector => ' or ', :two_words_connector => ' or ')}"
     end

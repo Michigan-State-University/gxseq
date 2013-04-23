@@ -39,7 +39,6 @@ BlastHsp = function(config){
   me.draw = function(hits){
     var row = 0;
     hits.forEach(function(hsps){
-      row +=1;
       hsps.forEach(function(hsp){
         brush.fillStyle = getColor(hsp[2])
         
@@ -49,8 +48,11 @@ BlastHsp = function(config){
           screenW = Math.abs(screenW);
           screenX -= screenW;
         }
+        console.log(getColor(hsp[2]))
+        console.log(screenX)
         brush.fillRect(screenX,row*config.boxHeight,screenW,config.boxHeight-1);
       })
+      row +=1;
     })
   };
 };

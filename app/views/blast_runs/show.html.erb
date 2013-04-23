@@ -83,8 +83,8 @@
       graph = new BlastHsp(
         {
           width:800,
-          boxHeight:15,
-          height:<%= hsp_data.length*15 %>,
+          boxHeight:10,
+          height:<%= (hsp_data.length*10) %>,
           length:<%= blast_report.report.query_len %>,
           renderTo:"blast_report_hsps_<%= blast_report.id %>"
         }
