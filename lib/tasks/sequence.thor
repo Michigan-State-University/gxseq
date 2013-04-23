@@ -59,7 +59,7 @@ class Sequence < Thor
     concordance_file = File.open(input_file+'.concordance','w') if prefix
     # Setup namespace and source term
     bio_db = Biosql::Biodatabase.find_or_create_by_name(database)
-    seq_src_term = Biosql::Term.find_or_create_by_name_and_ontology_id(source_name,Term.seq_src_ont_id)
+    seq_src_term = Biosql::Term.find_or_create_by_name_and_ontology_id(source_name,Biosql::Term.seq_src_ont_id)
     # Turn off versioning before mass load. We don't store the creates from scripted loaders
     PaperTrail.enabled = false
     # Put this all in a transaction, just in case. We don't want partial bioentries
@@ -74,7 +74,7 @@ class Sequence < Thor
         end
         # Setup the entry_feature term id once and grab the locus term id
         if(entry_feature)
-          entry_feature_type_term_id = Biosql::Term.find_or_create_by_name_and_ontology_id(entry_feature,Term.seq_key_ont_id).id
+          entry_feature_type_term_id = Biosql::Term.find_or_create_by_name_and_ontology_id(entry_feature,Biosql::Term.seq_key_ont_id).id
           locus_term_id = Biosql::Term.find_or_create_by_name_and_ontology_id('locus_tag', Biosql::Term.ano_tag_ont_id).id
         end
         # Reset the IO stream
