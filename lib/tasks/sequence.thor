@@ -38,6 +38,7 @@ class Sequence < Thor
     feat_rank = {}
     bad_count = 0
     base = ActiveRecord::Base
+    assembly = nil
     # grab the time for stats
     curr_time = Time.now
     task_start_time = Time.now
@@ -406,7 +407,7 @@ class Sequence < Thor
     GeneModel.generate
     # Sync the data with indexer and generate track data
     puts "Syncing Assembly"
-    assembly.sync
+    assembly.try(:sync)
     # Done
     task_end_time = Time.now
     puts "Finished - #{Time.now.strftime('%m/%d/%Y - %H:%M:%S')} :: #{Time.at(task_end_time - task_start_time).gmtime.strftime('%R:%S')}"
@@ -489,6 +490,7 @@ class Sequence < Thor
     end
     bar.increment!(search.hits.length)
     # Start main loop - Work in batches to avoid large memory use
+    puts "Loop :: #{current_page} / #{total_pages}"
     while(current_page < total_pages)
       current_page+=1
       search = Biosql::Feature::Seqfeature.search do

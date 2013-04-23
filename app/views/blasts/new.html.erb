@@ -7,13 +7,13 @@
 <% content_for :item_bar do -%>
 <div class="clear">
   <div class="border">
-		<% form_tag blasts_path do %>
+		<%= form_tag blasts_path do %>
 			<p>
 				<label for="sequence" class="query">Enter FASTA sequence:</label><br/>
 				<%= text_area "blast", "sequence", :cols => 150, :rows => 15, :value => params[:blast][:sequence] %>
 			</p>
 			<p>
-				<label for="blast_database_id" class="query">Select Database:</label><br/>
+				<label for="blast_blast_database_id" class="query">Select Database:</label><br/>
 				<%= collection_select "blast", "blast_database_id", @blast_databases, "id", "description",{:selected => params[:blast][:blast_database_id]} %>
 			</p>
       

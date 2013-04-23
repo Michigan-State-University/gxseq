@@ -32,7 +32,7 @@
   </div>
   
   <div>
-    <% form_tag bioentries_path, :method => :get do %>
+    <%= form_tag bioentries_path, :method => :get do %>
       <div style="float:right;margin-bottom:0.5em">
         Search:<br/>
         <%= text_field_tag "keywords",params[:keywords] %>

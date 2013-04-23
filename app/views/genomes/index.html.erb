@@ -17,7 +17,7 @@
 
 <% content_for :sidebar do %>
 	<!-- Sidebar / Links / Notices here -->
-	<%= render :partial => "bioentries/sidebar", :locals => {:active => 'genome'} %>
+	<%= render :partial => "biosql/bioentries/sidebar", :locals => {:active => 'genome'} %>
 <% end %>
 <br/>
 <%= render :partial => "assemblies/species_list", :locals => {:species => @species} %>

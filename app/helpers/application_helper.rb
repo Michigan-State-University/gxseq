@@ -44,7 +44,7 @@ module ApplicationHelper
     per_pixel = options[:per_pixel] || 1
     id = options[:id] || "number_line_#{start}"
     line = "
-      <canvas id='canvas_number_line_#{id}' width='#{width}px' height='#{height}'>
+      <canvas id='canvas_number_line_#{id}' width='#{width+50}px' height='#{height}'>
       </canvas>
       <script type='text/javascript'>
         var context = $('canvas_number_line_#{id}').getContext('2d');

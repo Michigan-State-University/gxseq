@@ -32,13 +32,16 @@ group :development do
   gem 'cucumber'
 end
 group :test do
-  gem 'cucumber-rails'
   gem 'database_cleaner'
   gem 'factory_girl'
   gem 'simplecov'
   gem 'rspec-rails'
+  gem 'aruba'
 end
 
+group :cucumber do
+  gem 'cucumber-rails'
+end
 # All the rest
 gem 'acts_as_api', '~>0.3'
 gem 'xmlparser'

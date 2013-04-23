@@ -17,7 +17,7 @@ module ExpressionHelper
     else
       ''
     end
-    if(Array(hit.stored(:favorite_user_ids)).include?(current_user.id) )
+    if(current_user && Array(hit.stored(:favorite_user_ids)).include?(current_user.id) )
       text = "<b>#{text}</b>"
     end
     return text.try(:html_safe)

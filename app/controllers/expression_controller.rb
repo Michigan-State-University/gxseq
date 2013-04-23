@@ -114,8 +114,6 @@ class ExpressionController < ApplicationController
     get_assembly_data if @assembly
     # get all expression features
     @feature_types = Biosql::Feature::Seqfeature.facet_types_with_expression_and_assembly_id(@assembly.id) if @assembly
-    logger.info "\n\nFeature Types: #{@feature_types.facet(:type_term_id).rows.inspect}\n\n"
-    
     # setup default type_term if not supplied in params
     @type_term_id ||=@feature_types.facet(:type_term_id).rows.first.try(:value) if @feature_types
   end

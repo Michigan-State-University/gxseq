@@ -116,6 +116,10 @@ Transcriptomes generally need more user input. Here are the command line in part
 
 	--show_percent
 
+- If you are adding a new Version of an existing species/strain you need to make sure it has a unique version
+
+  --version "TAIR10"
+
 - The Final Transcriptome Load line for a custom E. Coli MG1655 assembly
 
 thor sequence:load sequence_file.fa --transcriptome --species_id 444 --strain_id 442828 --add_entry_feature 'mRNA' --division 'HTC'  --molecule_type 'mRNA' --renumber-contigs M01 --source 'LabName' --show_percent
@@ -165,10 +169,14 @@ You can list stored databases to get more information
 Loading Blast Reports
 ----------------
 
-Blast Reports can be added to the features of an assembly. They are  Blast Reports are tied to
+Blast Reports can be added to the features of an assembly. They are tied to
 a Blast Database. They also need an assembly_id and the type of feature
 
-	thor blast:create_run --assembly_id 3 --feature_type 'mRNA' -d 2
+If the id's in a blast file do not match the locus tags in the database, supply a concordance file
+	
+	--concordance 
+
+	thor blast:create_run blast.xml --assembly_id 3 --feature_type 'mRNA' -b 2
 	
 You can list stored runs to get more information
 

@@ -122,7 +122,7 @@ class Biosql::Bioentry < ActiveRecord::Base
   # returns the length of associated biosequence
   def length
     #Biosql::Biosequence.find_by_bioentry_id(self.id,:select => :length).length
-    biosequence_without_seq.length
+    biosequence_without_seq.try(:length) || 0
   end
   # returns all bioentry qualifiers
   def qualifiers

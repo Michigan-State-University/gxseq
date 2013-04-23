@@ -63,7 +63,6 @@ ActiveRecord::Schema.define(:version => 20130325195644) do
     t.datetime "updated_at"
   end
 
-  add_index "bioentry", ["assembly_id", "accession", "biodatabase_id", "version"], :name => "bioentry_idx", :unique => true
   add_index "bioentry", ["version"], :name => "bioentry_idx_2"
 
   create_table "bioentry_dbxref", :id => false, :force => true do |t|

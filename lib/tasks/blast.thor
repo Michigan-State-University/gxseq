@@ -125,7 +125,7 @@ class Blast < Thor
             feature_id=feature.id
           end
         end
-        # parse the hit data
+        # parse the hit data. Do not add empty definition
         if hit = report.hits.first
           accession = hit.accession
           # remove splice variant number if requested
@@ -137,24 +137,22 @@ class Blast < Thor
           if best_def.length > 4000
             best_def = best_def.slice(0..3999)
           end
-        else
-          accession = ''
-          best_def = 'No Definition Found'
+          # create the new report entry text
+          br = BlastReport.new(
+            :blast_run => blast_run,
+            :seqfeature_id => feature_id,
+            :hit_acc => accession,
+            :hit_def => best_def,
+            :report => report
+          )
+          if br.valid?
+            br.save! unless options[:test]
+          else
+            puts "Invalid BlastReport: #{br.inspect}"
+          end
+          seqfeature_ids << feature_id
         end
-        # create the new report entry text
-        br = BlastReport.new(
-          :blast_run => blast_run,
-          :seqfeature_id => feature_id,
-          :hit_acc => accession,
-          :hit_def => best_def,
-          :report => report
-        )
-        if br.valid?
-          br.save! unless options[:test]
-        else
-          puts "Invalid BlastReport: #{br.inspect}"
-        end
-        seqfeature_ids << feature_id
+
         # all done ...next
         progress_bar.increment!
       end
