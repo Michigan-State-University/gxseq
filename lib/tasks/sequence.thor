@@ -571,11 +571,12 @@ class Sequence < Thor
     end
     
     # look at organism
-    if(entry.respond_to?(:organism))
+    if(species_taxon.nil? && entry.respond_to?(:organism))
       if(tn = Biosql::TaxonName.find_by_name(entry.organism) )
         org_taxon = tn.taxon
       else
         t = nil
+        # FIXME: Biosql doesn't like source_features method on brachy genome
         entry.source_features.find do |source|
           unless (results = source.qualifiers.select{|q| q.qualifier=='db_xref' && q.value.match(/taxon/)}.collect{|q| Biosql::Taxon.find_by_ncbi_taxon_id(q.value.match(/taxon:(\d+)/)[1])}).empty?
             t = results.first
