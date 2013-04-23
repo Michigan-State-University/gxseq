@@ -329,7 +329,7 @@ class Sequence < Thor
                 feature=f.clone
                 feature_count+=1
                 # term
-                type_term_id=seq_key_terms["#{feature.feature}"] || (seq_key_terms["#{feature.feature}"] = Biosql::Term.find_or_create_by_name_and_ontology_id(feature.feature,Term.seq_key_ont_id).id)      
+                type_term_id=seq_key_terms["#{feature.feature}"] || (seq_key_terms["#{feature.feature}"] = Biosql::Term.find_or_create_by_name_and_ontology_id(feature.feature,Biosql::Term.seq_key_ont_id).id)      
                 feat_rank["#{feature.feature}"]||=0
                 feat_rank["#{feature.feature}"]+=1
                 # store the type name
