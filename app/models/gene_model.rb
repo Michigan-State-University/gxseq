@@ -384,6 +384,38 @@ class GeneModel < ActiveRecord::Base
     end
     return data
   end
+  
+  def initialize_associations
+    # cds
+    if(cds)
+      cds.gene_model = self unless cds.gene_model
+      cds.bioentry = self.bioentry
+      self.transcript_id = self.cds.transcript_id
+      self.start_pos = cds.locations.map(&:start_pos).min
+      self.end_pos = cds.locations.map(&:end_pos).max
+    end
+    # mrna
+    if(mrna)
+      mrna.gene_model = self unless mrna.gene_model
+      mrna.bioentry = self.bioentry
+      self.protein_id = self.mrna.protein_id
+      self.start_pos = mrna.locations.map(&:start_pos).min
+      self.end_pos = mrna.locations.map(&:end_pos).max
+    end    
+    # rank
+    if !self.rank || self.rank==0
+      self.rank = ((self.gene.gene_models.map(&:rank).compact.max)||0) + 1
+    end
+    # fall back position
+    self.start_pos = gene.locations.map(&:start_pos).min unless self.start_pos
+    self.end_pos = gene.locations.map(&:end_pos).max unless self.end_pos
+    # attributes
+    self.gene_name = self.gene.gene.value if self.gene.gene
+    self.variants = self.gene.gene_models.size
+    self.locus_tag = self.gene.locus_tag.value
+    self.strand = self.gene.strand
+  end
+  
   # TODO: GeneModel creation needs a refactor badly. Worst method in entire app. Perhaps use seqfeature relationship tables and avoid denormalization altogether
   # Pull together the gene model information
   # Gene Models include:
@@ -402,7 +434,7 @@ class GeneModel < ActiveRecord::Base
     # Create Gene Models
     begin
       # check locus tags
-      total_new_genes = check_new_locus_tags
+      total_new_genes = setup_locus_for_new_genes
       # start the Gene Model creation
       puts "Working on #{total_new_genes} Gene Models: #{Time.now.strftime('%D %H:%M')}"
       new_gene_count = 0
@@ -410,7 +442,7 @@ class GeneModel < ActiveRecord::Base
       progress_bar = ProgressBar.new(total_new_genes)
       GeneModel.transaction do
         # new gene features
-        Biosql::Feature::Gene.find_in_batches(:batch_size=>250, :include => [[:qualifiers => :term],:locations], :conditions => "NOT EXISTS (select id from gene_models where gene_id=#{Gene.primary_key})") do |new_genes|        
+        Biosql::Feature::Gene.find_in_batches(:batch_size=>250, :include => [[:qualifiers => :term],:locations], :conditions => "NOT EXISTS (select id from gene_models where gene_id=seqfeature_id)") do |new_genes|        
           new_gene_locus = new_genes.delete_if{|g|g.locus_tag.nil?}.map{|g|g.locus_tag.value}.join("', '")
           # cds lookup
           cds_by_locus = {}
@@ -521,38 +553,7 @@ class GeneModel < ActiveRecord::Base
     end
   end
   
-  def initialize_associations
-    # cds
-    if(cds)
-      cds.gene_model = self unless cds.gene_model
-      cds.bioentry = self.bioentry
-      self.transcript_id = self.cds.transcript_id
-      self.start_pos = cds.locations.map(&:start_pos).min
-      self.end_pos = cds.locations.map(&:end_pos).max
-    end
-    # mrna
-    if(mrna)
-      mrna.gene_model = self unless mrna.gene_model
-      mrna.bioentry = self.bioentry
-      self.protein_id = self.mrna.protein_id
-      self.start_pos = mrna.locations.map(&:start_pos).min
-      self.end_pos = mrna.locations.map(&:end_pos).max
-    end    
-    # rank
-    if !self.rank || self.rank==0
-      self.rank = ((self.gene.gene_models.map(&:rank).compact.max)||0) + 1
-    end
-    # fall back position
-    self.start_pos = gene.locations.map(&:start_pos).min unless self.start_pos
-    self.end_pos = gene.locations.map(&:end_pos).max unless self.end_pos
-    # attributes
-    self.gene_name = self.gene.gene.value if self.gene.gene
-    self.variants = self.gene.gene_models.size
-    self.locus_tag = self.gene.locus_tag.value
-    self.strand = self.gene.strand
-  end
-  
-  def self.check_new_locus_tags
+  def self.setup_locus_for_new_genes
     # Count the models we need to work with
     genes_without_model = Biosql::Feature::Gene.includes(:gene_models, :qualifiers => [:term]).where{gene_models.id == nil}
     total_new_genes = genes_without_model.count
@@ -560,75 +561,69 @@ class GeneModel < ActiveRecord::Base
     new_genes_with_locus = genes_without_model.where{qualifiers.term.name == 'locus_tag'}
     # Check for consistency
     if(new_genes_with_locus.count != total_new_genes)
-      puts "#{total_new_genes - new_genes_with_locus.count} genes do not have a locus_tag! - checking for 'gene' annotations: #{Time.now.strftime('%D %H:%M')}"
+      puts "#{total_new_genes - new_genes_with_locus.count} genes do not have a locus_tag! #{Time.now.strftime('%D %H:%M')}"
       # check the gene annotation
-      new_genes_with_gene = genes_without_model.where{qualifiers.term.name == 'gene'}
-      unless(new_genes_with_gene.count == total_new_genes)
+      #new_genes_with_gene = genes_without_model.where{qualifiers.term.name == 'gene'}
+      if(check_new_gene_for_qual('gene'))#new_genes_with_gene.count == total_new_genes)
+        puts "...Done"        
+      else
         # No Good, probably need user intervention
-        puts "Found #{new_genes_with_gene.count} gene annotations and #{new_genes_with_locus.count} locus_tag annotations"
         puts "**** Gene Models will not be generated without locus tag annotations"
-        set_locus_using_gene
+        puts "What should we use to generate locus tags? type 'Name', 'ID', etc.. or 'exit' to skip:"
+        while((new_term = STDIN.gets.chomp)!='exit')
+          break if check_new_gene_for_qual(new_term)
+          puts "Try a new annotation or 'exit' to skip:"
+        end
       end
-      # Try setting the locus by Gene
-      set_locus_using_gene
     end
-    
     # We will create Gene Models for all genes with a locus_tag
     return genes_without_model.where{qualifiers.term.name == 'locus_tag'}.count
   end
   
-  def self.set_locus_using_gene
-    l = "Found 'gene' annotations for every Gene - checking cds and mrna: #{Time.now.strftime('%D %H:%M')}";puts l
-    new_gene_with_gene = Biosql::Feature::Gene.includes(:gene_models, :qualifiers => [:term]).where{gene_models.id == nil}.where{qualifiers.term.name == 'gene'}
-    new_mrna_with_gene = Biosql::Feature::Mrna.includes(:gene_model, :qualifiers => [:term]).where{gene_model.id == nil}.where{qualifiers.term.name == 'gene'}
-    new_cds_with_gene = Biosql::Feature::Cds.includes(:gene_model, :qualifiers => [:term]).where{gene_model.id == nil}.where{qualifiers.term.name == 'gene'}
-    puts "mrna: #{new_mrna_with_gene.count}"
-    puts "cds: #{new_cds_with_gene.count}"
-    printf "You should optimize or gather statistics before continuing\nCreate locus_tag's from 'gene' annotations? (Y/n):"
+  def self.check_new_gene_for_qual(qual_name)
+    puts "checking for '#{qual_name}' annotations"
+    new_gene_with_qual = Biosql::Feature::Gene.includes(:gene_models, :qualifiers => [:term]).where{gene_models.id == nil}.where{qualifiers.term.name == qual_name}
+    new_mrna_with_qual = Biosql::Feature::Mrna.includes(:gene_model, :qualifiers => [:term]).where{gene_model.id == nil}.where{qualifiers.term.name == qual_name}
+    new_cds_with_qual = Biosql::Feature::Cds.includes(:gene_model, :qualifiers => [:term]).where{gene_model.id == nil}.where{qualifiers.term.name == qual_name}
+    puts "gene: #{new_gene_with_qual.count}"
+    puts "mrna: #{new_mrna_with_qual.count}"
+    puts "cds: #{new_cds_with_qual.count}"
+    printf "Create locus_tag's from '#{qual_name}' annotations? (Y/n):"
     while (answer = STDIN.gets.chomp)
-      if(answer=='n'||answer=='Y')
+      if (answer=='n'||answer=='Y')
         break
-      else
+      else 
         printf "choose 'Y' or 'n' : "
       end
     end
     if(answer=='Y')
       puts "Okay, creating new locus_tag values"
       GeneModel.transaction do 
-        locus_tag_term_id = Biosql::Term.find_or_create_by_name_and_ontology_id('locus_tag', Biosql::Term.ano_tag_ont_id).id
         puts "--Working on Gene"
-        progress_bar = ProgressBar.new(new_gene_with_gene.count)
-        new_gene_with_gene.find_in_batches do |features|
-          features.each do |feature|
-            GeneModel.connection.execute("INSERT INTO SEQFEATURE_QUALIFIER_VALUE (seqfeature_id, term_id,value,rank)
-            VALUES(#{feature.id},#{locus_tag_term_id},'#{feature.gene}',1)")
-          end
-          progress_bar.increment!(features.length)
-        end
+        set_locus_using_qual(qual_name,new_gene_with_qual)
         puts "--Working on CDS"
-        progress_bar = ProgressBar.new(new_cds_with_gene.count)
-        new_cds_with_gene.find_in_batches do |features|
-          features.each do |feature|
-            GeneModel.connection.execute("INSERT INTO SEQFEATURE_QUALIFIER_VALUE (seqfeature_id, term_id,value,rank)
-            VALUES(#{feature.id},#{locus_tag_term_id},'#{feature.gene}',1)")
-          end
-          progress_bar.increment!(features.length)
-        end
+        set_locus_using_qual(qual_name,new_mrna_with_qual)
         puts "--Working on mRNA"
-        progress_bar = ProgressBar.new(new_mrna_with_gene.count)
-        new_mrna_with_gene.find_in_batches do |features|
-          features.each do |feature|
-            GeneModel.connection.execute("INSERT INTO SEQFEATURE_QUALIFIER_VALUE (seqfeature_id, term_id,value,rank)
-            VALUES(#{feature.id},#{locus_tag_term_id},'#{feature.gene}',1)")
-          end
-          progress_bar.increment!(features.length)
-        end
-      end#transaction
+        set_locus_using_qual(qual_name,new_cds_with_qual)
+      end
+      return true
     else
-      puts "Okay, but you don't have a unique id(locus tag) for these genes.\nGene Models will not be generated for them!"
+      puts "Okay, ignoring '#{qual_name}' annotations"
+      return false
     end
   end
-
+  
+  def self.set_locus_using_qual(qual_term,new_items_with_qual)
+      locus_tag_term_id = Biosql::Term.find_or_create_by_name_and_ontology_id('locus_tag', Biosql::Term.ano_tag_ont_id).id
+      progress_bar = ProgressBar.new(new_items_with_qual.count)
+      new_items_with_qual.find_in_batches do |features|
+        features.each do |feature|
+          GeneModel.connection.execute("INSERT INTO SEQFEATURE_QUALIFIER_VALUE (seqfeature_id, term_id,value,rank)
+          VALUES(#{feature.id},#{locus_tag_term_id},'#{feature.qualifiers.select{|q|q.term.name==qual_term}}',1)")
+        end
+        progress_bar.increment!(features.length)
+      end
+  end
 end
 # == Schema Information
 #
