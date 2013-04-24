@@ -28,7 +28,7 @@ Common Commands
 	
 - Load Multiple Experiments and Expression
 	
-	LIBS="one two three";for x in $LIBS; do echo $x; thor experiment:create -t RnaSeq -n $x -a 10063 -c 10003 -g "Ohlrogge Lab" -d "$x Ohlrogge Lab CLC 6.0" -f Bam:lib/data/ohlrogge/camelina/$x.bam; thor expression:load lib/data/ohlrogge/camelina/$x.csv -e $x -f 'Mrna' -c 4 -n 2 -h -d lib/data/ohlrogge/camelina/csv_concordance --no_index; done
+	LIBS="one two three";for x in $LIBS; do echo $x; thor experiment:create -t RnaSeq -n $x -a 'assembly_id' -c 'concordance_id' -g "Lab Group" -d 'Description' -f Bam:lib/data/lab/project/$x.bam; thor expression:load lib/data/lab/project/$x.csv -e $x -f 'Mrna' -c 4 -n 2 -h -d lib/data/lab/project/csv_concordance --no_index; done
  
 - Run a blastx
 
