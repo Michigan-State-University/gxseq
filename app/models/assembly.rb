@@ -55,10 +55,20 @@ class Assembly < ActiveRecord::Base
     generate_gc_data
     puts "Creating Tracks"
     create_tracks
+    puts "Creating Default Concordance"
+    create_default_concordance
     puts "Reindexing Associations"
     reindex
   end
-  # create a big wig with the gc content data for this biosequence
+  # creates a default concordance set with accessions matching the database
+  def create_default_concordance
+    concordance_set = self.concordance_sets.find_or_create_by_name("Default")
+    concordance_set.concordance_items.destroy_all
+    bioentries.each do |entry|
+      concordance_set.concordance_items.create(:bioentry => entry,:reference_name => entry.accession)
+    end
+  end
+  # creates a big wig with the gc content data for all bioentries
   def generate_gc_data(opts={})
     destroy=opts[:destroy]||false
     window=opts[:window]||50
