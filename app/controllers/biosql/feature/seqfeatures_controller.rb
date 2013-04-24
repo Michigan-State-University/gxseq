@@ -78,7 +78,7 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     @format = params[:fmt] || 'standard'
     begin
     # Gene features have special show pages
-    if @seqfeature.kind_of?(Gene)
+    if @seqfeature.kind_of?(Biosql::Feature::Gene)
       redirect_to gene_path(@seqfeature,:fmt => @format)
     end
     case @format
