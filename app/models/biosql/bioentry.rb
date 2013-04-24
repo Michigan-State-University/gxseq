@@ -111,7 +111,7 @@ class Biosql::Bioentry < ActiveRecord::Base
     puts "Re-indexing #{bioentry_ids.length} entries"
     progress_bar = ProgressBar.new(bioentry_ids.length)
     bioentry_ids.each_slice(100) do |id_batch|
-      Sunspot.index Bioentry.includes([[:bioentry_qualifier_values, :biosequence_without_seq, :assembly => [:species => :scientific_name]], [:source_features => [:qualifiers => :term]]]).where{bioentry_id.in(my{id_batch})}
+      Sunspot.index self.includes([[:bioentry_qualifier_values, :biosequence_without_seq, :assembly => [:species => :scientific_name]], [:source_features => [:qualifiers => :term]]]).where{bioentry_id.in(my{id_batch})}
       Sunspot.commit
       progress_bar.increment!(id_batch.length)
     end
