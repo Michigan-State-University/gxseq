@@ -619,7 +619,7 @@ class GeneModel < ActiveRecord::Base
       new_items_with_qual.find_in_batches do |features|
         features.each do |feature|
           GeneModel.connection.execute("INSERT INTO SEQFEATURE_QUALIFIER_VALUE (seqfeature_id, term_id,value,rank)
-          VALUES(#{feature.id},#{locus_tag_term_id},'#{feature.qualifiers.select{|q|q.term.name==qual_term}}',1)")
+          VALUES(#{feature.id},#{locus_tag_term_id},'#{feature.qualifiers.select{|q|q.term.name==qual_term}.value}',1)")
         end
         progress_bar.increment!(features.length)
       end
