@@ -243,7 +243,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   end
   # default protein sequence, convert na
   def protein_sequence
-    return Biosequence.to_protein(na_sequence,codon_start ? codon_start.value : 1,bioentry.taxon.genetic_code)
+    return Biosql::Biosequence.to_protein(na_sequence,codon_start ? codon_start.value : 1,bioentry.taxon.genetic_code)
   end
 
   def length

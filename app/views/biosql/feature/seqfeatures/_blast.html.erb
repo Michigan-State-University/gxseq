@@ -1,4 +1,4 @@
-<%= form_tag (feature.kind_of?(Gene) ? gene_path(feature) : seqfeature_path(feature)), :method => :get do %>
+<%= form_tag (feature.kind_of?(Biosql::Feature::Gene) ? gene_path(feature) : seqfeature_path(feature)), :method => :get do %>
     <div style="float:left">
       Blast report for:
       <%= select_tag :blast_report_id,
@@ -14,4 +14,6 @@
 </div>
 
 <%= render :partial => "blast_reports/listing" %>
+
+<%= render :partial => 'blast_runs/hsp_graph', :locals => {:blast_reports => [@blast_report]} %>
 
