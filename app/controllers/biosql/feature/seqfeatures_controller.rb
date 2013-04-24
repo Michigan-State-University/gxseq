@@ -88,7 +88,7 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     when 'genbank'
       #NOTE:  Find related features (by locus tag until we have a parent<->child relationship)
       @features = @seqfeature.find_related_by_locus_tag
-      @ontologies = [Biosql::Ontology.find(Term.ano_tag_ont_id)]
+      @ontologies = [Biosql::Ontology.find(Biosql::Term.ano_tag_ont_id)]
     when 'history'
       @changelogs = Version.order('id desc').where(:parent_id => @seqfeature.id).where(:parent_type => @seqfeature.class.name)
     when 'expression'
@@ -99,7 +99,8 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
       @blast_report = BlastReport.find(params[:blast_report_id])
       @blast_run = @blast_report.blast_run
     end
-    rescue
+    rescue => e
+      server_error(e,"seqfeature show error")
       @seqfeature = nil
     end
   end
@@ -116,7 +117,7 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
       setup_xhr_form
       #@seqfeature.qualifiers.build
       render :partial => 'form'
-    elsif @seqfeature.kind_of?(Gene)
+    elsif @seqfeature.kind_of?(Biosql::Feature::Gene)
       redirect_to edit_gene_path(@seqfeature)
     end
   end
