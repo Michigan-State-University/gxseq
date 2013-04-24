@@ -92,7 +92,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   end
   # return all seqfeatures matching a list of locus tags (limit list size to <= 999 if using oracle adapter)
   def self.find_all_with_locus_tags(locus)
-    self.joins(:qualifiers=>:term).where{qualifiers.term.name=='locus_tag'}.where{qualifiers.value.in(locus)}
+    self.joins(:qualifiers=>:term).where{qualifiers.term.name=='locus_tag'}.where{upper(qualifiers.value).in(locus.map(&:upcase))}
   end
   # return a list of seqfeatures overlapping a particular region on a bioentry
   # Optional types[] array will limit results to the supplied types
@@ -133,7 +133,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   # self will be included in the result
   def find_related_by_locus_tag
     return [self] if self.locus_tag.nil?
-    return self.find_all_by_locus_tag(self.locus_tag.value)
+    return Biosql::Feature::Seqfeature.find_all_by_locus_tag(self.locus_tag.value)
   end
   
   ## Display name for this feature. May be overriden in sub-class for custom types

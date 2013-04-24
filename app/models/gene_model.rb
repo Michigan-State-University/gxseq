@@ -425,12 +425,12 @@ class GeneModel < ActiveRecord::Base
   ##
   # Cds is sorted by protein_id then rank
   # Mrna is sorted by transcript_id then rank
-  def self.generate(hsh={:destroy => false})
-    #remove all gene models
-    if hsh[:destroy]
-      l = "Removing all existing Gene Models";puts l;logger.info "\n\n#{l}\n\n"
-      self.delete_all
-    end
+  def self.generate!
+    l = "Removing all existing Gene Models";puts l;logger.info "\n\n#{l}\n\n"
+    self.delete_all
+    self.generate
+  end
+  def self.generate
     # Create Gene Models
     begin
       # check locus tags
