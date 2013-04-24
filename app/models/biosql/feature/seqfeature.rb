@@ -76,7 +76,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     puts "Re-indexing #{seqfeature_ids.length} features"
     progress_bar = ProgressBar.new(seqfeature_ids.length)
     seqfeature_ids.each_slice(batch_size) do |id_batch|
-      Sunspot.index self.includes([:bioentry,:type_term,:qualifiers,:feature_counts,:blast_reports_without_report,:locations,:favorite_users])
+      Sunspot.index self.includes(:bioentry,:qualifiers,:feature_counts,:blast_reports_without_report,:locations,:favorite_users,:product_assoc,:function_assoc,:gene_models => [:cds => [:product_assoc, :protein_id_assoc], :mrna => [:function_assoc, :transcript_id_assoc]])
         .where{seqfeature_id.in(my{id_batch})}
       progress_bar.increment!(id_batch.length)
       if((progress_bar.count%10000)==0)

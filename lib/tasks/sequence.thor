@@ -404,10 +404,18 @@ class Sequence < Thor
     PaperTrail.enabled = true
     # De-normalize GeneModel data
     puts "Syncing Gene Models"
-    GeneModel.generate
+    begin
+      GeneModel.generate
+    rescue => e
+      puts "Error Generating Gene Models #{e}"
+    end
     # Sync the data with indexer and generate track data
     puts "Syncing Assembly"
-    assembly.try(:sync)
+    begin
+      assembly.try(:sync)
+    rescue => e
+      puts "Error Syncing Assembly #{e}"
+    end
     # Done
     task_end_time = Time.now
     puts "Finished - #{Time.now.strftime('%m/%d/%Y - %H:%M:%S')} :: #{Time.at(task_end_time - task_start_time).gmtime.strftime('%R:%S')}"
