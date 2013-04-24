@@ -1,0 +1,1 @@
+class Biosql::Feature::ThreePrimeUtr < Biosql::Feature::Seqfeature; end;

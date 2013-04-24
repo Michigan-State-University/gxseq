@@ -1,0 +1,1 @@
+class Biosql::Feature::FivePrimeUtr < Biosql::Feature::Seqfeature; end;
