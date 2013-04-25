@@ -24,7 +24,8 @@ class Bam < Asset
   def open_bam
     begin
       return Biosql::DB::Sam.new(:bam=>data.path,:fasta => "").tap{|b|b.open}
-    rescue 
+    rescue => e
+      puts "Error Opening Bam file: #{e}"
       return false
     end
   end
@@ -327,9 +328,7 @@ class Bam < Asset
   
   def create_index
     puts "#{Time.now} Creating Bam Index"
-    unless bam = open_bam
-      puts "Error Opening Bam file"
-    end
+    return false unless bam = open_bam
     bam.load_index
     bam.close
   end
