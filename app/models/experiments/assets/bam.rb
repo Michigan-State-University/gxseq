@@ -21,8 +21,12 @@ class Bam < Asset
   
   ## Instance Methods
   
-  def open_bam    
-    Biosql::DB::Sam.new(:bam=>data.path,:fasta => "").tap{|b|b.open} rescue false
+  def open_bam
+    begin
+      return Biosql::DB::Sam.new(:bam=>data.path,:fasta => "").tap{|b|b.open}
+    rescue 
+      return false
+    end
   end
   
   # NOTE does NOT work with delayed_job background tasks
@@ -322,8 +326,10 @@ class Bam < Asset
   end
   
   def create_index
-    return false unless bam = open_bam
     puts "#{Time.now} Creating Bam Index"
+    unless bam = open_bam
+      puts "Error Opening Bam file"
+    end
     bam.load_index
     bam.close
   end
