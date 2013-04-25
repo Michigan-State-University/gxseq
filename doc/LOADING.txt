@@ -21,7 +21,6 @@ Load Samples
 ----------------
 Common Commands
 ----------------
-
 - Print bam Names in Dir
 
 	ls lib/data/ohlrogge/camelina/ | grep "bam" | awk '{gsub(".bam","");print $0}' | xargs
@@ -37,7 +36,6 @@ Common Commands
 ----------------
 Before Loading Sequence
 ----------------
-
 Load the ncbi taxonomy tree if it has not beed done yet.
 
 	thor taxonomy:load
@@ -62,7 +60,6 @@ Try to find a strain also
 ----------------
 Loading A Genome
 ----------------
-
 It is pretty simple to load a genome from a Genbank file.
 
 	thor sequence:load my_genome.gbk
@@ -74,7 +71,6 @@ For more information about each sequence as it's loaded use the verbose flag
 ----------------
 Loading A Transcriptome
 ----------------
-
 Transcriptomes generally need more user input. Here are the command line in parts.
 
 -The --transcriptome flag is used to distinguish between Genome and Transcriptome in the listing 
@@ -127,23 +123,15 @@ thor sequence:load sequence_file.fa --transcriptome --species_id 444 --strain_id
 ----------------
 Loading A Concordance Set
 ----------------
+A default concordance set will be created using sequence accessions. If your sample data is
+not correlated to the sequence accession, you need to load a new Concordance Set.
+An Assembly can have multiple Concordance Sets. They are assigned to samples to lookup reference names.
 
-After loading sequence data you need to load a Concordance Set before samples will work properly.
-An Assembly can have more than one Concordance Set and samples are assigned one when loaded. The
-Set is used to lookup reference_names for the sample.
-
-The sequence loader generates a concordance file for but you can use any concordance data that 
-matches your samples. The file is a simple tab-delimited format with one line per sequence and
-two columns: OutsideSampleId	DatabaseAccession
+If you use the --prefix option the sequence loader will generate a concordance file. The file is a simple tab-delimited format with one line per sequence and two columns: OutsideSampleId	DatabaseAccession
 
 First find out the assembly id for your species / strain / version
 
 	thor taxonomy:list
-	
-	There are 2 assemblies in the database
-	-	-	ID	Species	Strain > Version	entries
-		0)	1	Arabidopsis thaliana	Arabidopsis thaliana > TAIR9	7
-		1)	2	Escherichia coli	Escherichia coli str. K-12 substr. MG1655 > 2	1
 		
 Then add a concordance set to the assembly. Give it an appropriate name
 
@@ -157,7 +145,7 @@ You can list stored concordance sets to get more information
 Loading A Blast Database
 ----------------
 The Blast Database is loaded for Blast Reports or Assemblies and allows users to run custom blasts.
-It can be created through the UI at admin/blast_databases or command line with thor:
+It can be created through the UI at admin/blast_databases or command line with:
 
 	thor blast:create_db --link 'www.outside_url.com/sequence/direct/link/' --abbreviation 'blast_db2' --description 'New Blast database' --taxon_id 444
 
@@ -168,7 +156,6 @@ You can list stored databases to get more information
 ----------------
 Loading Blast Reports
 ----------------
-
 Blast Reports can be added to the features of an assembly. They are tied to
 a Blast Database. They also need an assembly_id and the type of feature
 
@@ -185,7 +172,6 @@ You can list stored runs to get more information
 ----------------
 Loading Samples
 ----------------
-
 Samples can be loaded through the UI or command line.
 
 To use thor you must supply a sample type, unique name, assembly_id and concordance_set_id
@@ -195,3 +181,8 @@ thor experiment:create --name 'sample_1' -description 'tissue_ dpa_ etc..' --typ
 ----------------
 Loading Expression
 ----------------
+Expression data for a sample is loaded from the command line. The sample must already exist and there must be annotations
+with a locus_tag on the sample's bioentry. The loader expects 3 columns. Id, Count, and Normalized Count. They can be tab or comma delimited.
+
+Supply the command with the expression file and experiment name or ID. loader with the  
+thor expression:load lib/data/lab/project/$x.csv -e $x -f 'Mrna' -c 4 -n 2 -h -d lib/data/lab/project/csv_concordance --no_index

@@ -140,7 +140,7 @@ class FetchersController < ApplicationController
              
              if(params[:query] && !params[:query].blank?)
                query = params[:query].upcase
-               qualifiers = Biosql::SeqfeatureQualifierValue.limit(1000).includes([:term,:seqfeature]).where{seqfeature.bioentry_id.in bioentry_ids}.where{seqfeature.display_name.in GeneModel.seqfeature_types }.where{term.name.not_in(Seqfeature.excluded_search_terms)}.where{upper(value)=~"%#{query}%"}
+               qualifiers = Biosql::SeqfeatureQualifierValue.limit(1000).includes([:term,:seqfeature]).where{seqfeature.bioentry_id.in bioentry_ids}.where{seqfeature.display_name.in GeneModel.seqfeature_types }.where{term.name.not_in(Biosql::Feature::Seqfeature.excluded_search_terms)}.where{upper(value)=~"%#{query}%"}
                ids = qualifiers.collect{|q|q.seqfeature.id}
                gene_models = GeneModel.where{(cds_id.in ids) | (mrna_id.in ids) | (gene_id.in ids)}.includes{[gene.qualifiers, cds.qualifiers, mrna.qualifiers]}.paginate({:page => params[:page],:per_page => params[:limit]})
              else

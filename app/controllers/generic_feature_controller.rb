@@ -47,8 +47,9 @@ class GenericFeatureController < ApplicationController
                 @seqfeature = Biosql::Feature::Seqfeature.find(param['id'])
                 authorize! :read, @seqfeature
                 @ontologies = Biosql::Term.annotation_ontologies
-                render :partial => "seqfeatures/info.json"
-              rescue
+                render :partial => '/biosql/feature/seqfeatures/info.json'
+              rescue => e
+                server_error(e,"Error Describing Generic Feature")
                 render :json => {
                   :success => false,
                   :message => "Not Found"

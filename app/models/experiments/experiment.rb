@@ -18,7 +18,7 @@ class Experiment < ActiveRecord::Base
   validates_presence_of :assembly
   validates_presence_of :concordance_set
   validates_presence_of :name
-  validates_uniqueness_of :name, :scope => [:assembly_id,:type], :message => " has already been used"
+  validates_uniqueness_of :name, :scope => :type, :message => " has already been used"
   validates_length_of :name, :maximum => 35, :on => :create, :message => "must be less than 35 characters"
   validates_length_of :description, :maximum => 500, :on => :create, :message => "must be less than 500 characters"
 
