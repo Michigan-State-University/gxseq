@@ -47,11 +47,11 @@
   	<% end %>
 	</table>
 	
-	<% unless @gene.notes.empty? %>
+	<%# unless @gene.notes.empty? %>
 	<table>
 	  <%= render :partial => "note_feature", :locals => {:f => @gene, :name => "Notes"} %>
 	  </table>
-	<% end %>
+	<%# end %>
 	</div>
 	
 	<!-- Graphic Gene-->

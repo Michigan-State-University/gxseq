@@ -109,7 +109,7 @@ class Biosql::Feature::Gene < Biosql::Feature::Seqfeature
       if(others.empty?)
         return true
       else
-        self.errors.add("locus_tag", "already taken. Choose a unique locus_tag or add models to the existing Gene: <a href='genes/#{others.first.id}' target=#>#{others.first.name}</a>")
+        self.errors.add("locus_tag", "already taken. Choose a unique locus_tag or add models to the existing Gene: <a href='biosql/feature/genes/#{others.first.id}' target=#>#{others.first.name}</a>")
         return false
       end
     end

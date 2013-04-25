@@ -4,17 +4,17 @@
 		<div style="float:right;margin-top:-2.25em;"><%= link_to_remove_fields image_tag("delete.png",:alt => "Remove Gene Model"), f%></div>
 		<% new_id = Time.now.to_i %>
 		<!-- CDS -->
-		<%= link_to_add_fields "Add CDS to Gene Model", f, :cds, {:partial => 'seqfeatures/cds_fields', :render => "below", :id => "new_cds_#{new_id}", :style => "#{f.object.cds ? 'display:none' : ''}", :onclick => "Ext.get('new_cds_#{new_id}').hide()"}%>
+		<%= link_to_add_fields "Add CDS to Gene Model", f, :cds, {:partial => 'biosql/feature/seqfeatures/cds_fields', :render => "below", :id => "new_cds_#{new_id}", :style => "#{f.object.cds ? 'display:none' : ''}", :onclick => "Ext.get('new_cds_#{new_id}').hide()"}%>
 		<%= f.semantic_fields_for :cds do |f| %>
 			<%= f.semantic_errors :locations %>
-			<%= render :partial => 'seqfeatures/cds_fields', :locals => {:f => f} %>
+			<%= render :partial => 'biosql/feature/seqfeatures/cds_fields', :locals => {:f => f} %>
 		<% end %>
 		
 		<!-- mRNA -->
-		<%= link_to_add_fields "Add mRNA to Gene Model", f, :mrna, {:partial => 'seqfeatures/mrna_fields', :render => "below", :id => "new_mrna_#{new_id}", :style => "#{f.object.mrna ? 'display:none' : ''}",:onclick => "Ext.get('new_mrna_#{new_id}').hide()"}%>
+		<%= link_to_add_fields "Add mRNA to Gene Model", f, :mrna, {:partial => 'biosql/feature/seqfeatures/mrna_fields', :render => "below", :id => "new_mrna_#{new_id}", :style => "#{f.object.mrna ? 'display:none' : ''}",:onclick => "Ext.get('new_mrna_#{new_id}').hide()"}%>
 		<%= f.semantic_fields_for :mrna do |f| %>
 			<%= f.semantic_errors :locations %>
-			<%= render :partial => 'seqfeatures/mrna_fields', :locals => {:f => f} %>
+			<%= render :partial => 'biosql/feature/seqfeatures/mrna_fields', :locals => {:f => f} %>
 		<% end %>
 		
 	<% end %>

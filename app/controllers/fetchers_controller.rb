@@ -113,7 +113,7 @@ class FetchersController < ApplicationController
                 @cds = @gene_model.cds
                 @gene = @gene_model.gene
                 @mrna = @gene_model.mrna
-                render :partial => "genes/info.json"
+                render :partial => "biosql/feature/genes/info.json"
               rescue => e
                 render :json => {
                   :success => false,

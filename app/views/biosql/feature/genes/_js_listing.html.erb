@@ -36,7 +36,7 @@ Ext.onReady(function(){
 	            hideable: false,
 	            dataIndex: 'locus_tag',
 				renderer: function(value, data, record){
-					return '<a href="genes/'+record.data.gene_id+'" target="'+record.gene_id+'">'+value+'</a>'
+					return '<a href="biosql/feature/genes/'+record.data.gene_id+'" target="'+record.gene_id+'">'+value+'</a>'
 				}
 	        },
 	        {
