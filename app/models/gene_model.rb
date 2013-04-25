@@ -214,12 +214,9 @@ class GeneModel < ActiveRecord::Base
   
   def variant_protein_sequence(exp_id,opts={})
     if(cds)
-      if(cds.codon_start)
-        frame = ((strand.to_i == 1) ? cds.codon_start.value.to_i : cds.codon_start.value.to_i+3)
-        return Bio::Sequence::NA.new(variant_na_sequence(exp_id,opts)).translate(frame, bioentry.taxon.genetic_code || 1)
-      else
-        return "Unknown codon start for cds"
-      end
+      frame = (cds.codon_start.try(:value)||1).to_i
+      frame += 3 if strand.to_i != 1
+      return Bio::Sequence::NA.new(variant_na_sequence(exp_id,opts)).translate(frame, bioentry.taxon.genetic_code || 1)
     else
       return nil
     end
@@ -227,13 +224,9 @@ class GeneModel < ActiveRecord::Base
   
   def protein_sequence
     if(cds)
-      if(cds.codon_start)
-        frame = ((strand.to_i == 1) ? cds.codon_start.value.to_i : cds.codon_start.value.to_i+3)
-        p =  Bio::Sequence::NA.new(na_sequence).translate(frame, bioentry.taxon.genetic_code || 1)
-        p
-      else
-        return "Unknown codon start for cds"
-      end
+      frame = (cds.codon_start.try(:value)||1).to_i
+      frame += 3 if strand.to_i != 1
+      return Bio::Sequence::NA.new(na_sequence).translate(frame, bioentry.taxon.genetic_code || 1)
     else
       return nil
     end

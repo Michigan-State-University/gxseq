@@ -1,4 +1,4 @@
-class GenesController < ApplicationController
+class Biosql::Feature::GenesController < ApplicationController
   #autocomplete :assembly, :id
   autocomplete :bioentry, :id, :full => true
   authorize_resource :class => "GeneModel"
