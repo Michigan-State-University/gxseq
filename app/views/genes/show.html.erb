@@ -45,10 +45,11 @@
   
 	<!-- Format -->
 	<div id="<%= @format %>_format" style="clear:both;">
+    <!-- the standard view and variants view are custom for genes -->
 	  <% if ['standard','variants'].include?(@format) %>
 	    <%= render :partial => @format %>
 	  <% else %>
-		  <%= render :partial => "seqfeatures/#{@format}", :locals => {:feature => @gene} %>
+		  <%= render :partial => "biosql/feature/seqfeatures/#{@format}", :locals => {:feature => @gene} %>
 		<% end %>
 	</div>
 	
