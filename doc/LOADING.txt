@@ -2,11 +2,11 @@
 General Process for New Data
 ----------------
 Load Sequence
--Identify Species and Load new Assembly (Genome/Transcriptome) =>  taxonomy:list, sequence:load
+-Identify Species and Load new Assembly (Genome/Transcriptome) =>  assembly:list, sequence:load
 -Load Concordance Set for new Assembly => concordance:load
 
 If Transcriptome Load Blast
--Identify/Create BlastDatabase => taxonomy:list, blast:list_db, blast:create_db
+-Identify/Create BlastDatabase => assembly:list, blast:list_db, blast:create_db
 -Load Blast Report(s) => blast:create_run
 -- Restart Prod After blast report load (Class cache for blasts needs reload)
 -dump blast db => sequence:dump_features
@@ -131,7 +131,7 @@ If you use the --prefix option the sequence loader will generate a concordance f
 
 First find out the assembly id for your species / strain / version
 
-	thor taxonomy:list
+	thor assembly:list
 		
 Then add a concordance set to the assembly. Give it an appropriate name
 
