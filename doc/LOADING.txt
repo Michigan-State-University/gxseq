@@ -176,7 +176,10 @@ Samples can be loaded through the UI or command line.
 
 To use thor you must supply a sample type, unique name, assembly_id and concordance_set_id
 
-thor experiment:create --name 'sample_1' -description 'tissue_ dpa_ etc..' --type RnaSeq --assembly_id 3 --concordance_set_id 5 --data Bam:path/to/myfile.bam --group 'MyGroup'
+	thor experiment:create --data Bam:path/to/myfile.bam --name 'sample_1' --type RnaSeq --assembly_id 3 --concordance_set_id 5
+	
+You can also add a description or group name
+	-description 'tissue dpa' --group 'MyGroup'
 
 ----------------
 Loading Expression
@@ -184,5 +187,22 @@ Loading Expression
 Expression data for a sample is loaded from the command line. The sample must already exist and there must be annotations
 with a locus_tag on the sample's bioentry. The loader expects 3 columns. Id, Count, and Normalized Count. They can be tab or comma delimited.
 
-Supply the command with the expression file and experiment name or ID. loader with the  
-thor expression:load lib/data/lab/project/$x.csv -e $x -f 'Mrna' -c 4 -n 2 -h -d lib/data/lab/project/csv_concordance --no_index
+Supply the command with the expression file and experiment name or ID.
+	
+	thor expression:load sample_1.csv -e sample_1
+
+If the ids in the file don't match locus tags in the database supply a concordance file
+	
+	-d csv_concordance
+
+Expression will work on Gene annotations by default. To use a different annotation supply use:
+	
+	-f 'Mrna'
+	
+By default the columns are id, count, and normalized count in order (1,2,3) to change this pass:	
+	
+	-i 1 -c 4 -n 2
+	
+Add the -h flag to note a header that needs skipping. And use the --no-index flag to skip indexing (for bulk loads)
+	
+	-h --no_index
