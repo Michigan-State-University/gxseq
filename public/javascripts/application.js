@@ -51,7 +51,7 @@ document.on("change", "*[data-onchange]", function(event, element) {
 		param = param.toQueryParams();
 	else
 		param = {};
-	changeElement.innerHTML="<img src='/images/loading.gif'></img>";
+	changeElement.innerHTML="<img src='../images/loading.gif'></img>";
 	new Ajax.Request(onchange_url, {
     method: "get",
 		parameters: param,

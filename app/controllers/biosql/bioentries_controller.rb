@@ -17,6 +17,7 @@ class Biosql::BioentriesController < ApplicationController
         end
       }
       wants.fasta {
+        # FIXME: Large chromosome is chopping off last line of sequence
         ## Search block - hack to get around forced paging, 
         fasta_search = base_search do |s|
           s.paginate(:page => 1, :per_page => Biosql::Bioentry.count)

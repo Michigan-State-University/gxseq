@@ -46,7 +46,7 @@ class Experiment < Thor
       puts "Invalid Experiment Type: #{options[:type]}. \n Valid options are #{@@experiments.to_sentence}\n"
       return
     end
-    unless Assembly.find_by_id(options[:assembly_id])
+    unless ::Assembly.find_by_id(options[:assembly_id])
       puts "No taxon with id #{options[:assembly_id]} found. Try: thor taxonomy:list"
     end
     unless group = ::Group.find_by_name(options[:group])

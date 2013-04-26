@@ -162,7 +162,7 @@ class Taxonomy < Thor
       # delete any extras - check to make sure no deleted nodes are in use as taxon or species first
       t_versions = {}
       s_versions = {}
-      Assembly.all.each do |tv| 
+      ::Assembly.all.each do |tv| 
         t_versions[tv.taxon_id]=tv
         s_versions[tv.species_id]=tv
       end

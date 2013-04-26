@@ -16,7 +16,7 @@ class Blast < Thor
       exit 0
     end
     # verify taxon
-    assembly = Assembly.find_by_id(options[:assembly_id])
+    assembly = ::Assembly.find_by_id(options[:assembly_id])
     unless assembly
       puts "Could not find assembly with id:#{options[:assembly_id]}"
       exit 0

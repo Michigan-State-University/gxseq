@@ -1,5 +1,5 @@
 class Annotation < Thor
-  desc 'by_blast FILE',"Load annotations from file based on blast best hit accession"
+  desc 'tag_blast FILE',"Load annotations from file based on blast best hit accession"
   method_options %w(new_annotation -a) => :required,
   %w(id_column -i) => 1, %w(anno_column -c) => 2, :no_index => false
   method_option :header, :aliases => '-h', :desc => 'Supply flag if a header is present'
@@ -8,7 +8,7 @@ class Annotation < Thor
   method_option :ontology, :aliases => '-o', :required => true, :desc => 'Name or Id of ontology for new terms'
   method_option :skip_missing, :aliases => '-s', :default => false, :desc => 'Supply flag to skip missing items.'
   method_option :test, :aliases => '-t', :default => false, :desc => "Supply to perform test only run with no data changes"
-  def by_blast(input_file)
+  def tag_blast(input_file)
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     require 'csv'
     # Check input
@@ -100,5 +100,9 @@ class Annotation < Thor
         puts e.backtrace.join("/n")
       end
     end
+  end
+  desc 'add_by_locus'
+  def add_by_locus
+    
   end
 end

@@ -435,7 +435,7 @@ class Sequence < Thor
   def dump_features
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     # lookup assembly
-    assembly = Assembly.find(options[:assembly_id])
+    assembly = ::Assembly.find(options[:assembly_id])
     # setup defline
     if(options[:blast_db])
       blast_db = BlastDatabase.find_by_name(options[:blast_db]) || BlastDatabase.find_by_id(options[:blast_db])

@@ -31,7 +31,7 @@ class AssembliesController < ApplicationController
   
   def concordance_sets
     @concordance_sets = Assembly.find(params[:assembly_id]).concordance_sets
-    render :partial => 'concordance_set_selection', :locals => {:concordance_sets => @concordance_sets}
+    render :partial => 'concordance_set_selection', :locals => {:concordance_sets => @concordance_sets, :exp_type => params[:exp_type]}
   end
   
   private

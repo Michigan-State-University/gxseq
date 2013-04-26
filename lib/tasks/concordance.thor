@@ -6,7 +6,7 @@ class Concordance < Thor
   def load(input_file)
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     require 'csv'
-    assembly = Assembly.find(options[:assembly_id])
+    assembly = ::Assembly.find(options[:assembly_id])
     entry_count = assembly.bioentries.count
     # pull in all the data - it might take a while but we want to validate the count
     data = CSV.read(input_file, { :col_sep => "\t" })
