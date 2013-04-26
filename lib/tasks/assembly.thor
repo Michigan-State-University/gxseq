@@ -19,14 +19,14 @@ class Assembly < Thor
     assembly = ::Assembly.find(options[:assembly])
     # Set output
     out = File.open(options[:output],'w')
-    # Grab all the Genes
+    # Grab all the Genes - use unique l_strand to avoid calling Seqfeature::strand method during output
     genes = Biosql::Feature::Gene.where{bioentry_id.in(my{assembly.bioentries})}
       .joins(:locations,:bioentry,[:qualifiers=>:term])
       .where{qualifiers.term.name=='locus_tag'}
-      .select('seqfeature_qualifier_value.value, location.start_pos, location.end_pos, location.strand, bioentry.accession')
+      .select('seqfeature_qualifier_value.value, location.start_pos, location.end_pos, location.strand l_strand, bioentry.accession')
     # Ouput the data
     genes.each do |gene|
-      out.puts "#{gene.value},#{gene.start_pos},#{gene.end_pos},#{gene.accession},#{gene.strand.to_i}"
+      out.puts "#{gene.value},#{gene.start_pos},#{gene.end_pos},#{gene.accession},#{gene.l_strand.to_i}"
     end
   end
 end
