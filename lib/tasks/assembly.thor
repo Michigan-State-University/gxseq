@@ -15,7 +15,7 @@ class Assembly < Thor
   method_option :output, :aliases => '-o', :required => true, :desc => 'Output file name'
   def dump_gene_coords
     # lookup assembly
-    assembly = Assembly.find(options[:assembly])
+    assembly = ::Assembly.find(options[:assembly])
     # Set output
     out = File.open(options[:output],'w')
     # Grab all the Genes
