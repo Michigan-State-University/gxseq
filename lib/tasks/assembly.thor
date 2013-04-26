@@ -20,7 +20,7 @@ class Assembly < Thor
     # Set output
     out = File.open(options[:output],'w')
     # Grab all the Genes
-    genes = Biosql::Feature::Gene.where{bioentry_id.in(my{a.bioentries})}
+    genes = Biosql::Feature::Gene.where{bioentry_id.in(my{assembly.bioentries})}
       .joins(:locations,:bioentry,[:qualifiers=>:term])
       .where{qualifiers.term.name=='locus_tag'}
       .select('seqfeature_qualifier_value.value, location.start_pos, location.end_pos, location.strand, bioentry.accession')
