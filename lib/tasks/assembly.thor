@@ -14,6 +14,7 @@ class Assembly < Thor
   method_option :assembly, :aliases => '-a', :required => true, :desc => 'Id for the assembly to export'
   method_option :output, :aliases => '-o', :required => true, :desc => 'Output file name'
   def dump_gene_coords
+    require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     # lookup assembly
     assembly = ::Assembly.find(options[:assembly])
     # Set output
