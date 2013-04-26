@@ -7,7 +7,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   }
   set_sequence_name "SEQFEATURE_SEQ"
   set_inheritance_column :display_name
-  belongs_to :bioentry, :class_name => "Bioentry"
+  belongs_to :bioentry, :class_name => "Biosql::Bioentry"
   belongs_to :type_term, :class_name => "Term", :foreign_key => "type_term_id"
   belongs_to :source_term, :class_name => "Term", :foreign_key =>"source_term_id"
   has_many :seqfeature_dbxrefs, :class_name => "SeqfeatureDbxref", :foreign_key => "seqfeature_id", :dependent  => :delete_all
