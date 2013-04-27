@@ -700,6 +700,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
       blast_reports_without_report.inject({}){|hash,report| hash["blast_#{report.blast_run_id}"]=report.id;hash}
     end
     # Fake dynamic blast text - defined for 'every' blast_run on 'every' seqfeature
+    # These a baked into the class, so it needs to be reloaded when new BlastRuns are created
     # TODO: find another way to allow scoped blast_def full text search without searching all of the definitions
     begin
     BlastRun.all.each do |blast_run|
