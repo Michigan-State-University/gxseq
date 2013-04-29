@@ -19,7 +19,7 @@ class UserController < ApplicationController
       end
     end
     @groups = Group.accessible_by(Ability.new(@user))
-    @samples = Experiment.accessible_by(Ability.new(@user)).includes(:group).order('groups.name,experiments.name')
+    @samples = Experiment.accessible_by(Ability.new(@user)).includes(:group,:assembly).order('groups.name,assemblies.id,experiments.name')
   end
 
   # GET /users/1/edit
