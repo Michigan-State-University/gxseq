@@ -105,7 +105,7 @@ class Biosql::Feature::Gene < Biosql::Feature::Seqfeature
         return false
       end
        this_id = self.seqfeature_id
-       others = Gene.includes([:qualifiers => :term],:bioentry).where(:bioentry_id => self.bioentry_id).where(:qualifiers => {:term => {:name => 'locus_tag'}}).where{seqfeature.seqfeature_id != this_id}.where(:qualifiers => {:value => self.locus_tag.value}) 
+       others = Biosql::Feature::Gene.includes([:qualifiers => :term],:bioentry).where(:bioentry_id => self.bioentry_id).where(:qualifiers => {:term => {:name => 'locus_tag'}}).where{seqfeature.seqfeature_id != this_id}.where(:qualifiers => {:value => self.locus_tag.value}) 
       if(others.empty?)
         return true
       else
