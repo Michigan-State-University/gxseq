@@ -3,13 +3,17 @@
     <th>Name</th>
     <th>Description</th>
     <th>Correlation</th>
-    <% coexpressed_search.hits.each do |hit| %>
-      <% feature = Biosql::Feature::Seqfeature.find(hit.stored(:id), :include => [:blast_reports_without_report,:feature_counts]) %>
-      <tr>
-        <td><%= link_to feature.label, seqfeature_path(feature,:fmt => 'expression') %></td>
-        <td><%= feature.full_description %></td>
-        <td><%= current_feature.get_correlation(feature) %></td>
-      </tr>
+    <% if coexpressed_search %>
+      <% coexpressed_search.hits.each do |hit| %>
+        <% feature = Biosql::Feature::Seqfeature.find(hit.stored(:id), :include => [:blast_reports_without_report,:feature_counts]) %>
+        <tr>
+          <td><%= link_to feature.label, seqfeature_path(feature,:fmt => 'expression') %></td>
+          <td><%= feature.full_description %></td>
+          <td><%= current_feature.get_correlation(feature) %></td>
+        </tr>
+      <% end %>
+    <% else %>
+      <tr>No results found</tr>
     <% end %>
   </table>
 </div>
