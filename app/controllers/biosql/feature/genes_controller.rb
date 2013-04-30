@@ -118,7 +118,7 @@ class Biosql::Feature::GenesController < ApplicationController
     when 'history'
       @changelogs = Version.order('id desc').where(:parent_id => @gene.id).where(:parent_type => 'Biosql::Feature::Gene')
     when 'expression'
-      @feature_counts = @gene.feature_counts.accessible_by(current_ability)
+      @feature_counts = @gene.feature_counts.accessible_by(current_ability).includes(:experiment).order("experiment_id")
       setup_graphics_data
       @coexpressed_search = @gene.correlated_search(current_ability)
     when 'blast'

@@ -5,10 +5,10 @@
     <th>Correlation</th>
     <% if coexpressed_search %>
       <% coexpressed_search.hits.each do |hit| %>
-        <% feature = Biosql::Feature::Seqfeature.find(hit.stored(:id), :include => [:blast_reports_without_report,:feature_counts]) %>
+        <% feature = Biosql::Feature::Seqfeature.find(hit.stored(:id), :include => [:feature_counts]) %>
         <tr>
-          <td><%= link_to feature.label, seqfeature_path(feature,:fmt => 'expression') %></td>
-          <td><%= feature.full_description %></td>
+          <td><%= link_to Array(hit.stored(:locus_tag_text)).first, seqfeature_path(feature,:fmt => 'expression') %></td>
+          <td><%= Array(hit.stored(:description_text)).first %></td>
           <td><%= current_feature.get_correlation(feature) %></td>
         </tr>
       <% end %>
