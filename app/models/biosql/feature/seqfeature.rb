@@ -513,6 +513,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     end
     return result.join("")
   end
+  
   def self.base_search(ability,assembly_id,type_term_id,opts={})
     # Find minimum set of id ranges accessible by current user
     # Set to -1 if no items are found. This will force empty search results
@@ -600,6 +601,94 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
       # Any custom search settings
       yield(s)
     end
+  end
+  
+  def correlated_search(ability,opts={})
+    return nil if feature_counts.nil?
+    total_feature_counts = feature_counts.length
+    authorized_id_set = ability.authorized_seqfeature_ids
+    authorized_id_set=[-1] if authorized_id_set.empty?
+    value_type=opts[:value_type]||'normalized_count'
+    x_sum = 0
+    xsquare = 0
+    ordered_counts = feature_counts.order("experiment_id")
+    ordered_counts.each do |feature_count|
+      x = feature_count.send(value_type).to_f
+      x_sum += x
+      xsquare += (x*x)
+    end
+    return nil if x_sum == 0
+    sxx = xsquare - ((x_sum*x_sum)/total_feature_counts)
+    
+    # ysum += y
+    # ysquare += (y*y)
+    # product += (x*y)
+    # syy = ysquare - ((ysum*ysum)/@size)
+    # sxy = product - ((xsum*ysum)/@size)
+    # r = ( sxy / (sqrt(sxx)*sqrt(syy)) )
+    
+    exp_strings = ordered_counts.collect{|fc| "exp_#{fc.experiment_id}".to_sym}
+    exp_square = ordered_counts.collect{|fc| [:pow,"exp_#{fc.experiment_id}".to_sym,'2']}
+    exp_product = ordered_counts.collect{|fc| [:product,"#{fc.send(value_type).to_f}","exp_#{fc.experiment_id}".to_sym]}
+    # FIXME: Need to fix gem patch
+    # Re-use of the clause leads to errors due to removal of first argument
+    y_sum = [:sum,*exp_strings]
+    y_sum_dup = [:sum,*exp_strings]
+    y_square = [:sum,*exp_square]
+    product = [:sum,*exp_product]
+    sxy_clause = [:sub,product,[:div,[:product,y_sum_dup,"#{x_sum.round(4)}"],"#{total_feature_counts}"]]
+    syy_clause = [:sub,y_square,[:div,[:pow,y_sum,'2'],"#{total_feature_counts}"]]
+    denom_clause = [:product, [:sqrt,syy_clause],"#{Math.sqrt(sxx).round(4)}" ]
+    my_assembly_id = self.bioentry.assembly_id.to_i
+    my_type_term_id = self.type_term_id.to_i
+    Biosql::Feature::Seqfeature.search do
+      # Compute and order by correlation
+      dynamic(value_type+'s') do
+        # r2 
+        order_by_function :pow, [:div, sxy_clause, denom_clause],'2', :desc
+      end
+      # limit to the current assembly
+      with(:assembly_id, my_assembly_id)
+      # limit to the supplied type
+      with(:type_term_id, my_type_term_id)
+      any_of do
+        dynamic(value_type+'s') do
+          ordered_counts.each do |oc|
+            with("exp_#{oc.experiment_id}").greater_than(0)
+          end
+        end
+      end
+    end
+  end
+  
+  # order by function result is not returned in search so we have to compute the correlation again for view
+  def get_correlation(compared_feature,opts={})
+    # Correlation can only be computed on same length vectors
+    return nil if self.feature_counts.nil? || compared_feature.feature_counts.nil?
+    return nil if self.feature_counts.length != compared_feature.feature_counts.length
+    ordered_counts = feature_counts.order("experiment_id")
+    total_feature_counts = feature_counts.length
+    # Default to normalized values
+    value_type=opts[:value_type]||'normalized_count'
+    # Initialize the variables
+    xsum = ysum = xsquare = ysquare = product = sxx = syy = sxy = r = 0
+    # Collect the sum and sum of squares
+    ordered_counts.zip(compared_feature.feature_counts.order("experiment_id")).each do |xfc,yfc|
+      x = xfc.send(value_type).to_f
+      y = yfc.send(value_type).to_f
+      xsum += x
+      ysum += y
+      xsquare += (x*x)
+      ysquare += (y*y)
+      product += (x*y)
+    end
+    sxx = xsquare - ((xsum*xsum)/total_feature_counts)
+    syy = ysquare - ((ysum*ysum)/total_feature_counts)
+    return 0 if sxx==0 || syy ==0
+    sxy = product - ((xsum*ysum)/total_feature_counts)
+    # Return r squared the Pearsone Correlation Coefficient
+    r =  ( sxy / (Math.sqrt(sxx)*Math.sqrt(syy)) )
+    return (r*r).round(4)
   end
   
   protected

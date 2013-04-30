@@ -93,6 +93,8 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
       @changelogs = Version.order('id desc').where(:parent_id => @seqfeature.id).where(:parent_type => @seqfeature.class.name)
     when 'expression'
       @feature_counts = @seqfeature.feature_counts.accessible_by(current_ability)
+      setup_graphics_data
+      @coexpressed_search = @seqfeature.correlated_search(current_ability)
     when 'blast'
       @blast_reports = @seqfeature.blast_reports
       params[:blast_report_id]||=@blast_reports.first.id
@@ -221,7 +223,7 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
       @canvas_width = 2500
       @model_height = 15
       @edit_box_height = 320
-      min_width = 700
+      min_width = 800
       feature_size = @seqfeature.max_end - @seqfeature.min_start
       @pixels = [(min_width / (feature_size*1.1)).floor,1].max
       @bases = [((feature_size*1.1) / min_width).floor,1].max

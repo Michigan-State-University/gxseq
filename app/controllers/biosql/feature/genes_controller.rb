@@ -119,8 +119,8 @@ class Biosql::Feature::GenesController < ApplicationController
       @changelogs = Version.order('id desc').where(:parent_id => @gene.id).where(:parent_type => 'Biosql::Feature::Gene')
     when 'expression'
       @feature_counts = @gene.feature_counts.accessible_by(current_ability)
-      #@d3_data = FeatureCount.create_graph_data(@feature_counts,{:type => 'json-rpkm'})
-      #@google_data = FeatureCount.create_graph_data(@feature_counts,{:type => 'rpkm'})
+      setup_graphics_data
+      @coexpressed_search = @gene.correlated_search(current_ability)
     when 'blast'
       @blast_reports = @gene.blast_reports
       params[:blast_report_id]||=@blast_reports.first.id
@@ -231,10 +231,8 @@ class Biosql::Feature::GenesController < ApplicationController
     @model_height = 15
     @edit_box_height = 320
     gene_size = @gene.max_end - @gene.min_start
-    @gui_zoom = (gene_size/600).floor + 2    
-    @view_start = @gene.min_start - (200*@gui_zoom)
-    logger.info "\n\n#{@gene.inspect}\n\n"
-    logger.info "\n\n#{@gene.bioentry.inspect}\n\n"
+    @gui_zoom = (gene_size/700).floor + 2    
+    @view_start = @gene.min_start - (50*@gui_zoom)
     @gui_data = GeneModel.get_canvas_data(@view_start,@view_start+(@canvas_width*@gui_zoom),@gene.bioentry.id,@gui_zoom,@gene.strand)
     @depth = @gui_data.collect{|g| (g[:x2]>=(@gene.min_start-@view_start)/@gui_zoom && g[:x]<=(@gene.max_end-@view_start)/@gui_zoom) ? 1 : nil}.compact.size
     @canvas_height = ( @depth * (@model_height * 2))+10 # each model and label plus padding
