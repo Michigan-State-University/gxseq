@@ -1,0 +1,15 @@
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+  google.load("visualization", "1", {packages:["corechart"]});
+  google.setOnLoadCallback(drawChart);
+  function drawChart() {
+    var data = new google.visualization.DataTable();
+    data.addColumn('string', 'Experiment');
+    data.addColumn('number', 'Normalized Value');
+    data.addRows(<%= feature_counts.collect{|f_count| [f_count.experiment.name,f_count.normalized_count.to_f]}.to_json.html_safe %>)
+    var chart = new google.visualization.ColumnChart(document.getElementById('<%= element_id %>'));
+    chart.draw(data, {width: (window.innerWidth*0.8), height: 200, title: 'Expression Profile', legend: 'none',
+                      hAxis: {title: 'Experiment', textPosition: 'none'}
+                     });
+  }
+</script>
