@@ -17,6 +17,7 @@ class Expression < Thor
   method_options %w(experiment -e) => :required, :existing => 'raise', %w(feature -f) => 'Gene', 
     %w(id_column -i) => 1, %w(count_column -c) => 2, %w(normalized_column -n) => 3, %w(header -h) => false, 
     %w(test -t) => false, %w(skip_not_found -s) => false, %w(concordance -d) => nil, :no_index => false
+  method_option :assembly_id, :aliases => '-a', :type => :numeric, :required => true, :desc => 'Supply the ID for sequence taxonomy. Use thor taxonomy:list to lookup'
   def load(input_file)
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     require 'progress_bar'
@@ -26,6 +27,10 @@ class Expression < Thor
     rescue
       puts "*** Error opening input *** \n#{$!}"
       exit 0
+    end
+    unless ::Assembly.find_by_id(options[:assembly_id])
+      puts "No taxon with id #{options[:assembly_id]} found. Try: thor taxonomy:list"
+      return
     end
     # Check Experiment
     experiment = RnaSeq.find_by_name(options[:experiment]) || RnaSeq.find_by_id(options[:experiment].to_i)

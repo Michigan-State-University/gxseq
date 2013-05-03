@@ -48,6 +48,7 @@ class Experiment < Thor
     end
     unless ::Assembly.find_by_id(options[:assembly_id])
       puts "No taxon with id #{options[:assembly_id]} found. Try: thor taxonomy:list"
+      return
     end
     unless group = ::Group.find_by_name(options[:group])
       puts "No Group found with name #{options[:group]}. Try: thor group:list"

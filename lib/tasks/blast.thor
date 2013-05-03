@@ -1,4 +1,5 @@
 class Blast < Thor
+  #TODO: Add Desc text to all tasks and update docs
   ENV['RAILS_ENV'] ||= 'development'
   desc "create_run FILE", 'load xml formatted blast results into the database'
   method_options %w(blast_db -b) => :required,
@@ -254,5 +255,30 @@ class Blast < Thor
         puts "\t#{run.id}\t#{run.user.try(:login)||'Guest'}\t#{run.blast_database.name}\t#{run.program}\t#{run.version}\t#{run.db}\t#{run.parameters}"
       end
     end
+  end
+  
+  desc 'fix_tair', 'Fix a tair annotation by removing "| Symbols:" and "| chr.*"'
+  method_option :assembly_id, :aliases => '-a', :type => :numeric, :required => true, :desc => 'Supply the ID for sequence taxonomy. Use thor taxonomy:list to lookup'
+  method_option :blast_run, :aliases => '-b', :required => true, :desc => 'ID of blast run to annotate'
+  def fix_tair
+    require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
+    unless BlastRun.find_by_id(options[:blast_run])
+      puts "No blast run found for: #{options[:blast_run]}"
+      exit 0
+    end
+    unless ::Assembly.find_by_id(options[:assembly_id])
+      puts "No assembly with id #{options[:assembly_id]} found. Try: thor taxonomy:list"
+      exit 0
+    end
+    puts ActiveRecord::Base.connection.update("
+      update (
+          select regexp_replace(hit_def,'\\| Symbols: (.+) \\| chr.+$','\\1') new_def, hit_def
+          from blast_reports
+          left outer join blast_runs on blast_runs.id = blast_reports.blast_run_id
+          where assembly_id = #{options[:assembly_id]}
+          and blast_runs.id = #{options[:blast_run]}
+        ) sub_blast
+        set sub_blast.hit_def = sub_blast.new_def
+    ")
   end
 end
