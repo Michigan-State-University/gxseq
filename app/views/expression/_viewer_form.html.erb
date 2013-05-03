@@ -15,7 +15,9 @@
     		<%= check_box_tag "experiments[]", experiment.id, (params[:experiments] && params[:experiments].include?(experiment.id.to_s)), :class => 'exp_check'  %> 
     		<%= experiment.name %>
     	</span>
-    	<span style="float:right"><%= number_with_delimiter( experiment.feature_counts.includes(:seqfeature).where{seqfeature.type_term_id == my{type_term_id}}.sum(:count) ) %></span>
+    	<span style="float:right"><%= number_with_delimiter(
+    	  experiment.total_mapped_reads
+    	) %></span>
     </div>
   <% end %>
   <hr/ style="clear:both">
