@@ -698,11 +698,15 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   def corr_search_to_matrix(corr_search,f_counts,opts={})
     value_type=opts[:value_type]||'normalized_count'
     results = []
+    blast_run_texts = blast_reports.each.map{|blast_report|"blast_#{blast_report.blast_run_id}_text".to_sym}
     corr_search.hits.each_with_index do |hit|
+      desc = ''
+      desc += Array(hit.stored(:description_text)).first.to_s
+      desc += blast_run_texts.collect{|br| Array(hit.stored(br)).first}.join("; ")
       item = {
         :id => hit.stored(:id),
         :locus => Array(hit.stored(:locus_tag_text)).first,
-        :description => Array(hit.stored(:description_text)).first,
+        :description => desc,
         :corr => get_correlation(hit)
       }
       item[:values]=[]
