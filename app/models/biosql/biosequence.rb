@@ -82,11 +82,10 @@ class Biosql::Biosequence < ActiveRecord::Base
 
   def get_six_frames(left, right)
     return [] if left > length
-    if right > seq.length; right=seq.length;end
+    if right > self.length; right=self.length;end
     o = offsets(left, right)
     cnt = 0
     trans_num = bioentry.taxon.genetic_code || 12
-    full_seq = seq
     my_array = []
     # 0, 1, 2  for first 3 frames
     # [id,x,w,sequence,frame#,offset]..]
@@ -96,7 +95,7 @@ class Biosql::Biosequence < ActiveRecord::Base
       my_array << [
         bioentry_id+left+cnt,
         (left.to_i+1), (right.to_i-left.to_i)+1,
-        Bio::Sequence::NA.new(full_seq[ (left+o[x]) , (r) ]).translate(1,trans_num),
+        Bio::Sequence::NA.new(get_seq( (left+o[x]) , (r) )).translate(1,trans_num),
         x+1,
         o[x]
       ]
@@ -111,7 +110,7 @@ class Biosql::Biosequence < ActiveRecord::Base
       my_array << [
         bioentry_id+left+cnt,
         (left.to_i+1), (right.to_i-left.to_i),
-        Bio::Sequence::NA.new(full_seq[ (left) , (r-o[x]) ]).translate(4,trans_num),
+        Bio::Sequence::NA.new(get_seq( (left) , (r-o[x]) )).translate(4,trans_num),
         x+1,
         o[x]
       ]
@@ -147,7 +146,7 @@ class Biosql::Biosequence < ActiveRecord::Base
       o = [1,2,0]        
     end
   
-    case((seq.length- right)%3)
+    case((length- right)%3)
     when 0
       o << [0,1,2]
     when 1
