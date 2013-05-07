@@ -94,7 +94,6 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     when 'expression'
       @feature_counts = @seqfeature.feature_counts.accessible_by(current_ability).includes(:experiment).order("experiment_id")
       setup_graphics_data
-      @coexpressed_search = @seqfeature.correlated_search(current_ability)
     when 'blast'
       @blast_reports = @seqfeature.blast_reports
       params[:blast_report_id]||=@blast_reports.first.id

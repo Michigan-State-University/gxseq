@@ -120,7 +120,6 @@ class Biosql::Feature::GenesController < ApplicationController
     when 'expression'
       @feature_counts = @gene.feature_counts.accessible_by(current_ability).includes(:experiment).order("experiment_id")
       setup_graphics_data
-      #@coexpressed_search = @gene.correlated_search(current_ability)
     when 'blast'
       @blast_reports = @gene.blast_reports
       params[:blast_report_id]||=@blast_reports.first.id
