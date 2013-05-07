@@ -51,7 +51,7 @@ class Synthetic < Experiment
   end
   
   def base_counts
-    bioentry.biosequence.length
+    bioentry.biosequence_without_seq.length
   end
 
   ##Track Config

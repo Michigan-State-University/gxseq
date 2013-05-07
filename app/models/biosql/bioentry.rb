@@ -221,7 +221,7 @@ class Biosql::Bioentry < ActiveRecord::Base
   end
   
   def genbank_header
-    text = "LOCUS".ljust(12)+accession+"\t#{biosequence.length} bp\t#{biosequence.alphabet}\t#{date_modified}\n"
+    text = "LOCUS".ljust(12)+accession+"\t#{biosequence_without_seq.length} bp\t#{biosequence_without_seq.alphabet}\t#{date_modified}\n"
     text +="DEFINITION".ljust(12)+"#{description}\n"
     text +="ACCESSION".ljust(12)+"#{accession}\n"
     text +="VERSION".ljust(12)+"#{version}\n"

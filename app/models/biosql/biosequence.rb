@@ -7,11 +7,12 @@ class Biosql::Biosequence < ActiveRecord::Base
   set_primary_keys :bioentry_id, :version
   belongs_to :bioentry, :foreign_key => 'bioentry_id'
   
-  def [](start_pos, length)
+  def get_seq(start_pos, length)
     if self.class.connection.adapter_name.downcase =~/.*oracle.*/
       return self.class.connection.select_value("select dbms_lob.substr(seq,#{length},#{start_pos+1}) from biosequence where bioentry_id = #{bioentry_id} and version = #{version}")
     else
-      return seq[start_pos,end_pos]
+      s = self.has_attribute?(:seq) ? self.seq : Biosql::Biosequence.find(self.id).seq
+      return s[start_pos,length]
     end
   end
   

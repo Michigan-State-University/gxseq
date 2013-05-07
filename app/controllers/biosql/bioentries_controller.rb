@@ -318,18 +318,18 @@ class Biosql::BioentriesController < ApplicationController
          bioentry_id = param['bioentry']
          bioentry = Biosql::Bioentry.find(bioentry_id)
          authorize! :read, bioentry
-         biosequence = Biosql::Biosequence.find_by_bioentry_id(bioentry_id)
+         biosequence = bioentry.biosequence_without_seq
          render :partial => "biosequence/show", :locals => {:biosequence => biosequence, :start => param['left'], :stop => param['right']}
        when 'range'
          bioentry_id = param['bioentry']
          bioentry = Biosql::Bioentry.find(bioentry_id)
+         bioseq = bioentry.biosequence_without_seq
          authorize! :read, bioentry
          left = param['left']
          right = param['right']
          length = right - left +1
          if(param['bases']==1 && param['pixels']>1)
-           bioseq = Biosql::Biosequence.find_by_bioentry_id(bioentry_id.to_i)
-           sequence = bioseq.seq[ left, length ]
+           sequence = bioseq.get_seq( left, length )
            data = bioseq.get_six_frames(left, right)
            render :json => {
               :success => true,
@@ -345,8 +345,7 @@ class Biosql::BioentriesController < ApplicationController
               }
            }            
          elsif(param['bases'] < 10 )
-           bioseq = Biosql::Biosequence.find_by_bioentry_id(bioentry_id.to_i)
-           sequence = bioseq.seq[ left, length ]
+           sequence = bioseq.get_seq[ left, length ]
            data = bioseq.get_six_frames(left, right)
            render :json => {
               :success => true,
@@ -365,8 +364,7 @@ class Biosql::BioentriesController < ApplicationController
               }
            }
          elsif(param['bases']>=10)
-           bioseq = Biosql::Biosequence.where(:bioentry_id => bioentry_id.to_i).select("bioentry_id,version,length").first
-           data =  bioentry.get_gc_content(left,length,param['bases'])
+          data =  bioentry.get_gc_content(left,length,param['bases'])
           render :json => {
              :success => true,
                :data => {

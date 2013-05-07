@@ -72,7 +72,7 @@ class Biosql::Feature::Gene < Biosql::Feature::Seqfeature
   # returns an array of all possible start locations in this gene
   def possible_starts(padding=300)
     starts=[]
-    seq = bioentry.biosequence.seq[location.start_pos-(padding+1),(location.end_pos-location.start_pos)+(padding+1)]
+    seq = bioentry.biosequence_without_seq.get_seq(location.start_pos-(padding+1),(location.end_pos-location.start_pos)+(padding+1))
     bioseq = Bio::Sequence::NA.new(seq)
     if(location.strand)
       bioseq.window_search(3,3) do |s,p|

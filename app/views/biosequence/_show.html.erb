@@ -6,7 +6,7 @@
   <% when 'fasta' %>
   <div style="font-family:'Courier';background:#FEFEFE;padding:1em">
 ><%=  biosequence.bioentry.name%> from <%= start %> to <%= stop %><br/>
-<%= biosequence.seq[start-1,(stop-start)+1].gsub("","&#8203").html_safe %>
+<%= biosequence.get_seq(start-1,(stop-start)+1).gsub("","&#8203").html_safe %>
   </div>
   <% end %>
 <% end %>

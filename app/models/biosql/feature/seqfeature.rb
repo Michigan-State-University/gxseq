@@ -233,7 +233,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   def na_sequence
     seq = ""
     locations.each do |l|
-      seq += bioentry.biosequence_without_seq[l.start_pos-1, (l.end_pos-l.start_pos)+1]
+      seq += bioentry.biosequence_without_seq.get_seq(l.start_pos-1, (l.end_pos-l.start_pos)+1)
     end
     return seq
   end
