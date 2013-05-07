@@ -24,7 +24,11 @@
 					  <div class="tier4">
 					    <a name="<%= id %>" href="#<%= id %>" ></a>
 					  </div>
-					  <%= t_version.name %>
+					  <% if can? :edit, t_version %>
+					    <%= link_to t_version.name, edit_assembly_path(t_version) %>
+					  <% else %>
+					    <%= t_version.name %>
+					  <% end %>
 					</td>
 					<td style="text-align:left">
 						<%= t_version.version %>

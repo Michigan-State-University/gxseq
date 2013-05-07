@@ -2,7 +2,7 @@ class BlastRun < ActiveRecord::Base
   belongs_to :blast_database
   belongs_to :assembly
   belongs_to :user
-  has_many :blast_reports, :dependent => :destroy
+  has_many :blast_reports, :dependent => :delete_all
   delegate :taxon, :filepath, :name, :description, :name_with_description, :to => :blast_database, :allow_nil => true
   serialize :parameters, Hash
   validates_presence_of :blast_database

@@ -8,7 +8,7 @@ class Assembly < ActiveRecord::Base
   has_many :variants, :order => "experiments.name asc"
   has_many :rna_seqs, :order => "experiments.name asc"
   has_many :re_seqs, :order => "experiments.name asc"
-  has_many :blast_runs
+  has_many :blast_runs, :dependent => :destroy
   has_many :blast_databases, :through => :blast_runs
   has_many :tracks
   has_many :models_tracks
@@ -64,8 +64,10 @@ class Assembly < ActiveRecord::Base
   def create_default_concordance
     concordance_set = self.concordance_sets.find_or_create_by_name("Default")
     concordance_set.concordance_items.destroy_all
+    progress_bar = ProgressBar.new(bioentries.count)
     bioentries.each do |entry|
-      concordance_set.concordance_items.create(:bioentry => entry,:reference_name => entry.accession)
+      ConcordanceItem.fast_insert(:concordance_set_id => concordance_set.id, :bioentry_id => entry.bioentry_id,:reference_name => entry.accession)
+      progress_bar.increment!
     end
   end
   # creates a big wig with the gc content data for all bioentries
@@ -157,5 +159,18 @@ class Assembly < ActiveRecord::Base
 
   def bioentry_ids
     Biosql::Bioentry.select('bioentry_id').where{assembly_id == my{id}}
+  end
+  
+  # TODO: Add method to quickly remove data and reindex. Current callbacks with destroy take far too long
+  def remove_all_data
+    # TODO: Remove the seqfeatures
+    # remove the biosequence
+    b_ids = bioentries.map(&:bioentry_id)
+    b_ids.each_slice(999) do |batch|
+      batch.each do |ids|
+        Biosql::Biosequence.where{bioentry_id.in my{ids}}.delete_all
+      end
+    end
+    # Remove the bioentries
   end
 end

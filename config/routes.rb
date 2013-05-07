@@ -43,6 +43,7 @@ GenomeSuite::Application.routes.draw do
       member do
         get 'toggle_favorite'
         get 'feature_counts'
+        get 'coexpressed_counts'
       end
     end
     resources :genes do
@@ -59,6 +60,7 @@ GenomeSuite::Application.routes.draw do
       member do
         get 'toggle_favorite'
         get 'feature_counts'
+        get 'coexpressed_counts'
       end
     end
     resources :genes do
@@ -153,6 +155,7 @@ GenomeSuite::Application.routes.draw do
   match "expression/results"
   match "expression/advanced_viewer"
   match "expression/advanced_results"
+  match "expression/parallel_graph"
   resources :blasts do
     post 'new', :on => :member
   end

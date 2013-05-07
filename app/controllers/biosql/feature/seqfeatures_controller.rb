@@ -167,16 +167,22 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
   end
   
   # Custom Routes
-  respond_to :json, :only => :feature_counts
+  respond_to :json, :only => [:feature_counts,:coexpressed_counts]
   # returns formatted counts for all feature counts tied to seqfeature
   # [{:key => sample_name, :values => {:base => int, :count => float }}, ...]
   def feature_counts
-    @feature_counts = FeatureCount.where(:seqfeature_id => params[:id]).accessible_by(current_ability)
-      .includes(:experiment).order('experiments.name')
+    @feature_counts = @seqfeature.feature_counts.accessible_by(current_ability)
+      .includes(:experiment).order("experiment_id")
     data = FeatureCount.create_graph_data(@feature_counts, {:type => (params[:type]||'count')} )
     respond_with data
   end
-  
+  # returns formatted counts for all coexpressed features
+  #[{:id,:name,:sample1,:sample2,...}]
+  def coexpressed_counts
+    feature_counts = @seqfeature.feature_counts.accessible_by(current_ability).includes(:experiment).order("experiment_id")
+    search = @seqfeature.correlated_search(current_ability,{:per_page => 100})
+    respond_with @seqfeature.corr_search_to_matrix(search,feature_counts)
+  end
   # Add or Remove this seqfeature as a favorite for the given user, and reindex
   def toggle_favorite
     #Note: is it right to have the image here?

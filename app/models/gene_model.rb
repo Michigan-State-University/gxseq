@@ -171,6 +171,14 @@ class GeneModel < ActiveRecord::Base
     "#{locus_tag}.#{rank}:#{gene_name}: #{start_pos}..#{end_pos} #{strand == 1 ? '->' : '<-'}"
   end
   
+  def cds_start
+    cds.locations.sort{|a,b|a.start_pos<=>b.start_pos}.first.start_pos
+  end
+  
+  def cds_end
+    cds.locations.sort{|a,b|a.end_pos<=>b.end_pos}.last.end_pos
+  end
+  
   def variant_na_sequence(exp_id,opts={})
     return nil unless (v = Variant.find(exp_id))
     window = (opts[:window] || 0).to_i
@@ -191,25 +199,8 @@ class GeneModel < ActiveRecord::Base
     return seq
   end
   
-  def cds_start
-    cds.locations.sort{|a,b|a.start_pos<=>b.start_pos}.first.start_pos
-  end
-  
-  def cds_end
-    cds.locations.sort{|a,b|a.end_pos<=>b.end_pos}.last.end_pos
-  end
-  
-  #TODO: move to CDS feature
   def na_sequence
-    if(cds)
-      seq = ""
-      cds.locations.each do |l|
-        seq += bioentry.biosequence.seq[l.start_pos-1, (l.end_pos-l.start_pos)+1]
-      end
-      return seq
-    else
-      return nil
-    end
+    cds.try(:na_sequence)
   end
   
   def variant_protein_sequence(exp_id,opts={})

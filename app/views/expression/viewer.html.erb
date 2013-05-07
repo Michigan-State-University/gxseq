@@ -42,15 +42,19 @@
 <br/><br/>
 <hr/>
 <div id="form_field">
-  <div id='viewer' style="<%= params[:fmt]&&params[:fmt]!='viewer' ? 'display:none' : '' %>" class='select_form'>
+  <div id='viewer' style="<%= params[:fmt]&&params[:fmt]=='viewer' ? '' : 'display:none' %>" class='select_form'>
 	<% if @experiment_options %>
 		<%= render :partial => 'viewer_form', :locals => {:experiment_options => @experiment_options, :assembly => @assembly, :type_term_id => @type_term_id} %>
 	<% end %>
 	</div>
-	<div id='advanced_viewer' style="<%= params[:fmt]!='advanced_viewer' ? 'display:none' : '' %>" class='select_form'>
+	<div id='advanced_viewer' style="<%= params[:fmt]=='advanced_viewer' ? '' : 'display:none' %>" class='select_form'>
 	  <% if @experiment_options %>
 	  <%= render :partial => 'advanced_viewer_form', :locals => {:experiment_options => @experiment_options, :assembly => @assembly, :type_term_id => @type_term_id} %>
 	  <% end %>
 	</div>
-	
+	<div id='parallel' style="<%= params[:fmt]&&params[:fmt]=='parallel' ? '' : 'display:none' %>" class='select_form'>
+	<% if @experiment_options %>
+		<%= render :partial => 'parallel_select_form', :locals => {:experiment_options => @experiment_options, :assembly => @assembly, :type_term_id => @type_term_id} %>
+	<% end %>
+	</div>
 </div>

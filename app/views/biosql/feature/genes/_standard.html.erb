@@ -116,13 +116,14 @@
 						<% end %>
 						<tr class=<%= cycle("odd","even") %>>
 							<td class="keyword">Gene Length</td>
-							<td><%= gene_model.na_sequence.size if gene_model.na_sequence %></td>
+							<% na_seq = gene_model.na_sequence %>
+							<td><%= na_seq.size if na_seq %></td>
 						</tr>
 						<tr class=<%= cycle("odd","even") %>>
 							<td class="keyword">NA Sequence<br/>
-							  <%= render :partial => "blasts/link_with_sequence", :locals => {:sequence => gene_model.na_sequence, :desc => "#{gene_model.locus_tag} NA sequence"} %>
+							  <%= render :partial => "blasts/link_with_sequence", :locals => {:sequence => na_seq, :desc => "#{gene_model.locus_tag} NA sequence"} %>
 							</td>
-							<td style="font-family:'Courier';"><pre style="overflow-x:scroll"><%= formatted_sequence(gene_model.na_sequence,{:rows => 10, :delimiter => "\n"}) %></pre></td>
+							<td style="font-family:'Courier';"><pre style="overflow-x:scroll"><%= formatted_sequence(na_seq,{:rows => 10, :delimiter => "\n"}) %></pre></td>
 						</tr>
 						<% if gene_model.cds.protein_id %>
 							<tr class=<%= cycle("odd","even") %>>
@@ -141,13 +142,14 @@
 						
 						<tr class=<%= cycle("odd","even") %>>
 							<td class="keyword">Protein Length</td>
-							<td><%= gene_model.protein_sequence.size if gene_model.protein_sequence %></td>
+							<% p_seq = gene_model.protein_sequence %>
+							<td><%= p_seq.size if p_seq %></td>
 						</tr>
 						<tr class=<%= cycle("odd","even") %>>
 							<td class="keyword">Protein Sequence<br/>
-							  <%= render :partial => "blasts/link_with_sequence", :locals => {:sequence => gene_model.protein_sequence, :desc => "#{gene_model.locus_tag} Protein sequence"} %>
+							  <%= render :partial => "blasts/link_with_sequence", :locals => {:sequence => p_seq, :desc => "#{gene_model.locus_tag} Protein sequence"} %>
 							</td>
-							<td style="font-family:'Courier';"><pre style="overflow-x:scroll"><%= formatted_sequence(gene_model.protein_sequence,{:rows => 10, :delimiter => "\n"}) %></pre></td>
+							<td style="font-family:'Courier';"><pre style="overflow-x:scroll"><%= formatted_sequence(p_seq,{:rows => 10, :delimiter => "\n"}) %></pre></td>
 						</tr>
 					</table>
 				</div>

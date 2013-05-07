@@ -1,15 +1,16 @@
 class ExpressionController < ApplicationController
   before_filter :setup_form_data, :only => [:viewer]
-  before_filter :setup_results_data, :only => [:results,:advanced_results]
+  before_filter :setup_results_data, :only => [:results,:advanced_results,:parallel_graph]
   # display the selection form for samples and matrix or ratio results
   def viewer
+    params[:fmt]||='viewer'
   end
-  
+   
   # display the matrix results
   def results
     begin
     # Lookup the Experiments - Intersect with accessible experiments
-    @experiments = params[:experiments].map{|e|Experiment.find(e)}.compact & @experiment_options
+    @experiments = (params[:experiments]||[]).map{|e|Experiment.find(e)}.compact & @experiment_options
     respond_to do |format|
       # Base html query
       format.html{
@@ -101,7 +102,15 @@ class ExpressionController < ApplicationController
       @b_experiments||=[]
     end
   end
-
+  
+  def parallel_graph
+    # Lookup the Experiments - Intersect with accessible experiments
+    @experiments = params[:experiments].map{|e|Experiment.find(e)}.compact & @experiment_options
+    @search = Biosql::Feature::Seqfeature.matrix_search(current_ability,@assembly.id,@type_term_id,@experiments,params) do |s|
+      s.paginate(:page => params[:page], :per_page => 100)
+    end
+  end
+  
   private
   # Sets assembly and feature type options for viewer form
   def setup_form_data

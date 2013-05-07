@@ -1,4 +1,5 @@
 class Biosql::Feature::Seqfeature < ActiveRecord::Base
+  # TODO: Refactor some methods in this class, its growing too large. Maybe a Search module
   set_table_name "seqfeature"
   set_primary_key :seqfeature_id
   has_paper_trail :meta => {
@@ -19,10 +20,9 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   has_many :object_seqfeature_relationships, :class_name => "SeqfeatureRelationship", :foreign_key => "object_seqfeature_id", :dependent  => :delete_all
   has_many :subject_seqfeature_relationships, :class_name => "SeqfeatureRelationship", :foreign_key => "subject_seqfeature_id"
   has_many :locations, :dependent  => :delete_all
-
   #extensions
   has_many :feature_counts
-  has_many :blast_reports
+  has_many :blast_reports, :dependent => :destroy
   has_many :blast_reports_without_report, :class_name => "BlastReport", :select => [:id,:hit_acc,:hit_def,:seqfeature_id,:blast_run_id]
   has_many :favorite_seqfeatures, :foreign_key => :favorite_item_id
   has_many :favorite_users, :through => :favorite_seqfeatures, :source => :user
@@ -229,15 +229,11 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
    locations.map(&:end_pos).max
   end
 
-  # TODO: remove duplicate na_seq method
-  def na_seq
-    na_sequence
-  end
-  # default na_seq; override for custom behavior (i.e. cds)
+  # default na_sequence; override for custom behavior (i.e. cds)
   def na_sequence
     seq = ""
     locations.each do |l|
-      seq += bioentry.biosequence.seq[l.start_pos-1, (l.end_pos-l.start_pos)+1]
+      seq += bioentry.biosequence_without_seq[l.start_pos-1, (l.end_pos-l.start_pos)+1]
     end
     return seq
   end
@@ -609,6 +605,8 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     authorized_id_set = ability.authorized_seqfeature_ids
     authorized_id_set=[-1] if authorized_id_set.empty?
     value_type=opts[:value_type]||'normalized_count'
+    per_page=opts[:per_page]||50
+    page=opts[:page]||1
     x_sum = 0
     xsquare = 0
     ordered_counts = feature_counts.order("experiment_id")
@@ -651,6 +649,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
       with(:assembly_id, my_assembly_id)
       # limit to the supplied type
       with(:type_term_id, my_type_term_id)
+      # Do not allow all zeroes in result
       any_of do
         dynamic(value_type+'s') do
           ordered_counts.each do |oc|
@@ -658,24 +657,28 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
           end
         end
       end
+      # Paging
+      paginate(:page => page, :per_page => per_page)
     end
   end
-  
+  # Returns the correlation between two hits with the same samples
   # order by function result is not returned in search so we have to compute the correlation again for view
-  def get_correlation(compared_feature,opts={})
-    # Correlation can only be computed on same length vectors
-    return nil if self.feature_counts.nil? || compared_feature.feature_counts.nil?
-    return nil if self.feature_counts.length != compared_feature.feature_counts.length
+  def get_correlation(compared_hit,opts={})
     ordered_counts = feature_counts.order("experiment_id")
     total_feature_counts = feature_counts.length
     # Default to normalized values
     value_type=opts[:value_type]||'normalized_count'
     # Initialize the variables
     xsum = ysum = xsquare = ysquare = product = sxx = syy = sxy = r = 0
+    # grab the counts for this hit
+    compared_values = []
+    ordered_values = []
+    ordered_counts.each do |f_count|
+      ordered_values.push(f_count.send(value_type).to_f)
+      compared_values.push(compared_hit.stored(value_type+'s',"exp_#{f_count.experiment_id}").to_f)
+    end
     # Collect the sum and sum of squares
-    ordered_counts.zip(compared_feature.feature_counts.order("experiment_id")).each do |xfc,yfc|
-      x = xfc.send(value_type).to_f
-      y = yfc.send(value_type).to_f
+    ordered_values.zip(compared_values).each do |x,y|
       xsum += x
       ysum += y
       xsquare += (x*x)
@@ -689,6 +692,27 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     # Return r squared the Pearsone Correlation Coefficient
     r =  ( sxy / (Math.sqrt(sxx)*Math.sqrt(syy)) )
     return (r*r).round(4)
+  end
+  # returns formatted counts for all coexpressed features
+  # [{:id,:name,:description,:correlation,:sample1,:sample2,...}]
+  def corr_search_to_matrix(corr_search,f_counts,opts={})
+    value_type=opts[:value_type]||'normalized_count'
+    results = []
+    corr_search.hits.each_with_index do |hit|
+      item = {
+        :id => hit.stored(:id),
+        :locus => Array(hit.stored(:locus_tag_text)).first,
+        :description => Array(hit.stored(:description_text)).first,
+        :corr => get_correlation(hit)
+      }
+      item[:values]=[]
+      f_counts.each do |f_count|
+        item[:values] << {:x => f_count.experiment.name, :y => hit.stored(value_type+'s',"exp_#{f_count.experiment_id}")}
+        #item[f_count.experiment.name]= hit.stored(value_type+'s',"exp_#{f_count.experiment_id}")
+      end
+      results.push(item)
+    end
+    return results
   end
   
   protected

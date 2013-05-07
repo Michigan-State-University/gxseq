@@ -2,7 +2,7 @@
 General Process for New Data
 ----------------
 Load Sequence
--Identify Species and Load new Assembly (Genome/Transcriptome) =>  assembly:list, sequence:load
+-Identify Species and Load new Assembly (Genome/Transcriptome) =>  taxonomy:find, sequence:load
 -Load Concordance Set for new Assembly => concordance:load
 
 If Transcriptome Load Blast
@@ -23,11 +23,17 @@ Common Commands
 ----------------
 - Print bam Names in Dir
 
-	ls lib/data/ohlrogge/camelina/ | grep "bam" | awk '{gsub(".bam","");print $0}' | xargs
+	ls ./ | grep "bam" | awk '{gsub(".bam","");print $0}' | xargs
 	
 - Load Multiple Experiments and Expression
 	
-	LIBS="one two three";for x in $LIBS; do echo $x; thor experiment:create -t RnaSeq -n $x -a 'assembly_id' -c 'concordance_id' -g "Lab Group" -d 'Description' -f Bam:lib/data/lab/project/$x.bam; thor expression:load lib/data/lab/project/$x.csv -e $x -f 'Mrna' -c 4 -n 2 -h -d lib/data/lab/project/csv_concordance --no_index; done
+	LIBS="one two three";  	//All sample names minus '.bam' '.csv'
+	ASM_ID=1001;  			//Assembly id
+	CONCORD_ID=1001;		//Sample concordance id
+	CONCORD_FILE=concordance.txt; //Concordance file for expression
+	C_COL=4; //Counts column in csv. use 4 for CLC Transcriptome(Reference without annoations), 6 for CLC Genome
+	
+	for x in $LIBS; do echo $x; thor experiment:create -t RnaSeq -n $x -a $ASM_ID -c $CONCORD_ID -g "admin" -f Bam:./$x.bam; thor expression:load ./$x.csv -e $x -a $ASM_ID -f 'Mrna' -c $C_COL -n 2 -h -d $CONCORD_FILE --no_index; done
  
 - Run a blastx
 

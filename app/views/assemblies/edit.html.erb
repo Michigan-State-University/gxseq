@@ -11,13 +11,13 @@
 
 <% content_for :sidebar do %>
 	<!-- Sidebar / Links / Notices here -->
-	<%= render :partial => "bioentries/sidebar", :locals => {:active => 'taxon'} %>
+	<%= render :partial => "biosql/bioentries/sidebar", :locals => {:active => 'taxon'} %>
 <% end %>
 
 <% if @assembly.nil? %>
   Taxon Version Not found...
 <% else %>
-  <% form_for @assembly do |f| -%>
+  <% form_for @assembly.becomes(Assembly) do |f| -%>
     <%= f.error_messages %>
     <p>Species:<br/><%= @assembly.species.scientific_name.name %></p>
     <p>Taxon:<br/><%= @assembly.taxon.scientific_name.name %></p>

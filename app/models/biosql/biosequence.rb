@@ -7,6 +7,14 @@ class Biosql::Biosequence < ActiveRecord::Base
   set_primary_keys :bioentry_id, :version
   belongs_to :bioentry, :foreign_key => 'bioentry_id'
   
+  def [](start_pos, length)
+    if self.class.connection.adapter_name.downcase =~/.*oracle.*/
+      return self.class.connection.select_value("select dbms_lob.substr(seq,#{length},#{start_pos+1}) from biosequence where bioentry_id = #{bioentry_id} and version = #{version}")
+    else
+      return seq[start_pos,end_pos]
+    end
+  end
+  
   def self.to_protein(sequence,frame=1,genetic_code=1)
     frame = frame.to_i
     genetic_code = genetic_code.to_i

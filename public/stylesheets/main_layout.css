@@ -2,8 +2,8 @@
 body {
 	margin:0;
 	padding:0;
-  	color:#000;
-    font-family:tahoma,arial,sans-serif;
+  color:#000;
+  font-family:tahoma,arial,sans-serif;
 	font-size:12px;
 	background: #71BF44;
 	min-width:1024px;
@@ -128,7 +128,7 @@ input.text {
 #top-navigation li a {
 	float:right;
 	display:block;
-	height:25px;
+	height:20px;
 	line-height:19px;
 	margin-top:8px;
 	color:#606060;
@@ -142,10 +142,8 @@ input.text {
 	-webkit-border-top-left-radius: 4px;
 	-webkit-border-top-right-radius: 4px;
 	background:#E7F1F9;
-	box-sizing: border-box;
-	-moz-box-sizing: border-box;
-	-ms-box-sizing: border-box;
-	-webkit-box-sizing: border-box;
+	-webkit-box-sizing: content-box;
+	-box-sizing: content-box;
 }
 #top-navigation li a:hover {
 	border:1px #849dae solid;
@@ -155,7 +153,7 @@ input.text {
 }
 #top-navigation li a.active {
 	padding:6px 10px 0 10px;
-	height:32px;
+	height:25px;
 	border:1px #849dae solid;
 	border-bottom:none;
 	margin-top:2px;
@@ -367,14 +365,10 @@ ul.nav a.active {
 
 /* orange button */
 .item-bar input.button {
-    height:12px;
 	text-align:center;
 	color:#fff;
 	font-weight:bold;
-	padding-top:5px;
-	padding-bottom:20px;
-	padding-left:5px;
-	padding-right:5px;
+	padding:5px;
 	border:none;
 	background: #ffbd3e;
 	background: -webkit-gradient(
@@ -414,13 +408,13 @@ ul.nav a.active {
 a.button {
 	float:left;
 	display:block;
-	height:10px;
+/*  height:10px;*/
 	text-align:center;
 	color:#fff;
 	font-weight:bold;
-	padding:10px;
+  padding:10px;
 	padding-top:5px;
-	padding-bottom:20px;
+	padding-bottom:5px;
 	margin-right:1em;
 	background: #ffbd3e;
 	background: -webkit-gradient(
@@ -439,10 +433,6 @@ a.button {
 	border-radius: 7px;
 	-moz-border-radius: 7px;
 	-webkit-border-radius: 7px;
-	box-sizing: border-box;
-	-moz-box-sizing: border-box;
-	-ms-box-sizing: border-box;
-	-webkit-box-sizing: border-box;
 	}
 a.button:hover{
     cursor:pointer;

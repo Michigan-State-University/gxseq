@@ -1,15 +1,118 @@
-<script type="text/javascript" src="https://www.google.com/jsapi"></script>
-<script type="text/javascript">
-  google.load("visualization", "1", {packages:["corechart"]});
-  google.setOnLoadCallback(drawChart);
-  function drawChart() {
-    var data = new google.visualization.DataTable();
-    data.addColumn('string', 'Experiment');
-    data.addColumn('number', 'Normalized Value');
-    data.addRows(<%= feature_counts.collect{|f_count| [f_count.experiment.name,f_count.normalized_count.to_f]}.to_json.html_safe %>)
-    var chart = new google.visualization.ColumnChart(document.getElementById('<%= element_id %>'));
-    chart.draw(data, {width: (window.innerWidth*0.8), height: 200, title: 'Expression Profile', legend: 'none',
-                      hAxis: {title: 'Experiment', textPosition: 'none'}
-                     });
+<% content_for :default_override do -%>
+<!-- SlickGrid -->
+<%= stylesheet_link_tag 'slickgrid/slick.grid.css' %>
+<%= stylesheet_link_tag 'slickgrid/jquery-ui-1.8.16.custom.css' %>
+<%= stylesheet_link_tag 'slickgrid/examples.css' %>
+<%= stylesheet_link_tag 'slickgrid/slick.pager.css' %>
+<%= javascript_include_tag 'jquery-latest.min.js' %>
+<%= javascript_include_tag 'slickgrid/jquery.event.drag-2.0.min.js' %>
+<%= javascript_include_tag 'slickgrid/slick.core.js' %>
+<%= javascript_include_tag 'slickgrid/slick.grid.js' %>
+<%= javascript_include_tag 'slickgrid/slick.pager.js' %>
+<%= javascript_include_tag 'slickgrid/slick.dataview.js' %>
+<!-- D3 and Parallel coords chart -->
+<%#= stylesheet_link_tag 'd3.parcoords.css' %>
+<%= javascript_include_tag 'd3.v3.min.js' %>
+<%= javascript_include_tag 'd3.linechart.js' %>
+<%= javascript_include_tag 'd3.slickline.js' %>
+<%= javascript_include_tag 'divgrid.js' %>
+<%#= javascript_include_tag 'line_chart_with_slick.js' %>
+<% end -%>
+
+<style>
+	/* tell the SVG path to be a thin blue line without any area fill */
+	path {
+		stroke-width: 2;
+		fill: none;
+	}
+	.axis {
+	  shape-rendering: crispEdges;
+	}
+	.x.axis line {
+	  display: none;
+	}
+
+	.x.axis path {
+	  display: none;
+	}
+
+	.y.axis line, .y.axis path {
+	  fill: none;
+	  stroke: #000;
+	}
+	div.tooltip {
+    position: absolute;
+    text-align: center;
+    width: 60px;
+    height: 12px;
+    padding: 8px;
+    font: 10px sans-serif;
+    background: #ddd;
+    border: solid 1px #aaa;
+    border-radius: 8px;
+    pointer-events: none;
+    box-sizing:content-box;
+    webkit-box-size:content-box;
   }
+  #grid, #pager {
+    width: 100%;
+  }
+  #grid {
+    height: 300px;
+  }
+  #pager {
+    height: 20px;
+  }
+  .slick-row:hover {
+    font-weight: bold;
+    color: #069;
+  }
+  .slick-viewport {
+    overflow-x: hidden !important;
+  }
+  #grid * {
+    -webkit-box-sizing:content-box !important; 
+    -box-sizing:content-box !important;
+  }
+</style>
+
+<div id="example" class="parcoords" style="height:300px;"></div>
+<div id="pager"></div>
+<div id="grid"></div>
+<script type='text/javascript'>
+  var linkFormatter = function ( row, cell, value, columnDef, dataContext ) {
+          return '<a href="' + dataContext['id'] + '?fmt=expression">' + value + '</a>';
+      };
+  slick = d3.slickline({
+    graph: '#example',
+    grid: '#grid',
+    tooltip: 'locus',
+    pager: '#pager',
+    grid_columns: [
+      {
+        id: '1',
+        name: 'Name',
+        field: 'locus',
+        sortable: false,
+        selectable: false,
+        formatter: linkFormatter
+      },
+      {
+        id: '2',
+        name: 'Definition',
+        field: 'description',
+        width: 350,
+        sortable: false,
+        selectable: false
+      },
+      {
+        id: '3',
+        name: 'Correlation',
+        field: 'corr',
+        sortable: false,
+        selectable: false
+      }
+    ]
+  });
+  slick.load(<%= "'#{data}'" %>)
 </script>

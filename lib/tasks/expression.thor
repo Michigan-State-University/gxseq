@@ -33,7 +33,7 @@ class Expression < Thor
       return
     end
     # Check Experiment
-    experiment = RnaSeq.find_by_name(options[:experiment]) || RnaSeq.find_by_id(options[:experiment].to_i)
+    experiment = RnaSeq.find_by_name_and_assembly_id(options[:experiment],options[:assembly_id]) || RnaSeq.find_by_id(options[:experiment].to_i)
     unless experiment
       puts "experiment '#{options[:experiment]}' not found"
       exit 0

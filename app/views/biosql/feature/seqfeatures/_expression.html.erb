@@ -1,7 +1,7 @@
 <div class='table' width="100%" style='overflow-x:auto'>
   <table class="listing">
     <tr>
-      <th></th>
+      <th style="width:20px"></th>
       <% @feature_counts.each do |m| %>
         <th><%= link_to m.experiment.name, m.experiment %></th>
       <% end %>
@@ -22,9 +22,16 @@
 </div>
 
 <div id='expression_profile' style="clear:both"></div>
-<%= render :partial => "shared/expression_profile", :locals => {:feature_counts => @feature_counts, :element_id => 'expression_profile'} %>
+
+<%= render :partial => "shared/expression_profile", :locals => {
+  :feature_counts => @feature_counts,
+  :element_id => 'expression_profile',
+  :data => coexpressed_counts_seqfeature_path(@gene,:format => :json)
+} %>
 
 <%= render :partial => "biosql/feature/seqfeatures/coexpression_table", :locals => {:coexpressed_search => @coexpressed_search, :current_feature => (@gene||@seqfeature)} %>
+
+<br/>
 
 <div class='clear'>
   <div class="border" style="overflow:hidden">

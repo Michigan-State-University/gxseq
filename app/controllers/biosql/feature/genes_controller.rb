@@ -120,7 +120,7 @@ class Biosql::Feature::GenesController < ApplicationController
     when 'expression'
       @feature_counts = @gene.feature_counts.accessible_by(current_ability).includes(:experiment).order("experiment_id")
       setup_graphics_data
-      @coexpressed_search = @gene.correlated_search(current_ability)
+      #@coexpressed_search = @gene.correlated_search(current_ability)
     when 'blast'
       @blast_reports = @gene.blast_reports
       params[:blast_report_id]||=@blast_reports.first.id
@@ -199,13 +199,15 @@ class Biosql::Feature::GenesController < ApplicationController
     # See if we have a locus or id
     gene_id = Biosql::Feature::Gene.with_locus_tag(params[:id]).first.try(:id) || params[:id]
     # Lookup gene by id
-    @gene = Biosql::Feature::Gene.where(:seqfeature_id => gene_id).includes(
+    @gene = Biosql::Feature::Gene.where(:seqfeature_id => gene_id)
+      .includes(
       [ 
         :locations,
         [:qualifiers => :term],
         [:bioentry => [:assembly]],
         [:gene_models => [:cds => [:locations, [:qualifiers => :term]],:mrna => [:locations, [:qualifiers => :term]]]],
-      ]).first
+      ])
+      .first
     # Lookup all genes with the same locus tag for warning display
     @genes = Biosql::Feature::Gene.with_locus_tag( @gene.locus_tag.value)
   end

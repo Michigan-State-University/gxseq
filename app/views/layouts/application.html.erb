@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Genome Suite</title>
-	<%= csrf_meta_tag %>
-	<%= stylesheet_link_tag 'main_layout', 'layout_extras', 'formtastic' %>
-	<%= yield :head %>
-	<%= javascript_include_tag :defaults %>
-	<%= javascript_include_tag 'swfobject' %>
+<title>Genome Suite</title>
+<%= csrf_meta_tag %>
+<%= stylesheet_link_tag 'main_layout', 'layout_extras', 'formtastic' %>
+  <%= yield :head %>
+	<% unless (default_override = yield :default_override).blank? %>
+	  <%= default_override %>
+	<% else %>
+	  <%= javascript_include_tag :defaults %>
+	  <%= javascript_include_tag 'swfobject' %>
+	<% end %>
 	<%= favicon_link_tag %>
 </head>
 
