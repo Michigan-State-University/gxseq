@@ -12,7 +12,7 @@ d3.linechart = function(config){
   width = selection.property('scrollWidth') - m[1] - m[3];
   height = selection.property('scrollHeight') - m[0] - m[2];
   var lineColor = "#069";
-  var highlightColor = "#d92";
+  var highlightColor = "#f70";
   function mouseover(data,idx) {
     var item = d3.select(this);
     if(mouseoverFunc){mouseoverFunc.call(idx);}
@@ -41,12 +41,12 @@ d3.linechart = function(config){
     .style("opacity", 1e-6);
   // Highlight series with given id
   chart.highlight=function(itemId){
-    var item = d3.select('#i'+itemId).style("stroke", highlightColor).style('opacity', 1);
+    var item = d3.select('#i'+itemId).style("stroke", highlightColor).style('opacity', 1).style('stroke-width',3);
     item.node().parentNode.parentNode.appendChild(item.node().parentNode);
   };
   // Un-highlight series with given id
   chart.unhighlight=function(){
-    d3.selectAll("path.line").style("stroke", lineColor).style('opacity', 0.5);
+    d3.selectAll("path.line").style("stroke", lineColor).style('opacity', 0.5).style('stroke-width',2);
   };
   //display the data
   var display = function(error, rawData) {
@@ -102,6 +102,7 @@ d3.linechart = function(config){
       // .style("stroke-width",function(d){return d.id==highlight_id ? 3: 1})
       .style("stroke",lineColor)
       .style("opacity",0.5)
+      .style("stroke-width",2)
       .attr("id",function(d){return "i"+d.id})
       .attr("d", function(d) { return line(d.values)})
       .on("mouseover", mouseover)
