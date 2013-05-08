@@ -195,7 +195,7 @@ begin
            head = line[0,20].to_s.strip
 
            # feature value (position or /qualifier=)
-           # CHANGED NT - grab the whole line.
+           # Updated to grab the whole line instead of fixed position
            # ORIG: body = line[20,60].to_s.chomp
            body = line[20..-1].to_s.chomp
            # sub-array [ feature type, position, /q="data", ... ]
