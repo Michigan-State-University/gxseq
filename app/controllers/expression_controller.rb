@@ -116,8 +116,8 @@ class ExpressionController < ApplicationController
   def setup_form_data
     # lookup all accessible taxon versions
     # Collect from accessible experiments to avoid displaying accessible sequence that has rna_seq but none accessible to the current user
-    @assemblies = RnaSeq.accessible_by(current_ability).includes(:assembly => [:blast_runs, :species => :scientific_name]).order("taxon_name.name ASC").map(&:assembly).uniq || []
-    # set the current taxon version
+    @assemblies = RnaSeq.accessible_by(current_ability).includes(:assembly => [:species => :scientific_name]).order("taxon_name.name ASC").map(&:assembly).uniq || []
+    # set the current assembly
     @assembly = @assemblies.find{|t_version| t_version.try(:id)==params[:assembly_id].to_i} || @assemblies.first
     # lookup the extra taxon data
     get_assembly_data if @assembly

@@ -13,6 +13,7 @@ class RnaSeq < Experiment
   def load_asset_data
     return false unless super
     begin
+      self.update_attribute(:total_count, total_mapped_reads)
       if(bam && !big_wig)
         self.create_big_wig(:data => bam.create_big_wig)
         big_wig.load if big_wig
