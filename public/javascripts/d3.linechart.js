@@ -12,7 +12,7 @@ d3.linechart = function(config){
   width = selection.property('scrollWidth') - m[1] - m[3];
   height = selection.property('scrollHeight') - m[0] - m[2];
   var lineColor = "#069";
-  var highlightColor = "#4d6";
+  var highlightColor = "#d92";
   function mouseover(data,idx) {
     var item = d3.select(this);
     if(mouseoverFunc){mouseoverFunc.call(idx);}
