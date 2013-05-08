@@ -120,14 +120,18 @@ BaseCountChart = function(){
     boxDim = 20;
     topPadding = 10;
     BoxSpace = 40;
+    var columnCount = 4;
     container = document.getElementById('legend');
-    legendWidth = container.scrollWidth;
-    legendHeight = topPadding + data.length*BoxSpace
+    legendWidth = container.scrollWidth*.95;
+    var keyOffset = Math.floor(legendWidth/columnCount);
+    legendHeight = topPadding + (Math.ceil(data.length)/columnCount)*BoxSpace
     legend = d3.select("#legend").append("svg").attr("width", legendWidth).attr("height", legendHeight);
     legendG = legend.append("g").attr("class", "panel");
     legendG.append("rect").attr("width", legendWidth).attr("height", legendHeight).attr("rx", 4).attr("ry", 4).attr("fill-opacity", 0.5).attr("fill", "white");
     keys = legendG.selectAll("g").data(data).enter().append("g").attr("transform", function(d, i) {
-      return "translate(" + 5 + "," + (topPadding + BoxSpace * i) + ")";
+      var iMod = i%columnCount;
+      var modOffset = (iMod*keyOffset)+5;
+      return "translate(" + modOffset + "," + (topPadding + BoxSpace * Math.floor(i/columnCount)) + ")";
     });
     
     keys.append("rect").attr("width", boxDim).attr("height", boxDim ).attr("rx", 4).attr("ry", 4).attr("fill", function(d,i) {

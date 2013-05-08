@@ -13,7 +13,13 @@ class FeatureCount < ActiveRecord::Base
     data_count = [graph_length,max_data].min
     feature_counts.each do |fc|
       bc = fc.experiment.summary_data(fc.seqfeature.min_start,fc.seqfeature.max_end,data_count,fc.experiment.sequence_name(bioentry_id))
-      next unless bc.length > 0
+      if bc.length == 0
+        base_counts << {
+          :key => fc.experiment.name,
+          :values => [{:base => 0,:count => 0}]
+        }
+        next
+      end
       total_sum = bc.inject{|sum,x| sum + x } || 1
       avg_read_length = total_sum / fc.count
       case count_type

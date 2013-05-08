@@ -29,8 +29,6 @@
   :data => coexpressed_counts_seqfeature_path(@gene,:format => :json)
 } %>
 
-<%= render :partial => "biosql/feature/seqfeatures/coexpression_table", :locals => {:coexpressed_search => @coexpressed_search, :current_feature => (@gene||@seqfeature)} %>
-
 <br/>
 
 <div class='clear'>
