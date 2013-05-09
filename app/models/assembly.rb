@@ -87,9 +87,9 @@ class Assembly < ActiveRecord::Base
       end
       puts "\t\tCreating new GC file for #{name_with_version}"
       # New ouput files for wig data
-      wig_file = Tempfile.new("assembly_#{self.id}_gc_data.txt", 'w')
-      chrom_file = Tempfile.new("assembly_#{self.id}_gc_chrom.txt","w")
-      big_wig_file = Tempfile.new("assembly_#{self.id}_gc.bw","w+")
+      wig_file = Tempfile.new("assembly_#{self.id}_gc_data.txt")
+      chrom_file = Tempfile.new("assembly_#{self.id}_gc_chrom.txt")
+      big_wig_file = Tempfile.new("assembly_#{self.id}_gc.bw")
       begin
         # Have all the entries write gc data and chrom length
         bioentries.includes(:biosequence).find_in_batches(:batch_size => 500) do |batch|
