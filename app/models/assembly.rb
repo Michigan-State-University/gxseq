@@ -87,30 +87,36 @@ class Assembly < ActiveRecord::Base
       end
       puts "\t\tCreating new GC file for #{name_with_version}"
       # New ouput files for wig data
-	    wig_file = File.open("tmp/assembly_#{self.id}_gc_data.txt", 'w')
-	    chrom_file = File.open("tmp/assembly_#{self.id}_gc_chrom.txt","w")
-	    # Have all the entries write gc data and chrom length
-	    bioentries.includes(:biosequence).find_in_batches(:batch_size => 500) do |batch|
-	      batch.each do |bioentry|
-  	      # GC data in Wig format
-  	      bioentry.biosequence.write_gc_data(wig_file,{:window => window, :progress => progress_bar})
-  	      # Chrom name and length
-  	      chrom_file.write("#{bioentry.bioentry_id}\t#{bioentry.biosequence.length}\n")
-	      end
+      begin
+        wig_file = Tempfile.new("assembly_#{self.id}_gc_data.txt", 'w')
+        chrom_file = Tempfile.new("assembly_#{self.id}_gc_chrom.txt","w")
+        big_wig_file = Tempfile.new("assembly_#{self.id}_gc.bw","w+")
+        # Have all the entries write gc data and chrom length
+        bioentries.includes(:biosequence).find_in_batches(:batch_size => 500) do |batch|
+          batch.each do |bioentry|
+            # GC data in Wig format
+            bioentry.biosequence.write_gc_data(wig_file,{:window => window, :progress => progress_bar})
+            # Chrom name and length
+            chrom_file.write("#{bioentry.bioentry_id}\t#{bioentry.biosequence.length}\n")
+          end
+        end
+        # flush write before conversion
+        wig_file.flush
+        chrom_file.flush
+        # Attach new empty BigWig file
+        self.gc_file = GcFile.new(:data => big_wig_file)
+        self.save!
+        # Write out the BigWig data
+        FileManager.wig_to_bigwig(wig_file.path, self.gc_file.data.path, chrom_file.path)
+      # Close the files
+      ensure
+        wig_file.close
+        wig_file.unlink
+        chrom_file.close
+        chrom_file.unlink
+        big_wig_file.close
+        big_wig_file.unlink
       end
-      # flush write before conversion
-      wig_file.flush
-	    chrom_file.flush
-	    # Attach new empty BigWig file
-	    big_wig_file = File.open("tmp/assembly_#{self.id}_gc.bw","w+")
-	    self.gc_file = GcFile.new(:data => big_wig_file)
-	    self.save!
-	    # Write out the BigWig data
-	    FileManager.wig_to_bigwig(wig_file.path, self.gc_file.data.path, chrom_file.path)
-	    # Close the files
-	    wig_file.close
-	    chrom_file.close
-	    big_wig_file.close
     rescue 
       puts "Error creating GC_content file for taxon version(#{self.id})\n#{$!}\n\n#{$!.backtrace}"
     end
