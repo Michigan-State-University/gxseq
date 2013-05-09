@@ -7,7 +7,6 @@ class Biosql::Biodatabase < ActiveRecord::Base
   def sync_database
     # Build GeneModels from gene / cds / mrna pairs based on locus_tag.
     # TODO: replace this with seqfeature relationship?
-    # TODO: verify genbank, order dependent, gene->mrna->cds pairings / allow manipulation?
     puts "Syncing database"
     begin
       "Syncing Gene Models"

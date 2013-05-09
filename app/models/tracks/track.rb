@@ -6,7 +6,8 @@ class Track < ActiveRecord::Base
   def name
     'Generic Track'
   end
-  # TODO: Fixup return. Maybe show total created tracks?
+  # creates tracks for all database items.
+  # returns total number of tracks in database
   def self.create_all
     Experiment.all.each do |experiment|
       experiment.create_tracks
@@ -14,6 +15,7 @@ class Track < ActiveRecord::Base
     Assembly.all.each do |assembly|
       assembly.create_tracks
     end
+    return Track.count
   end
   
   def root_path

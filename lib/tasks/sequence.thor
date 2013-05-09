@@ -385,21 +385,15 @@ class Sequence < Thor
       end#End Transaction
     rescue  => e
       puts "\n***** There was an error loading entry #{entry_count}. *****\n#{$!}#{verbose ? e.backtrace.join("\n") : ""}"
-      bad_count +=1
+      exit 0
     end
     # report entry count
-    total_count = entry_count - bad_count
-    if ( total_count == 0)
-      puts "No valid entries in file!"
-      exit 0
-    else
       # convert the time taken and output
-      fin_time = Time.now
-      time_taken = fin_time - curr_time
-      days = (time_taken / 86400).floor
-      remainder = time_taken % (24*60*60)
-      puts "\t... loaded #{total_count} #{(total_count > 1) ? "entries" : "entry"} in #{(days > 0) ? "#{days} days" : ''} #{Time.at(remainder).gmtime.strftime('%R:%S')}"
-    end
+    fin_time = Time.now
+    time_taken = fin_time - curr_time
+    days = (time_taken / 86400).floor
+    remainder = time_taken % (24*60*60)
+    puts "\t... loaded #{entry_count} #{(entry_count > 1) ? "entries" : "entry"} in #{(days > 0) ? "#{days} days" : ''} #{Time.at(remainder).gmtime.strftime('%R:%S')}"
     # Turn on versioning before sync
     PaperTrail.enabled = true
     # De-normalize GeneModel data

@@ -1,5 +1,4 @@
 d3.linechart = function(config){
-  //TODO: Work in progress, refactor hard coded for reuse with grid etc...
   var chart = {};
   var area, areas, color, containerId, data, height, line, showLegend,start, svg, tooltipName, width, x, xAxis, y, yAxis;
   data = null;
