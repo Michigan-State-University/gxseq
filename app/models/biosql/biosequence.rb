@@ -9,7 +9,18 @@ class Biosql::Biosequence < ActiveRecord::Base
   
   def get_seq(start_pos, length)
     if self.class.connection.adapter_name.downcase =~/.*oracle.*/
-      return self.class.connection.select_value("select dbms_lob.substr(seq,#{length},#{start_pos+1}) from biosequence where bioentry_id = #{bioentry_id} and version = #{version}")
+      seq = ""
+      max_chars = 40
+      # Select in batches of 4000
+      (start_pos..(start_pos+length)).step(max_chars) do |pos|
+        if(pos+max_chars>start_pos+length)
+          char_num = (start_pos+length)-(pos)
+        else
+          char_num = max_chars
+        end
+        seq += self.class.connection.select_value("select dbms_lob.substr(seq,#{char_num},#{pos+1}) from biosequence where bioentry_id = #{bioentry_id} and version = #{version}")||''
+      end
+      return seq
     else
       s = self.has_attribute?(:seq) ? self.seq : Biosql::Biosequence.find(self.id).seq
       return s[start_pos,length]
