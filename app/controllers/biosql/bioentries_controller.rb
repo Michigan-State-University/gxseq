@@ -345,7 +345,7 @@ class Biosql::BioentriesController < ApplicationController
               }
            }            
          elsif(param['bases'] < 10 )
-           sequence = bioseq.get_seq[ left, length ]
+           sequence = bioseq.get_seq( left, length )
            data = bioseq.get_six_frames(left, right)
            render :json => {
               :success => true,
