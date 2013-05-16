@@ -12,7 +12,7 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     @assemblies = Assembly.accessible_by(current_ability).includes(:taxon => :scientific_name).order('taxon_name.name')
     # Verify Bioentry param
     if params[:assembly_id] && params[:bioentry_id]
-      params[:bioentry_id] = nil unless Bioentry.find_by_bioentry_id(params[:bioentry_id]).try(:assembly_id) == params[:assembly_id]
+      params[:bioentry_id] = nil unless Biosql::Bioentry.find_by_bioentry_id(params[:bioentry_id]).try(:assembly_id) == params[:assembly_id]
     end
     # Grab blast run ids for description
     @blast_run_fields = BlastRun.all.collect{|br| "blast_#{br.id}_text"}
