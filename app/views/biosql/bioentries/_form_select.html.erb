@@ -1,12 +1,12 @@
 <div>
-  Displaying data for : <%= "#{bioentry.species_name} #{bioentry.version_info} : " %>
+  <%= "#{bioentry.species_name} #{bioentry.version_info} : " %>
   <% if bioentry.assembly.bioentries.count < 50 %>
     <%= select_tag :bioentry_id, 
-      options_from_collection_for_select(experiment.assembly.bioentries, 
+      options_from_collection_for_select(bioentry.assembly.bioentries, 
         :id, 
         :display_name, 
         bioentry.id),
-      :onChange => "window.location='#{url_for(experiment)}?bioentry_id='+this.options[this.selectedIndex].value"
+      :onChange => "window.location='#{reload_path}?bioentry_id='+this.options[this.selectedIndex].value"
     %>
   <% else %>
     <%= bioentry.short_name %><br/><br/>
@@ -40,7 +40,7 @@ Ext.onReady(function(){
       },
       extraParams : {
         assembly  : <%= bioentry.assembly_id %>,
-        reload_url : '<%= url_for(experiment) %>'+'?bioentry_id='
+        reload_url : '<%= reload_path %>'+'?bioentry_id='
       }
     },
 
@@ -54,6 +54,7 @@ Ext.onReady(function(){
     minChars    : 3,
     pageSize    : 10,
     hideTrigger : false,
+    id          : 'bioentry_id',
     renderTo    : 'bioentry_searchbox',
     emptyText   : '<%= bioentry.short_name %> - <%= bioentry.description %>',
     listConfig  : {

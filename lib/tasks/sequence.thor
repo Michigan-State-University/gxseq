@@ -492,7 +492,6 @@ class Sequence < Thor
     end
     bar.increment!(search.hits.length)
     # Start main loop - Work in batches to avoid large memory use
-    puts "Loop :: #{current_page} / #{total_pages}"
     while(current_page < total_pages)
       current_page+=1
       search = Biosql::Feature::Seqfeature.search do

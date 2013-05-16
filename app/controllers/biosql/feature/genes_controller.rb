@@ -1,11 +1,8 @@
 class Biosql::Feature::GenesController < ApplicationController
-  #autocomplete :assembly, :id
-  autocomplete :bioentry, :id, :full => true
-  authorize_resource :class => "GeneModel"
-  skip_authorize_resource :only => [:autocomplete_bioentry_id]
+  authorize_resource :class => "Biosql::Feature::Gene"
   before_filter :lookup_gene, :only => [:show]
   before_filter :get_gene_data, :only => [:edit, :update]
-  before_filter :new_gene_data, :only => [:new]
+  before_filter :new_gene_data, :only => [:new,:create]
   #TODO: Refactor controller. Split into genes_controller gene_models_controller. They are mixed right now...
   def index
     # Defaults
@@ -67,39 +64,41 @@ class Biosql::Feature::GenesController < ApplicationController
   end
   
   def new
-    respond_to do |format|
-      format.html{}
+    # Create a gene template for the bioentry
+    if @bioentry
+      @gene = Biosql::Feature::Gene.new(:bioentry => @bioentry)
+      # Add a new gene model
+      @gene.gene_models.build
+      # Add a locus tag
+      @gene.qualifiers.build(:term => Biosql::Term.annotation_tags.where(:name => 'locus_tag').first)
+      # Add a location
+      @gene.locations.build
     end
   end
   
   def create
-    authorize! :create, Biosql::Feature::Gene.new
     begin
-      @taxons = Biosql::Bioentry.all_taxon
-      @assemblies = Assembly.accessible_by(current_ability).order(:name)
-      @gene = Biosql::Feature::Gene.new(params[:gene])
-      
+      @gene = Biosql::Feature::Gene.new(params[:biosql_feature_gene])
       @bioentry = @gene.bioentry
-      @assembly = @gene.bioentry.assembly
-      @bioentries = @assembly.bioentries
-      @annotation_terms = Biosql::Term.annotation_tags.order(:name).reject{|t|t.name=='locus_tag'}
-      seq_src_ont_id = Biosql::Term.seq_src_ont_id
-      @seq_src_term_id = Biosql::Term.default_source_term.id
+      @assembly = @gene.bioentry.assembly if @bioentry
       if(@gene.valid?)
         Biosql::Feature::Gene.transaction do
           @gene.save
           redirect_to [:edit,@gene], :notice => "Gene Created Successfully"
         end
       else
-        logger.info "\n\n#{@gene.errors.inspect}\n\n"
+        # add gene model
+        @gene.gene_models.build unless @gene.gene_models.length > 0
+        # add locus
+        @gene.qualifiers.build(:term => Biosql::Term.annotation_tags.where(:name => 'locus_tag').first) unless @gene.locus_tag
         flash.now[:warning]="Oops, something wasn't right. Check below..."
         render :new
       end
     rescue
-       logger.error("#{$!} #{caller.join("\n")}")
-       flash.now[:error]="Error creating Gene"
-       render :new
-     end
+      logger.error("#{$!} #{caller.join("\n")}")
+      flash.now[:error]="Error creating Gene"
+      render :new
+    end
   end
   
   def show
@@ -163,35 +162,33 @@ class Biosql::Feature::GenesController < ApplicationController
   private
   
   def new_gene_data
-    @assembly = @bioentry = nil
+    authorize! :create, Biosql::Feature::Gene.new
     @assemblies = Assembly.includes(:taxon => :scientific_name).order('taxon_name.name').accessible_by(current_ability)
-    # TODO: refactor this! Ontology doesn't belong here... Should prabably be selected...
-    @seq_src_term_id = Biosql::Term.default_source_term.id
-    begin
-      params[:assembly_id]||=params[:genes][:assembly_id] rescue nil
-      params[:bioentry_id]||=params[:genes][:bioentry_id] rescue nil
-      @gene = Biosql::Feature::Gene.new
-    if(params[:assembly_id] && @assembly = Assembly.accessible_by(current_ability).find(params[:assembly_id]))
-      @bioentries = @assembly.bioentries
-      params[:bioentry_id]=@bioentries.first.id if @bioentries.count ==1
-      if(params[:bioentry_id] && @bioentry = Biosql::Bioentry.accessible_by(current_ability).find(params[:bioentry_id]))
-        @gene = Biosql::Feature::Gene.new(:bioentry_id => @bioentry.id)
-        # add the first blank gene model.
-        @gene.gene_models.build
-        # Add the locus_tag qualifier. This is required for all genes
-        q = @gene.qualifiers.build
-        q.term = Biosql::Term.find_by_name('locus_tag')
-        q.term_id = q.term.id
-        # Add the blank location
-        @gene.locations.build
-        # get the annotation terms
-        @annotation_terms = Biosql::Term.annotation_tags.order(:name).reject{|t|t.name=='locus_tag'}
-      end
-    else
-      @bioentries = []
+    @src_terms = Biosql::Term.source_tags
+    if params[:bioentry_id]
+      @bioentry=Biosql::Bioentry.find_by_bioentry_id(params[:bioentry_id])
+      @assembly = @bioentry.assembly
+    elsif params[:assembly_id]
+      @assembly = Assembly.find_by_id(params[:assembly_id])
+      @bioentry = @assembly.bioentries.first if @assembly
     end
-    rescue
-    end
+    # begin
+    #   params[:assembly_id]||=params[:genes][:assembly_id] rescue nil
+    #   params[:bioentry_id]||=params[:genes][:bioentry_id] rescue nil
+    #   @gene = Biosql::Feature::Gene.new
+    # if(params[:assembly_id] && @assembly = Assembly.accessible_by(current_ability).find(params[:assembly_id]))
+    #   @bioentries = @assembly.bioentries
+    #   params[:bioentry_id]=@bioentries.first.id if @bioentries.count ==1
+    #   if(params[:bioentry_id] && @bioentry = Biosql::Bioentry.accessible_by(current_ability).find(params[:bioentry_id]))
+
+    #     # get the annotation terms
+    #     @annotation_terms = Biosql::Term.annotation_tags.order(:name).reject{|t|t.name=='locus_tag'}
+    #   end
+    # else
+    #   @bioentries = []
+    # end
+    # rescue
+    # end
   end
   
   def lookup_gene

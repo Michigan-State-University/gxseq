@@ -6,12 +6,13 @@
 		<p>
 			A Gene is represented by one or more Gene Models all with the same unique locus_tag. The Gene feature should have one location containing the minimum start and maximum end position of it's gene models. Gene attributes should be generic and applicable to all Gene Models
 		</p>
+		<%= form.semantic_errors :bioentry %>
 		<%= form.hidden_field :bioentry_id, :value => @gene.bioentry_id %>
 		<div class="border">
 		
 		<%= form.inputs "Gene", :class => "border_white", :id => 'gene_qualifiers' do %>
-			<%= form.semantic_errors :location %>
-			<%= form.semantic_errors :locus_tag %>
+		  <%= form.semantic_errors :locus_tag %>
+			<%= form.semantic_errors :locations %>
 			<%= render :partial  => 'shared/qualifiers_and_locations', :locals => {:f => form, :show_strand => true}%>
 		<% end %>
 		</div> 

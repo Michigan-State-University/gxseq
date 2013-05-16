@@ -1,12 +1,11 @@
 <% content_for :head do -%>
 	<%= stylesheet_link_tag 'formtastic', 'formtastic_overrides' %>
-  <%= stylesheet_link_tag 'jquery-ui-1.9.2' %>
-  <%= javascript_include_tag "jquery-latest.min.js" %>
-  <%= javascript_include_tag "jquery-ui-1.9.2.js" %>
-  <%= javascript_include_tag "autocomplete-rails.js" %>
-  <%# TODO: Remove extjs here if not needed %>
-	<%#= render :partial => "common/extjs_css" %>
-	<%#= render :partial => "common/extjs" %>
+  <%#= stylesheet_link_tag 'jquery-ui-1.9.2' %>
+  <%#= javascript_include_tag "jquery-latest.min.js" %>
+  <%#= javascript_include_tag "jquery-ui-1.9.2.js" %>
+  <%#= javascript_include_tag "autocomplete-rails.js" %>
+	<%= render :partial => "common/extjs_css" %>
+	<%= render :partial => "common/extjs" %>
 <% end -%>
 
 <% content_for :sidebar do %>
@@ -38,25 +37,22 @@
 <%# end %>
 
 
-  <% semantic_form_for @gene do |f| -%>
-  
-    <%#= f.input :assembly_id, :label => "Taxonomy", :as => :autocomplete, :url => autocomplete_assembly_id_path%>
+  <% form_tag new_gene_path, :method => :get do |f| -%>
     <%= select_tag :assembly_id,
-      options_from_collection_for_select(@assemblies, :id, :name_with_version, params[:assembly_id]),
-      {:include_blank => "Select one...",:onchange => 'if (b=document.getElementById("bioentry_select")){b.selectedIndex = -1};this.form.submit()'}
+      options_from_collection_for_select(@assemblies, :id, :name_with_version, @assembly.try(:id)),
+      {:include_blank => "Select one...", :onchange => 'if (b=document.getElementById("bioentry_id")){b.selectedIndex = -1};this.form.submit()'}
     %>
-    <%# if(@assembly) %>
-      <%= f.input :bioentry_id, :label => "Sequence", :as => :autocomplete, :url => autocomplete_bioentry_id_genes_path%>
-    <%# end %>
-    <%= f.actions do %>
-      <%= f.action :submit, :label => "Select", :button_html => {:class => 'button'} %>
+    <br/>
+    <br/>
+    <% if(@assembly) %>
+      <%= render :partial => 'biosql/bioentries/form_select', :locals => {:reload_path => new_gene_path, :bioentry => @bioentry} %>
     <% end %>
     
   <% end -%>
 
 
 <div id="form_field">
-	<% if(@assembly && @bioentry) %>
+	<% if @gene %>
 		<%= render :partial => 'form' %>
 	<% end %>
 </div>

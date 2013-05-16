@@ -15,7 +15,8 @@ class Biosql::Location < ActiveRecord::Base
   validate :check_orientation
   after_save :update_related
   before_save :check_term
-
+  before_validation :update_rank
+  
   def to_s
     "#{start_pos}..#{end_pos}"
   end
@@ -61,6 +62,13 @@ class Biosql::Location < ActiveRecord::Base
       return false
     else
       return true
+    end
+  end
+  
+  # set rank before validation
+  def update_rank
+    if (!self.rank || self.rank==0) && self.seqfeature
+      self.rank = (self.seqfeature.locations.map(&:rank).compact.max||0) + 1
     end
   end
 end

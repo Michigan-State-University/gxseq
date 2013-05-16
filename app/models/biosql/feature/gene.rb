@@ -1,6 +1,5 @@
 class Biosql::Feature::Gene < Biosql::Feature::Seqfeature
   #has_many :gene_models, :inverse_of => :gene
-  before_validation :initialize_associations
   validates_associated :gene_models
   validate :check_locus_tag
   accepts_nested_attributes_for :gene_models, :allow_destroy => true
@@ -22,7 +21,7 @@ class Biosql::Feature::Gene < Biosql::Feature::Seqfeature
   end
   
   def name
-    self.gene.nil? ? locus_tag.value : self.gene.value
+    self.gene.try(:value) || locus_tag.try(:value) || 'Unknown'
   end
   
   ## Override text index methods to return a combination of attributes from gene, cds and mrna
@@ -97,11 +96,11 @@ class Biosql::Feature::Gene < Biosql::Feature::Seqfeature
     super
   end
   
-  # validate uniqueness and format of locus_tag before saving
+  # validate presence, uniqueness and format of locus_tag before saving
   def check_locus_tag
     if(self.locus_tag)
-      if(self.locus_tag.value.match(/\s/))
-        self.errors.add("locus_tag", "cannot have white space")
+      if(self.locus_tag.value.nil?||self.locus_tag.value.match(/\s/)||self.locus_tag.value.blank?)
+        self.errors.add("locus_tag", "cannot be blank or have white space")
         return false
       end
        this_id = self.seqfeature_id
@@ -112,6 +111,9 @@ class Biosql::Feature::Gene < Biosql::Feature::Seqfeature
         self.errors.add("locus_tag", "already taken. Choose a unique locus_tag or add models to the existing Gene: <a href='biosql/feature/genes/#{others.first.id}' target=#>#{others.first.name}</a>")
         return false
       end
+    else
+      self.errors.add("locus_tag", "must be defined")
+      return false
     end
     return true
   end

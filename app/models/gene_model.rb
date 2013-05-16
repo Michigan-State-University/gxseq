@@ -394,9 +394,9 @@ class GeneModel < ActiveRecord::Base
     self.start_pos = gene.locations.map(&:start_pos).min unless self.start_pos
     self.end_pos = gene.locations.map(&:end_pos).max unless self.end_pos
     # attributes
-    self.gene_name = self.gene.gene.value if self.gene.gene
+    self.gene_name = self.gene.gene.try(:value)
     self.variants = self.gene.gene_models.size
-    self.locus_tag = self.gene.locus_tag.value
+    self.locus_tag = self.gene.locus_tag.try(:value)
     self.strand = self.gene.strand
   end
   

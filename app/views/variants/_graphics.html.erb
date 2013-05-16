@@ -4,7 +4,7 @@
 <% end %>
 
 <div style="float:left;width:600px" id="graphics_container">
-  <%= render :partial => 'experiments/bioentry_select', :locals => {:experiment => @variant, :bioentry => @bioentry} %>
+  <%= render :partial => 'biosql/bioentries/form_select', :locals => {:reload_path => url_for(@variant), :bioentry => @bioentry} %>
   View this in <%= link_to( "Sequence Viewer", bioentry_url( @bioentry, :tracks => @variant.assembly.tracks.map(&:id) ),:popup => true ) %>
   <div class="table">
     <table class="listing">

@@ -25,7 +25,7 @@
               <%= link_to(image_tag('star.png'), toggle_favorite_seqfeature_path(fav.item.id), {:class => 'favorite',:id => "favorite_#{fav.item.id}",:remote => true,:'data-loading' => "#{image_tag("loading.gif")}"}) %>
               <%= link_to fav.item.label, seqfeature_path(fav.item) %>
             </td>
-            <td><%= fav.item.class.name %> </td>
+            <td><%= fav.item.class.name.demodulize %> </td>
             <td><%= sliced_toggle fav.item.indexed_description, nil, "favorite_#{fav.id}_full_def" %></td>
             <td><%= link_to fav.item.bioentry.display_name, bioentry_path(fav.item.bioentry, :pos => fav.item.min_start)%></td>
           </tr>

@@ -9,6 +9,7 @@ allenv: &ALLENV
   bedtools_path: path/to/bedtools/bin/
   blast_path: path/to/blast/bin/
   default_remote_user_group: Trusted
+  default_source_term: GLBRC
   timeout: 600
   
 production:

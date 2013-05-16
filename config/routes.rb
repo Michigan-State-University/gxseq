@@ -49,7 +49,7 @@ GenomeSuite::Application.routes.draw do
     resources :genes do
       collection do
         get 'details'
-        get :autocomplete_bioentry_id
+        get :autocomplete_bioentry_bioentry_id
       end
     end
   end
@@ -66,7 +66,7 @@ GenomeSuite::Application.routes.draw do
     resources :genes do
       collection do
         get 'details'
-        get :autocomplete_bioentry_id
+        get :autocomplete_bioentry_bioentry_id
       end
     end
   end

@@ -10,7 +10,7 @@ class Biosql::Biosequence < ActiveRecord::Base
   def get_seq(start_pos, length)
     if self.class.connection.adapter_name.downcase =~/.*oracle.*/
       seq = ""
-      max_chars = 40
+      max_chars = 4000
       # Select in batches of 4000
       (start_pos..(start_pos+length)).step(max_chars) do |pos|
         if(pos+max_chars>start_pos+length)

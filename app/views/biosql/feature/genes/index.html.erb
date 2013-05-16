@@ -14,7 +14,7 @@
 <% content_for :item_bar do %>
 <!-- Filter / Search items here -->
 	<div style="float:left">
-		<%= link_to "New Gene", send("new_gene_path"), :class => "button" if can? :create, GeneModel.new%>
+		<%= link_to "New Gene", send("new_gene_path"), :class => "button" if can? :create, Biosql::Feature::Seqfeature.new%>
 	</div>
 	<div style="float:right">
 	  <% form_tag genes_path, :method => :get do %>

@@ -20,6 +20,6 @@
   <% end %>
 <% end %>
 <% if f.object.new_record? %>
-  <% #TODO: add source choice to new seqfeature %>
-  <%= f.hidden_field :source_term_id, :value => (@seq_src_term_id||Term.source_tags.first) %>
+  Feature Source:
+  <%= f.collection_select :source_term_id, @src_terms, :id, :name, :selected => @src_terms.find{|term| term.name==APP_CONFIG[:default_source_term]}.try(:id) %>
 <% end %>
