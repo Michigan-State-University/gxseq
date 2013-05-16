@@ -1,4 +1,5 @@
 //Application description box
+//TODO: Remove unused JS from SV
 AnnoJ.Bugs = (function()
 {
 	var body = Ext.get(document.createElement('DIV'));
@@ -6,7 +7,7 @@ AnnoJ.Bugs = (function()
 	
 	var buglist = Ext.get(document.createElement('DIV'));
 	
-	//FIXME: get this working for remote implementers (cross domain issue)
+	//get this working for remote implementers (cross domain issue)
 	/*Ext.onReady(function()
 	{
 		Ext.Ajax.request(

@@ -1,1 +1,4 @@
-<%= sliced_toggle(highlight_result(hit,:description_text),highlight_result(hit,:description_text),"#{feature.id}_description") %>
+<%= sliced_toggle(
+  ([highlight_result(hit,:description_text)]+blast_run_fields.collect{|br| highlight_result(hit,br.to_sym)}).compact.join(";").html_safe,
+  nil,
+  "#{feature.id}_description") %>

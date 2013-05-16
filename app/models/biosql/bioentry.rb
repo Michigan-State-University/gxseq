@@ -219,7 +219,7 @@ class Biosql::Bioentry < ActiveRecord::Base
       return nil
     end
   end
-  
+  #TODO: Refactor fasta/genbank generation to equalize methods
   def genbank_header
     text = "LOCUS".ljust(12)+accession+"\t#{biosequence_without_seq.length} bp\t#{biosequence_without_seq.alphabet}\t#{date_modified}\n"
     text +="DEFINITION".ljust(12)+"#{description}\n"
@@ -246,7 +246,7 @@ class Biosql::Bioentry < ActiveRecord::Base
   end
   
   def to_fasta
-    "#{fasta_header}\n#{biosequence.seq.scan(/.{100}/).join("\n")}"
+    "#{fasta_header}\n#{biosequence.without_seq.to_fasta}"
   end
 end
 

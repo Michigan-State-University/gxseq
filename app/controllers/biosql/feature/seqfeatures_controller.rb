@@ -8,9 +8,15 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     params[:page]||=1
     params[:c]||='assembly_id'
     order_d = (params[:d]=='down' ? 'desc' : 'asc')
-    @presence_items = presence_items = ['gene_name','function','product']
     # Filter setup
     @assemblies = Assembly.accessible_by(current_ability).includes(:taxon => :scientific_name).order('taxon_name.name')
+    # Verify Bioentry param
+    if params[:assembly_id] && params[:bioentry_id]
+      params[:bioentry_id] = nil unless Bioentry.find_by_bioentry_id(params[:bioentry_id]).try(:assembly_id) == params[:assembly_id]
+    end
+    # Grab blast run ids for description
+    @blast_run_fields = BlastRun.all.collect{|br| "blast_#{br.id}_text"}
+    
     # Find minimum set of id ranges accessible by current user. Set to -1 if no items are found. This will force empty search results
     authorized_id_set = current_ability.authorized_seqfeature_ids
     authorized_id_set=[-1] if authorized_id_set.empty?
@@ -30,6 +36,7 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
       with :assembly_id, params[:assembly_id] unless params[:assembly_id].blank?
       with :strand, params[:strand] unless params[:strand].blank?
       with(:type_term_id, params[:type_term_id]) unless params[:type_term_id].blank?
+      with :bioentry_id, params[:bioentry_id] unless params[:bioentry_id].blank?
       unless params[:start_pos].blank?
         any_of do
           with(:start_pos).greater_than(params[:start_pos])

@@ -228,10 +228,6 @@ class Biosql::BioentriesController < ApplicationController
       use_bioentry_search = true
     end
 
-    # TODO: Remove romans plugin - only use case (sorting) removed by text search addition
-    # Sort the sequence list, this converts everything to integer, Long strings i.e mitochondria/plasmid will be sorted arbitrarily
-    # bioentries.sort!{|a,b| (a[:name].is_roman_numeral? ? a[:name].to_i_roman : a[:name].to_i) <=> (b[:name].is_roman_numeral? ? b[:name].to_i_roman : b[:name].to_i) }
-
     # JSON Response
     render :json  => {
       :success => true, 
@@ -286,34 +282,34 @@ class Biosql::BioentriesController < ApplicationController
   # NOTE: maybe sequence track should move from bioentries to biosequence
   def track_data
     unless params[:jrws].blank?
-       jrws = JSON.parse(params[:jrws])
-       param = jrws['param']
-       case jrws['method']
-       when 'syndicate'
-         # TODO: fill in bioentry track syndication data
-          render :json  => {
-             :success => true,
-             :data => {
-                :institution => {
-                   :name => "GLBRC",
-                   :url => "http:\/\/www.glbrc.org\/",
-                   :logo => ""
-                },
-                :engineer => {
-                   :name => "Nick Thrower",
-                   :email => "throwern@msu.edu"
-                },
-                :service => {
-                   :title => "Genome Sequence",
-                   :species => "",
-                   :access => "",
-                   :version => "",
-                   :format => "",
-                   :server => "",
-                   :description => ""
-                }
-             }
+      jrws = JSON.parse(params[:jrws])
+      param = jrws['param']
+      case jrws['method']
+      when 'syndicate'
+        #TODO: Remove or use syndication data
+        render :json  => {
+          :success => true,
+          :data => {
+            :institution => {
+              :name => "GLBRC",
+              :url => 'http://www.glbrc.org',
+              :logo => "http://glbrc.org/sites/all/themes/gbif/images/GLBRC_horz_cmyk_small.jpg"
+            },
+            :engineer => {
+              :name => "Nicholas A. Thrower",
+              :email => "throwern@msu.edu"
+            },
+            :service => {
+              :title => "Genome Sequence",
+              :species => "",
+              :access => "GLBRC",
+              :version => "",
+              :format => "1",
+              :server => "1",
+              :description => ""
+            }
           }
+        }
        when 'sequence'
          bioentry_id = param['bioentry']
          bioentry = Biosql::Bioentry.find(bioentry_id)

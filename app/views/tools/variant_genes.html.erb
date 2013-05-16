@@ -3,7 +3,7 @@
 <% end -%>
 
 <%= render :partial => "sidebar", :locals => {:active => "variant_genes"} %>
-<% #FIXME Removed during Mac->Tabix format switch %>
+<% #CHANGED Variant tool removed during Mac->Tabix format switch %>
 <% content_for :item_bar do -%>
 		This tool queries Gene Models and Sequence Variants to find associations. Choose the taxonomy you would like to query and create two experiment sets by selecting from the lists below. Submitting the query will list genes with at least 1 change in all Set A experiments and no change in any set B experiment. 
 <% end -%>

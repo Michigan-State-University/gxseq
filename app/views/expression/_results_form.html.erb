@@ -21,7 +21,7 @@
     <%= select_tag :favorites_filter, options_for_select({'None' => 'n', 'My Favorites' => 'user', 'All Favorites' => 'all'}, params[:favorites_filter]) %>
   </div>
 
-  <%= render :partial => 'item_bar_toggle' %>
+  <%= render :partial => 'shared/item_bar_toggle' %>
   
   <!-- Advanced Options -->
   <div style="display:none;clear:both" id="advanced_search">

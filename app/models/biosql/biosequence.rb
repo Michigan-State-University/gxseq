@@ -23,6 +23,7 @@ class Biosql::Biosequence < ActiveRecord::Base
       return seq
     else
       # Check if seq is filled in or if we have removed it from the query using biosequence_without_seq association
+      # TODO: Test fallback for large biosequence
       s = self.has_attribute?(:seq) ? self.seq : Biosql::Biosequence.find(self.id).seq
       return s[start_pos,length]
     end
@@ -36,37 +37,41 @@ class Biosql::Biosequence < ActiveRecord::Base
     return Bio::Sequence::NA.new(sequence).translate(frame,genetic_code)
   end
 
-  def to_fasta
+  def to_fasta(opts={})
     s = ""
     s+=">#{bioentry.accession} #{bioentry.description}\n"
-    s+="#{self.seq.to_formatted}"
+    yield_fasta do |part|
+      s+=part
+    end
+    return s
   end
   
-  def yield_fasta
-    seq.scan(/.{100}/).each do |line|
+  def yield_fasta(opts={})
+    seq_pos = 0
+    while(seq_pos < [opts[:length],self.length].compact.min)
+      line = get_seq(seq_pos,100)
       yield "#{line}\n"
+      seq_pos +=100
     end
   end
 
   def to_genbank(opts={})
-    text = "ORIGIN\n"
-    seq_pos = 1
-    while(seq_pos < ([opts[:length],self.length].compact.min))
-      line = get_seq(seq_pos,60)
-      text+="#{seq_pos}".rjust(10)
-      text+=" #{line.scan(/.{10}/).join(" ")}\n"
-      seq_pos+=60
+    text=""
+    yield_genbank do |part|
+      text+=part
     end
     return text
   end
   
-  def yield_genbank
+  def yield_genbank(opts={})
     yield "ORIGIN\n"
-    seq_count = 1
-    seq.scan(/.{60}/).each do |line|
-      yield "#{seq_count}".rjust(10)+" #{line.scan(/.{10}/).join(" ")}\n"
-      seq_count+=60
+    seq_pos = 0
+    while(seq_pos < [opts[:length],self.length].compact.min)
+      line = get_seq(seq_pos,60)
+      yield "#{seq_pos+1}".rjust(10)+" #{line.scan(/.{10}|.+/).join(" ")}\n"
+      seq_pos+=60
     end
+    return true
   end
   
   # TODO: refactor, this method is too tightly coupled

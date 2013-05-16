@@ -42,14 +42,6 @@ class FetchersController < ApplicationController
       data.fill{|i| [param['left']+(i*param['bases']),data[i]]}
       #We Render the text directly for speed efficiency
       render :text =>"{\"success\":true,\"data\":#{data.inspect}}"
-    # TODO: Remove abs max completely
-    # when 'abs_max'
-    #   exp = Experiment.find(param['experiment'])
-    #   authorize! :track_data, exp
-    #   bioentry_id = param['bioentry']
-    #   bioentry = Biosql::Bioentry.find(bioentry_id)
-    #   authorize! :read, bioentry
-    #   render :text => exp.max(exp.get_chrom(bioentry_id)).to_s
     when 'peak_genes'
       @experiment = Experiment.find(param['experiment'])
       authorize! :track_data, @experiment

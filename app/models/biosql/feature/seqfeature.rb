@@ -848,7 +848,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     end
   end
 end
-# TODO: Look into Storing STI
+
 Biosql::Feature::Seqfeature.store_full_sti_class = false
 
 # == Schema Information

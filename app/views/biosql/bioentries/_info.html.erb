@@ -1,4 +1,6 @@
 <% if bioentry %>
+<% if format == 'genbank' %>
+
 <pre>
 <%=
   bioentry.genbank_header.html_safe 
@@ -8,14 +10,19 @@
   bioentry.seqfeatures.where{display_name!='Source'}.limit(10).map(&:to_genbank).join("").html_safe
 %>
 </pre>
+
   <% if (fea_count = bioentry.seqfeatures.where{display_name!='Source'}.count) > 10 %>
     <%= fea_count %> more items hidden...
   <% end %>
+  
+<% end %>
 
 <pre>
-<%= bioentry.biosequence_without_seq.to_genbank({:length => 6000}) %>
+<%= bioentry.biosequence_without_seq.send("to_"+format,{:length => 6000}) %>
 </pre>
+
   <% if (seq_length = bioentry.biosequence_without_seq.length) > 6000 %>
     <%= number_with_delimiter(seq_length - 6000)  %>bp truncated ...
   <% end %>
+  
 <% end %>

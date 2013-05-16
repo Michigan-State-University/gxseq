@@ -4,60 +4,50 @@
 <% end -%>
 <% content_for :item_bar do %>
 <!-- Filter / Search items here -->
-	<div style="float:left">
-	</div>
-	<div style="float:right;margin-bottom:0.5em">
-	  <% form_tag seqfeatures_path, :method => :get do %>
-	    Search:<br/>
-      <%= text_field_tag "keywords",params[:keywords] %>
-      <%= submit_tag 'Go', :class => 'button' %>
-	  <% end %>
-	</div>
 	
-	<div class="item_bar_options">
-    <span id='arrow_slide_down' style="<%= params[:advanced_search] ? 'display:none' : '' %>">
-      <%= image_tag('arrow_slide_down.png',:size => '12x12') %>
-    </span>
-    <span id='arrow_slide_up' style="<%= params[:advanced_search] ? '' : 'display:none' %>">
-      <%= image_tag('arrow_slide_up.png',:size => '12x12') %>
-    </span>
-    <%= link_to "(Advanced Options)",'#',:onclick => "$('advanced_search').toggle();$('arrow_slide_down').toggle();$('arrow_slide_up').toggle()"%>
-  </div>
-  
-	<br/ style="clear:both">
-  
-	<div id='advanced_search' style="<%= params[:advanced_search] ? '' : 'display:none' %>">
-	  <br/><hr/><br/>
-  	<% form_tag seqfeatures_path, :method => :get do %>
-  	  <%= hidden_field :advanced_search, true %>
-      <div style="float:right">
-        Keywords:<br/>
-        <%= text_field_tag "keywords",params[:keywords], :size => 50 %><br/>
-        <br/>
-        Assembly:<br/>
-        <%= select_tag 'assembly_id', options_for_select(@assemblies.collect{|s| [s.name_with_version,s.id]},params[:assembly_id]), {:include_blank => "No Filter"} %><br/>
-        <br/>
+	<% form_tag seqfeatures_path(params), :method => :get do %>
+
+	  <div style="float:right;margin-bottom:0.5em">
+	    Search:<br/>
+      <%= submit_tag 'Go', :class => 'button', :id => 'go_submit', :style => 'float:right;margin-left:-1em' %>
+      <%= text_field_tag "keywords",params[:keywords], :style => 'float:right;margin-right:2em' %>
+    </div>
+    <div style="float:right;margin-right:2em">
+      Assembly:<br/>
+      <%= select_tag 'assembly_id', options_for_select(@assemblies.collect{|s| [s.name_with_version,s.id]},params[:assembly_id]), {:include_blank => "No Filter"} %><br/>
+    </div>
+    
+	  <%= render :partial => 'shared/item_bar_toggle' %>
+	  
+	  <!-- Advanced Options -->
+	  <div style="display:none;clear:both" id="advanced_search">
+  	  <%= hidden_field_tag :bioentry_id, params[:bioentry_id] %>
+  	  
+  	  <div style="clear:both;float:right;margin-top:.5em;margin-right:2em">
+        Location:<br/>
+        <%= text_field_tag "start_pos",params[:start_pos], :size => 10 %>
+        TO
+        <%= text_field_tag "end_pos",params[:end_pos], :size => 10 %><br/>
+      </div>
+      
+  	  <div style="clear:both;float:right;margin-top:.5em;margin-right:2em">
+        Strand:<br/>
+        <%= select_tag 'strand', options_for_select(@search.facet(:strand).rows.collect{|s| ["#{s.value.to_i > 0 ? 'Forward (5\' -> 3\')' : 'Reverse (3\' -> 5\')'} (#{s.count})",s.value]},params[:strand]), {:include_blank => "No Filter"} %><br/>
+      </div>
+      
+      <div style="clear:both;float:right;margin-top:.5em;margin-right:2em">
         Type:<br/>
         <%= select_tag 'type_term_id', options_for_select(@search.facet(:type_term_id).rows.collect{|s| ["#{s.instance.try(:name)} (#{s.count})",s.value]},params[:type_term_id]), {:include_blank => "No Filter"} %><br/>
         <br/>
-        <div style="float:right;margin-right:1em">
-          Location:<br/>
-          <%= text_field_tag "start_pos",params[:start_pos], :size => 10 %>
-          TO
-          <%= text_field_tag "end_pos",params[:end_pos], :size => 10 %><br/>
-        </div>
-        <div style="float:right;margin-right:1em">
-          Strand:<br/>
-          <%= select_tag 'strand', options_for_select(@search.facet(:strand).rows.collect{|s| ["#{s.value.to_i > 0 ? 'Forward (5\' -> 3\')' : 'Reverse (3\' -> 5\')'} (#{s.count})",s.value]},params[:strand]), {:include_blank => "No Filter"} %><br/>
-        </div>
       </div>
-      <div style="clear:both"></div>
-      <div style="float:right;margin:1em">
-        <br/>
-        <%= submit_tag 'Search', :class => 'button' %>
+
+      <div style="clear:both;float:right; margin:2em">
+        <%= submit_tag 'Search', :class => "button" %>
       </div>
-    <% end -%>
-  </div>
+    </div>
+  
+  <% end %>
+  
 <% end %>
 
 <% if @search.nil? %>
@@ -90,7 +80,7 @@
           <%= link_to(image_tag(Array(hit.stored(:favorite_user_ids)).include?(current_user.id) ? 'star.png' : 'star_gray.png'), toggle_favorite_seqfeature_path(feature.id), {:class => 'favorite',:id => "favorite_#{feature.id}",:remote => true,:'data-loading' => "#{image_tag("loading.gif")}"}) %>
         </td>
         <td><%= feature.display_name %></td>
-        <td id='<%= feature.id %>_definition'><%= render :partial => 'hit_definition', :locals => {:hit => hit, :feature => feature} %></td>
+        <td id='<%= feature.id %>_definition'><%= render :partial => 'hit_definition', :locals => {:hit => hit, :feature => feature, :blast_run_fields => @blast_run_fields} %></td>
         <td><%= highlight_result(hit,:start_pos) %></td>
         <td><%= highlight_result(hit,:end_pos) %></td>
         <td><%= (hit.stored(:strand) > 0 ? '<span style="color:green">F</span>' : '<span style="color:darkred">R</span>').html_safe if hit.stored(:strand) %></td>

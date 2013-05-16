@@ -1,26 +1,39 @@
-<% case params[:fmt] %>
-<% when 'genbank' %>
-  <%= render :partial => "sidebar", :locals => {:active => "search"} %>
+<% if params[:fmt] == 'genbank' || params[:fmt] == 'fasta' %>
+
   <% content_for :top_bar do -%>
     <h2 class="title">
-      <%= @bioentry.display_name %>
+      <%= @bioentry.display_name %> <span style="font-size:75%"><%= @bioentry.description %></span>
     </h2>
   <% end -%>
+  
+  <%= render :partial => "sidebar", :locals => {:active => "search"} %>
+  
   <% content_for :item_bar do -%>
-    <%= link_to "Back", :back, :class => 'button'%>
     <%= link_to "Open Sequence Viewer", @bioentry, :class => 'button'%>
-    <%#= link_to "Edit", edit_bioentry_path(@bioentry), :class => 'button'%>
+    <%= link_to "Search Annotations", biosql_feature_seqfeatures_path(:bioentry_id => @bioentry.id, :assembly_id => @bioentry.assembly_id), :class => 'button'%>
+    <% if @bioentry.biosequence_without_seq.length < 10000 %>
+      <div style="float:left">
+        <%= render :partial => "blasts/link_with_sequence", :locals => {
+          :desc => "#{@bioentry.display_name} #{@bioentry.description}",
+          :sequence  => @bioentry.biosequence.seq
+        } %>
+      </div>
+
+    <% end %>
+    <%= render :partial => "format_links", :locals => {:active_link => params[:fmt], :bioentry => @bioentry} %>
   <% end -%>
-  <p></p>
-  <p></p>
-  <%= render :partial => "biosql/bioentries/info", :locals => {:bioentry => @bioentry} %>
+
+  <%= render :partial => "biosql/bioentries/info", :locals => {:format => params[:fmt], :bioentry => @bioentry} %>
+  
 <% else %>
+
   <% content_for :head do %>
   	<%= render :partial => "common/extjs_css" %>
   	<%= render :partial => "common/svjs_css" %>
   	<%= render :partial => "common/extjs" %>
   	<%= render :partial => "common/svjs" %>
   <% end %>
+  
   <% content_for :breadcrumbs do %>
   	<% if @layout %>
   		<p> Layout - <%= @layout.name %></p>
@@ -28,8 +41,10 @@
   		<h4> Default Layout </h3>
   	<% end %>
   <% end %>
+  
   <%= build_genome_gui(@bioentry,@all_tracks,{
     :view => @view,
     :active => @active_tracks,
   }) %>
+  
 <% end %>

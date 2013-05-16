@@ -78,7 +78,6 @@ class Admin::BlastDatabasesController < Admin::AdminController
         extra_data.each do |datum|
           hash[datum] = item.send(datum)
         end if extra_data
-        # TODO: Come back to remove this if clause when test suite is better
         hash
       end
     end
