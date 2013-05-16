@@ -1,5 +1,21 @@
 <% if bioentry %>
 <pre>
-<%=bioentry.genbank_header.html_safe %><%=bioentry.source_features[0].to_genbank.html_safe if bioentry.source_features[0] %>
+<%=
+  bioentry.genbank_header.html_safe 
+%><%=
+  bioentry.source_features[0].to_genbank.html_safe if bioentry.source_features[0]
+%><%=
+  bioentry.seqfeatures.where{display_name!='Source'}.limit(10).map(&:to_genbank).join("").html_safe
+%>
 </pre>
+  <% if (fea_count = bioentry.seqfeatures.where{display_name!='Source'}.count) > 10 %>
+    <%= fea_count %> more items hidden...
+  <% end %>
+
+<pre>
+<%= bioentry.biosequence_without_seq.to_genbank({:length => 6000}) %>
+</pre>
+  <% if (seq_length = bioentry.biosequence_without_seq.length) > 6000 %>
+    <%= number_with_delimiter(seq_length - 6000)  %>bp truncated ...
+  <% end %>
 <% end %>

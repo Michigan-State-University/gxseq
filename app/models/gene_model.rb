@@ -317,14 +317,19 @@ class GeneModel < ActiveRecord::Base
     return data
   end
   
-  def self.get_canvas_data(left,right,bioentry_id,zoom=1,strand=1)
+  def self.get_canvas_data(left,right,bioentry_id,zoom=1,strand=1,limit=nil)
     @view_start=left
     @gui_zoom=zoom
     if(left > right || !left.kind_of?(Integer) || !right.kind_of?(Integer) || !bioentry_id.kind_of?(Integer))      
       return []
     end
     data=[]
-    models = GeneModel.find(:all, :conditions=>"start_pos < #{right} AND end_pos > #{left} AND bioentry_id=#{bioentry_id} AND strand=#{strand}")
+    models = GeneModel.includes(:mrna => :locations, :cds => :locations)
+      .where("start_pos < #{right}")
+      .where("end_pos > #{left}")
+      .where("bioentry_id=#{bioentry_id}")
+      .where("strand=#{strand}")
+    models = models.limit(limit) if(limit)
     models.each do |m|
       children=[]
       if(f = m.mrna)

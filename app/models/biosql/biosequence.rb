@@ -22,6 +22,7 @@ class Biosql::Biosequence < ActiveRecord::Base
       end
       return seq
     else
+      # Check if seq is filled in or if we have removed it from the query using biosequence_without_seq association
       s = self.has_attribute?(:seq) ? self.seq : Biosql::Biosequence.find(self.id).seq
       return s[start_pos,length]
     end
@@ -47,13 +48,14 @@ class Biosql::Biosequence < ActiveRecord::Base
     end
   end
 
-  def to_genbank
+  def to_genbank(opts={})
     text = "ORIGIN\n"
-    seq_count = 1
-    seq.scan(/.{60}/).each do |line|
-      text+="#{seq_count}".rjust(10)
+    seq_pos = 1
+    while(seq_pos < ([opts[:length],self.length].compact.min))
+      line = get_seq(seq_pos,60)
+      text+="#{seq_pos}".rjust(10)
       text+=" #{line.scan(/.{10}/).join(" ")}\n"
-      seq_count+=60
+      seq_pos+=60
     end
     return text
   end

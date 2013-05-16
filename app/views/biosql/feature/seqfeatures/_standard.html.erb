@@ -42,18 +42,25 @@
     </h2>
     <table>
       <tr class='odd'>
-        <td style="font-family:'Courier';"><pre style="overflow-x:scroll"><%= formatted_sequence(@seqfeature.na_sequence,{:rows => 10, :delimiter => "\n"}) %></pre></td>
+        <td style="font-family:'Courier';"><pre style="overflow-x:scroll"><%= formatted_sequence(@seqfeature.na_sequence[0..10000],{:rows => 10, :delimiter => "\n"}) %></pre></td>
+        <% if na_seq.length > 10000 %>
+          <%= number_with_delimiter(na_seq.length-10000) %>bp truncated...
+        <% end %>
       </tr>
     </table>
-    <% protein_seq = @seqfeature.protein_sequence%>
-    <h2>
-      Protein: <%= protein_seq ? protein_seq.size : 0 %>aa 
-      <%= render :partial => "blasts/link_with_sequence", :locals => {:sequence => protein_seq, :desc => "#{@seqfeature.label} Protein sequence"} %>
-    </h2>
-    <table>
-      <tr class='odd'>
-        <td style="font-family:'Courier';"><pre style="overflow-x:scroll"><%= formatted_sequence(@seqfeature.protein_sequence,{:rows => 10, :delimiter => "\n"}) %></pre></td>
-      </tr>
-    </table>
+    <% if na_seq.length > 10000 %>
+      Too large for protein translation..
+    <% else %>
+      <% protein_seq = @seqfeature.protein_sequence%>
+      <h2>
+        Protein: <%= protein_seq ? protein_seq.size : 0 %>aa 
+        <%= render :partial => "blasts/link_with_sequence", :locals => {:sequence => protein_seq, :desc => "#{@seqfeature.label} Protein sequence"} %>
+      </h2>
+      <table>
+        <tr class='odd'>
+          <td style="font-family:'Courier';"><pre style="overflow-x:scroll"><%= formatted_sequence(@seqfeature.protein_sequence,{:rows => 10, :delimiter => "\n"}) %></pre></td>
+        </tr>
+      </table>
+    <% end %>
   </div>
 </div>

@@ -117,7 +117,7 @@ class Biosql::Feature::GenesController < ApplicationController
     when 'history'
       @changelogs = Version.order('id desc').where(:parent_id => @gene.id).where(:parent_type => 'Biosql::Feature::Gene')
     when 'expression'
-      @feature_counts = @gene.feature_counts.accessible_by(current_ability).includes(:experiment).order("experiment_id")
+      @feature_counts = @gene.feature_counts.accessible_by(current_ability).includes(:experiment).order("experiments.name")
       setup_graphics_data
     when 'blast'
       @blast_reports = @gene.blast_reports
@@ -228,11 +228,13 @@ class Biosql::Feature::GenesController < ApplicationController
     @canvas_width = 3000
     @model_height = 15
     @edit_box_height = 320
+    limit = 1000
     gene_size = @gene.max_end - @gene.min_start
     @gui_zoom = (gene_size/700).floor + 2    
     @view_start = @gene.min_start - (50*@gui_zoom)
-    @gui_data = GeneModel.get_canvas_data(@view_start,@view_start+(@canvas_width*@gui_zoom),@gene.bioentry.id,@gui_zoom,@gene.strand)
-    @depth = @gui_data.collect{|g| (g[:x2]>=(@gene.min_start-@view_start)/@gui_zoom && g[:x]<=(@gene.max_end-@view_start)/@gui_zoom) ? 1 : nil}.compact.size
+    @gui_data = GeneModel.get_canvas_data(@view_start,@view_start+(@canvas_width*@gui_zoom),@gene.bioentry.id,@gui_zoom,@gene.strand,limit)
+    @depth =  @gui_data.collect{|g|g[:variants]}.max + 1
+    #@depth = @gui_data.collect{|g| (g[:x2]>=(@gene.min_start-@view_start)/@gui_zoom && g[:x]<=(@gene.max_end-@view_start)/@gui_zoom) ? 1 : nil}.compact.size
     @canvas_height = ( @depth * (@model_height * 2))+10 # each model and label plus padding
     @gui_data=@gui_data.to_json
   end

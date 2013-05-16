@@ -92,7 +92,7 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     when 'history'
       @changelogs = Version.order('id desc').where(:parent_id => @seqfeature.id).where(:parent_type => @seqfeature.class.name)
     when 'expression'
-      @feature_counts = @seqfeature.feature_counts.accessible_by(current_ability).includes(:experiment).order("experiment_id")
+      @feature_counts = get_feature_counts
       setup_graphics_data
     when 'blast'
       @blast_reports = @seqfeature.blast_reports
@@ -170,15 +170,14 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
   # returns formatted counts for all feature counts tied to seqfeature
   # [{:key => sample_name, :values => {:base => int, :count => float }}, ...]
   def feature_counts
-    @feature_counts = @seqfeature.feature_counts.accessible_by(current_ability)
-      .includes(:experiment).order("experiment_id")
+    @feature_counts = get_feature_counts
     data = FeatureCount.create_graph_data(@feature_counts, {:type => (params[:type]||'count')} )
     respond_with data
   end
   # returns formatted counts for all coexpressed features
   #[{:id,:name,:sample1,:sample2,...}]
   def coexpressed_counts
-    feature_counts = @seqfeature.feature_counts.accessible_by(current_ability).includes(:experiment).order("experiment_id")
+    feature_counts = get_feature_counts
     search = @seqfeature.correlated_search(current_ability,{:per_page => 100})
     respond_with @seqfeature.corr_search_to_matrix(search,feature_counts)
   end
@@ -216,7 +215,14 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
         logger.error "\n\n#{$!}\n\n#{caller.join("\n")}\n\n"
       end
     end
-
+    
+    def get_feature_counts
+      @seqfeature.feature_counts
+        .accessible_by(current_ability)
+        .includes(:experiment)
+        .order("experiments.name")
+    end
+    
     def setup_xhr_form
       @skip_locations=@extjs=true
       @blast_reports = @seqfeature.blast_reports
