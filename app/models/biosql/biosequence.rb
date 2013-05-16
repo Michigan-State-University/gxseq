@@ -40,7 +40,7 @@ class Biosql::Biosequence < ActiveRecord::Base
   def to_fasta(opts={})
     s = ""
     s+=">#{bioentry.accession} #{bioentry.description}\n"
-    yield_fasta do |part|
+    yield_fasta(opts) do |part|
       s+=part
     end
     return s
@@ -57,7 +57,7 @@ class Biosql::Biosequence < ActiveRecord::Base
 
   def to_genbank(opts={})
     text=""
-    yield_genbank do |part|
+    yield_genbank(opts) do |part|
       text+=part
     end
     return text

@@ -12,7 +12,7 @@
 </pre>
 
   <% if (fea_count = bioentry.seqfeatures.where{display_name!='Source'}.count) > 10 %>
-    <%= fea_count %> more items hidden...
+    <%= fea_count-10 %> more items hidden...
   <% end %>
   
 <% end %>
