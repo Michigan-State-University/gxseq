@@ -26,13 +26,8 @@ class ReSeqsController < ApplicationController
     begin
       if @re_seq.valid?
         @re_seq.save
-        if((w=@re_seq.assets.map(&:warnings).flatten).empty?)
-          flash[:notice]="Experiment created succesfully"
-        else
-          flash[:warning]="#{w.join("<br/>")}"
-          @re_seq.puts "#{w.join("\n")}"
-        end
-        redirect_to :action => :index #@re_seq
+        flash[:notice]="Experiment created succesfully"
+        redirect_to :action => :index
       else
         render :action => :new
       end

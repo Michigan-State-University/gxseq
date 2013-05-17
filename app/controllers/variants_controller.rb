@@ -29,12 +29,7 @@ class VariantsController < ApplicationController
     begin
       if @variant.valid?
         @variant.save
-        w=@variant.assets.map(&:warnings).flatten
-        if(w.empty?)
-          flash[:notice]="Experiment created succesfully"
-        else
-          flash[:warning]="#{w.join("<br/>")}"
-        end
+        flash[:notice]="Experiment created succesfully"
         redirect_to :action => :index
       else
         render :action => :new

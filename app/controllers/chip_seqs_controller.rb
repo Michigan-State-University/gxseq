@@ -34,12 +34,7 @@ class ChipSeqsController < ApplicationController
     begin
       if @chip_seq.valid?
         @chip_seq.save
-        if((w=@chip_seq.assets.map(&:warnings).flatten).empty?)
-          flash[:notice]="Experiment created succesfully"
-        else
-          flash[:warning]="#{w.join("<br/>")}"
-          @chip_seq.puts "#{w.join("\n")}"
-        end
+        flash[:notice]="Experiment created succesfully"
         redirect_to :action => :index
       else
         render :action => :new
