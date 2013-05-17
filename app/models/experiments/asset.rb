@@ -50,6 +50,7 @@ class Asset < ActiveRecord::Base
   
   #Generic Methods - define in sub-classes
   def load
+    update_attribute(:state, "complete")
   end
   
   def unload

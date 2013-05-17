@@ -531,7 +531,7 @@ class Sequence < Thor
   def check_feature_types(type_names)
     type_names.each do |name|
       begin
-        Object.const_get name
+        Object.const_get "Biosql::Feature::#{name}"
       rescue
         puts " -- #{name} not found"
         puts "class Biosql::Feature::#{name} < Biosql::Feature::Seqfeature; end;"
