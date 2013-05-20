@@ -65,7 +65,7 @@ class Variant < Experiment
     # store this experiment's converted sequence
     this_sequence = self.get_sequence(start_pos,end_pos,bioentry_id,sample)
     # grab all of the variant experiments
-    assembly.variants-[self].each do |variant|
+    (assembly.variants-[self]).each do |variant|
       # compute the variant sequence, compare to self and store if equal
       matching_variants << variant if  this_sequence == variant.get_sequence(start_pos,end_pos,bioentry_id,sample)
     end
