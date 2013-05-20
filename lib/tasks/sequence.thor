@@ -568,7 +568,7 @@ class Sequence < Thor
     if(opts[:strain])
       strain_taxon = (Biosql::TaxonName.find_by_name(opts[:strain]) || create_taxon(opts[:strain],'varietas')).try(:taxon) 
     elsif(opts[:strain_id])
-      strain_taxon = Biosql::TaxonName.find(opts[:strain_id]).taxon
+      strain_taxon = Biosql::Taxon.find(opts[:strain_id])
     end
     
     # look at organism
