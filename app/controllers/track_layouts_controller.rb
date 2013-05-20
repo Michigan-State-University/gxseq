@@ -16,7 +16,6 @@ class TrackLayoutsController < ApplicationController
             :name => params[:name],
             :assembly_id => params[:assembly_id],
             :active_tracks => params[:active_tracks],
-            :assembly => 1,
             :position => location['position'],
             :bases => location['bases'],
             :pixels => location['pixels']
@@ -24,6 +23,7 @@ class TrackLayoutsController < ApplicationController
         ActiveRecord::Base.transaction do
           if(@track_layout.valid?)
             @track_layout.save!
+            #TODO: Replace with serialized config object. Rename ActiveLayoutTracks
             configs.each do |config|
               tc = @track_layout.track_configurations.create(
                 :user => current_user,

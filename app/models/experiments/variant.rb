@@ -26,6 +26,7 @@ class Variant < Experiment
   end
   # creates 1 track for each sample in the vcf and attaches them to the bioentry
   # TODO: convert variant_track in js to multiple samples, then we can remove 'tracks' concept entirely
+  # NOTE: May want to have one variant and one reads_track for Re-Seq samples. Maybe have Experiment create multiple configs..
   def create_tracks
     self.samples.each do |samp|
       VariantTrack.find_or_create_by_assembly_id_and_experiment_id_and_sample(assembly_id,self.id,samp)

@@ -59,7 +59,7 @@ class Ability
     elsif user.has_role?('member')
       #Users
       can :read, User
-      can :update, User, :id => user.id
+      can [:update,:update_track_node], User, :id => user.id
       #Groups
       can :manage, Group, :owner_id => user.id
       can :read, Group, :users => {:id => user.id}

@@ -203,7 +203,7 @@ var AnnoJ = (function()
 		// });
 
 		var LayoutBox = new AnnoJ.LayoutBox();
-    LayoutBox.setLoadPath(config.layouts_path);
+    LayoutBox.setLoadPath(config.layout_path);
     
 		var InfoBox = new AnnoJ.InfoBox();
 
@@ -330,13 +330,13 @@ var AnnoJ = (function()
 	function postLayout(layout_name){
 		post_config = 
 		{
-			url         : config.layout_path,
+			url         : AnnoJ.config.layout_path,
 			method      : 'POST',
 			requestJSON : false,
 			data				: 
 			{
 				name			: layout_name,
-				taxon_version_id : AnnoJ.config.taxon_version_id,
+				assembly_id : AnnoJ.config.assembly_id,
 				active_tracks	: GUI.TrackSelector.getActiveTrackString(),
 				track_configurations : Ext.JSON.encode(getActiveTracks().getConfigs()),
 				location	:  Ext.JSON.encode(getLocation())

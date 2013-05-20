@@ -4,7 +4,6 @@ class CreateTrackLayouts < ActiveRecord::Migration
       t.belongs_to :bioentry
       t.belongs_to :user
       t.string :name
-      t.string :assembly
       t.string :position
       t.string :bases
       t.string :pixels

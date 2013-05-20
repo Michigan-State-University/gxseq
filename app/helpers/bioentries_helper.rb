@@ -34,8 +34,8 @@ module BioentriesHelper
 		text += "assembly_id : '#{bioentry.assembly_id}',\n"
 		text += "gene_id : '#{@gene_id}',\n" if(@gene_id)
 		text += "feature_id : '#{@feature_id}',\n" if(@feature_id)
-		text += "layouts_path : '#{track_layouts_path(:assembly_id => bioentry.assembly_id)}',"
-		text += "updateNodePath: '#{update_track_node_user_url}',\n"
+		text += "layout_path : '#{track_layouts_path(:assembly_id => bioentry.assembly_id)}',"
+		text += "updateNodePath: '#{update_track_node_user_url(current_user.id)}',\n"
 		
 		#initial view
 		text += "location : {

@@ -40,8 +40,11 @@ class TabixVcf < Tabix
     only_variants = opts[:only_variants]
     
     # find sample index
-    if(sample)
+    if(sample && !sample.blank?)
       return [] unless sample_idx = samples.index(sample)
+    else
+      sample = samples.first
+      sample_idx = 0
     end
     # setup skip function
     if(only_variants)

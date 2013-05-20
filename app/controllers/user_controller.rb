@@ -3,8 +3,8 @@ class UserController < ApplicationController
   ##Preferences Ajax actions
   def update_track_node
     if( (path = params[:path]) && (track = Track.find(params[:track_id])) )
-      current_user.preferred_track_path=path, track
-      current_user.save!
+      @user.preferred_track_path=path, track
+      @user.save!
     end
     render :nothing => true
   end
