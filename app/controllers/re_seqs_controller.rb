@@ -54,12 +54,7 @@ class ReSeqsController < ApplicationController
   def update
     @assemblies = Assembly.includes(:taxon => :scientific_name).order('taxon_name.name asc')
     if @re_seq.update_attributes(params[:re_seq])        
-      if((w=@re_seq.assets.map(&:warnings).flatten).empty?)
-        flash[:notice] = 'Re-Sequencing experiment was successfully updated.'
-      else
-        flash[:warning]="#{w.join("<br/>")}"
-        @re_seq.puts "#{w.join("\n")} #{Time.now}"
-      end
+      flash[:notice] = 'Re-Sequencing experiment was successfully updated.'
       redirect_to(@re_seq)
     else
       render :action => "edit"

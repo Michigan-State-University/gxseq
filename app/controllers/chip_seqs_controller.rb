@@ -61,13 +61,8 @@ class ChipSeqsController < ApplicationController
 
   def update
     @assemblies = Assembly.includes(:taxon => :scientific_name).order('taxon_name.name asc')
-    if @chip_seq.update_attributes(params[:chip_seq])        
-      if((w=@chip_seq.assets.map(&:warnings).flatten).empty?)
-        flash[:notice] = 'ChipSeq was successfully updated.'
-      else
-        flash[:warning]="#{w.join("<br/>")}"
-        @chip_seq.puts "#{w.join("\n")} #{Time.now}"
-      end
+    if @chip_seq.update_attributes(params[:chip_seq])
+      flash[:notice] = 'ChipSeq was successfully updated.'
       redirect_to(@chip_seq)
     else
       render :action => "edit"
