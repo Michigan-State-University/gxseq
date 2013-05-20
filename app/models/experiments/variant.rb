@@ -62,11 +62,10 @@ class Variant < Experiment
   def find_matches(start_pos, end_pos, bioentry_id, sample=nil)
     # an array to hold the results
     matching_variants = []
-    # store this experiments converted sequence
+    # store this experiment's converted sequence
     this_sequence = self.get_sequence(start_pos,end_pos,bioentry_id,sample)
     # grab all of the variant experiments
-    BioentriesExperiment.includes(:experiment).where(:bioentry_id => bioentry_id).where(:experiment => {:type => 'Variant'}).map(&:experiment).each do |variant|
-      next if variant == self #skip self
+    assembly.variants-[self].each do |variant|
       # compute the variant sequence, compare to self and store if equal
       matching_variants << variant if  this_sequence == variant.get_sequence(start_pos,end_pos,bioentry_id,sample)
     end
