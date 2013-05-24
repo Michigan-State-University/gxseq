@@ -149,9 +149,9 @@ class Biosql::BioentriesController < ApplicationController
     @all_tracks.uniq!
     # Setup the view
     @view ={
-      :position => params[:position]||@layout.try(:position)||1,
-      :bases => params[:bases]||@layout.try(:bases)||50,
-      :pixels => params[:pixels]||@layout.try(:pixels)||1
+      :position => params[:pos]||params[:position]||@layout.try(:position)||1,
+      :bases => params[:b]||params[:bases]||@layout.try(:bases)||50,
+      :pixels => params[:p]||params[:pixels]||@layout.try(:pixels)||1
     }
 
     render :layout => 'sequence_viewer'
