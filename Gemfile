@@ -36,6 +36,8 @@ group :test do
   gem 'factory_girl'
   gem 'simplecov'
   gem 'rspec-rails'
+  gem 'shoulda'
+  gem 'capybara'
   gem 'aruba'
   gem 'selenium-webdriver'
 end

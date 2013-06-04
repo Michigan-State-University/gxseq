@@ -12,9 +12,6 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   belongs_to :type_term, :class_name => "Term", :foreign_key => "type_term_id"
   belongs_to :source_term, :class_name => "Term", :foreign_key =>"source_term_id"
   has_many :seqfeature_dbxrefs, :class_name => "SeqfeatureDbxref", :foreign_key => "seqfeature_id", :dependent  => :delete_all
-  has_many :qualifiers, :include => :term, :class_name => "SeqfeatureQualifierValue",
-    :order => "term.ontology_id desc,term.name,seqfeature_qualifier_value.rank", :dependent  => :delete_all,
-    :inverse_of => :seqfeature, :after_remove => :update_assoc_mem
   has_many :object_seqfeature_paths, :class_name => "SeqfeaturePath", :foreign_key => "object_seqfeature_id", :dependent  => :delete_all
   has_many :subject_seqfeature_paths, :class_name => "SeqfeaturePath", :foreign_key => "subject_seqfeature_id"
   has_many :object_seqfeature_relationships, :class_name => "SeqfeatureRelationship", :foreign_key => "object_seqfeature_id", :dependent  => :delete_all
@@ -26,20 +23,32 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   has_many :blast_reports_without_report, :class_name => "BlastReport", :select => [:id,:hit_acc,:hit_def,:seqfeature_id,:blast_run_id]
   has_many :favorite_seqfeatures, :foreign_key => :favorite_item_id
   has_many :favorite_users, :through => :favorite_seqfeatures, :source => :user
+  
+  has_many :qualifiers, :include => :term, :class_name => "SeqfeatureQualifierValue",
+    :order => "term.ontology_id desc,term.name,seqfeature_qualifier_value.rank",
+    :dependent  => :delete_all,
+    :inverse_of => :seqfeature,
+    :after_remove => :update_assoc_mem
   # Define attributes to simplify eager_loading. _assoc suffix avoids name collision with dynamic qualifier methods
-  # Use :qualifiers when including the entire attribute set. Use _assoc when including a small subset (1 or 2)
+  # Use :qualifiers when including the entire attribute set. Use _assoc when including a subset
+  # !!FIXME Cannot be used in 'count' queries or with conditions on includes... !!
   has_one :product_assoc, :class_name => "SeqfeatureQualifierValue", :foreign_key => "seqfeature_id", :include => :term, :conditions => "term.name = 'product'"
   has_one :function_assoc, :class_name => "SeqfeatureQualifierValue", :foreign_key => "seqfeature_id", :include => :term, :conditions => "term.name = 'function'"
   has_one :transcript_id_assoc, :class_name => "SeqfeatureQualifierValue", :foreign_key => "seqfeature_id", :include => :term, :conditions => "term.name = 'transcript_id'"
   has_one :protein_id_assoc, :class_name => "SeqfeatureQualifierValue", :foreign_key => "seqfeature_id", :include => :term, :conditions => "term.name = 'protein_id'"
-  
+  has_one :id_assoc, :class_name => "SeqfeatureQualifierValue", :foreign_key => "seqfeature_id", :include => :term, :conditions => "term.name = 'ID'"
+  has_one :parent_assoc, :class_name => "SeqfeatureQualifierValue", :foreign_key => "seqfeature_id", :include => :term, :conditions => "term.name = 'Parent'"
+  has_one :locus_assoc, :class_name => "SeqfeatureQualifierValue", :foreign_key => "seqfeature_id", :include => :term, :conditions => "term.name = 'locus_tag'"
+  # Use the scope for counting or conditions on qualifiers
+  # DO NOT mix with eager load on SeqfeatureQualifierValue tableor results are limited to the supplied qualifier
+  scope :with_qualifier, lambda {|term_name| joins{qualifiers.term}.where{lower(qualifiers.term.name)== my{term_name.downcase}}}
   # For index eager loading we add gene_models here but only Gene features will have gene_models
   # TODO: Test this for side effects against create/update gene
   has_many :gene_models, :foreign_key => :gene_id, :inverse_of => :gene
   
   # scope
   scope :with_locus_tag, lambda { |locus_tag|
-    { :include => [:qualifiers => [:term]], :conditions => "upper(seqfeature_qualifier_value.value) = '#{locus_tag.upcase}'"}
+    { :include => [:scope_qualifiers => [:term]], :conditions => "upper(seqfeature_qualifier_value.value) = '#{locus_tag.upcase}'"}
   }
   # validations
   accepts_nested_attributes_for :qualifiers, :allow_destroy => true, :reject_if => lambda { |q| (q[:id] && Biosql::SeqfeatureQualifierValue.find(q[:id]).term.name =='locus_tag') || (q[:value].blank?) }
@@ -49,7 +58,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   validates_associated :qualifiers
   validates_associated :locations
   before_validation :initialize_associations
-  # Update in memory assoc of delete. This is done for updates but not deletes TODO Investigate bug fixes in rails 3.1/3.2
+  # Update in memory assoc of delete. This is done for updates but not deletes TODO Investigate bug fixes in rails 3.1/3.2 and test inverse of
   def update_assoc_mem(q)
     self.qualifiers -= [q]
   end
@@ -194,7 +203,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   ### SQV types - allows for quick reference through eager load of :qualifiers
   # NOTE: These could be converted to STI classes but the table has no primary key
   # single sqv
-  ['chromosome','organelle','plasmid','mol_type', 'locus_tag','gene','gene_synonym','product','function','codon_start','protein_id','transcript_id','ec_number'].each do |sqv|
+  ['parent','chromosome','organelle','plasmid','mol_type', 'locus_tag','gene','gene_synonym','product','function','codon_start','protein_id','transcript_id','ec_number'].each do |sqv|
   define_method sqv.to_sym do
     annotation_qualifiers.each do |q|
         if q.term&&q.term.name.downcase == sqv
@@ -216,7 +225,13 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
       return sqv_array
     end
   end
-
+  # custom sqv, id is reserved
+  def id_sqv
+    qualifiers.each do |q|
+      return q if q.term&&q.term.name.downcase == 'id'
+    end
+  end
+  
   def strand
    self.locations.first ? self.locations.first.strand : 1
   end
@@ -244,6 +259,17 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
 
   def length
     max_end - min_start
+  end
+  
+  # creates a new locus tag for this seqfeature
+  # does nothing if one already exists
+  def find_or_create_locus_tag(locus_value)
+    return self.locus_tag || Biosql::SeqfeatureQualifierValue.create(
+      :seqfeature_id => self.id,
+      :term_id => Biosql::Term.locus_tag.id,
+      :rank => 1,
+      :value => locus_value
+    )
   end
   # return a genbank formatted location string
   def genbank_location

@@ -45,6 +45,22 @@ class Assembly < ActiveRecord::Base
   def source_term_ids
     Biosql::Feature::Seqfeature.where(:bioentry_id => self.bioentry_ids).select('distinct source_term_id')
   end
+  # returns all gene models
+  def gene_models
+    GeneModel.where{bioentry_id.in my{self.bioentries}}
+  end
+  # returns all gene features
+  def gene_features
+    Biosql::Feature::Gene.where{bioentry_id.in my{self.bioentries}}
+  end
+  # returns all cds features
+  def cds_features
+    Biosql::Feature::Cds.where{bioentry_id.in my{self.bioentries}}
+  end
+  # returns all mrna features
+  def mrna_features
+    Biosql::Feature::Mrna.where{bioentry_id.in my{self.bioentries}}
+  end
   # returns the sum of bases for all bioentries
   def total_bases
     Biosql::Biosequence.where(:bioentry_id => self.bioentry_ids).sum(:length)

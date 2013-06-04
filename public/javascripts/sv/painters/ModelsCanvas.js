@@ -102,15 +102,36 @@ Ext.define('Sv.painters.ModelsCanvas',{
     var h = scaler * self.boxHeight;
     if (h < self.boxHeightMin) h = self.boxHeightMin;
     if (h > self.boxHeightMax) h = self.boxHeightMax;
-
-    //Div we can use to alter innerHTML
-    var containerDiv = document.createElement('DIV');
+    // Try Map instead of Div
+    // <img src="planets.gif" width="145" height="126" alt="Planets" usemap="#planetmap">
+    // 
+    // <map name="planetmap">
+    //   <area shape="rect" coords="0,0,82,126" href="sun.htm" alt="Sun">
+    //   <area shape="circle" coords="90,58,3" href="mercur.htm" alt="Mercury">
+    //   <area shape="circle" coords="124,58,8" href="venus.htm" alt="Venus">
+    // </map>
+    var containerDiv = document.createElement('IMG');
     containerDiv.style.width = width+"px";
     containerDiv.style.height = height+"px";
     containerDiv.style.left = "0px";
     containerDiv.style.top = "0px";
     containerDiv.style.position = "absolute";
+    containerDiv.style.border = "none";
+    containerDiv.setAttribute("usemap","#planetmap");
     container.appendChild(containerDiv);
+    
+    var modelMap = document.createElement('MAP');
+    modelMap.setAttribute("id",'planetmap');
+    modelMap.setAttribute("name",'planetmap');
+    container.appendChild(modelMap);
+    // //Div we can use to alter innerHTML
+    // var containerDiv = document.createElement('DIV');
+    // containerDiv.style.width = width+"px";
+    // containerDiv.style.height = height+"px";
+    // containerDiv.style.left = "0px";
+    // containerDiv.style.top = "0px";
+    // containerDiv.style.position = "absolute";
+    // container.appendChild(containerDiv);
 
     //Setup font height and get width -- rough estimate
     var font_height = (h) / ((pixelBaseRatio/55)+1)
@@ -146,11 +167,23 @@ Ext.define('Sv.painters.ModelsCanvas',{
       }
 
       var model_width=w;
-
+      
+      //setup the label
+      if(model.gene==''){
+        label=model.locus_tag;
+      }
+      else
+      {
+        label=model.gene;
+      };
+      var label_width = (fontLetterWidth*label.length);
+      
       // ----Creating a Canvas Wrapper Div--- //
       if(w>2 && self.selectable)
       {
-        newDivs.push("<div id=model_"+model.oid+" data-id="+model.oid+" style='width: "+w+"px; height: "+h+"px; left: "+x+"px; top: "+y+"px; cursor: pointer; position: absolute;'></div>");
+        //newDivs.push("<div id=model_"+model.oid+" data-id="+model.oid+" style='width: "+w+"px; height: "+h+"px; left: "+x+"px; top: "+y+"px; cursor: pointer; position: absolute;'></div>");
+        newDivs.push("<area shape='rect' coords='"+x+","+y+","+w+","+h+"' id=model_"+model.oid+" data-id="+model.oid+" href='#' alt='"+model.locus_tag+" "+model.gene+"'></div>");
+
       }
 
       // ----Painting the model and any children--- //
@@ -177,16 +210,6 @@ Ext.define('Sv.painters.ModelsCanvas',{
           self.paintBox(self.reverse_arrow,x,y-1,aw,h+2);
         }
       }
-
-      //setup the label
-      if(model.gene==''){
-        label=model.locus_tag;
-      }
-      else
-      {
-        label=model.gene;
-      };
-      var label_width = (fontLetterWidth*label.length);
 
       //set to the left of model
       var Offset = x+1;
@@ -223,11 +246,14 @@ Ext.define('Sv.painters.ModelsCanvas',{
     });
 
     //Append all the html DIVs we created
+    //containerDiv.innerHTML+=newDivs.join("\n");
     containerDiv.innerHTML+=newDivs.join("\n");
-
-    //setup the click event
-    for(i=0;i<containerDiv.children.length;i++)
-    Ext.get(containerDiv.children[i]).addListener('mouseup', self.clickModel);
+    modelMap.innerHTML+=newDivs.join("\n");
+    // //setup the click event
+    // for(i=0;i<containerDiv.children.length;i++)
+    // Ext.get(containerDiv.children[i]).addListener('mouseup', self.clickModel);
+    for(i=0;i<modelMap.children.length;i++)
+    Ext.get(modelMap.children[i]).addListener('mouseup', self.clickModel);
 
     this.clickModel = function(event, srcEl, obj){
       var el = Ext.get(srcEl);

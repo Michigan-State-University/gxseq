@@ -108,7 +108,7 @@ class GeneModel < ActiveRecord::Base
   
   # Convenience method for Re-indexing a subset of features
   def self.reindex_all_by_id(gene_model_ids,batch_size=100)
-    puts "Re-indexing #{gene_model_ids.length} entries"
+    puts "Re-indexing #{gene_model_ids.length} gene models"
     progress_bar = ProgressBar.new(gene_model_ids.length)
     gene_model_ids.each_slice(100) do |id_batch|
       Sunspot.index GeneModel.includes([:bioentry => :assembly],[:cds => :product_assoc], [:mrna => :function_assoc], [:gene => [:product_assoc, :function_assoc]]).where{id.in(my{id_batch})}
@@ -405,27 +405,59 @@ class GeneModel < ActiveRecord::Base
     self.strand = self.gene.strand
   end
   
-  # TODO: GeneModel creation needs a refactor badly. Worst method in entire app. Perhaps use seqfeature relationship tables and avoid denormalization altogether
-  # Pull together the gene model information
-  # Gene Models include:
-  ## Gene Seqfeature
-  ## Cds SeqFeature
-  ## Mrna SeqFeature
-  ##
-  # Cds is sorted by protein_id then rank
-  # Mrna is sorted by transcript_id then rank
+  
   def self.generate!
     l = "Removing all existing Gene Models";puts l;logger.info "\n\n#{l}\n\n"
     self.delete_all
     self.generate
   end
+  # Runs a generate method to create gene models in the database. Gene Models include:
+  # Gene Seqfeature, Cds Seqfeature, Mrna Seqfeature
   def self.generate
-    # Create Gene Models
+    # Count the genes needing a model
+    puts "There are #{genes_without_model.count} genes without Gene Models"
+    # Check for consistency - default to 
+    if(new_genes_with_locus.count != genes_without_model.count)
+      puts "#{genes_without_model.count - new_genes_with_locus.count} genes do not have a locus_tag!"
+      generate_from_prompt
+    else
+      # Default to locus generation
+      generate_models_from_locus 
+    end
+  end
+  # asks the user for input on how to generate gene models.
+  # passes execution to the chosen method
+  def self.generate_from_prompt
+    puts "What do you want to do:"
+    puts "\t1 - Generate new locus tags from annotations"
+    puts "\t2 - Generate gene models from Parent-Child annotations"
+    puts "\t3 - Generate gene models from locus tags"
+    puts "\t4 - Exit"
+    user_choice = STDIN.gets.chomp.to_i
+    case user_choice
+    when 1
+      generate_locus_annotations
+      generate_from_prompt
+    when 2
+      generate_models_from_parent
+    when 3
+      generate_models_from_locus
+    when 4
+      return
+    else
+      puts "Invalid option, please try again"
+      generate_from_prompt
+    end
+  end
+  # TODO: GeneModel creation needs a refactor badly. Worst method in entire app. Perhaps use seqfeature relationship tables and avoid denormalization altogether
+  # Uses locus_tag annotations in the database to create new gene models
+  # Pull together the gene model information
+  # Cds is sorted by protein_id then rank
+  # Mrna is sorted by transcript_id then rank
+  def self.generate_models_from_locus
     begin
-      # check locus tags
-      total_new_genes = setup_locus_for_new_genes
       # start the Gene Model creation
-      puts "Working on #{total_new_genes} Gene Models: #{Time.now.strftime('%D %H:%M')}"
+      puts "Working on #{total_new_genes=new_genes_with_locus.count} Gene Models with locus: #{Time.now.strftime('%D %H:%M')}"
       new_gene_count = 0
       gene_model_count = 0
       progress_bar = ProgressBar.new(total_new_genes)
@@ -445,7 +477,7 @@ class GeneModel < ActiveRecord::Base
           Biosql::Feature::Cds.find_in_batches(:include => [[:qualifiers => :term], :locations], :conditions => "seqfeature.seqfeature_id in('#{cds_ids}')") do |cds_batch|
             cds_batch.each do |cds|
               cds_by_locus[cds.locus_tag.value]||=[]
-              cds_by_locus[cds.locus_tag.value] << [cds,cds.locations.map(&:start_pos).min,cds.locations.map(&:end_pos).max]
+              cds_by_locus[cds.locus_tag.value] << [cds,cds.min_start,cds.max_end]
             end
           end
           # mrna lookup
@@ -460,7 +492,7 @@ class GeneModel < ActiveRecord::Base
           Biosql::Feature::Mrna.find_in_batches(:include => [[:qualifiers => :term], :locations], :conditions => "seqfeature.seqfeature_id in('#{mrna_ids}')") do |mrna_batch|
             mrna_batch.each do |mrna|
               mrna_by_locus[mrna.locus_tag.value]||=[]
-              mrna_by_locus[mrna.locus_tag.value] << [mrna,mrna.locations.map(&:start_pos).min,mrna.locations.map(&:end_pos).max]
+              mrna_by_locus[mrna.locus_tag.value] << [mrna,mrna.min_start,mrna.max_end]
             end
           end
           # sort by by transcript_id - protein_id then primary_key  - this seems to work for arabidopsis? It is not correctly order/paired in the file
@@ -483,7 +515,7 @@ class GeneModel < ActiveRecord::Base
                 rank+=1
                 gene_model = {}
                 gene_model["cds_id"] = cds_data[0].id
-                gene_model["transcript_id"] = cds_data[0].transcript_id.value if cds_data[0].transcript_id
+                gene_model["protein_id"] = cds_data[0].protein_id.try(:value)
                 gene_model["variants"] = variants
                 gene_model["rank"] = rank
                 # mRNA feature data - Assuming mRNA will NOT be defined without CDS
@@ -495,7 +527,7 @@ class GeneModel < ActiveRecord::Base
                     gene_model["mrna_id"] = mrna_features[index][0].id          
                     gene_model["start_pos"] = [mrna_features[index][1],cds_data[1]].min  
                     gene_model["end_pos"] = [mrna_features[index][2],cds_data[2]].max
-                    gene_model["protein_id"] = mrna_features[index][0].protein_id.value if mrna_features[index][0].protein_id
+                    gene_model["transcript_id"] = mrna_features[index][0].transcript_id.try(:value)
                   rescue
                     l = "Something went wrong adding mRNA data maybe cds <-> mrna counts aren't equal?\n#{$!}";puts l;logger.info "\n#{l}\n"
                   end
@@ -542,41 +574,157 @@ class GeneModel < ActiveRecord::Base
     end
   end
   
-  def self.setup_locus_for_new_genes
-    # Count the models we need to work with
-    genes_without_model = Biosql::Feature::Gene.includes(:gene_models, :qualifiers => [:term]).where{gene_models.id == nil}
-    total_new_genes = genes_without_model.count
-    puts "There are #{total_new_genes} genes without Gene Models: #{Time.now.strftime('%D %H:%M')}"
-    new_genes_with_locus = genes_without_model.where{qualifiers.term.name == 'locus_tag'}
-    # Check for consistency
-    if(new_genes_with_locus.count != total_new_genes)
-      puts "#{total_new_genes - new_genes_with_locus.count} genes do not have a locus_tag! #{Time.now.strftime('%D %H:%M')}"
-      # check the gene annotation
-      #new_genes_with_gene = genes_without_model.where{qualifiers.term.name == 'gene'}
-      if(check_new_gene_for_qual('gene'))#new_genes_with_gene.count == total_new_genes)
-        puts "...Done"        
-      else
-        # No Good, probably need user intervention
-        puts "**** Gene Models will not be generated without locus tag annotations"
-        puts "What should we use to generate locus tags? type 'Name', 'ID', etc.. or 'exit' to skip:"
-        while((new_term = STDIN.gets.chomp)!='exit')
-          break if check_new_gene_for_qual(new_term)
-          puts "Try a new annotation or 'exit' to skip:"
+  def self.generate_models_from_parent
+    # start the Gene Model creation
+    begin
+      # Setup query for genes with id_assoc
+      new_genes_with_id = genes_without_model.with_qualifier('id').where("seqfeature.seqfeature_id < 932000")
+      puts "Working on #{new_gene_count = new_genes_with_id.count} Genes without a model: #{Time.now.strftime('%D %H:%M')}"
+      if new_gene_count == 0
+        puts "No matching genes found"
+        return false
+      end
+      mrna_gene_model_count = 0
+      cds_gene_model_count = 0
+      mrna_cds_gene_model_count = 0
+      just_gene_count = 0
+      # Load data into hashes for faster lookup
+      # collect mrna ids with parent_assoc and keep id_assoc if present
+      puts "Loading mRNA..."
+      mrna_by_parent = {}
+      mrna_query = mrna_without_model.includes(:locations).with_qualifier('parent').where("seqfeature.seqfeature_id < 932000")
+      bar = ProgressBar.new(mrna_query.count)
+      mrna_query.find_in_batches do |batch|
+        batch.each do |mrna|
+          mrna_by_parent[mrna.parent.value] ||= []
+          mrna_by_parent[mrna.parent.value] << mrna
         end
+        bar.increment!(batch.length)
+      end
+      # collect cds ids with parent_assoc
+      puts "Loading CDS..."
+      cds_by_parent = {}
+      cds_query = cds_without_model.includes(:locations).with_qualifier('parent').where("seqfeature.seqfeature_id < 932000")
+      bar = ProgressBar.new(cds_query.count)
+      cds_query.find_in_batches do |batch|
+        batch.each do |cds|
+          cds_by_parent[cds.parent.value] ||= []
+          cds_by_parent[cds.parent.value] << cds
+        end
+        bar.increment!(batch.length)
+      end
+      # Loop over new genes without gene models
+      puts "Generating models..."
+      bar = ProgressBar.new(new_gene_count)
+      GeneModel.transaction do
+        PaperTrail.enabled = false
+        new_genes_with_id.includes(:locations).find_in_batches(:batch_size => 500) do |batch|
+          batch.each do |new_gene|
+            # skip items without locations
+            next if new_gene.locations.empty?
+            # base gene data
+            new_gene_id = new_gene.id_sqv.value
+            base_gene_model = {}
+            base_gene_model[:bioentry_id] = new_gene.bioentry_id
+            base_gene_model[:gene_name] = new_gene.gene.value if new_gene.gene
+            base_gene_model[:gene_id] = new_gene.id
+            base_gene_model[:strand] = new_gene.locations.first.strand
+            # create locus if missing
+            base_gene_model[:locus_tag]=new_gene.find_or_create_locus_tag(new_gene_id).value
+            # If we have a child mrna or cds we create a gene model otherwise skip this gene
+            if(mrna_list = mrna_by_parent[new_gene_id])
+              # Create a gene model for each mrna
+              mrna_list.each_with_index do |mrna,idx|
+                # skip items without locations
+                next if mrna.locations.empty?
+                # Check mrna for locus and build if missing
+                mrna.find_or_create_locus_tag(new_gene_id)
+                # check for child cds and update counter
+                if((cds = cds_by_parent[mrna.id_sqv.try(:value)].try(:first)) && ! cds.locations.empty?)
+                  mrna_cds_gene_model_count+=1
+                  cds.find_or_create_locus_tag(new_gene_id)
+                else
+                  mrna_gene_model_count+=1
+                end
+                # Setup the new gene model
+                gene_model = base_gene_model
+                gene_model[:cds_id] = cds.try(:id)
+                gene_model[:protein_id] = cds.protein_id.try(:value)
+                gene_model[:mrna_id] = mrna.id
+                gene_model[:transcript_id] = mrna.transcript_id.try(:value)
+                gene_model[:variants] = mrna_list.length
+                gene_model[:rank] = idx
+                gene_model[:start_pos] = [mrna.min_start,cds.try(:min_start)].compact.min
+                gene_model[:end_pos] = [mrna.max_end,cds.try(:max_end)].compact.max
+                fast_insert(gene_model)
+              end
+            elsif(cds_list = cds_by_parent[new_gene_id])
+              cds_list.each_with_index do |cds,idx|
+                next if cds.locations.empty?
+                # check locus
+                cds.find_or_create_locus_tag(new_gene_id)
+                # update counter
+                cds_gene_model_count+=1
+                # Setup the gene model
+                gene_model = base_gene_model
+                gene_model[:cds_id] = cds_id
+                gene_model[:protein_id] = cds.protein_id.try(:value)
+                gene_model[:variants] = cds_list.length
+                gene_model[:rank] = idx
+                gene_model[:start_pos] = [cds.min_start,new_gene.min_start].min
+                gene_model[:end_pos] = [cds.max_end,new_gene.max_end].max
+                fast_insert(gene_model)
+              end
+            else
+              just_gene_count+=1
+            end
+          end
+          bar.increment!(batch.length)
+        end
+        PaperTrail.enabled=true
+      end
+      puts "\n\t...Done: #{Time.now.strftime('%D %H:%M')}"
+      puts "\t#{mrna_cds_gene_model_count} gene models with mRNA and CDS created" if mrna_cds_gene_model_count>0
+      puts "\t#{mrna_gene_model_count} gene models with mRNA created" if mrna_gene_model_count>0
+      puts "\t#{cds_gene_model_count} gene models with CDS created" if cds_gene_model_count>0
+      puts "\t#{just_gene_count} genes had no CDS or mRNA" if just_gene_count>0
+      
+      return mrna_cds_gene_model_count+mrna_gene_model_count+cds_gene_model_count
+    rescue => e
+      puts "error creating Gene Models\n#{$!}\n\n#{e.backtrace}"
+      return false
+    end
+  end
+  # Generates new locus annotations from existing data.
+  # Expects Gene, mRNA and CDS to share a single qualifier such as NAME or ID
+  # Returns a count of new genes with locus
+  def self.generate_locus_annotations
+    puts "There are #{genes_without_model.count} genes with no gene model."
+    puts "#{new_genes_with_locus.count} have a locus tag"
+    puts "Attempting to generate new locus tags. Defult is 'gene' ..."
+    # check the gene annotation
+    if(try_locus_generation_from_qualifier('gene'))
+      puts "...Done"        
+    else
+      # No Good, probably need user intervention
+      puts "What should we use to generate locus tags? type 'Name', 'ID', etc.. or 'exit' to skip:"
+      while((new_term = STDIN.gets.chomp)!='exit')
+        break if try_locus_generation_from_qualifier(new_term)
+        puts "Try a new annotation or 'exit' to skip:"
       end
     end
-    # We will create Gene Models for all genes with a locus_tag
-    return genes_without_model.where{qualifiers.term.name == 'locus_tag'}.count
+    return new_genes_with_locus.count
   end
-  
-  def self.check_new_gene_for_qual(qual_name)
+  # Report data on supplied qualifier term and prompt user for action
+  # return true if the qualifier is chosen for update
+  # return false if the qualifier is skipped
+  def self.try_locus_generation_from_qualifier(qual_name)
     puts "checking for '#{qual_name}' annotations"
-    new_gene_with_qual = Biosql::Feature::Gene.includes(:gene_models, :qualifiers => [:term]).where{gene_models.id == nil}.where{qualifiers.term.name == qual_name}
+    new_gene_with_qual = genes_without_model.with_qualifier(qual_name)
+    #Biosql::Feature::Gene.includes(:gene_models, :qualifiers => [:term]).where{gene_models.id == nil}.where{qualifiers.term.name == qual_name}
     new_mrna_with_qual = Biosql::Feature::Mrna.includes(:gene_model, :qualifiers => [:term]).where{gene_model.id == nil}.where{qualifiers.term.name == qual_name}
     new_cds_with_qual = Biosql::Feature::Cds.includes(:gene_model, :qualifiers => [:term]).where{gene_model.id == nil}.where{qualifiers.term.name == qual_name}
-    puts "gene: #{new_gene_with_qual.count}"
-    puts "mrna: #{new_mrna_with_qual.count}"
-    puts "cds: #{new_cds_with_qual.count}"
+    puts "gene: #{g_cnt = new_gene_with_qual.count}, mrna: #{m_cnt = new_mrna_with_qual.count}, cds: #{c_cnt = new_cds_with_qual.count}"
     printf "Create locus_tag's from '#{qual_name}' annotations? (Y/n):"
     while (answer = STDIN.gets.chomp)
       if (answer=='n'||answer=='Y')
@@ -589,11 +737,11 @@ class GeneModel < ActiveRecord::Base
       puts "Okay, creating new locus_tag values"
       GeneModel.transaction do 
         puts "--Working on Gene"
-        set_locus_using_qual(qual_name,new_gene_with_qual)
+        Biosql::SeqfeatureQualifierValue.set_locus_using_qual(qual_name,new_gene_with_qual)
         puts "--Working on CDS"
-        set_locus_using_qual(qual_name,new_mrna_with_qual)
+        Biosql::SeqfeatureQualifierValue.set_locus_using_qual(qual_name,new_mrna_with_qual)
         puts "--Working on mRNA"
-        set_locus_using_qual(qual_name,new_cds_with_qual)
+        Biosql::SeqfeatureQualifierValue.set_locus_using_qual(qual_name,new_cds_with_qual)
       end
       return true
     else
@@ -602,16 +750,20 @@ class GeneModel < ActiveRecord::Base
     end
   end
   
-  def self.set_locus_using_qual(qual_term,new_items_with_qual)
-      locus_tag_term_id = Biosql::Term.find_or_create_by_name_and_ontology_id('locus_tag', Biosql::Term.ano_tag_ont_id).id
-      progress_bar = ProgressBar.new(new_items_with_qual.count)
-      new_items_with_qual.find_in_batches do |features|
-        features.each do |feature|
-          GeneModel.connection.execute("INSERT INTO SEQFEATURE_QUALIFIER_VALUE (seqfeature_id, term_id,value,rank)
-          VALUES(#{feature.id},#{locus_tag_term_id},'#{feature.qualifiers.select{|q|q.term.name==qual_term}.value}',1)")
-        end
-        progress_bar.increment!(features.length)
-      end
+  def self.new_genes_with_locus
+    new_genes_with_locus = genes_without_model.with_qualifier('locus_tag')
+  end
+  
+  def self.genes_without_model
+    Biosql::Feature::Gene.includes(:gene_models).where{gene_models.id == nil}
+  end
+  
+  def self.mrna_without_model
+    Biosql::Feature::Mrna.includes(:gene_model).where{gene_model.id == nil}
+  end
+  
+  def self.cds_without_model
+    Biosql::Feature::Cds.includes(:gene_model).where{gene_model.id == nil}
   end
 end
 # == Schema Information

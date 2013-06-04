@@ -55,6 +55,10 @@ class Biosql::Term < ActiveRecord::Base
   def self.default_source_term
     @default_src_tm ||= self.find_or_create_by_name_and_ontology_id("EMBL/GenBank/SwissProt",seq_src_ont_id)
   end
+  # returns the locus_tag term from the annotation ontology
+  def self.locus_tag
+     @locus_tag_trm ||= self.find_or_create_by_name_and_ontology_id('locus_tag', ano_tag_ont_id)
+  end
   
   def self.denormalize
     begin

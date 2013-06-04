@@ -42,7 +42,22 @@ class Biosql::SeqfeatureQualifierValue < ActiveRecord::Base
   def self.db_xref_id
     @db_xref_id ||= (Biosql::Term.find_or_create_by_name_and_ontology_id("db_xref",Biosql::Ontology.find_or_create_by_name("Annotation Tags").id).id)
   end
-
+  
+  def self.set_locus_using_qual(qual_term,new_items_with_qual)
+    locus_tag_term_id = Biosql::Term.locus_tag.id
+    progress_bar = ProgressBar.new(new_items_with_qual.count)
+    new_items_with_qual.find_in_batches do |features|
+      features.each do |feature|
+        next if feature.locus_tag
+        if qual_value = feature.qualifiers.select{|q|q.term.name==qual_term}.first.try(:value)
+          Biosql::SeqfeatureQualifierValue.connection.execute("INSERT INTO SEQFEATURE_QUALIFIER_VALUE (seqfeature_id, term_id,value,rank)
+          VALUES(#{feature.id},#{locus_tag_term_id},'#{qual_value}',1)")
+        end
+      end
+      progress_bar.increment!(features.length)
+    end
+  end
+  
   def value(allow_interpolate=false)
     return super() unless allow_interpolate
     if(term_id == self.class.db_xref_id)
