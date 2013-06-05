@@ -578,7 +578,7 @@ class GeneModel < ActiveRecord::Base
     # start the Gene Model creation
     begin
       # Setup query for genes with id_assoc
-      new_genes_with_id = genes_without_model.with_qualifier('id').where("seqfeature.seqfeature_id < 932000")
+      new_genes_with_id = genes_without_model.with_qualifier('id')
       puts "Working on #{new_gene_count = new_genes_with_id.count} Genes without a model: #{Time.now.strftime('%D %H:%M')}"
       if new_gene_count == 0
         puts "No matching genes found"
@@ -592,7 +592,7 @@ class GeneModel < ActiveRecord::Base
       # collect mrna ids with parent_assoc and keep id_assoc if present
       puts "Loading mRNA..."
       mrna_by_parent = {}
-      mrna_query = mrna_without_model.includes(:locations).with_qualifier('parent').where("seqfeature.seqfeature_id < 932000")
+      mrna_query = mrna_without_model.includes(:locations).with_qualifier('parent')
       bar = ProgressBar.new(mrna_query.count)
       mrna_query.find_in_batches do |batch|
         batch.each do |mrna|
@@ -604,7 +604,7 @@ class GeneModel < ActiveRecord::Base
       # collect cds ids with parent_assoc
       puts "Loading CDS..."
       cds_by_parent = {}
-      cds_query = cds_without_model.includes(:locations).with_qualifier('parent').where("seqfeature.seqfeature_id < 932000")
+      cds_query = cds_without_model.includes(:locations).with_qualifier('parent')
       bar = ProgressBar.new(cds_query.count)
       cds_query.find_in_batches do |batch|
         batch.each do |cds|
