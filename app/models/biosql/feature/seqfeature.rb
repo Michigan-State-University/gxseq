@@ -48,7 +48,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   
   # scope
   scope :with_locus_tag, lambda { |locus_tag|
-    { :include => [:scope_qualifiers => [:term]], :conditions => "upper(seqfeature_qualifier_value.value) = '#{locus_tag.upcase}'"}
+    { :include => [:qualifiers => [:term]], :conditions => "upper(seqfeature_qualifier_value.value) = '#{locus_tag.upcase}'"}
   }
   # validations
   accepts_nested_attributes_for :qualifiers, :allow_destroy => true, :reject_if => lambda { |q| (q[:id] && Biosql::SeqfeatureQualifierValue.find(q[:id]).term.name =='locus_tag') || (q[:value].blank?) }
