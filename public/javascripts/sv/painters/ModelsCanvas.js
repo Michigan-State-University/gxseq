@@ -105,8 +105,8 @@ Ext.define('Sv.painters.ModelsCanvas',{
     // Build Image Map for click event    
     //Add an empty map 
     var modelMap = document.createElement('MAP');
-    modelMap.setAttribute("id","#"+container.id+"map");
-    modelMap.setAttribute("name","#"+container.id+"map");
+    modelMap.setAttribute("id",""+container.id+"map");
+    modelMap.setAttribute("name",""+container.id+"map");
     container.appendChild(modelMap);
     //Add an array to hold the area tags
     var mapAreas = [];

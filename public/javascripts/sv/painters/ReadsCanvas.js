@@ -158,8 +158,8 @@ Ext.define('Sv.painters.ReadsCanvas',{
   		// Build Image Map for click event    
       //Add an empty map 
       var readMap = document.createElement('MAP');
-      readMap.setAttribute("id","#"+container.id+"map");
-      readMap.setAttribute("name","#"+container.id+"map");
+      readMap.setAttribute("id",""+container.id+"map");
+      readMap.setAttribute("name",""+container.id+"map");
       container.appendChild(readMap);
       //Add an array to hold the area tags
       var mapAreas = [];
@@ -189,7 +189,7 @@ Ext.define('Sv.painters.ReadsCanvas',{
   			if (x + w < region.x1 || x > region.x2) return;
   			if (y + h < region.y1 || y > region.y2) return;
         
-        if(w>15)
+        if(w>3)
         {
           //newDivs.push("<div id="+container.id+"_read_"+read.id+" data-id="+read.id+" style='width: "+w+"px; height: "+h+"px; left: "+x+"px; top: "+y+"px; cursor: pointer; position: absolute;'></div>");
           mapAreas.push("<area shape='rect' coords='"+x+","+y+","+(x+w)+","+(y+h)+"' id=model_"+read.id+" data-id="+read.id+" href='#' alt='Read Details' title='Read Details'>");
