@@ -15,6 +15,47 @@ Ext.define('Sv.painters.ReadsCanvas',{
 	forwardColor:'#44D',
 	reverseColor : '44D',
 	colorBases : true,
+	drawFrames: false,
+	drawFrameBreaks: function(){
+	  var self = this;
+	  var brush = self.getBrush();
+	  var region = self.getRegion();
+	  var height = self.getHeight();
+    brush.lineWidth = 1.0;
+    Ext.each(self.frameBreaks, function(fb){
+      x = Math.round((fb.x1-self.viewport.x1) * self.viewport.pixels / self.viewport.bases);
+      if(x%2!=0) x+=1;
+      if(x >= region.x1 && x <= region.x2)
+      {
+        // Draw the Frame break
+        brush.fillStyle = "rgba(75,75,85,.8)";
+        brush.fillRect(x,0,1,height);
+        brush.fillStyle = "rgba(75,75,85,.2)";
+        brush.fillRect(x-2,0,1,height);
+        // Text background
+        brush.fillStyle = "#EEF";
+        metrics = brush.measureText(fb.msg)
+        brush.fillRect(x+5,1,metrics.width+2,11);
+        // Frame msg text
+        brush.textAlign = "left";
+        brush.fillStyle = "rgba(75,75,85,.9)";
+        brush.fillText(fb.msg,x+5,9);
+      }
+      
+      x2 = Math.round((fb.x2-self.viewport.x1) * self.viewport.pixels / self.viewport.bases);
+      if(x2 >= region.x1 && x2 <= region.x2)
+      {
+        // Text Background
+        metrics = brush.measureText(fb.msg)
+        brush.fillStyle = "#EEF";
+        brush.fillRect((x2-metrics.width)-5,1,metrics.width+2,11);
+        // Frame msg text
+        brush.fillStyle = "rgba(75,75,85,.9)";
+        brush.textAlign = "right"          
+        brush.fillText(fb.msg,x2-5, 9)
+      }
+    });
+	},
   initComponent: function(){
     var self = this;
     var data;
@@ -100,25 +141,45 @@ Ext.define('Sv.painters.ReadsCanvas',{
   		if (h < self.boxHeightMin) h = self.boxHeightMin;
   		if (h > self.boxHeightMax) h = self.boxHeightMax;
   		
-  		//JS will be too slow if too many divs are being drawn - use an array and innerHTML instead
-  		//create div we can use to alter innerHTML
-      var containerDiv = document.createElement('DIV');
-      containerDiv.style.width = width+"px";
-      containerDiv.style.height = height+"px";
-      containerDiv.style.left = "0px";
-      containerDiv.style.top = "0px";
-      containerDiv.style.position = "absolute";
-      container.appendChild(containerDiv);
-      
-  		var newDivs = [];
+      // //JS will be too slow if too many divs are being drawn - use an array and innerHTML instead
+      // //create div we can use to alter innerHTML
+      //       var containerDiv = document.createElement('DIV');
+      //       containerDiv.style.width = width+"px";
+      //       containerDiv.style.height = height+"px";
+      //       containerDiv.style.left = "0px";
+      //       containerDiv.style.top = "0px";
+      //       containerDiv.style.position = "absolute";
+      //       container.appendChild(containerDiv);
+      //       
+      // var newDivs = [];
   		
+  		var maxLevel = Math.ceil(height/h);
+  		
+  		// Build Image Map for click event    
+      //Add an empty map 
+      var readMap = document.createElement('MAP');
+      readMap.setAttribute("id","#"+container.id+"map");
+      readMap.setAttribute("name","#"+container.id+"map");
+      container.appendChild(readMap);
+      //Add an array to hold the area tags
+      var mapAreas = [];
+      //Add the img tag
+      var mapImage = document.createElement('IMG');
+      mapImage.style.width = width+"px";
+      mapImage.style.height = height+"px";
+      mapImage.style.left = "0px";
+      mapImage.style.top = "0px";
+      mapImage.style.position = "absolute";
+      //An image without a src might have a border rendered by the browser. Use a 1x1 empty image instead
+      mapImage.src = 'data:image/gif;base64,R0lGODlhAQABAID/AMDAwAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=='
+      //tie the img to the map
+      mapImage.setAttribute("usemap","#"+container.id+"map");
+      container.appendChild(mapImage);
+      
+      //Loop over every read
   		Ext.each(data, function(read)
   		{
-  			//self.groups.add(read.cls);
-  			//if (!self.groups.active(read.cls)) return;
-  			//if (read.level > maxLevel) return;
-  			//if (read.multi && !self.showMultis) return;
-
+  			if (read.level > maxLevel) return;
   			w = read.w;
   			//e = read.e;
   			x = flippedX ? width - read.x - read.w : read.x;
@@ -130,33 +191,23 @@ Ext.define('Sv.painters.ReadsCanvas',{
         
         if(w>15)
         {
-          newDivs.push("<div id="+container.id+"_read_"+read.id+" data-id="+read.id+" style='width: "+w+"px; height: "+h+"px; left: "+x+"px; top: "+y+"px; cursor: pointer; position: absolute;'></div>");
+          //newDivs.push("<div id="+container.id+"_read_"+read.id+" data-id="+read.id+" style='width: "+w+"px; height: "+h+"px; left: "+x+"px; top: "+y+"px; cursor: pointer; position: absolute;'></div>");
+          mapAreas.push("<area shape='rect' coords='"+x+","+y+","+(x+w)+","+(y+h)+"' id=model_"+read.id+" data-id="+read.id+" href='#' alt='Read Details' title='Read Details'>");
         }
-        
-  			//Render slightly differently if paired end
-        // if (self.pairedEnd)
-        // {
-        //  self.paintBox(read.cls, x, y, e, h);
-        //  self.paintBox(read.cls + '_spacer', x+e, y, w-(2*e), h);
-        //  self.paintBox(read.cls, x+w-e, y, e, h);
-        // }
-        // else
-        // {
-        //brush.strokeStyle = "rgba(75,75,85,0.8)";
-        
-
-  			//TODO allow user control
+        //Setup read style. TODO: allow user control of read colors
   			aw = 5
   			aw_offset = (read.level==0) ? 1 : 2
   			if(read.strand =='+')
   			{
   			  brush.fillStyle = self.forwardColor;
     			brush.fillRect(x, y, w, h);
+    			//arrow point
     			self.paintBox('forward_read',x+w-aw,y-1,aw,h+aw_offset);
 			  }
 			  else{
 			    brush.fillStyle = self.reverseColor;
     			brush.fillRect(x, y, w, h);
+    			//arrow point
     			self.paintBox('reverse_read',x,y-1,aw,h+aw_offset);
 			  }
   			// Loop over each child provided by data source
@@ -168,8 +219,6 @@ Ext.define('Sv.painters.ReadsCanvas',{
           var child_w = Math.ceil((child[2]) * self.viewport.pixels/self.viewport.bases)
           self.paintBox(child[0],child_x,y,child_w,h)
         });
-  			//brush.strokeRect(x,y,w,h);
-        // }
 
         if (read.sequence)
         {
@@ -177,62 +226,37 @@ Ext.define('Sv.painters.ReadsCanvas',{
         }
   		});
       
-      // //Draw the frames
-      // brush.lineWidth = 1.0;
-      // Ext.each(self.frameBreaks, function(fb){        
-      //   
-      //   x = Math.round((fb.x1-self.viewport.x1) * self.viewport.pixels / self.viewport.bases);
-      //   if(x%2!=0) x+=1;
-      //   if(x >= region.x1 && x <= region.x2)
-      //   {
-      //     // Draw the Frame break
-      //     brush.fillStyle = "rgba(75,75,85,.8)";
-      //     brush.fillRect(x,0,1,height);
-      //     brush.fillStyle = "rgba(75,75,85,.2)";
-      //     brush.fillRect(x-2,0,1,height);
-      //     // Text background
-      //     brush.fillStyle = "#EEF";
-      //     metrics = brush.measureText(fb.msg)
-      //     brush.fillRect(x+5,1,metrics.width+2,11);
-      //     // Frame msg text
-      //     brush.textAlign = "left";
-      //     brush.fillStyle = "rgba(75,75,85,.9)";
-      //     brush.fillText(fb.msg,x+5,9);
-      //   }
-      //   
-      //   x2 = Math.round((fb.x2-self.viewport.x1) * self.viewport.pixels / self.viewport.bases);
-      //   if(x2 >= region.x1 && x2 <= region.x2)
-      //   {
-      //     // Text Background
-      //     metrics = brush.measureText(fb.msg)
-      //     brush.fillStyle = "#EEF";
-      //     brush.fillRect((x2-metrics.width)-5,1,metrics.width+2,11);
-      //     // Frame msg text
-      //     brush.fillStyle = "rgba(75,75,85,.9)";
-      //     brush.textAlign = "right"          
-      //     brush.fillText(fb.msg,x2-5, 9)
-      //   }
-      // });
+      if(self.drawFrames){
+        self.drawFrameBreaks();
+      }
       
-      //Append all the html DIVs we created
-      containerDiv.innerHTML+=newDivs.join("\n");
+      // //Append all the html DIVs we created
+      // containerDiv.innerHTML+=newDivs.join("\n");
 
-      //setup the click event
-      for(i=0;i<containerDiv.children.length;i++)
-        Ext.get(containerDiv.children[i]).addListener('mouseup', selectItem);
+      // //setup the click event
+      // for(i=0;i<containerDiv.children.length;i++)
+      //   Ext.get(containerDiv.children[i]).addListener('mouseup', selectItem);
       
+      //click handler
+      function selectItem(event, srcEl, obj)
+  		{
+  			var el = Ext.get(srcEl);
+  			var pos = self.viewport.x1 + Math.round((self.viewport.bases / self.viewport.pixels) * (event.getX()-Ext.get(self.getContainer()).getX()))
+  			self.fireEvent('itemSelected', el.dom.getAttribute('data-id'),pos);
+  		};
+  		
+      //Append all the map areas we created
+      readMap.innerHTML+=mapAreas.join("\n");
+      //setup the click event
+      for(i=0;i<readMap.children.length;i++){
+        Ext.get(readMap.children[i]).addListener('mouseup', selectItem);
+      }
   	};
     
-    function selectItem(event, srcEl, obj)
-		{
-			var el = Ext.get(srcEl);
-			var pos = self.viewport.x1 + Math.round((self.viewport.bases / self.viewport.pixels) * (event.getX()-Ext.get(self.getContainer()).getX()))
-			self.fireEvent('itemSelected', el.dom.getAttribute('data-id'),pos);
-		};
+
 		
   	function letterize(brush, sequence, x, y, w, h, container)
   	{
-  		//var clean = "";
   		var length = sequence.length;
   		var letterW = Math.max(self.viewport.pixels/self.viewport.bases);
   		
@@ -243,12 +267,6 @@ Ext.define('Sv.painters.ReadsCanvas',{
   		{
   			var letter = sequence.charAt(i);
   			
-        // if(! self.colorBases){           
-        //   switch (letter)
-        //          {
-
-        //   }
-        // }
 			  var cls = 'base'
 			  if(self.colorBases){ 
   				switch (letter){
@@ -266,9 +284,8 @@ Ext.define('Sv.painters.ReadsCanvas',{
             case 'N': cls = 'N'; break;
     			}
     		}
-  			//clean += letter;
 
-  			var letterX = x + (i * letterW) //+ (i >= half ? w-2*readLength : 0);
+  			var letterX = x + (i * letterW)
   			if ((letterW >= 5 && h >= self.boxBlingLimit && letter != '-'))
   			{
   			  self.paintBox(cls, letterX, y, letterW, h);

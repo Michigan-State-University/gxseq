@@ -101,57 +101,40 @@ Ext.define('Sv.painters.ModelsCanvas',{
     var  labelY;
     var h = scaler * self.boxHeight;
     if (h < self.boxHeightMin) h = self.boxHeightMin;
-    if (h > self.boxHeightMax) h = self.boxHeightMax;
-    // Try Map instead of Div
-    // <img src="planets.gif" width="145" height="126" alt="Planets" usemap="#planetmap">
-    // 
-    // <map name="planetmap">
-    //   <area shape="rect" coords="0,0,82,126" href="sun.htm" alt="Sun">
-    //   <area shape="circle" coords="90,58,3" href="mercur.htm" alt="Mercury">
-    //   <area shape="circle" coords="124,58,8" href="venus.htm" alt="Venus">
-    // </map>
-    var containerDiv = document.createElement('IMG');
-    containerDiv.style.width = width+"px";
-    containerDiv.style.height = height+"px";
-    containerDiv.style.left = "0px";
-    containerDiv.style.top = "0px";
-    containerDiv.style.position = "absolute";
-    containerDiv.style.border = "none";
-    containerDiv.setAttribute("usemap","#planetmap");
-    container.appendChild(containerDiv);
-    
+    if (h > self.boxHeightMax) h = self.boxHeightMax;    
+    // Build Image Map for click event    
+    //Add an empty map 
     var modelMap = document.createElement('MAP');
-    modelMap.setAttribute("id",'planetmap');
-    modelMap.setAttribute("name",'planetmap');
+    modelMap.setAttribute("id","#"+container.id+"map");
+    modelMap.setAttribute("name","#"+container.id+"map");
     container.appendChild(modelMap);
-    // //Div we can use to alter innerHTML
-    // var containerDiv = document.createElement('DIV');
-    // containerDiv.style.width = width+"px";
-    // containerDiv.style.height = height+"px";
-    // containerDiv.style.left = "0px";
-    // containerDiv.style.top = "0px";
-    // containerDiv.style.position = "absolute";
-    // container.appendChild(containerDiv);
-
+    //Add an array to hold the area tags
+    var mapAreas = [];
+    //Add the img tag
+    var mapImage = document.createElement('IMG');
+    mapImage.style.width = width+"px";
+    mapImage.style.height = height+"px";
+    mapImage.style.left = "0px";
+    mapImage.style.top = "0px";
+    mapImage.style.position = "absolute";
+    //An image without a src might have a border rendered by the browser. Use a 1x1 empty image instead
+    mapImage.src = 'data:image/gif;base64,R0lGODlhAQABAID/AMDAwAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=='
+    //tie the img to the map
+    mapImage.setAttribute("usemap","#"+container.id+"map");
+    container.appendChild(mapImage);
     //Setup font height and get width -- rough estimate
     var font_height = (h) / ((pixelBaseRatio/55)+1)
     var fontLetterWidth = font_height / 2
-
-    //Levelize the reads and get the max visible level (used for a shortcut later)
+    //Levelize the models and get the max visible level (used for a shortcut later)
     var maxLevel = Math.ceil(region.y2 / (h + self.boxSpace));
     var max = this.levelize(self.data,maxLevel);
-    
-    var html = '';
-    var id = '';
-
-    //JS will be too slow if too many divs are being drawn - use an array and innerHTML instead
-    var newDivs = [];
+    //Work on each gene model
     Ext.each(self.data, function(model)
     {
+      //Lookup class and check active flag
       if (!self.groups.active(model.cls)) return;
       if (model.level > maxLevel) return;
-      id = model.id;
-      //Draw the model and its sub-components
+      //Setup coordinates
       var w = model.w;
       var x = model.x;
       var y = (model.level*h)+(model.level*font_height)+5;
@@ -165,27 +148,12 @@ Ext.define('Sv.painters.ModelsCanvas',{
         if (x + w < region.x1 || x > region.x2) return;
         if (y + h < region.y1 || y > region.y2) return;
       }
-
       var model_width=w;
-      
-      //setup the label
-      if(model.gene==''){
-        label=model.locus_tag;
-      }
-      else
-      {
-        label=model.gene;
-      };
-      var label_width = (fontLetterWidth*label.length);
-      
-      // ----Creating a Canvas Wrapper Div--- //
+      // ----Image Map Areas--- //
       if(w>2 && self.selectable)
       {
-        //newDivs.push("<div id=model_"+model.oid+" data-id="+model.oid+" style='width: "+w+"px; height: "+h+"px; left: "+x+"px; top: "+y+"px; cursor: pointer; position: absolute;'></div>");
-        newDivs.push("<area shape='rect' coords='"+x+","+y+","+w+","+h+"' id=model_"+model.oid+" data-id="+model.oid+" href='#' alt='"+model.locus_tag+" "+model.gene+"'></div>");
-
+        mapAreas.push("<area shape='rect' coords='"+x+","+y+","+(x+w)+","+(y+h)+"' id=model_"+model.oid+" data-id="+model.oid+" href='#' alt='"+model.locus_tag+" "+model.gene+"' title='"+model.locus_tag+" "+model.gene+"'>");
       }
-
       // ----Painting the model and any children--- //
       self.paintBox(model.cls, x, y, w, h);
       var max_x = (x+w);
@@ -199,7 +167,6 @@ Ext.define('Sv.painters.ModelsCanvas',{
           self.paintBox(child.cls,child.x,y,(child.x2-child.x),h);
         });
       });
-
       //Draw the arrow point
       if(self.arrows && self.arrow_width)
       {
@@ -210,22 +177,28 @@ Ext.define('Sv.painters.ModelsCanvas',{
           self.paintBox(self.reverse_arrow,x,y-1,aw,h+2);
         }
       }
-
-      //set to the left of model
+      // ---Painting the Label--- //
+      // setup the label
+      if(model.gene==''){
+        label=model.locus_tag;
+      }
+      else
+      {
+        label=model.gene;
+      };
+      var label_width = (fontLetterWidth*label.length);
+      // Test boundaries
       var Offset = x+1;
-
-      //test the left side of screen
       if(Offset <=1){
+        //left side of screen
         label = "("+label+")"
         Offset = 1;
-        
-      }
-      //test the right side of the screen
-      else if(Offset >= (width-1)){
+      }else if(Offset >= (width-1)){
+        //right side of screen
         Offset = (width-1);
       }
-
       //test right side of model - add 4 letterwidths for parentheses and slight end padding
+      //This will 'pull' the label off screen to the left
       var max_right_offset = (x+w)-(label_width+(4*fontLetterWidth))
       if(Offset >= max_right_offset){
         Offset = (max_right_offset);
@@ -244,23 +217,16 @@ Ext.define('Sv.painters.ModelsCanvas',{
         //}
       }
     });
-
-    //Append all the html DIVs we created
-    //containerDiv.innerHTML+=newDivs.join("\n");
-    containerDiv.innerHTML+=newDivs.join("\n");
-    modelMap.innerHTML+=newDivs.join("\n");
-    // //setup the click event
-    // for(i=0;i<containerDiv.children.length;i++)
-    // Ext.get(containerDiv.children[i]).addListener('mouseup', self.clickModel);
-    for(i=0;i<modelMap.children.length;i++)
-    Ext.get(modelMap.children[i]).addListener('mouseup', self.clickModel);
-
+    // Click handler
     this.clickModel = function(event, srcEl, obj){
       var el = Ext.get(srcEl);
       self.fireEvent('modelSelected', el.dom.getAttribute('data-id'));
     }
+    //Append all the map areas we created
+    modelMap.innerHTML+=mapAreas.join("\n");
+    //setup the click event
+    for(i=0;i<modelMap.children.length;i++){
+      Ext.get(modelMap.children[i]).addListener('mouseup', self.clickModel)
+    }
   }
 });
-
-
-//var labels_div = document.createElement('DIV');
