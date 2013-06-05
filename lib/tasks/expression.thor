@@ -15,7 +15,7 @@ class Expression < Thor
   # --test/-t => test only, run the loader and check ids but do not commit any inserts
   desc 'load FILE',"Load feature counts into the database"
   method_options %w(experiment -e) => :required, :existing => 'raise', %w(feature -f) => 'Gene', 
-    %w(id_column -i) => 1, %w(count_column -c) => 2, %w(normalized_column -n) => 3, %w(header -h) => false, 
+    %w(id_column -i) => 1, %w(count_column -c) => 2, %w(unique_column -u) => 3, %w(normalized_column -n) => 4, %w(header -h) => false, 
     %w(test -t) => false, %w(skip_not_found -s) => false, %w(concordance -d) => nil, :no_index => false
   method_option :assembly_id, :aliases => '-a', :type => :numeric, :required => true, :desc => 'Supply the ID for sequence taxonomy. Use thor taxonomy:list to lookup'
   def load(input_file)
@@ -54,7 +54,6 @@ class Expression < Thor
     end
     # Parse the Input
     items = []
-    number_reg = /^\d+\.{0,1}\d*$/
     datafile.each_with_index do |line,idx|
       # skip header if present
       next if (idx == 0) && options[:header]
@@ -70,17 +69,10 @@ class Expression < Thor
       dataset = []
       # grab the columns
       dataset << data[options[:id_column]-1]
-      dataset << data[options[:count_column]-1]
-      dataset << data[options[:normalized_column]-1]
-      # check data
-      next unless dataset[1].match(number_reg) && dataset[2].match(number_reg)
+      dataset << data[options[:count_column]-1].to_i
+      dataset << data[options[:normalized_column]-1].to_f
+      dataset << data[options[:unique_column]-1].to_i
       items << dataset
-    end
-    # Verify Unique Input
-    if (diff = items.size - items.uniq.size) != 0
-      puts "There were #{diff} non-unique locus lines in the file."
-      puts "#{items - items.uniq}"
-      exit 0
     end
     # check existing counts
     if (counts = experiment.feature_counts.includes(:seqfeature).where{upper(seqfeature.display_name)==my{options[:feature]}}.count) == 0
@@ -159,7 +151,8 @@ class Expression < Thor
               :seqfeature_id => feature.id,
               :experiment_id => experiment.id,
               :count => batch_hsh[feature.locus_tag.value][1],
-              :normalized_count => batch_hsh[feature.locus_tag.value][2]
+              :normalized_count => batch_hsh[feature.locus_tag.value][2],
+              :unique_count => batch_hsh[feature.locus_tag.value][3]
             )
           end
         end

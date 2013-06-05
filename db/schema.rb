@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130508175414) do
+ActiveRecord::Schema.define(:version => 20130605181820) do
 
   create_table "assemblies", :force => true do |t|
     t.integer  "taxon_id",   :precision => 38, :scale => 0
@@ -126,6 +126,8 @@ ActiveRecord::Schema.define(:version => 20130508175414) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  add_index "biosequence", ["bioentry_id", "version"], :name => "bioseq_idx"
 
   create_table "blast_databases", :force => true do |t|
     t.string   "name"
@@ -278,6 +280,7 @@ ActiveRecord::Schema.define(:version => 20130508175414) do
     t.decimal  "normalized_count", :precision => 10, :scale => 2
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "unique_count",     :precision => 38, :scale => 0
   end
 
   add_index "feature_counts", ["experiment_id", "seqfeature_id"], :name => "idx$$_31e30001"
