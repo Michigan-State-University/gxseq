@@ -159,7 +159,7 @@ class ExpressionController < ApplicationController
     params[:per_page]||=50
     params[:definition_type]||= @assembly.default_feature_definition
     params[:value_type]||='normalized_counts'
-    @value_options = {'Normalized Counts' => 'normalized_counts', 'Raw Counts' => 'counts'}
+    @value_options = {'Normalized Counts' => 'normalized_counts', 'Total Counts' => 'counts', 'Unique Counts' => 'unique_counts'}
     # Setup the quick select box
     @group_select_options = {
       #'Combined' => [['Description','description'],['Everything','full_description']],

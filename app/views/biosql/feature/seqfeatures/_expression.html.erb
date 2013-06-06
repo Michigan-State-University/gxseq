@@ -7,7 +7,13 @@
       <% end %>
     </tr>
     <tr>
-      <td style="width:20px"><b>Reads</b></td>
+      <td style="width:20px"><b>Unique Reads</b></td>
+      <% @feature_counts.each do |m| %>
+        <td><%= m.unique_count %></td>
+      <% end %>
+    </tr>
+    <tr>
+      <td style="width:20px"><b>Total Reads</b></td>
       <% @feature_counts.each do |m| %>
         <td><%= m.count %></td>
       <% end %>

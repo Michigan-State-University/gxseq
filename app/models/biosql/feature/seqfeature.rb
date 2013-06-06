@@ -75,6 +75,12 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
           dynamic(:normalized_counts) do
             without "exp_#{exp.id}", nil
           end
+          dynamic(:counts) do
+            without "exp_#{exp.id}", nil
+          end
+          dynamic(:unique_counts) do
+            without "exp_#{exp.id}", nil
+          end
         end
       end
       facet(:type_term_id)
@@ -830,6 +836,9 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     end
     s.dynamic_float :counts, :stored => true do
       feature_counts.inject({}){|h,x| h["exp_#{x.experiment_id}"]=x.count;h}
+    end
+    s.dynamic_float :unique_counts, :stored => true do
+      feature_counts.inject({}){|h,x| h["exp_#{x.experiment_id}"]=x.unique_count;h}
     end
     # TODO: Add acts_as_taggable indexed tags for better search/filtering of [Transcription Factor] tag
     # # dynamic tags
