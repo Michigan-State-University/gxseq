@@ -1,5 +1,6 @@
 class AssembliesController < ApplicationController
-
+  
+  load_and_authorize_resource
   before_filter :find_assembly, :only => [:show, :edit, :update]
 
   def index
@@ -16,13 +17,14 @@ class AssembliesController < ApplicationController
   end
 
   def edit
+    @groups = Group.all
   end
 
   def update
     respond_to do |wants|
       if @assembly.update_attributes(params[:assembly])
         flash[:notice] = 'Assembly was successfully updated.'
-        wants.html { redirect_to(@assembly) }
+        wants.html { redirect_to edit_assembly_path(@assembly) }
       else
         wants.html { render :action => "edit" }
       end

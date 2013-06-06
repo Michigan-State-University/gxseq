@@ -207,6 +207,7 @@ class Annotation < Thor
         # done
         progress_bar.increment!
       end # items loop
+      puts "Updated #{features_needing_index.length} matching features"
       if options[:test]
         raise 'Transaction not committed test only flag set'
       end

@@ -1,6 +1,6 @@
 class Assembly < ActiveRecord::Base
   has_many :bioentries, :class_name => "Biosql::Bioentry", :order => "name asc", :dependent => :destroy
-  has_many :experiments
+  has_many :experiments, :order => "experiments.type asc, experiments.name desc"
   #TODO experiment STI - can this be dynamic?
   has_many :chip_chips, :order => "experiments.name asc"
   has_many :chip_seqs, :order => "experiments.name asc"
@@ -24,6 +24,8 @@ class Assembly < ActiveRecord::Base
   validates_presence_of :taxon
   validates_presence_of :version
   validates_uniqueness_of :version, :scope => :taxon_id
+  accepts_nested_attributes_for :experiments
+  validates_associated :experiments
   
   # returns true if any bioentry -> seqfeature has feature_counts
   def has_expression?

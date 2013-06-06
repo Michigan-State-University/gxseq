@@ -1,6 +1,6 @@
 <% content_for :top_bar do %>
 	<!-- Header here -->
-	<h1 class="pagetitle">Edit Taxonomy Version: <%= @assembly.id %></h1>
+	<h1 class="pagetitle">Edit Assembly: <%= @assembly.id %></h1>
 <% end %>
 
 <% content_for :item_bar do %>
@@ -19,12 +19,40 @@
 <% else %>
   <% form_for @assembly.becomes(Assembly) do |f| -%>
     <%= f.error_messages %>
+    <h2 class="smalltitle">Taxonomy</h2>
+    <p>
+      <%= @assembly.taxon.ancestors.collect(&:name).join(' > ') %>
+    </p>
+    <!-- TODO: Allow species/taxon edit in assemblies -->
     <p>Species:<br/><%= @assembly.species.scientific_name.name %></p>
     <p>Taxon:<br/><%= @assembly.taxon.scientific_name.name %></p>
 
     <p><%= f.label 'version' %><br/>
     <%= f.text_field :version %></p>
-  
+    
+    <h2 class="smalltitle">Experiments</h2>
+    
+    <table>
+      <% exp_count = 0 %>
+      <tr>
+        <th>#</th>
+        <th>Name</th>
+        <th>Group</th>
+        <th>New Name</th>
+        <th>New Description</th>
+      </tr>
+      <% f.fields_for :experiments do |exp| %>
+      <% exp_count +=1 %>
+        <tr>
+          <td><%= "#{exp_count} )" %></td>
+          <td><%= exp.object.name %></td>
+          <td><%= exp.collection_select :group_id, @groups, :id, :name %><br/></td>
+          <td><%= exp.text_field :name %></td>
+          <td><%= exp.text_area :description, :size => "30x1" %></td>
+        </tr>
+      <% end %>
+    </table>
+    
     <%= f.submit %> |
     <%= link_to 'Cancel',:back %>
   <% end %>
