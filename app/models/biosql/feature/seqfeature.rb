@@ -633,7 +633,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   
   def correlated_search(ability,opts={})
     return nil if feature_counts.nil?
-    total_feature_counts = feature_counts.length
+    total_feature_counts = feature_counts.accessible_by(ability).length
     authorized_id_set = ability.authorized_seqfeature_ids
     authorized_id_set=[-1] if authorized_id_set.empty?
     value_type=opts[:value_type]||'normalized_count'
@@ -641,7 +641,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     page=opts[:page]||1
     x_sum = 0
     xsquare = 0
-    ordered_counts = feature_counts.order("experiment_id")
+    ordered_counts = feature_counts.order("experiment_id").accessible_by(ability)
     ordered_counts.each do |feature_count|
       x = feature_count.send(value_type).to_f
       x_sum += x
@@ -694,10 +694,8 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     end
   end
   # Returns the correlation between two hits with the same samples
-  # order by function result is not returned in search so we have to compute the correlation again for view
-  def get_correlation(compared_hit,opts={})
-    ordered_counts = feature_counts.order("experiment_id")
-    total_feature_counts = feature_counts.length
+  def get_correlation(compared_hit,f_counts,opts={})
+    total_feature_counts = f_counts.length
     # Default to normalized values
     value_type=opts[:value_type]||'normalized_count'
     # Initialize the variables
@@ -705,7 +703,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     # grab the counts for this hit
     compared_values = []
     ordered_values = []
-    ordered_counts.each do |f_count|
+    f_counts.each do |f_count|
       ordered_values.push(f_count.send(value_type).to_f)
       compared_values.push(compared_hit.stored(value_type+'s',"exp_#{f_count.experiment_id}").to_f)
     end
@@ -725,6 +723,13 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     r =  ( sxy / (Math.sqrt(sxx)*Math.sqrt(syy)) )
     return (r*r).round(4)
   end
+  # Computes the sum of all experiments for the supplied hit and feature_counts
+  def get_sum(hit,f_counts,opts={})
+    # Default to normalized values
+    value_type=opts[:value_type]||'normalized_count'
+    # Sum the counts
+    f_counts.inject(0){|sum,f_count| sum+hit.stored(value_type+'s',"exp_#{f_count.experiment_id}").to_f}.round(2)
+  end
   # returns formatted counts for all coexpressed features
   # [{:id,:name,:description,:correlation,:sample1,:sample2,...}]
   def corr_search_to_matrix(corr_search,f_counts,opts={})
@@ -739,7 +744,9 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
         :id => hit.stored(:id),
         :locus => Array(hit.stored(:locus_tag_text)).first,
         :description => desc,
-        :corr => get_correlation(hit)
+        :corr => get_correlation(hit,f_counts,opts),
+        :sum => (sum = get_sum(hit,f_counts,opts)),
+        :avg => (sum / f_counts.length).round(2)
       }
       item[:values]=[]
       f_counts.each do |f_count|

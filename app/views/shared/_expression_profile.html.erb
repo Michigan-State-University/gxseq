@@ -92,7 +92,7 @@
         id: '1',
         name: 'Name',
         field: 'locus',
-        sortable: false,
+        sortable: true,
         selectable: false,
         formatter: linkFormatter
       },
@@ -101,14 +101,21 @@
         name: 'Definition',
         field: 'description',
         width: 350,
-        sortable: false,
+        sortable: true,
         selectable: false
       },
       {
         id: '3',
         name: 'Correlation',
         field: 'corr',
-        sortable: false,
+        sortable: true,
+        selectable: false
+      },
+      {
+        id: '4',
+        name: 'AVG RPKM',
+        field: 'avg',
+        sortable: true,
         selectable: false
       }
     ]

@@ -17,32 +17,32 @@ d3.slickline = function(config){
     autoEdit: false
   };
 
-  var dataView = new Slick.Data.DataView();
-  var grid = new Slick.Grid(grid_selector, dataView, columns, options);
-  var pager = new Slick.Controls.Pager(dataView, grid, $(page_selector));
+  // var dataView = new Slick.Data.DataView();
+  // var grid = new Slick.Grid(grid_selector, dataView, columns, options);
+  // var pager = new Slick.Controls.Pager(dataView, grid, $(page_selector));
   
-  grid.setSelectionModel(Slick.RowSelectionModel);
+  
   // wire up model events to drive the grid
-  dataView.onRowCountChanged.subscribe(function (e, args) {
-    grid.updateRowCount();
-    grid.render();
-  });
+  // dataView.onRowCountChanged.subscribe(function (e, args) {
+  //   grid.updateRowCount();
+  //   grid.render();
+  // });
+  // 
+  // dataView.onRowsChanged.subscribe(function (e, args) {
+  //   grid.invalidateRows(args.rows);
+  //   grid.render();
+  // });
   
-  dataView.onRowsChanged.subscribe(function (e, args) {
-    grid.invalidateRows(args.rows);
-    grid.render();
-  });
-  
-  function gridUpdate(data) {
-    dataView.beginUpdate();
-    dataView.setItems(data);
-    dataView.endUpdate();
-  };
-  
+  // function gridUpdate(data) {
+  //   dataView.beginUpdate();
+  //   dataView.setItems(data);
+  //   dataView.endUpdate();
+  // };
+      
   var display = function(error,rawData){
-    
-    gridUpdate(rawData);
-    
+    var grid = new Slick.Grid(grid_selector, rawData, columns, options);
+    //gridUpdate(rawData);
+    grid.setSelectionModel(Slick.RowSelectionModel);
     // highlight row in linechart on change
     grid.onMouseEnter.subscribe(function(e,args) {
       var i = grid.getCellFromEvent(e).row;
@@ -57,10 +57,23 @@ d3.slickline = function(config){
       graph:graph_selector,
       path:path,
       tooltip:tooltip,
-      mouseover:function(){
-        grid.scrollRowIntoView(this);
-        grid.setActiveCell(this,1);
+      mouseclick:function(){
+        idx = rawData.indexOf(this);
+        grid.scrollRowIntoView(idx);
+        grid.setActiveCell(idx,1);
       }})
+    //Sort handler
+    grid.onSort.subscribe(function(e, args){ // args: sort information. 
+      var field = args.sortCol.field;
+      rawData.sort(function(a, b){
+          var result = 
+              a[field] > b[field] ? 1 :
+              a[field] < b[field] ? -1 :
+              0;
+          return args.sortAsc ? result : -result;
+      });
+      grid.invalidate();         
+    });
     // Render chart
     linechart.render(rawData);
   }

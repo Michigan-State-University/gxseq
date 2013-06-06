@@ -5,6 +5,7 @@ d3.linechart = function(config){
   containerId = config.graph;
   tooltipName = config.tooltip;
   mouseoverFunc = config.mouseover;
+  mouseclickFunc = config.mouseclick;
   // Setup global values
   var selection = d3.select(containerId);
   var m = config.margins || [0, 60, 100, 80]; // margins
@@ -12,6 +13,11 @@ d3.linechart = function(config){
   height = selection.property('scrollHeight') - m[0] - m[2];
   var lineColor = "#069";
   var highlightColor = "#f70";
+  
+  function mouseclick(data,idx) {
+    var item = d3.select(this);
+    if(mouseclickFunc){mouseclickFunc.call(item.datum());}
+  }
   function mouseover(data,idx) {
     var item = d3.select(this);
     if(mouseoverFunc){mouseoverFunc.call(idx);}
@@ -106,7 +112,8 @@ d3.linechart = function(config){
       .attr("d", function(d) { return line(d.values)})
       .on("mouseover", mouseover)
       //.on("mousemove", mousemove)
-      .on("mouseout", mouseout);
+      .on("mouseout", mouseout)
+      .on("click",mouseclick);
   };
   
   return chart;
