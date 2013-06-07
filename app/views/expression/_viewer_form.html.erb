@@ -17,7 +17,7 @@
     	</span>
     	
     	<span style="float:right">
-    	<%= number_with_delimiter(experiment.total_count) %></span>
+    	<%= number_to_human(experiment.total_count,precision: 2) %></span>
     </div>
   <% end %>
   <hr/ style="clear:both">

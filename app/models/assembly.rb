@@ -35,9 +35,13 @@ class Assembly < ActiveRecord::Base
   def name_with_version
     "#{name} ( #{version} )"
   end
-  # returns scientific name of species
+  # returns scientific name of taxon or strain
   def name
     taxon.name
+  end
+  # returns the scientific name of the species
+  def species_name
+    species.name
   end
   # returns an array of all source terms used by features under this taxon
   def source_terms
