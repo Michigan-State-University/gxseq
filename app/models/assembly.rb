@@ -1,6 +1,6 @@
 class Assembly < ActiveRecord::Base
   has_many :bioentries, :class_name => "Biosql::Bioentry", :order => "name asc", :dependent => :destroy
-  has_many :experiments, :order => "experiments.type asc, experiments.name desc"
+  has_many :experiments
   #TODO experiment STI - can this be dynamic?
   has_many :chip_chips, :order => "experiments.name asc"
   has_many :chip_seqs, :order => "experiments.name asc"

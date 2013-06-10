@@ -36,12 +36,13 @@
       <% exp_count = 0 %>
       <tr>
         <th>#</th>
-        <th>Name</th>
-        <th>Group</th>
+        <th><%= sort_link "Name", "experiments.name" %></th>
+        <th><%= sort_link "Group", "groups.name" %></th>
         <th>New Name</th>
         <th>New Description</th>
       </tr>
-      <% f.fields_for :experiments do |exp| %>
+      <% f.fields_for :experiments, @experiments do |exp| %>
+      <%= exp.error_messages %>
       <% exp_count +=1 %>
         <tr>
           <td><%= "#{exp_count} )" %></td>

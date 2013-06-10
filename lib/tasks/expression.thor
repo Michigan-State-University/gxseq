@@ -75,7 +75,7 @@ class Expression < Thor
       items << dataset
     end
     # check existing counts
-    if (counts = experiment.feature_counts.includes(:seqfeature).where{upper(seqfeature.display_name)==my{options[:feature]}}.count) == 0
+    if (counts = experiment.feature_counts.includes(:seqfeature).where{seqfeature.display_name==my{options[:feature]}}.count) == 0
       puts "Experiment looks good"
     else
       case options[:existing]

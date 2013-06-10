@@ -1,8 +1,7 @@
 class AssembliesController < ApplicationController
-  
   load_and_authorize_resource
   before_filter :find_assembly, :only => [:show, :edit, :update]
-
+  before_filter :load_assoc, :only => [:edit,:update]
   def index
     respond_to do |wants|
       wants.html {
@@ -17,7 +16,7 @@ class AssembliesController < ApplicationController
   end
 
   def edit
-    @groups = Group.all
+
   end
 
   def update
@@ -40,5 +39,10 @@ class AssembliesController < ApplicationController
     def find_assembly
       @assembly = Assembly.find(params[:id])
     end
-
+    def load_assoc
+      @groups = Group.all
+      order_d = (params[:d]=='up' ? 'asc' : 'desc')
+      @experiments = @assembly.experiments.includes(:group).order("#{params[:c]||'groupsls
+      .name'} #{order_d}").order("experiments.name")
+    end
 end
