@@ -13,7 +13,7 @@ class Assembly < Thor
   def dump_gene_coords
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     # lookup assembly
-    assembly = ::Assembly.find(options[:assembly])
+    assembly = ::Assembly.where{ id==my{options[:assembly]} }
     # Set output
     out = File.open(options[:output],'w')
     # Grab all the Genes - use unique l_strand to avoid calling Seqfeature::strand method during output
