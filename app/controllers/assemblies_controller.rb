@@ -42,7 +42,6 @@ class AssembliesController < ApplicationController
     def load_assoc
       @groups = Group.all
       order_d = (params[:d]=='up' ? 'asc' : 'desc')
-      @experiments = @assembly.experiments.includes(:group).order("#{params[:c]||'groupsls
-      .name'} #{order_d}").order("experiments.name")
+      @experiments = @assembly.experiments.includes(:group).order("#{params[:c]||'groups.name'} #{order_d}").order("experiments.name")
     end
 end
