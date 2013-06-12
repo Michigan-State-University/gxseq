@@ -119,14 +119,17 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
 
   # GET /seqfeatures/1/edit
   def edit
-    # Gene features have special edit pages
     authorize! :update, @seqfeature
     if request.xhr?
       setup_xhr_form
       #@seqfeature.qualifiers.build
       render :partial => 'form'
     elsif @seqfeature.kind_of?(Biosql::Feature::Gene)
+      # Gene features have special edit pages
       redirect_to edit_gene_path(@seqfeature)
+    end
+    if @seqfeature.locations.empty?
+      @seqfeature.locations.build
     end
   end
 
@@ -145,21 +148,19 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
   # PUT /seqfeatures/1
   def update
     authorize! :update, @seqfeature
-    respond_to do |wants|
-      if @seqfeature.update_attributes(params[:biosql_feature_seqfeature])
-        if request.xhr?
-          wants.html { render :text => "success" }
-        else
-          flash[:notice] = 'Seqfeature was successfully updated.'
-          wants.html { redirect_to(@seqfeature.becomes(Biosql::Feature::Seqfeature)) }
-        end
+    if @seqfeature.update_attributes(params[:seqfeature])
+      if request.xhr?
+        render :text => "success"
       else
-        if request.xhr?
-          setup_xhr_form
-          wants.html { render :partial => "form" }
-        else
-          wants.html { render :action => "edit" }
-        end
+        flash[:notice] = 'Seqfeature was successfully updated.'
+        redirect_to edit_seqfeature_path(@seqfeature), :notice => 'Seqfeature was successfully updated.'
+      end
+    else
+      if request.xhr?
+        setup_xhr_form
+        render :partial => "form"
+      else
+        render :action => "edit"
       end
     end
   end

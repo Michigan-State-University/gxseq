@@ -38,10 +38,6 @@
   			  <% begin %>
   				<%= number_line(@view_start, @canvas_width, {:height => 40,:per_pixel => @gui_zoom}) %>
   				<%= @gui_zoom.to_s+ ":1" %>
-  				<% rescue %>
-  				  Can't Render position
-  				<% end %>
-  				<% begin %>
   				<%= render :partial => 'graphic' %>
   				<% rescue %>
   				  Can't Render Graphic
