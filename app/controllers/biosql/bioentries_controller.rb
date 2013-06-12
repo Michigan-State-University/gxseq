@@ -28,7 +28,7 @@ class Biosql::BioentriesController < ApplicationController
         # NOTE: change to streaming Enumerator for rails 3.2
         self.response_body = proc {|resp, out|
           fasta_search.hits.each_slice(100) do |hits|
-            Biosql::Bioentry.where(:bioentry_id => hits.map{|h| h.stored(:id)}).includes(:biosequence).each do |entry|
+            Biosql::Bioentry.where(:bioentry_id => hits.map{|h| h.stored(:id)}).includes(:biosequence_without_seq).each do |entry|
               # write the entry header
               out.write entry.fasta_header
               # write each line of sequence
@@ -49,7 +49,7 @@ class Biosql::BioentriesController < ApplicationController
         # use custom proc for response body
         self.response_body = proc {|resp, out|
           genbank_search.hits.each_slice(100) do |hits|
-            Biosql::Bioentry.where(:bioentry_id => hits.map{|h| h.stored(:id)}).includes(:biosequence).each do |entry|
+            Biosql::Bioentry.where(:bioentry_id => hits.map{|h| h.stored(:id)}).includes(:biosequence_without_seq).each do |entry|
               # write the entry header
               out.write entry.genbank_header
               # process the features in batches (for manageable includes)

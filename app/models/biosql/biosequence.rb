@@ -47,11 +47,16 @@ class Biosql::Biosequence < ActiveRecord::Base
   end
   
   def yield_fasta(opts={})
+    chunk_size = opts[:chunk]||10000
     seq_pos = 0
     while(seq_pos < [opts[:length],self.length].compact.min)
-      line = get_seq(seq_pos,100)
-      yield "#{line}\n"
-      seq_pos +=100
+      data = get_seq(seq_pos,chunk_size)
+      data_pos = 0
+      while(line=data[data_pos,100])
+        yield "#{line}\n"
+        data_pos+=100
+      end
+      seq_pos+=chunk_size
     end
   end
 
