@@ -52,7 +52,7 @@ class Biosql::Biosequence < ActiveRecord::Base
     while(seq_pos < [opts[:length],self.length].compact.min)
       data = get_seq(seq_pos,chunk_size)
       data_pos = 0
-      while(line=data[data_pos,100])
+      while(data_pos<data.length&&line=data[data_pos,100])
         yield "#{line}\n"
         data_pos+=100
       end
