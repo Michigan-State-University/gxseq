@@ -146,7 +146,7 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
   def update
     authorize! :update, @seqfeature
     respond_to do |wants|
-      if @seqfeature.update_attributes(params[:seqfeature])
+      if @seqfeature.update_attributes(params[:biosql_feature_seqfeature])
         if request.xhr?
           wants.html { render :text => "success" }
         else

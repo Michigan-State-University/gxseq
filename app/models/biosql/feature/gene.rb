@@ -68,6 +68,7 @@ class Biosql::Feature::Gene < Biosql::Feature::Seqfeature
     end
     vals.compact.uniq.join("; ").presence
   end
+  
   # returns an array of all possible start locations in this gene
   def possible_starts(padding=300)
     starts=[]

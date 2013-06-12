@@ -135,13 +135,16 @@ class Biosql::Feature::GenesController < ApplicationController
   def edit
     @format = 'edit'
     authorize! :update, @gene
+    if @gene.locations.empty?
+      @gene.locations.build
+    end
   end
   
   def update
     authorize! :update, @gene
     begin
       Biosql::Feature::Gene.transaction do
-        if(@gene.update_attributes(params[:gene]))
+        if(@gene.update_attributes(params[:biosql_feature_gene]))
           redirect_to [:edit,@gene], :notice => "Gene Updated successfully"
         else
           flash.now[:warning]="Oops, something wasn't right. Check below..."
@@ -212,15 +215,18 @@ class Biosql::Feature::GenesController < ApplicationController
     begin
       #get gene and attributes
       @gene = Biosql::Feature::Gene.find(params[:id], :include => [:locations, [:bioentry => [:assembly]],[:gene_models => [:cds => [:locations, [:qualifiers => :term]],:mrna => [:locations, [:qualifiers => :term]]]],[:qualifiers => :term]])
-      setup_graphics_data      
+      unless @gene.locations.empty?
+        setup_graphics_data
+      end
       @locus = @gene.locus_tag.value.upcase
       @bioentry = @gene.bioentry
-      @annotation_terms = Biosql::Term.annotation_tags.order(:name).reject{|t|t.name=='locus_tag'}      
+      @annotation_terms = Biosql::Term.annotation_tags.order(:name).reject{|t|t.name=='locus_tag'}
+      @src_terms = Biosql::Term.source_tags      
       seq_src_ont_id = Biosql::Term.seq_src_ont_id
       #TODO: Document seqfeature 'Source' uses and options for expansion
       @seq_src_term_id = Biosql::Term.default_source_term.id
-    rescue
-      logger.error "\n\n#{$!}\n\n#{caller.join("\n")}\n\n"
+    rescue => e
+      logger.error "\n\n#{$!}\n\n#{e.backtrace.join("\n")}\n\n"
     end
   end
   
@@ -233,7 +239,7 @@ class Biosql::Feature::GenesController < ApplicationController
     @gui_zoom = (gene_size/700).floor + 2    
     @view_start = @gene.min_start - (50*@gui_zoom)
     @gui_data = GeneModel.get_canvas_data(@view_start,@view_start+(@canvas_width*@gui_zoom),@gene.bioentry.id,@gui_zoom,@gene.strand,limit)
-    @depth =  @gui_data.collect{|g|g[:variants]}.max + 1
+    @depth =  (@gui_data.collect{|g|g[:variants]}.max||0) + 1
     #@depth = @gui_data.collect{|g| (g[:x2]>=(@gene.min_start-@view_start)/@gui_zoom && g[:x]<=(@gene.max_end-@view_start)/@gui_zoom) ? 1 : nil}.compact.size
     @canvas_height = ( @depth * (@model_height * 2))+10 # each model and label plus padding
     @gui_data=@gui_data.to_json
