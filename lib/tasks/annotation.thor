@@ -8,6 +8,7 @@ class Annotation < Thor
   method_option :ontology, :aliases => '-o', :required => true, :desc => 'Name or Id of ontology for new terms'
   method_option :skip_missing, :aliases => '-s', :default => false, :desc => 'Supply flag to skip missing items.'
   method_option :test, :aliases => '-t', :default => false, :desc => "Supply to perform test only run with no data changes"
+  method_option :verbose, :aliases => '-v', :default => false, :desc => "Supply for verbose output"
   def tag_blast(input_file)
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     require 'csv'
@@ -72,6 +73,7 @@ class Annotation < Thor
       items.each do |key,values|
         # grab Seqfeatures using seqfeature ids from reports with this key
         features = Biosql::Feature::Seqfeature.where{seqfeature_id.in(BlastReport.select('seqfeature_id').where{hit_acc==my{key}}.where{blast_run_id==my{blast_run.id}})}
+        puts "#{features.length} features with blast_hit #{key}" if options[:verbose]
         features.each do |feature|
           if(options[:feature_type]&&feature.display_name!=options[:feature_type])
             next
