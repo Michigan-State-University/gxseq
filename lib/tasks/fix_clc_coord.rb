@@ -23,6 +23,7 @@ while bam_line = bam_view_out.gets
   printf "--#{count}\r" if count%10000==0
   sam_data = bam_line.split("\t")
   id=sam_data[2]
+  puts id unless hsh[id]
   strand=hsh[id][4].to_i
   # Set Reference name to chromosome instead of Gene
   sam_data[2]=hsh[id][3]
