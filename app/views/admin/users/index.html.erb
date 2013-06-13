@@ -24,7 +24,7 @@
   	  	<th width="20%"><%= sort_link "Email", :email %></th>
     		<th width="10%"><%= sort_link "Login", :login %></th>
       	<th width="12%"><%= sort_link "Created", :created_at %></th>
-				<th width="15%"><%= sort_link "Last Login", :last_sign_in_at %></th>
+				<th width="15%"><%= sort_link "Last Session", :current_sign_in_at %></th>
   			<th>Options</th>
   	</thead>
   
@@ -33,7 +33,7 @@
 		  	<td class="style2"><%= user.email %></th>
     		<td class="style3"><%= link_to user.login, user %></td>
     		<td class="style3"><%= user.created_at.strftime('%b %d \'%y') %></td>
-				<td ><%= user.last_sign_in_at.strftime('%b %d %I:%M %p') if user.last_sign_in_at %></td>
+				<td ><%= user.current_sign_in_at.strftime('%b %d %I:%M %p') if user.current_sign_in_at %></td>
 	    	<td class="style1">
 				  <%= link_to '[Show]', :action => 'show', :id => user %>
 					<%= mail_to user.email, "[Email]" %>

@@ -404,8 +404,7 @@ class GeneModel < ActiveRecord::Base
     self.locus_tag = self.gene.locus_tag.try(:value)
     self.strand = self.gene.strand
   end
-  
-  
+  # Removes all gene models in the db and then calls generate
   def self.generate!
     l = "Removing all existing Gene Models";puts l;logger.info "\n\n#{l}\n\n"
     self.delete_all
@@ -416,13 +415,17 @@ class GeneModel < ActiveRecord::Base
   def self.generate
     # Count the genes needing a model
     puts "There are #{genes_without_model.count} genes without Gene Models"
-    # Check for consistency - default to 
-    if(new_genes_with_locus.count != genes_without_model.count)
+    return if genes_without_model.count==0
+    # First Try Parent<->ID assoc
+    puts "Trying Parent <-> ID lookup"
+    generate_models_from_parent
+    return if genes_without_model.count==0
+    if(new_genes_with_locus.count == genes_without_model.count)
+      # Try to locus generation
+      generate_models_from_locus
+    else
       puts "#{genes_without_model.count - new_genes_with_locus.count} genes do not have a locus_tag!"
       generate_from_prompt
-    else
-      # Default to locus generation
-      generate_models_from_locus 
     end
   end
   # asks the user for input on how to generate gene models.

@@ -152,7 +152,6 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
       if request.xhr?
         render :text => "success"
       else
-        flash[:notice] = 'Seqfeature was successfully updated.'
         redirect_to edit_seqfeature_path(@seqfeature), :notice => 'Seqfeature was successfully updated.'
       end
     else

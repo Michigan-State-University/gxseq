@@ -5,7 +5,6 @@ class Experiment < ActiveRecord::Base
   belongs_to :assembly
   belongs_to :group
   belongs_to :concordance_set
-  # TODO: Test this
   has_many :bioentries, :through => :concordance_items
   #has_many :bioentries, :finder_sql => 'select b.* from bioentries_experiments be left outer join bioentry b on be.bioentry_id = b.bioentry_id where be.experiment_id =#{id}'
   has_many :assets, :dependent => :destroy

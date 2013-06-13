@@ -223,7 +223,6 @@ class Biosql::Feature::GenesController < ApplicationController
       @annotation_terms = Biosql::Term.annotation_tags.order(:name).reject{|t|t.name=='locus_tag'}
       @src_terms = Biosql::Term.source_tags      
       seq_src_ont_id = Biosql::Term.seq_src_ont_id
-      #TODO: Document seqfeature 'Source' uses and options for expansion
       @seq_src_term_id = Biosql::Term.default_source_term.id
     rescue => e
       logger.error "\n\n#{$!}\n\n#{e.backtrace.join("\n")}\n\n"

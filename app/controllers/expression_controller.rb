@@ -166,7 +166,7 @@ class ExpressionController < ApplicationController
       "Blast Reports" => @blast_runs.collect{|run|[run.name,"blast_#{run.id}"]},
       'Annotation' => [['Description','description']]
     }
-    # TODO: Replace with Faceted search for speed and numbered results, would require term and/or ontology index
+    # Could be replaced with Faceted search for speed and numbered results, would require term and/or ontology index
     # Get all the annotations in use by an assembly feature.
     anno_terms = Biosql::Term.select('distinct term.term_id, term.name')
       .joins(:ontology,[:qualifiers => [:seqfeature => :bioentry]])

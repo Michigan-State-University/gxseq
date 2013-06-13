@@ -180,6 +180,7 @@ GenomeSuite::Application.routes.draw do
   # Administrator
   namespace :admin do
     root :controller => "jobs", :action => "index"
+    resources :concordance_sets
     resources :users
     resources :roles
     resources :jobs do

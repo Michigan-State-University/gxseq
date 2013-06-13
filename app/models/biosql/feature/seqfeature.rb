@@ -164,7 +164,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   def label_type
     ''
   end
-  # TODO: Refactor / Audit display_name,display_type,label,name etc.. too many variations
+  # TODO: Refactor / Audit display_name,display_type,label,name etc.. too many variations maybe move to draper gem
   def display_type
    self.type_term.name
   end
@@ -721,7 +721,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     sxy = product - ((xsum*ysum)/total_feature_counts)
     # Return r squared the Pearsone Correlation Coefficient
     r =  ( sxy / (Math.sqrt(sxx)*Math.sqrt(syy)) )
-    return (r*r).round(4)
+    return r.round(4)
   end
   # Computes the sum of all experiments for the supplied hit and feature_counts
   def get_sum(hit,f_counts,opts={})
@@ -744,7 +744,8 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
         :id => hit.stored(:id),
         :locus => Array(hit.stored(:locus_tag_text)).first,
         :description => desc,
-        :corr => get_correlation(hit,f_counts,opts),
+        :r => (r=get_correlation(hit,f_counts,opts)),
+        :r2 => (r*r).round(4),
         :sum => (sum = get_sum(hit,f_counts,opts)),
         :avg => (sum / f_counts.length).round(2)
       }

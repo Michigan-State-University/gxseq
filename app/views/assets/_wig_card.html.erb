@@ -6,6 +6,10 @@
 			</p>
 			<br/>
 			<p>
+			 <b>Chroms:</b>
+			 <%= `grep "chrom" #{@asset.data.path}`.split("\n").length %>
+			</p>
+			<p>
 				<b>Size:</b>
 				<%= number_to_human_size(asset.data_file_size) %>
 			</p>

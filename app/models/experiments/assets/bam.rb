@@ -31,7 +31,7 @@ class Bam < Asset
   end
   
   # NOTE does NOT work with delayed_job background tasks
-  # TODO: Test this again, document results and reasons
+  # TODO: Test background task again, document results and reasons
   # returns hash of index data
   # { "sequence_1"  => {:length => 1000, :unmapped_reads => 10, :mapped_reads => 1000}, ... }
   def index_stats

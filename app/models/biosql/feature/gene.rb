@@ -90,9 +90,8 @@ class Biosql::Feature::Gene < Biosql::Feature::Seqfeature
     end
     return starts
   end
-  
+  #TODO: test this method against new inverse_of association setting
   def initialize_associations
-    #TODO: test this method against new inverse_of association setting
     self.gene_models.each{|gm| gm.gene=self; gm.bioentry=self.bioentry}
     super
   end

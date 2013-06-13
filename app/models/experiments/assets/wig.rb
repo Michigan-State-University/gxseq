@@ -1,5 +1,4 @@
 class Wig < Asset
-  # TODO: requires FileManager can we remove this
   # convert wig to big_wig and save as a new asset
   def create_big_wig(chrom_file_path)
     begin
@@ -10,7 +9,6 @@ class Wig < Asset
       puts "Error: could not convert wig to BigWig #{Time.now}"
     end
   end
-  
   # removes any generated data and updates state
   def unload
     remove_temp_files

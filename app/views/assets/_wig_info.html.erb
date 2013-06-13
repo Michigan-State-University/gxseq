@@ -1,0 +1,5 @@
+<h2 class="smalltitle">Chrom Line</h2>
+<%= `grep "chrom" #{@asset.data.path}`.split("\n").join(" <br/> ").html_safe %>
+
+<h2 class="smalltitle">Track Line</h2>
+<%= `grep "track" #{@asset.data.path}`.split("\n").join(" <br/> ").html_safe %>

@@ -23,7 +23,6 @@ class Biosql::Biosequence < ActiveRecord::Base
       return seq
     else
       # Check if seq is filled in or if we have removed it from the query using biosequence_without_seq association
-      # TODO: Test fallback for large biosequence
       s = self.has_attribute?(:seq) ? self.seq : Biosql::Biosequence.find(self.id).seq
       return s[start_pos,length]
     end

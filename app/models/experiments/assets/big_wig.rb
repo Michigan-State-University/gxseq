@@ -175,7 +175,7 @@ class BigWig < Asset
     end
     puts "\n#{peak_count} peaks identified"
 
-    #begin summit calculations (tip of peak range)  #TODO add peak width and iterate to refine possible plataeu peaks
+    #begin summit calculations (tip of peak range)
     puts "locating peak summits #{Time.now} "
     peaks.each_with_index do |p, i| 
       peak_maximum = max(chrom)

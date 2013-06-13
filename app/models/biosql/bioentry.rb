@@ -232,7 +232,7 @@ class Biosql::Bioentry < ActiveRecord::Base
     unless comments.empty?
       text+="COMMENT".ljust(12)+comments.map(&:comment_text).join(";").break_and_wrap_text(62,"\n",13,false)+"\n"
     end
-    # TODO: Add References
+    # TODO: Add References to genbank output
     text+="FEATURES".ljust(21)+"Location/Qualifiers\n"
   end
   
