@@ -178,7 +178,7 @@ class BigWig < Asset
     #begin summit calculations (tip of peak range)
     puts "locating peak summits #{Time.now} "
     peaks.each_with_index do |p, i| 
-      peak_maximum = summary_data(p[0],p[1],1,chrom,{:type => 'max'}).first.to_f || 0
+      peak_maximum = summary_data(p[0],p[1],1,chrom,'max',{:type => 'max'}).first.to_f || 0
       summit_positions = find_match_in_range(p[0],p[1],peak_maximum,chrom,opt[:error])
       if summit_positions.empty?
         puts "Warning couldn't identify summit in (#{p[0]},#{p[1]})"
@@ -201,7 +201,7 @@ class BigWig < Asset
       x1 = x2
       x2 = t
     end
-    summary_data(x1,x2,(x2-x1),chrom,{:type => 'max'}).each_with_index do |val,i|
+    summary_data(x1,x2,(x2-x1),chrom,'max',{:type => 'max'}).each_with_index do |val,i|
       if ( (match-error) <= val.to_f && val.to_f <= (match+error) )
         a << (i+x1)
       end
