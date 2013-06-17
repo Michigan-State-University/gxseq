@@ -55,19 +55,11 @@ class Bam < Asset
   end
   # counts the total number of mapped reads in the bam
   def total_mapped_reads
-    return [] unless bam = open_bam
-    stats = bam.flagstat
-    bam.close
-    return stats[:n_mapped][0]+stats[:n_mapped][1]
+    index_stats.inject(0){|sum,info| sum+=info[1][:mapped_reads]}
   end
   # counts the total number of un-mapped reads in the bam
   def total_unmapped_reads
-    return [] unless bam = open_bam
-    stats = bam.flagstat
-    bam.close
-    total_reads = stats[:n_reads][0]+stats[:n_reads][1]
-    total_mapped = stats[:n_mapped][0]+stats[:n_mapped][1]
-    return total_reads - total_mapped
+    index_stats.inject(0){|sum,info| sum+=info[1][:unmapped_reads]}
   end
   # returns reads overlapping the supplied region
   def get_reads(left,right,seq)
