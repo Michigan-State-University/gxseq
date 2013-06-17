@@ -1,0 +1,40 @@
+<% content_for :head do %>
+	<%= stylesheet_link_tag 'formtastic', 'formtastic_overrides' %>
+<% end %>
+
+<%= render :partial => "admin/sidebar" %>
+
+<% content_for :top_bar do %>
+	<h1 class="pagetitle">Edit Concordance: <%= @concordance_set.id %></h1>
+<% end %>
+
+<% content_for :item_bar do -%>
+  <%= link_to "Cancel", admin_concordance_sets_path, :class => "button" %>
+<% end -%>
+
+<% semantic_form_for [:admin,@concordance_set] do |f| -%>
+
+  <%= f.inputs do %>
+    <%= f.object.assembly.name_with_version %><br/><br/>
+    <%= f.input :name %>
+  <% end %>
+  
+  <hr/><br/>
+  
+  <div class="pagination">
+    <span style="float:left"><%= will_paginate(@concordance_items) %></span>
+    <span style="float:right;margin-right:2em"><%= number_with_delimiter(@concordance_items.count) %> Entries</span>
+  </div>
+  <br/><br/>
+  <%= f.semantic_fields_for :concordance_items, @concordance_items do |i| %>
+    <%= i.inputs do %>
+      <%= i.input :reference_name %>
+      <%= i.object.bioentry.name%>
+    <% end %>
+  <% end %>
+  
+  <%= f.actions do %>
+    <%= f.action :submit, :label => "Submit", :button_html => {:class => 'button'} %>
+  <% end %>
+  
+<% end -%>

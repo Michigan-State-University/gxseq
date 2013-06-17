@@ -1,0 +1,33 @@
+<%= render :partial => "admin/sidebar" %>
+
+<% content_for :top_bar do %>
+	<h1 class="pagetitle">Concordance Sets</h1>
+<% end %>
+
+<% content_for :item_bar do %>
+  <%= link_to 'New Concordance', new_admin_concordance_set_path, :class => 'button' %>
+<% end %>
+
+<div class="table">
+  <table class='listing'>
+    <thead>
+      <th><%= sort_link "Name", :name %></th>
+      <th><%= sort_link "ID", :id %></th>
+      <th><%= sort_link "Species", "taxon_name.name" %></th>
+      <th>Items</th>
+      <th>Options</th>
+    </thead>
+
+    <% @concordance_sets.each do |concord| %>
+      <tr>
+        <td><%= concord.name %></td>
+        <td><%= concord.id %></td>
+        <td><%= concord.assembly.taxon.name + " > " + concord.assembly.version%></td>
+        <td><%= concord.concordance_items.count %></td>
+        <td>
+          <%= link_to "Edit", edit_admin_concordance_set_path(concord) %>
+        </td>
+      </tr>
+    <% end %>
+  </table>
+</div>

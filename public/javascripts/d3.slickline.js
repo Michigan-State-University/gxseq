@@ -50,7 +50,9 @@ d3.slickline = function(config){
       linechart.highlight(d[i].id);
     });
     grid.onMouseLeave.subscribe(function(e,args) {
-      linechart.unhighlight();
+      var i = grid.getCellFromEvent(e).row;
+      var d = rawData;
+      linechart.unhighlight(d[i].id);
     }); 
     // Setup chart with handler
     var linechart = d3.linechart({

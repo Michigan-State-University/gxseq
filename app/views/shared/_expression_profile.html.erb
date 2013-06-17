@@ -24,7 +24,7 @@
 	path {
 		fill: none;
 	}
-	.axis {
+	.axis, .brush {
 	  shape-rendering: crispEdges;
 	}
 	.x.axis line {
@@ -39,10 +39,18 @@
 	  fill: none;
 	  stroke: #000;
 	}
+	.y.brush line, .y.brush path {
+	  fill: none;
+	  stroke: #000;
+	}
+  .extent {
+    fill: rgba(150,150,150,0.5);
+    stroke: rgba(0,0,0,0.6);
+  }
 	div.tooltip {
     position: absolute;
     text-align: center;
-    width: 60px;
+/*    width: 60px;*/
     height: 12px;
     padding: 8px;
     font: 10px sans-serif;
@@ -75,7 +83,7 @@
   }
 </style>
 
-<div id="example" class="parcoords" style="height:300px;"></div>
+<div id="graph" class="slickline" style="height:300px;"></div>
 <div id="pager"></div>
 <div id="grid"></div>
 <script type='text/javascript'>
@@ -83,7 +91,7 @@
           return '<a href="' + dataContext['id'] + '?fmt=expression">' + value + '</a>';
       };
   slick = d3.slickline({
-    graph: '#example',
+    graph: '#graph',
     grid: '#grid',
     tooltip: 'locus',
     pager: '#pager',

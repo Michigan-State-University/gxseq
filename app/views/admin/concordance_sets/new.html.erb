@@ -1,0 +1,23 @@
+<%= render :partial => "admin/sidebar" %>
+
+<% content_for :head do %>
+	<%= stylesheet_link_tag 'formtastic', 'formtastic_overrides' %>
+<% end %>
+
+<% content_for :top_bar do -%>
+  <h1 class="pagetitle">New Concordance Set</h1>
+<% end -%>
+
+A concordance item will be created for each bioentry in the assembly after saving.
+<% semantic_form_for [:admin,@concordance_set] do |f| -%>
+
+  <%= f.inputs do %>
+    <%= f.input :assembly, :member_label => :name_with_version %><br/><br/>
+    <%= f.input :name %>
+  <% end %>
+  
+  <%= f.actions do %>
+    <%= f.action :submit, :label => "Submit", :button_html => {:class => 'button'} %>
+  <% end %>
+  
+<% end %>
