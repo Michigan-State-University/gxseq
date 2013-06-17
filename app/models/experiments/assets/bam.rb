@@ -56,7 +56,7 @@ class Bam < Asset
   end
   # counts the total number of mapped reads in the bam
   def total_mapped_reads
-    @total_mapped_reads||=index_stats.inject(0){|sum,info| sum+=info[1][:mapped_reads]}
+    index_stats.inject(0){|sum,info| sum+=info[1][:mapped_reads]}
   end
   # counts the total number of un-mapped reads in the bam
   def total_unmapped_reads
