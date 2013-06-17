@@ -1,3 +1,17 @@
+# == Schema Information
+#
+# Table name: tracks
+#
+#  assembly_id    :integer
+#  created_at     :datetime
+#  experiment_id  :integer
+#  id             :integer          not null, primary key
+#  sample         :string(255)
+#  source_term_id :integer
+#  type           :string(255)
+#  updated_at     :datetime
+#
+
 class ReadsTrack < Track
   belongs_to :experiment
   

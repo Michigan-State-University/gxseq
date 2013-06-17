@@ -1,3 +1,15 @@
+# == Schema Information
+#
+# Table name: dbxref
+#
+#  accession  :string(128)      not null
+#  created_at :datetime
+#  dbname     :string(40)       not null
+#  dbxref_id  :integer          not null, primary key
+#  updated_at :datetime
+#  version    :integer          not null
+#
+
 class Biosql::Dbxref < ActiveRecord::Base
   set_table_name "dbxref"
   set_primary_key :dbxref_id
@@ -22,14 +34,3 @@ class Biosql::Dbxref < ActiveRecord::Base
   }
   
 end
-
-# == Schema Information
-#
-# Table name: sg_dbxref
-#
-#  oid       :integer(38)     not null, primary key
-#  dbname    :string(32)      not null
-#  accession :string(64)      not null
-#  version   :integer(2)      default(0), not null
-#
-

@@ -1,3 +1,15 @@
+# == Schema Information
+#
+# Table name: biodatabase
+#
+#  authority      :string(128)
+#  biodatabase_id :integer          not null, primary key
+#  created_at     :datetime
+#  description    :string(4000)
+#  name           :string(128)      not null
+#  updated_at     :datetime
+#
+
 class Biosql::Biodatabase < ActiveRecord::Base
   set_table_name "biodatabase"
   set_primary_key :biodatabase_id
@@ -46,19 +58,4 @@ class Biosql::Biodatabase < ActiveRecord::Base
   
 end
 
-
-
-# == Schema Information
-#
-# Table name: sg_biodatabase
-#
-#  oid         :integer(38)     not null, primary key
-#  name        :string(32)      not null
-#  authority   :string(32)
-#  description :string(256)
-#  acronym     :string(12)
-#  uri         :string(128)
-#  deleted_at  :datetime
-#  updated_at  :datetime
-#
 

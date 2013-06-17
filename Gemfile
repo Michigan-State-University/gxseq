@@ -15,7 +15,7 @@ group :development do
   gem 'mysql2', '~> 0.2.0'
   gem 'railroady'
   gem 'ruby-debug19'
-  gem 'annotate', ">=2.5.0.pre1"
+  gem 'annotate', ">=2.5"
   gem 'better_errors'
   gem 'binding_of_caller'
   # Code analyzers and security

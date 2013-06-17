@@ -4,3 +4,15 @@ class Biosql::BioentryDbxref < ActiveRecord::Base
   belongs_to :bioentry, :class_name => "Bioentry"
   belongs_to :dbxref, :class_name => "Dbxref"
 end
+
+# == Schema Information
+#
+# Table name: bioentry_dbxref
+#
+#  bioentry_id :integer          not null
+#  dbxref_id   :integer          not null
+#  rank        :integer
+#  created_at  :datetime
+#  updated_at  :datetime
+#
+

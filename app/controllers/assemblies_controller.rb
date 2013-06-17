@@ -25,6 +25,8 @@ class AssembliesController < ApplicationController
         flash[:notice] = 'Assembly was successfully updated.'
         wants.html { redirect_to edit_assembly_path(@assembly) }
       else
+        logger.info "\n\n\n\n\n\n\n\n\nNO UPDATE\n\n#{@assembly.errors.inspect}\n\n\n\n"
+        @experiments = @assembly.experiments
         wants.html { render :action => "edit" }
       end
     end

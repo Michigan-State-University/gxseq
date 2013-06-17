@@ -13,3 +13,16 @@ class Biosql::BioentryQualifierValue < ActiveRecord::Base
   end
   
 end
+
+# == Schema Information
+#
+# Table name: bioentry_qualifier_value
+#
+#  bioentry_id :integer          not null
+#  term_id     :integer          not null
+#  value       :string(4000)
+#  rank        :integer          default(0), not null
+#  created_at  :datetime
+#  updated_at  :datetime
+#
+

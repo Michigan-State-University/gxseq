@@ -1,3 +1,14 @@
+# == Schema Information
+#
+# Table name: groups
+#
+#  created_at :datetime
+#  id         :integer          not null, primary key
+#  name       :string(255)
+#  owner_id   :integer
+#  updated_at :datetime
+#
+
 class Group < ActiveRecord::Base
   belongs_to :owner, :class_name => "User", :foreign_key => 'owner_id'
   has_and_belongs_to_many :users

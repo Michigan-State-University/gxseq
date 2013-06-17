@@ -1,3 +1,27 @@
+# == Schema Information
+#
+# Table name: experiments
+#
+#  a_op               :string(255)
+#  assembly_id        :integer
+#  b_op               :string(255)
+#  concordance_set_id :integer
+#  created_at         :datetime
+#  description        :string(2000)
+#  file_name          :string(255)
+#  group_id           :integer
+#  id                 :integer          not null, primary key
+#  mid_op             :string(255)
+#  name               :string(255)
+#  sequence_name      :string(255)
+#  show_negative      :string(255)
+#  state              :string(255)
+#  total_count        :integer
+#  type               :string(255)
+#  updated_at         :datetime
+#  user_id            :integer
+#
+
 class ChipSeq < Experiment
   has_one :histogram_track, :foreign_key => "experiment_id", :dependent => :destroy
   has_one :big_wig, :foreign_key => "experiment_id"
@@ -62,25 +86,3 @@ class ChipSeq < Experiment
   end
 
 end
-
-# == Schema Information
-#
-# Table name: experiments
-#
-#  id          :integer(38)     not null, primary key
-#  bioentry_id :integer(38)
-#  user_id     :integer(38)
-#  name        :string(255)
-#  type        :string(255)
-#  description :string(255)
-#  file_name   :string(255)
-#  a_op        :string(255)
-#  b_op        :string(255)
-#  mid_op      :string(255)
-#  created_at  :datetime
-#  updated_at  :datetime
-#  creator_id  :integer(38)
-#  updater_id  :integer(38)
-#  abs_max     :string(255)
-#
-

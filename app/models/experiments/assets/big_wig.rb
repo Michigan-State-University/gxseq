@@ -1,3 +1,19 @@
+# == Schema Information
+#
+# Table name: assets
+#
+#  created_at        :datetime
+#  data_content_type :string(255)
+#  data_file_name    :string(255)
+#  data_file_size    :integer
+#  data_updated_at   :datetime
+#  experiment_id     :integer
+#  id                :integer          not null, primary key
+#  state             :string(255)      default("pending")
+#  type              :string(255)
+#  updated_at        :datetime
+#
+
 class BigWig < Asset
   def open_bw
     begin

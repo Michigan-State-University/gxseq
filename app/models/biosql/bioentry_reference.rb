@@ -4,3 +4,17 @@ class Biosql::BioentryReference < ActiveRecord::Base
   belongs_to :bioentry, :class_name => "Bioentry"
   belongs_to :reference , :class_name => "Reference"
 end
+
+# == Schema Information
+#
+# Table name: bioentry_reference
+#
+#  bioentry_id  :integer          not null
+#  reference_id :integer          not null
+#  start_pos    :integer
+#  end_pos      :integer
+#  rank         :integer          default(0), not null
+#  created_at   :datetime
+#  updated_at   :datetime
+#
+

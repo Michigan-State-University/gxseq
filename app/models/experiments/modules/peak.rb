@@ -1,3 +1,18 @@
+# == Schema Information
+#
+# Table name: peaks
+#
+#  bioentry_id   :integer
+#  created_at    :datetime
+#  end_pos       :integer
+#  experiment_id :integer
+#  id            :integer          not null, primary key
+#  pos           :integer
+#  start_pos     :integer
+#  updated_at    :datetime
+#  val           :decimal(, )
+#
+
 class Peak < ActiveRecord::Base
   belongs_to :experiment
   belongs_to :bioentry, :class_name => "Biosql::Bioentry"

@@ -1,3 +1,17 @@
+# == Schema Information
+#
+# Table name: feature_counts
+#
+#  count            :integer
+#  created_at       :datetime
+#  experiment_id    :integer
+#  id               :integer          not null, primary key
+#  normalized_count :decimal(10, 2)
+#  seqfeature_id    :integer
+#  unique_count     :integer
+#  updated_at       :datetime
+#
+
 class FeatureCount < ActiveRecord::Base
   belongs_to :seqfeature, :class_name => "Biosql::Feature::Seqfeature"
   belongs_to :experiment

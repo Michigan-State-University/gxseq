@@ -1,3 +1,15 @@
+# == Schema Information
+#
+# Table name: concordance_items
+#
+#  bioentry_id        :integer
+#  concordance_set_id :integer
+#  created_at         :datetime
+#  id                 :integer          not null, primary key
+#  reference_name     :string(255)
+#  updated_at         :datetime
+#
+
 class ConcordanceItem < ActiveRecord::Base
   belongs_to :concordance_set
   belongs_to :bioentry, :class_name => "Biosql::Bioentry"

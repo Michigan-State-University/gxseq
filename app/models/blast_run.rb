@@ -1,3 +1,18 @@
+# == Schema Information
+#
+# Table name: blast_runs
+#
+#  assembly_id       :integer
+#  blast_database_id :integer
+#  db                :string(255)
+#  id                :integer          not null, primary key
+#  parameters        :text
+#  program           :string(255)
+#  reference         :string(500)
+#  user_id           :integer
+#  version           :string(255)
+#
+
 class BlastRun < ActiveRecord::Base
   belongs_to :blast_database
   belongs_to :assembly

@@ -1,3 +1,19 @@
+# == Schema Information
+#
+# Table name: location
+#
+#  created_at    :datetime
+#  dbxref_id     :integer
+#  end_pos       :integer
+#  location_id   :integer          not null, primary key
+#  rank          :integer          default(0), not null
+#  seqfeature_id :integer          not null
+#  start_pos     :integer
+#  strand        :integer          default(0), not null
+#  term_id       :integer
+#  updated_at    :datetime
+#
+
 class Biosql::Location < ActiveRecord::Base
   set_table_name "location"
   set_primary_key :location_id
@@ -73,21 +89,4 @@ class Biosql::Location < ActiveRecord::Base
   end
 end
 
-
-
-# == Schema Information
-#
-# Table name: sg_location
-#
-#  oid        :integer(38)     not null, primary key
-#  start_pos  :integer(10)
-#  end_pos    :integer(10)
-#  strand     :boolean(1)      default(FALSE), not null
-#  rank       :integer(4)      not null
-#  fea_oid    :integer(38)     not null
-#  dbx_oid    :integer(38)
-#  trm_oid    :integer(38)
-#  deleted_at :datetime
-#  updated_at :datetime
-#
 

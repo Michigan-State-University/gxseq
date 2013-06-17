@@ -84,6 +84,9 @@ begin
         (r.empty? || r.last.last.succ != x) ? r << (x..x) : r[0..-2] << (r.last.first..x)
       end
     end
+    def to_sym
+      join("_").to_sym
+    end
   end
 rescue
   puts "Error: could not extend the Array class with to_ranges method"

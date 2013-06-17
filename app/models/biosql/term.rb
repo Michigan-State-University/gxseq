@@ -1,3 +1,17 @@
+# == Schema Information
+#
+# Table name: term
+#
+#  created_at  :datetime
+#  definition  :string(4000)
+#  identifier  :string(40)
+#  is_obsolete :string(1)
+#  name        :string(255)      not null
+#  ontology_id :integer          not null
+#  term_id     :integer          not null, primary key
+#  updated_at  :datetime
+#
+
 class Biosql::Term < ActiveRecord::Base
   set_primary_key :term_id
   set_table_name "term"
@@ -79,19 +93,4 @@ class Biosql::Term < ActiveRecord::Base
   end
 end
 
-
-
-# == Schema Information
-#
-# Table name: sg_term
-#
-#  oid         :integer(38)     not null, primary key
-#  name        :string(256)     not null
-#  identifier  :string(16)
-#  definition  :string(4000)
-#  is_obsolete :string(1)
-#  ont_oid     :integer(38)     not null
-#  deleted_at  :datetime
-#  updated_at  :datetime
-#
 

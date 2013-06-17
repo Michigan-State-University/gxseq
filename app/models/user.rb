@@ -1,3 +1,28 @@
+# == Schema Information
+#
+# Table name: users
+#
+#  confirmation_sent_at :datetime
+#  confirmation_token   :string(255)
+#  confirmed_at         :datetime
+#  created_at           :datetime
+#  current_sign_in_at   :datetime
+#  current_sign_in_ip   :string(255)
+#  email                :string(255)
+#  encrypted_password   :string(128)
+#  failed_attempts      :integer          default(0)
+#  id                   :integer          not null, primary key
+#  is_ldap              :boolean          default(FALSE), not null
+#  last_sign_in_at      :datetime
+#  last_sign_in_ip      :string(255)
+#  locked_at            :datetime
+#  login                :string(255)      not null
+#  remember_created_at  :datetime
+#  sign_in_count        :integer          default(0)
+#  unlock_token         :string(255)
+#  updated_at           :datetime
+#
+
 class User < ActiveRecord::Base
   # Include default devise modules. Others available are:
   # :token_authenticatable, :encryptable, :confirmable, :rememberable, :registerable, :lockable, :timeoutable and :omniauthable

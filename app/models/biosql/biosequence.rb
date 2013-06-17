@@ -181,18 +181,16 @@ class Biosql::Biosequence < ActiveRecord::Base
   
 end
 
-
 # == Schema Information
 #
-# Table name: sg_biosequence
+# Table name: biosequence
 #
-#  ent_oid    :integer(38)     not null, primary key
-#  version    :decimal(3, 1)
-#  length     :integer(38)
-#  alphabet   :string(12)
-#  seq        :text
-#  crc        :string(32)
-#  deleted_at :datetime
-#  updated_at :datetime
+#  bioentry_id :integer          not null
+#  version     :integer
+#  length      :integer
+#  alphabet    :string(10)
+#  seq         :text
+#  created_at  :datetime
+#  updated_at  :datetime
 #
 

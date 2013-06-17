@@ -1,3 +1,17 @@
+# == Schema Information
+#
+# Table name: reference
+#
+#  authors      :string(4000)
+#  crc          :string(32)
+#  created_at   :datetime
+#  dbxref_id    :integer
+#  location     :string(4000)     not null
+#  reference_id :integer          not null, primary key
+#  title        :string(4000)
+#  updated_at   :datetime
+#
+
 class Biosql::Reference < ActiveRecord::Base
   set_table_name "reference"
   set_primary_key :reference_id
@@ -5,16 +19,3 @@ class Biosql::Reference < ActiveRecord::Base
   has_many :bioentry_references, :class_name=>"BioentryReference"
   has_many :bioentries, :through=>:bioentry_references
 end
-
-# == Schema Information
-#
-# Table name: sg_reference
-#
-#  oid      :integer(38)     not null, primary key
-#  title    :string(1000)
-#  authors  :string(4000)    not null
-#  location :string(512)     not null
-#  crc      :string(32)
-#  dbx_oid  :integer(38)
-#
-

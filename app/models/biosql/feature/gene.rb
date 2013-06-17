@@ -1,3 +1,17 @@
+# == Schema Information
+#
+# Table name: seqfeature
+#
+#  bioentry_id    :integer          not null
+#  created_at     :datetime
+#  display_name   :string(64)
+#  rank           :integer          default(0), not null
+#  seqfeature_id  :integer          not null, primary key
+#  source_term_id :integer          not null
+#  type_term_id   :integer          not null
+#  updated_at     :datetime
+#
+
 class Biosql::Feature::Gene < Biosql::Feature::Seqfeature
   #has_many :gene_models, :inverse_of => :gene
   validates_associated :gene_models
@@ -118,18 +132,3 @@ class Biosql::Feature::Gene < Biosql::Feature::Seqfeature
     return true
   end
 end
-
-# == Schema Information
-#
-# Table name: sg_seqfeature
-#
-#  oid            :integer(38)     not null, primary key
-#  rank           :integer(9)      not null
-#  display_name   :string(64)
-#  ent_oid        :integer(38)     not null
-#  type_trm_oid   :integer(38)     not null
-#  source_trm_oid :integer(38)     not null
-#  deleted_at     :datetime
-#  updated_at     :datetime
-#
-

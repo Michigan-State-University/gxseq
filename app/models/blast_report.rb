@@ -1,3 +1,17 @@
+# == Schema Information
+#
+# Table name: blast_reports
+#
+#  blast_run_id  :integer
+#  created_at    :datetime
+#  hit_acc       :string(255)
+#  hit_def       :string(4000)
+#  id            :integer          not null, primary key
+#  report        :text
+#  seqfeature_id :integer
+#  updated_at    :datetime
+#
+
 class BlastReport < ActiveRecord::Base
   belongs_to :blast_run
   belongs_to :seqfeature, :class_name => "Biosql::Feature::Seqfeature"

@@ -1,3 +1,20 @@
+# == Schema Information
+#
+# Table name: taxon
+#
+#  created_at        :datetime
+#  genetic_code      :integer
+#  left_value        :integer
+#  mito_genetic_code :integer
+#  ncbi_taxon_id     :integer
+#  node_rank         :string(32)
+#  non_ncbi          :integer          default(0)
+#  parent_taxon_id   :integer
+#  right_value       :integer
+#  taxon_id          :integer          not null, primary key
+#  updated_at        :datetime
+#
+
 ## Taxon Nested Set is NOT maintained during sequence load or default taxonomy load.
 ## It WILL be out of sync until you call - taxon::rebuild_nested_set
 class Biosql::Taxon < ActiveRecord::Base
@@ -123,21 +140,4 @@ class Biosql::Taxon < ActiveRecord::Base
   end
 end
 
-
-
-# == Schema Information
-#
-# Table name: sg_taxon
-#
-#  oid               :integer(38)     not null, primary key
-#  ncbi_taxon_id     :integer(38)
-#  node_rank         :string(32)
-#  genetic_code      :integer(2)
-#  mito_genetic_code :integer(2)
-#  left_value        :integer(38)
-#  right_value       :integer(38)
-#  tax_oid           :integer(38)
-#  deleted_at        :datetime
-#  updated_at        :datetime
-#
 

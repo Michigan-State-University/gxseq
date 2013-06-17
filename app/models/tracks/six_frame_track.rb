@@ -1,3 +1,17 @@
+# == Schema Information
+#
+# Table name: tracks
+#
+#  assembly_id    :integer
+#  created_at     :datetime
+#  experiment_id  :integer
+#  id             :integer          not null, primary key
+#  sample         :string(255)
+#  source_term_id :integer
+#  type           :string(255)
+#  updated_at     :datetime
+#
+
 class SixFrameTrack < Track
   def path
     "Genome"
@@ -26,16 +40,3 @@ class SixFrameTrack < Track
   end
   
 end
-
-# == Schema Information
-#
-# Table name: tracks
-#
-#  id            :integer(38)     not null, primary key
-#  type          :string(255)
-#  bioentry_id   :integer(38)
-#  experiment_id :integer(38)
-#  created_at    :datetime
-#  updated_at    :datetime
-#
-

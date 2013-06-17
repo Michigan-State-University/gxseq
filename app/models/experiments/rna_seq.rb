@@ -1,3 +1,27 @@
+# == Schema Information
+#
+# Table name: experiments
+#
+#  a_op               :string(255)
+#  assembly_id        :integer
+#  b_op               :string(255)
+#  concordance_set_id :integer
+#  created_at         :datetime
+#  description        :string(2000)
+#  file_name          :string(255)
+#  group_id           :integer
+#  id                 :integer          not null, primary key
+#  mid_op             :string(255)
+#  name               :string(255)
+#  sequence_name      :string(255)
+#  show_negative      :string(255)
+#  state              :string(255)
+#  total_count        :integer
+#  type               :string(255)
+#  updated_at         :datetime
+#  user_id            :integer
+#
+
 class RnaSeq < Experiment
   has_one :reads_track, :foreign_key => "experiment_id", :dependent => :destroy
   has_one :histogram_track, :foreign_key => "experiment_id", :dependent => :destroy
@@ -24,7 +48,6 @@ class RnaSeq < Experiment
       return false
     end
   end
-  
   
   # generates tracks depending on availabale assets
   # creates ReadsTracks if a bam is present otherwise HistogramTracks are created

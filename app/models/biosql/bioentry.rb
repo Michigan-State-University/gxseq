@@ -1,3 +1,21 @@
+# == Schema Information
+#
+# Table name: bioentry
+#
+#  accession      :string(128)      not null
+#  assembly_id    :integer          not null
+#  biodatabase_id :integer          not null
+#  bioentry_id    :integer          not null, primary key
+#  created_at     :datetime
+#  description    :string(4000)
+#  division       :string(6)
+#  identifier     :string(40)
+#  name           :string(40)       not null
+#  taxon_id       :integer
+#  updated_at     :datetime
+#  version        :string(255)      not null
+#
+
 class Biosql::Bioentry < ActiveRecord::Base
   set_table_name "bioentry"
   set_primary_key :bioentry_id
@@ -250,22 +268,4 @@ class Biosql::Bioentry < ActiveRecord::Base
   end
 end
 
-
-
-# == Schema Information
-#
-# Table name: sg_bioentry
-#
-#  oid         :integer(38)     not null, primary key
-#  accession   :string(32)      not null
-#  identifier  :string(32)
-#  name        :string(32)      not null
-#  description :string(512)
-#  version     :integer(2)      default(0), not null
-#  division    :string(6)       default("UNK")
-#  db_oid      :integer(38)     not null
-#  tax_oid     :integer(38)
-#  deleted_at  :datetime
-#  updated_at  :datetime
-#
 

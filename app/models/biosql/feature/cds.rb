@@ -1,3 +1,17 @@
+# == Schema Information
+#
+# Table name: seqfeature
+#
+#  bioentry_id    :integer          not null
+#  created_at     :datetime
+#  display_name   :string(64)
+#  rank           :integer          default(0), not null
+#  seqfeature_id  :integer          not null, primary key
+#  source_term_id :integer          not null
+#  type_term_id   :integer          not null
+#  updated_at     :datetime
+#
+
 class Biosql::Feature::Cds < Biosql::Feature::Seqfeature
   # do not autosave or we will infinite loop, gene_model auto-saves mrna and cds
   has_one :gene_model, :inverse_of => :cds, :autosave => false
@@ -8,17 +22,3 @@ class Biosql::Feature::Cds < Biosql::Feature::Seqfeature
     'CDS'
   end
 end
-# == Schema Information
-#
-# Table name: sg_seqfeature
-#
-#  oid            :integer(38)     not null, primary key
-#  rank           :integer(9)      not null
-#  display_name   :string(64)
-#  ent_oid        :integer(38)     not null
-#  type_trm_oid   :integer(38)     not null
-#  source_trm_oid :integer(38)     not null
-#  deleted_at     :datetime
-#  updated_at     :datetime
-#
-

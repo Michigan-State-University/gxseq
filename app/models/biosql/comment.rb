@@ -1,3 +1,15 @@
+# == Schema Information
+#
+# Table name: comments
+#
+#  bioentry_id  :integer          not null
+#  comment_text :text             not null
+#  comments_id  :integer          not null, primary key
+#  created_at   :datetime
+#  rank         :integer          default(0), not null
+#  updated_at   :datetime
+#
+
 class Biosql::Comment < ActiveRecord::Base
   # comments have a primary key but also maintain a rank for their bioentry
   # comment is a reserved word in Oracle
@@ -10,14 +22,3 @@ class Biosql::Comment < ActiveRecord::Base
   end
   belongs_to :bioentry, :class_name  => "Bioentry"
 end
-
-# == Schema Information
-#
-# Table name: sg_comment
-#
-#  oid          :integer(38)     not null, primary key
-#  rank         :integer(2)      not null
-#  comment_text :text            not null
-#  ent_oid      :integer(38)     not null
-#
-

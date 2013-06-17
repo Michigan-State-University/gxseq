@@ -1,3 +1,14 @@
+# == Schema Information
+#
+# Table name: concordance_sets
+#
+#  assembly_id :integer
+#  created_at  :datetime
+#  id          :integer          not null, primary key
+#  name        :string(255)
+#  updated_at  :datetime
+#
+
 class ConcordanceSet < ActiveRecord::Base
   belongs_to :assembly
   has_many :concordance_items

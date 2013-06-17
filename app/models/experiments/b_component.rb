@@ -1,16 +1,15 @@
-class BComponent < Component
-end
-
-
 # == Schema Information
 #
 # Table name: components
 #
-#  id                      :integer(38)     not null, primary key
-#  type                    :string(255)
-#  experiment_id           :integer(38)
-#  synthetic_experiment_id :integer(38)
 #  created_at              :datetime
+#  experiment_id           :integer
+#  id                      :integer          not null, primary key
+#  synthetic_experiment_id :integer
+#  type                    :string(255)
 #  updated_at              :datetime
 #
+
+class BComponent < Component
+end
 

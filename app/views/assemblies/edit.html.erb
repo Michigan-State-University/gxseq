@@ -42,10 +42,12 @@
         <th>New Description</th>
       </tr>
       <% f.fields_for :experiments, @experiments do |exp| %>
-      <%= exp.error_messages %>
       <% exp_count +=1 %>
         <tr>
-          <td><%= "#{exp_count} )" %></td>
+          <td>
+          <%= exp.error_messages %>
+            <%= "#{exp_count} )" %>
+          </td>
           <td><%= exp.object.name %></td>
           <td><%= exp.collection_select :group_id, @groups, :id, :name %><br/></td>
           <td><%= exp.text_field :name %></td>

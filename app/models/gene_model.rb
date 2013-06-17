@@ -1,3 +1,23 @@
+# == Schema Information
+#
+# Table name: gene_models
+#
+#  bioentry_id   :integer
+#  cds_id        :integer
+#  end_pos       :integer
+#  gene_id       :integer
+#  gene_name     :string(255)
+#  id            :integer          not null, primary key
+#  locus_tag     :string(255)
+#  mrna_id       :integer
+#  protein_id    :string(255)
+#  rank          :integer
+#  start_pos     :integer
+#  strand        :integer
+#  transcript_id :string(255)
+#  variants      :integer
+#
+
 class GeneModel < ActiveRecord::Base
   # de-normalization of seqfeature data
   # Dependent on Location, Seqfeature(Gene, CDS) and SeqfeatureQualifierValue(locus_tag). Incorporates Seqfeature(Mrna) if exists
@@ -769,23 +789,3 @@ class GeneModel < ActiveRecord::Base
     Biosql::Feature::Cds.includes(:gene_model).where{gene_model.id == nil}
   end
 end
-# == Schema Information
-#
-# Table name: gene_models
-#
-#  transcript_id :string(4000)
-#  protein_id    :string(4000)
-#  id            :string(120)     primary key
-#  variants      :decimal(, )
-#  bioentry_id   :integer(38)     not null
-#  locus_tag     :string(4000)
-#  gene_name     :string(4000)
-#  start_pos     :decimal(, )
-#  end_pos       :decimal(, )
-#  strand        :boolean(1)
-#  gene_id       :integer(38)     not null
-#  mrna_id       :integer(38)
-#  cds_id        :integer(38)
-#  rank          :decimal(, )
-#
-

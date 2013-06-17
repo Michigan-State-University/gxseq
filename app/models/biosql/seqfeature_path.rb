@@ -5,3 +5,16 @@ class Biosql::SeqfeaturePath < ActiveRecord::Base
   belongs_to :subject_seqfeature, :class_name => "Seqfeature", :foreign_key => "subject_seqfeature_id"
   belongs_to :term, :class_name => "Term"
 end
+
+# == Schema Information
+#
+# Table name: seqfeature_path
+#
+#  object_seqfeature_id  :integer          not null
+#  subject_seqfeature_id :integer          not null
+#  term_id               :integer          not null
+#  distance              :integer
+#  created_at            :datetime
+#  updated_at            :datetime
+#
+

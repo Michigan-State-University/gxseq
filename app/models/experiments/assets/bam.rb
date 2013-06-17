@@ -1,3 +1,19 @@
+# == Schema Information
+#
+# Table name: assets
+#
+#  created_at        :datetime
+#  data_content_type :string(255)
+#  data_file_name    :string(255)
+#  data_file_size    :integer
+#  data_updated_at   :datetime
+#  experiment_id     :integer
+#  id                :integer          not null, primary key
+#  state             :string(255)      default("pending")
+#  type              :string(255)
+#  updated_at        :datetime
+#
+
 class Bam < Asset
   require 'strscan'
   
@@ -29,8 +45,7 @@ class Bam < Asset
       return false
     end
   end
-  
-  # NOTE The samtools gem forks a child a redirects stdout. This does NOT work with delayed_job background tasks
+
   # returns hash of index data
   # { "sequence_1"  => {:length => 1000, :unmapped_reads => 10, :mapped_reads => 1000}, ... }
   def index_stats

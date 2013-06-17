@@ -5,13 +5,14 @@ class Biosql::TaxonName < ActiveRecord::Base
   validates_uniqueness_of :name_class, :scope => :taxon_id, :if => Proc.new { |taxon_name| taxon_name.name_class == 'scientific name'}
 end
 
-
 # == Schema Information
 #
-# Table name: sg_taxon_name
+# Table name: taxon_name
 #
-#  tax_oid    :integer(38)     not null
-#  name       :string(128)     not null
-#  name_class :string(32)      not null
+#  taxon_id   :integer          not null
+#  name       :string(255)      not null
+#  name_class :string(32)       not null
+#  created_at :datetime
+#  updated_at :datetime
 #
 

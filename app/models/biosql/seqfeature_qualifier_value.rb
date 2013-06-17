@@ -86,15 +86,16 @@ class Biosql::SeqfeatureQualifierValue < ActiveRecord::Base
   end
 
 end
+
 # == Schema Information
 #
-# Table name: sg_seqfeature_qualifier_assoc
+# Table name: seqfeature_qualifier_value
 #
-#  fea_oid    :integer(38)     not null
-#  trm_oid    :integer(38)     not null
-#  rank       :integer(3)      not null
-#  value      :string(4000)
-#  deleted_at :datetime
-#  updated_at :datetime
+#  seqfeature_id :integer          not null
+#  term_id       :integer          not null
+#  rank          :integer          default(0), not null
+#  value         :string(4000)     not null
+#  created_at    :datetime
+#  updated_at    :datetime
 #
 

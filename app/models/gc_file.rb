@@ -1,3 +1,18 @@
+# == Schema Information
+#
+# Table name: sequence_files
+#
+#  assembly_id       :integer
+#  created_at        :datetime
+#  data_content_type :string(255)
+#  data_file_name    :string(255)
+#  data_file_size    :integer
+#  data_updated_at   :datetime
+#  id                :integer          not null, primary key
+#  type              :string(255)
+#  updated_at        :datetime
+#
+
 class GcFile < SequenceFile
   def open_bw
     begin

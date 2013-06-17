@@ -1,3 +1,14 @@
+# == Schema Information
+#
+# Table name: ontology
+#
+#  created_at  :datetime
+#  definition  :string(4000)
+#  name        :string(32)       not null
+#  ontology_id :integer          not null, primary key
+#  updated_at  :datetime
+#
+
 class Biosql::Ontology < ActiveRecord::Base
   set_table_name "ontology"
   set_primary_key :ontology_id
@@ -5,14 +16,3 @@ class Biosql::Ontology < ActiveRecord::Base
   has_many :term_paths, :class_name => "TermPath"
   has_many :term_relationships, :class_name => "TermRelationship"
 end
-# == Schema Information
-#
-# Table name: sg_ontology
-#
-#  oid        :integer(38)     not null, primary key
-#  name       :string(64)      not null
-#  definition :string(4000)
-#  updated_at :datetime
-#  deleted_at :datetime
-#
-

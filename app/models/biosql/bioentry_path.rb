@@ -5,3 +5,16 @@ class Biosql::BioentryPath < ActiveRecord::Base
   belongs_to :object_bioentry, :class_name=>"Bioentry"
   belongs_to :subject_bioentry, :class_name=>"Bioentry"
 end
+
+# == Schema Information
+#
+# Table name: bioentry_path
+#
+#  object_bioentry_id  :integer          not null
+#  subject_bioentry_id :integer          not null
+#  term_id             :integer          not null
+#  distance            :integer
+#  created_at          :datetime
+#  updated_at          :datetime
+#
+

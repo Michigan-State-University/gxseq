@@ -1,16 +1,16 @@
-class Biosql::Feature::RepOrigin < Biosql::Feature::Seqfeature  
-end
 # == Schema Information
 #
-# Table name: sg_seqfeature
+# Table name: seqfeature
 #
-#  oid            :integer(38)     not null, primary key
-#  rank           :integer(9)      not null
+#  bioentry_id    :integer          not null
+#  created_at     :datetime
 #  display_name   :string(64)
-#  ent_oid        :integer(38)     not null
-#  type_trm_oid   :integer(38)     not null
-#  source_trm_oid :integer(38)     not null
-#  deleted_at     :datetime
+#  rank           :integer          default(0), not null
+#  seqfeature_id  :integer          not null, primary key
+#  source_term_id :integer          not null
+#  type_term_id   :integer          not null
 #  updated_at     :datetime
 #
 
+class Biosql::Feature::RepOrigin < Biosql::Feature::Seqfeature  
+end

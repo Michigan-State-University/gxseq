@@ -1,3 +1,17 @@
+# == Schema Information
+#
+# Table name: assemblies
+#
+#  created_at :datetime
+#  group_id   :integer
+#  id         :integer          not null, primary key
+#  species_id :integer
+#  taxon_id   :integer
+#  type       :string(255)
+#  updated_at :datetime
+#  version    :string(255)
+#
+
 class Assembly < ActiveRecord::Base
   has_many :bioentries, :class_name => "Biosql::Bioentry", :order => "name asc", :dependent => :destroy
   has_many :experiments
