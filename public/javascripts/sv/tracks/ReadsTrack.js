@@ -5,8 +5,7 @@ Ext.define("Sv.tracks.ReadsTrack",{
   extend : "Sv.tracks.BrowserTrack",
   clsAbove  : 'AJ_above',
   clsBelow  : 'AJ_below',
-  color_above: '800000',
-  color_below: '003300',
+  hist_color: '800000',
   maxHeight : 5000,
   boxHeight : 12,
   boxHeightMax : 24,
@@ -231,8 +230,7 @@ Ext.define("Sv.tracks.ReadsTrack",{
     });
 
     //add Max and Scale info to the toolbar
-    var multiplierText = new Ext.Toolbar.TextItem({text:"Multiplier: 1x",hidden: !self.Toolbar.isVisible(),});
-    var abs_max_text = new Ext.Toolbar.TextItem({text:"Scale: 1",hidden: !self.Toolbar.isVisible(),});
+    var multiplierText = new Ext.Toolbar.TextItem({text:"1x",hidden: !self.Toolbar.isVisible(),});
     //Handler toggle button
     var toggleReadsBtn = Ext.create('Ext.button.Button',{
       iconCls: "sequence_track",
@@ -306,7 +304,7 @@ Ext.define("Sv.tracks.ReadsTrack",{
      };
     
      var canvasA = new Sv.painters.HistogramCanvas();
-     canvasA.setColor(self.color_above);
+     canvasA.setColor(self.hist_color);
      canvasA.setContainer(containerA.dom);    
      canvasA.flipY();
      
@@ -454,6 +452,36 @@ Ext.define("Sv.tracks.ReadsTrack",{
     //Data handling and rendering object
     var handler = Histogram;
     this.handler = handler;
+    
+    //Change the color(s) for this track
+  	this.setColor = function(color,type){
+      self.hist_color = color;
+      switch (type){
+        case 'hist': handler.canvasA.setColor(color); break;
+        case 'forward': handler.canvasA.setForwardColor(color); break;
+        case 'reverse': handler.canvasA.setReverseColor(color); break;
+      }
+      handler.canvasA.refresh();
+  	};
+  	//Add the color menu
+    var addColorMenu = function(menuText, type){
+        self.contextMenu.ext.add(
+         {
+             iconCls: 'silk_palette',
+             text: menuText,
+             menu: {
+                     xtype: 'colormenu',
+                     handler: function(colorMenu, color){
+                         self.setColor(color, type);
+                     }//,
+                     //colors: self.color_choices
+             }
+         });
+    };
+    addColorMenu("Histogram", 'hist');
+  	addColorMenu("Forward Reads", 'forward');
+		addColorMenu("Reverse Reads", 'reverse');
+		
     //Zoom policies (dictate which handler to use)
     var policies = [
       { index:0, min:1/100 , max:1/1    , bases:1   , pixels:100, cache:1000     },

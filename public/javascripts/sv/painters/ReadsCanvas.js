@@ -56,6 +56,12 @@ Ext.define('Sv.painters.ReadsCanvas',{
       }
     });
 	},
+	setForwardColor: function(value){
+	  this.forwardColor = value
+	},
+	setReverseColor: function(value){
+	  this.reverseColor = value
+	},
   initComponent: function(){
     var self = this;
     var data;

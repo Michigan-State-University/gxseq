@@ -2,7 +2,6 @@ class ApplicationController < ActionController::Base
   protect_from_forgery
   #before_filter :authenticate_user!
   #around_filter :setup_delayed_job_whodunnit
-  
   rescue_from CanCan::AccessDenied do |exception|
     flash[:error] = "Access Denied"
     if(current_user)

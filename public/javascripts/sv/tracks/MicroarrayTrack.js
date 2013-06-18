@@ -1,3 +1,4 @@
+//TODO: Convert Microarray and Reads track  to Histogram and Reads track
 Ext.define('DataPeak',{
  extend: 'Ext.data.Model',
  fields: [
@@ -19,10 +20,17 @@ Ext.define("Sv.tracks.MicroarrayTrack",{
 	initComponent : function(){
 	    this.callParent(arguments);
 	    var self = this;
-
+      self.addEvents({
+        'viewMaxChanged' : true,
+        'trackMaxChanged': true
+      });
       	this.absMax =0;
       	this.peaks=[];
-
+        this.trackMax=1;
+        this.allTrackMax=2;
+        this.viewMax = 3;
+        this.allViewMax=4;
+        this.scaleSource = -4;
       	//Initialize the DOM elements
       	var containerA = new Ext.Element(document.createElement('DIV'));
       	var containerB = new Ext.Element(document.createElement('DIV'));
@@ -35,7 +43,7 @@ Ext.define("Sv.tracks.MicroarrayTrack",{
       	containerB.setStyle('position', 'relative');
       	containerA.setStyle('width', '100%');
       	containerB.setStyle('width', '100%');
-
+      
       	if (self.single)
       	{
       		containerA.setStyle('height', '100%');
@@ -51,7 +59,86 @@ Ext.define("Sv.tracks.MicroarrayTrack",{
       	}
       	containerA.appendTo(self.Canvas.ext);
       	containerB.appendTo(self.Canvas.ext);
+      	
+        this.getViewMax = function(location){
+          var edges = self.DataManager.getEdges()
+          var newMax = handler.dataA.getMaxY(edges.g1,edges.g2).toFixed(2)
+          self.setViewMax(newMax);
+          //console.log(self.name+": set viewmax:"+newMax);
+          return newMax;
+        }
+        //get the max that we will use to draw
+        this.getCurrentMax=function(left,right){
+          var newScale = 1;
+          switch(self.scaleSource)
+          {
+          // case -1:
+          //   newScale = self.trackMax;
+          //   break;
+          // case -2:
+          //   newScale = self.allTrackMax;
+          //   break;
+          case -3:
+            newScale = self.viewMax;
+            break;
+          case -4:
+            newScale = self.allViewMax;
+            break;
+          default:
+            newScale = self.scaleSource;
+          }
+          return newScale;
+        }
+        
+        this.setViewMax = function(newMax){
+          if(handler==Histogram){
+            self.viewMax = newMax;
+            self.scales.getById(3).set('name','This Track ('+newMax+')');
+            if(self.scaleSource==-3){
+              self.scaleSourceSelect.setRawValue('This Track ('+newMax+')');
+            }
+          }
+        }
+        this.setAllViewMax = function(newMax){
+          if(handler==Histogram){
+            self.allViewMax = newMax;
+            self.scales.getById(4).set('name','All Tracks ('+newMax+')');
+            if(self.scaleSource==-4){
+              self.scaleSourceSelect.setRawValue('All Tracks ('+newMax+')');
+            }
+          }
+        }
 
+        // Setup the scale select list
+        this.scales = Ext.create('Ext.data.Store', {
+            fields: ['id', 'name', 'val'],
+            data : [
+                // {"id":1,"name":"This Track","val":-1},
+                // {"id":2,"name":"All Tracks","val":-2},
+                {"id":3,"name":"This Track","val":-3},
+                {"id":4,"name":"All Tracks","val":-4}
+            ]
+        });
+        this.scaleSourceSelect = Ext.create('Ext.form.field.ComboBox', {
+          fieldLabel : "Y Scale",
+          labelAlign : 'right',
+          store: self.scales,
+          labelWidth:75,
+          width:200,
+          editable: true,
+          queryMode: 'local',
+          displayField : 'name',
+          valueField : 'val',
+          listeners:{
+            scope: self,
+            'change': function( combo, newValue, oldValue, eOpts) {
+              self.scaleSource = newValue;
+              self.refresh();
+            }
+
+          }
+        });
+        
       	//Histogram mode
       	var Histogram = (function()
       	{
@@ -87,59 +174,32 @@ Ext.define("Sv.tracks.MicroarrayTrack",{
       			canvasA.paint();
       			canvasB.paint();
       		};
-
+          setAbsMax = function(m)
+          {
+            canvasA.setAbsMax(m);
+          };
       		return {
       			dataA : dataA,
       			dataB : dataB,
       			canvasA : canvasA,
       			canvasB : canvasB,
       			parse : parse,
-      			paint : paint
+      			paint : paint,
+      			setAbsMax : setAbsMax
       		};
       	})();
 
       	//Data handling and rendering object
       	var handler = Histogram;
 
-      	//Get the absolute max for this track
-      	Ext.Ajax.request(
-      	{		
-      		url : self.data,
-      		method : 'GET',
-      		params : {
-      			jrws : Ext.encode({
-      				method : 'abs_max',
-      				param  : {
-      					experiment : self.experiment,
-      					bioentry : self.bioentry
-      				}
-      			})
-      		},	
-      		success  : function(response)
-      		{
-      			self.absMax = parseFloat(response.responseText).toFixed(2);
-      			handler.canvasA.setAbsMax(self.absMax);
-      			handler.canvasB.setAbsMax(self.absMax);
-      			self.refreshCanvas();
-      			update_max_text();
-      		},		
-      	});
+      	var multiplierText = new Ext.Toolbar.TextItem({text:"1x",hidden: !self.Toolbar.isVisible(),});
 
-      	//add Max and Scale info to the toolbar
-      	var scale_text = new Ext.Toolbar.TextItem({text:"Scale: 1.00",hidden: !self.Toolbar.isVisible(),});
-      	var abs_max_text = new Ext.Toolbar.TextItem({text:"",hidden: !self.Toolbar.isVisible(),});
-
-      	function update_max_text(){
-      		if(self.single){
-      			abs_max_text.setText("Maximum: "+self.absMax);	
-      		}else{
-      			abs_max_text.setText("Absolute Maximum: "+self.absMax);
-      		}
-      	}
-
-      	self.Toolbar.insert(4,scale_text);
-      	self.Toolbar.insert(4,abs_max_text);
-
+      	self.Toolbar.insert(4,multiplierText);
+      	//self.Toolbar.insert(4,abs_max_text);
+        self.Toolbar.insert(4,Ext.create('Ext.toolbar.Separator'));
+        self.Toolbar.insert(4,self.scaleSourceSelect);
+        self.Toolbar.insert(4,Ext.create('Ext.toolbar.Separator'));
+        
         //Peak navigation
       	if(self.peaks){
              self.peak_prev = new Ext.Button({
@@ -181,9 +241,7 @@ Ext.define("Sv.tracks.MicroarrayTrack",{
                      ps.load();
                  }
              });
-             
 
-             
              peakStore = new Ext.data.Store({
                  // store configs
                  model: 'DataPeak',
@@ -301,7 +359,7 @@ Ext.define("Sv.tracks.MicroarrayTrack",{
       	};
 
       	//Create a new menu item for picking a color
-        addColorMenu = function(menuText, above){
+        var addColorMenu = function(menuText, above){
             self.contextMenu.ext.add(
              {
                  iconCls: 'silk_palette',
@@ -342,7 +400,7 @@ Ext.define("Sv.tracks.MicroarrayTrack",{
       	{
       		var ratio = view.bases / view.pixels;
 
-      		handler = Histogram;
+      		//handler = Histogram;
 
       		for (var i=0; i<policies.length; i++)
       		{
@@ -355,12 +413,22 @@ Ext.define("Sv.tracks.MicroarrayTrack",{
       	};
       	this.rescale = function(f)
       	{
-      		var f = Math.pow(f*2, 4);
-      		handler.canvasA.setScaler(f);
-      		handler.canvasB.setScaler(f);
-      		handler.canvasA.refresh();
-      		handler.canvasB.refresh();
-      		scale_text.setText("Scale: "+f.toFixed(2))
+      		
+      		var newVal = (f*20)-10 //-10 .. 10
+          if(newVal==0) newVal=1; //-10 .. 1 .. 10
+          if(newVal<0){
+            newVal = 1/(0-newVal) //0.1 .. 1 .. 10
+          }
+          self.scale = newVal.toFixed(2);
+          handler.canvasA.setScaler(newVal);
+          handler.canvasB.setScaler(newVal);
+          multiplierText.setText(+newVal+" x");
+          //var f = Math.pow(f*2, 4);
+          // handler.canvasA.setScaler(f);
+          // handler.canvasB.setScaler(f);
+          // handler.canvasA.refresh();
+          // handler.canvasB.refresh();
+          // scale_text.setText("Scale: "+f.toFixed(2))
       	};	
       	this.clearCanvas = function()
       	{
@@ -370,6 +438,7 @@ Ext.define("Sv.tracks.MicroarrayTrack",{
       	this.paintCanvas = function(l,r,b,p)
       	{
       	  if(self.set_cur_peak){this.set_cur_peak(AnnoJ.getLocation().position);}
+      	  handler.setAbsMax(self.getCurrentMax());
       		handler.paint(l,r,b,p);
       	};
       	this.refreshCanvas = function()
