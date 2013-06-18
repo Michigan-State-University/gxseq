@@ -77,7 +77,7 @@ end
 # gem 'sunspot_solr', :path => '~/gems/sunspot/sunspot_solr'
 # gem 'sunspot_rails'
 # gem 'sunspot_solr'
-gem 'progress_bar'
+gem 'progress_bar', '~> 1.0.0'
 gem 'cancan'
 gem 'rails3-jquery-autocomplete'
 gem 'acts-as-taggable-on', '~> 2.3.1'

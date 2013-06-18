@@ -186,7 +186,11 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
   def coexpressed_counts
     feature_counts = get_feature_counts
     search = @seqfeature.correlated_search(current_ability,{:per_page => 500})
-    respond_with @seqfeature.corr_search_to_matrix(search,feature_counts)
+    if search
+      respond_with @seqfeature.corr_search_to_matrix(search,feature_counts)
+    else
+      respond_with []
+    end
   end
   # Add or Remove this seqfeature as a favorite for the given user, and reindex
   def toggle_favorite

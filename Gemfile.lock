@@ -380,7 +380,7 @@ DEPENDENCIES
   newrelic_rpm
   paper_trail (~> 2)
   paperclip (~> 3.0)
-  progress_bar
+  progress_bar (~> 1.0.0)
   railroady
   rails (= 3.0.9)
   rails3-jquery-autocomplete

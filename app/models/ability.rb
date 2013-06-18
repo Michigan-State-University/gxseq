@@ -75,7 +75,7 @@ class Ability
       can :read, Biosql::Bioentry, :assembly => {:group => {:users => {:id => user.id}}}
       can :read, Biosql::Bioentry, :assembly => {:experiments => {:group => {:id => user.group_ids}}}
       #Features
-      can [:read,:update, :toggle_favorite, :feature_counts, :coexpressed_counts], Biosql::Feature::Seqfeature, :bioentry => {:assembly => {:group => {:users => {:id => user.id}}}}
+      #can [:read,:update, :toggle_favorite, :feature_counts, :coexpressed_counts], Biosql::Feature::Seqfeature, :bioentry => {:assembly => {:group => {:users => {:id => user.id}}}}
       can [:read,:update, :toggle_favorite, :feature_counts, :coexpressed_counts], Biosql::Feature::Seqfeature, :bioentry => {:assembly => {:experiments => {:group => {:id => user.group_ids}}}}
       can :create, Biosql::Feature::Seqfeature
       #GeneModels
