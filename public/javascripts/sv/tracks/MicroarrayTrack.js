@@ -14,9 +14,9 @@ Ext.define("Sv.tracks.MicroarrayTrack",{
   single   : false,
 	clsAbove : 'AJ_above',
 	clsBelow : 'AJ_below',
-	color_above: '800000',
+	color_above: 'A00608',
 	color_below: '003300',
-	peaks: false,
+	has_peaks: false,
 	initComponent : function(){
 	    this.callParent(arguments);
 	    var self = this;
@@ -201,7 +201,7 @@ Ext.define("Sv.tracks.MicroarrayTrack",{
         self.Toolbar.insert(4,Ext.create('Ext.toolbar.Separator'));
         
         //Peak navigation
-      	if(self.peaks){
+      	if(self.has_peaks){
              self.peak_prev = new Ext.Button({
                  iconCls: 'silk_blue_rewind',
                  tooltip: 'Show previous peak',
@@ -368,8 +368,9 @@ Ext.define("Sv.tracks.MicroarrayTrack",{
                          xtype: 'colormenu',
                          handler: function(colorMenu, color){
                              self.setColor(color, above);
-                         }//,
-                         //colors: self.color_choices
+                         },
+                         height: 75,
+                         colors: self.color_values
                  }
              });     
         };

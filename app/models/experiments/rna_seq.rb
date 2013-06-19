@@ -59,7 +59,6 @@ class RnaSeq < Experiment
         histogram_track.destroy if histogram_track
       end
     else
-      # TODO: Test big wig only expression experiments. Need fix for Peaks .. data url etc..
       create_histogram_track(:assembly => assembly) unless histogram_track
     end
   end
@@ -104,6 +103,7 @@ class RnaSeq < Experiment
   end
 
   def single
-    self.show_negative == "false" ? "true" : "false"
+    true
   end
+  
 end

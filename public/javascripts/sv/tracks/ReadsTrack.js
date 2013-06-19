@@ -5,7 +5,7 @@ Ext.define("Sv.tracks.ReadsTrack",{
   extend : "Sv.tracks.BrowserTrack",
   clsAbove  : 'AJ_above',
   clsBelow  : 'AJ_below',
-  hist_color: '800000',
+  hist_color: 'A00608',
   maxHeight : 5000,
   boxHeight : 12,
   boxHeightMax : 24,
@@ -457,9 +457,9 @@ Ext.define("Sv.tracks.ReadsTrack",{
   	this.setColor = function(color,type){
       self.hist_color = color;
       switch (type){
-        case 'hist': handler.canvasA.setColor(color); break;
-        case 'forward': handler.canvasA.setForwardColor(color); break;
-        case 'reverse': handler.canvasA.setReverseColor(color); break;
+        case 'hist': Histogram.canvasA.setColor(color); break;
+        case 'forward': Reads.canvasA.setForwardColor(color); break;
+        case 'reverse': Reads.canvasA.setReverseColor(color); break;
       }
       handler.canvasA.refresh();
   	};
@@ -473,8 +473,9 @@ Ext.define("Sv.tracks.ReadsTrack",{
                      xtype: 'colormenu',
                      handler: function(colorMenu, color){
                          self.setColor(color, type);
-                     }//,
-                     //colors: self.color_choices
+                     },
+                     height: 75,
+                     colors: self.color_values
              }
          });
     };
@@ -533,7 +534,6 @@ Ext.define("Sv.tracks.ReadsTrack",{
     {
       //Before Painting we always set the canvas absMax
       //ignored by reads
-      //console.log("track Painting:"+self.name) 
       handler.setAbsMax(self.getCurrentMax());
       handler.paint(l,r,b,p);
     };
@@ -592,36 +592,9 @@ Ext.define("Sv.tracks.ReadsTrack",{
   // extend open function
   open: function(){
     this.callParent();
-    //this.loadAbsMax();
     this.scaleSourceSelect.setValue(this.scaleSource);
   },
-  // TODO: Remove - deprecated. we no longer use the abs max
-  // //Get the absolute max for this track
-  // loadAbsMax: function(){
-  //   var self=this;
-  //   Ext.Ajax.request(
-  //   {
-  //     url : self.data,
-  //     method : 'GET',
-  //     params : {
-  //       jrws : Ext.encode({
-  //         method : 'abs_max',
-  //         param  : {
-  //           experiment : self.experiment,
-  //           bioentry : self.bioentry
-  //         }
-  //       })
-  //     },
-  //     success  : function(response)
-  //     {
-  //       //self.setTrackMax(parseInt(response.responseText));
-  //     },
-  //   });
-  // },
-  // getTrackMax: function(){return this.trackMax;},
-  // getAllTrackMax: function(){return this.allTrackMax;},
-  // getViewMax: function(){return this.viewMax;},
-  // getAllViewMax: function(){return this.allViewMax;},
+
   localStoreId: function(){
     var self = this;
     if(self.handler.method == 'reads'){

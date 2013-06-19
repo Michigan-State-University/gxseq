@@ -25,7 +25,7 @@ class HistogramTrack < Track
       storeLocal: true,
       iconCls : '#{iconCls}',
       height 	: 100,
-      peaks : #{peaks}"
+      has_peaks : #{peaks}"
   end
   
   def name
@@ -48,7 +48,7 @@ class HistogramTrack < Track
     "#{experiment.class.name}"
   end
   
-  def peaks
+  def has_peaks
     "#{experiment.respond_to?('peaks') ? (experiment.peaks.size > 0) : false}"
   end
   
