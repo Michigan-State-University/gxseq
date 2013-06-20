@@ -25,7 +25,7 @@ class HistogramTrack < Track
       storeLocal: true,
       iconCls : '#{iconCls}',
       height 	: 100,
-      has_peaks : #{peaks}"
+      has_peaks : #{has_peaks}"
   end
   
   def name

@@ -321,27 +321,6 @@ Ext.define("Sv.tracks.MicroarrayTrack",{
                  if (self.cur_peak == 0) {self.peak_prev.disable();}
                  if (self.cur_peak > self.peaks.length-1){self.peak_next.disable();}
              };
-
-             //Send request for Peak data
-             Ext.Ajax.request(
-             {       
-                 url : self.data,
-                 method : 'GET',
-                 params : {
-                     jrws : Ext.encode({
-                         method : 'peak_locations',
-                         param  : {
-                             experiment : self.experiment,
-                             bioentry : self.bioentry
-                         }
-                     })
-                 },
-                 success  : function(response)
-                 {
-                     self.peaks = Ext.JSON.decode(response.responseText);
-                     self.set_cur_peak(AnnoJ.getLocation().position)
-                 },      
-             });
       	}
 
       	//Change the color(s) for this track
@@ -390,11 +369,12 @@ Ext.define("Sv.tracks.MicroarrayTrack",{
 
       	//Zoom policies (dictate which handler to use)
       	var policies = [
-      		{ index:0, min:1/100 	, max:10/1    	, bases:1   	, pixels:1  , cache:10000   },
-      		{ index:1, min:10/1  	, max:100/1   	, bases:10  	, pixels:1  , cache:100000   },
-      		{ index:2, min:100/1 	, max:1000/1  	, bases:100 	, pixels:1  , cache:1000000 },
-      		{ index:3, min:1000/1	, max:10000/1		, bases:1000	, pixels:1  , cache:10000000 },
-      		{ index:4, min:10000/1, max:100000/1	, bases:10000	, pixels:1  , cache:100000000 }
+      	  { index:0, min:1/100 	, max:2/1    	, bases:1   	, pixels:1  , cache:10000 },
+      		{ index:1, min:2/1    , max:10/1    	, bases:1   	, pixels:1  , cache:10000 },
+      		{ index:2, min:10/1  	, max:100/1   	, bases:10  	, pixels:1  , cache:100000   },
+      		{ index:3, min:100/1 	, max:1000/1  	, bases:100 	, pixels:1  , cache:1000000 },
+      		{ index:4, min:1000/1	, max:10000/1		, bases:1000	, pixels:1  , cache:10000000 },
+      		{ index:5, min:10000/1, max:100000/1	, bases:10000	, pixels:1  , cache:100000000 }
       	];
 
       	this.getPolicy = function(view)
@@ -406,7 +386,7 @@ Ext.define("Sv.tracks.MicroarrayTrack",{
       		for (var i=0; i<policies.length; i++)
       		{
       			if (ratio >= policies[i].min && ratio < policies[i].max)
-      			{			
+      			{
       				return policies[i];
       			}
       		}
@@ -466,6 +446,33 @@ Ext.define("Sv.tracks.MicroarrayTrack",{
       	{
       		handler.parse(data);
       	};
-	}
+	},
+	// extend open function
+  open: function(){
+    var self = this;
+    this.callParent();
+    if(self.has_peaks){
+      //Send request for Peak data
+      Ext.Ajax.request(
+      {       
+          url : self.data,
+          method : 'GET',
+          params : {
+              jrws : Ext.encode({
+                  method : 'peak_locations',
+                  param  : {
+                      experiment : self.experiment,
+                      bioentry : self.bioentry
+                  }
+              })
+          },
+          success  : function(response)
+          {
+              self.peaks = Ext.JSON.decode(response.responseText);
+              self.set_cur_peak(AnnoJ.getLocation().position)
+          },      
+      });
+    }
+  }
 });
 

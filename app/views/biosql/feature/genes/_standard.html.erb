@@ -115,15 +115,26 @@
     					<% end %>						
 						<% end %>
 						<tr class=<%= cycle("odd","even") %>>
-							<td class="keyword">Gene Length</td>
-							<% na_seq = gene_model.na_sequence %>
+							<td class="keyword">Transcript Length</td>
+							<% na_seq = gene_model.mrna_sequence %>
 							<td><%= na_seq.size if na_seq %></td>
 						</tr>
 						<tr class=<%= cycle("odd","even") %>>
-							<td class="keyword">NA Sequence<br/>
+							<td class="keyword">Transcript Sequence<br/>
 							  <%= render :partial => "blasts/link_with_sequence", :locals => {:sequence => na_seq, :desc => "#{gene_model.locus_tag} NA sequence"} %>
 							</td>
 							<td style="font-family:'Courier';"><pre style="overflow-x:scroll"><%= formatted_sequence(na_seq,{:rows => 10, :delimiter => "\n"}) %></pre></td>
+						</tr>
+						<tr class=<%= cycle("odd","even") %>>
+							<td class="keyword">Coding Length</td>
+							<% cds_seq = gene_model.cds_sequence %>
+							<td><%= cds_seq.size if cds_seq %></td>
+						</tr>
+						<tr class=<%= cycle("odd","even") %>>
+							<td class="keyword">Coding Sequence<br/>
+							  <%= render :partial => "blasts/link_with_sequence", :locals => {:sequence => cds_seq, :desc => "#{gene_model.locus_tag} NA sequence"} %>
+							</td>
+							<td style="font-family:'Courier';"><pre style="overflow-x:scroll"><%= formatted_sequence(cds_seq,{:rows => 10, :delimiter => "\n"}) %></pre></td>
 						</tr>
 						<% if gene_model.cds.protein_id %>
 							<tr class=<%= cycle("odd","even") %>>

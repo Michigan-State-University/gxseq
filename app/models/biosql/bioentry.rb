@@ -206,8 +206,7 @@ class Biosql::Bioentry < ActiveRecord::Base
   def taxon
     assembly.nil? ? nil : assembly.taxon 
   end
-  # returns data from the taxon version gc_file
-  # TODO: refactor and simplify this function
+  # returns data from the assembly gc_file
   def get_gc_content(left=0,length=0,bases=2)
     left = [left,self.length-1].min
     right = [(left + length),self.length].min

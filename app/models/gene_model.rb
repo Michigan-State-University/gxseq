@@ -223,6 +223,14 @@ class GeneModel < ActiveRecord::Base
     cds.try(:na_sequence)
   end
   
+  def mrna_sequence
+    mrna.try(:na_sequence)
+  end
+  
+  def cds_sequence
+    cds.try(:na_sequence)
+  end
+  
   def variant_protein_sequence(exp_id,opts={})
     if(cds)
       frame = (cds.codon_start.try(:value)||1).to_i

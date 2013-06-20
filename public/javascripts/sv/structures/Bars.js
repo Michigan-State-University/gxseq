@@ -1,99 +1,68 @@
 var HistogramData = function()
 {
-	var series = new HistogramList();
-	var max;
-	var min;// TODO: where are these used
-	
+	var dataSet = [];
 	this.clear = function()
 	{
-		series.clear()
+	  dataSet = [];
+		//series.clear()
 	};
 	
 	this.prune = function(x1,x2)
 	{
-		series.prune(x1,x2)
+		//series.prune(x1,x2)
 	};
 
 	this.parse = function(data, above)
 	{
 		if (!data) return;
-		series.parse(data);
+		var cnt=1;
+		//series.parse(data);
+		var length = data.length;
+    for (var i = 0; i < length; i++) {
+      var x = (data[i][0]|0)
+      dataSet[x] = {x:x,y:parseFloat(data[i][1])}
+    };
+    for (prop in dataSet) {
+      if (prop > 0) cnt+=1;
+    }
 	};
 		
 	this.subset2canvas = function(left, right, bases, pixels)
 	{
-		return series.subset2canvas(left,right,bases,pixels);
+    if(left<0){left=0}
+    var item;
+    var a = []
+    for (prop in dataSet) {
+      //test range, also removes an properties from list
+      if (prop > left && prop < right) {
+        item=dataSet[prop]
+        if (item.x) {
+          a.push(
+            {
+              x: (((item.x-left) * pixels / bases) | 0),
+              y: item.y,
+              w: 1
+            }
+          )
+        }
+      }
+    }
+    return a;
 	};
 	
-	this.getMaxY = function(x1, x2)
+	this.getMaxY = function(left, right)
 	{
-    return series.getMax(x1,x2);
-	};
-};	
-
-var HistogramList = function()
-{
-	HistogramList.superclass.constructor.call(this);
-
-	var self = this;
-	
-	//Parse information coming from the server into the list
-	this.parse = function(data)
-	{
-		var points = [];
-		Ext.each(data, function(datum)
-		{
-			if (!datum) return;
-			var item ={
-				x : parseInt(datum[0]),
-				y : parseFloat(datum[1]),
-				w : 1
-			}
-			item.id = item.x;
-			if (!item.w || !item.y) return;
-			
-			points.push(self.createNode(item.id, item.x, item));
-		});
-		self.insertPoints(points);
-	};
-		
-	//Get a subset to use for a histogram canvas
-	this.subset2canvas = function(x1,x2,bases,pixels)
-	{
-		var active = null;
-		var subset = [];
-		var bases = parseInt(bases) || 0;
-		var pixels = parseInt(pixels) || 0;
-		
-		if (!bases || !pixels) return subset;
-
-		self.viewport.update(x1,x2);
-		self.viewport.apply(function(item)
-		{
-			
-			var x = Math.round((item.x - x1) * pixels / bases);
-			var y = item.y;
-			var w = Math.round(item.w * pixels / bases) || 1;
-			subset.push(
-				{
-					x : x,
-					y : y,
-					w : w
-				})
-		});
-		return subset;
-	};
-	
-	//Return the maximum y-value from the list
-	this.getMax =function(x1,x2){
-	  var max = 0;
-	  //prune the viewport to left and right
-	  self.viewport.update(x1,x2);
-		self.viewport.apply(function(item)
-		{
-		  if(item.y>max){max=item.y;}
-	  });
-	  return max;
+    if(dataSet.length == 0) return 0;
+    if(left<0) left=0;
+    var item;
+    var max=0
+    for (prop in dataSet) {
+      //test range, also removes any properties from list
+      if (prop >= left && prop <= right) {
+        item=dataSet[prop];
+        if(item.y > max) max = item.y;
+      }
+    }
+    return max;
 	};
 };
-Ext.extend(HistogramList,PointList,{})

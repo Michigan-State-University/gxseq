@@ -37,9 +37,11 @@ class FetchersController < ApplicationController
       exp = Experiment.find(param['experiment'])
       authorize! :track_data, exp
       c_item = exp.concordance_items.with_bioentry(bioentry_id)[0]
-      data = exp.summary_data(param['left'],param['right'],((param['right']-param['left'])/param['bases']),c_item.reference_name)
+      density=param['density']||1000
+      data = exp.summary_data(param['left'],param['right'],density,c_item.reference_name)
+      offset = (param['right']-param['left'])/density
       #{(stop-start)/bases
-      data.fill{|i| [param['left']+(i*param['bases']),data[i]]}
+      data.fill{|i| [param['left']+(i*offset),data[i].round(2)]}
       #We Render the text directly for speed efficiency
       render :text =>"{\"success\":true,\"data\":#{data.inspect}}"
     when 'peak_genes'
@@ -47,14 +49,12 @@ class FetchersController < ApplicationController
       authorize! :track_data, @experiment
       @bioentry_id = param['bioentry']
       bioentry = Biosql::Bioentry.find(@bioentry_id)
-      authorize! :read, bioentry
       render :partial => 'peaks/gene_list.json' #exp.peaks.with_bioentry(param['bioentry']).order(:pos).to_json(:only => [:id,:pos, :val], :methods => :genes_link)
     when 'peak_locations'
       exp = Experiment.find(param['experiment'])
       authorize! :track_data, exp
       bioentry_id = param['bioentry']
       bioentry = Biosql::Bioentry.find(bioentry_id)
-      authorize! :read, bioentry
       render :text => exp.peaks.with_bioentry(param['bioentry']).order(:pos).map{|p|{:pos => p.pos, :id => p.id}}.to_json
     end
    end
