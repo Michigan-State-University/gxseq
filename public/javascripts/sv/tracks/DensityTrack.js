@@ -1,22 +1,13 @@
-//TODO: Convert Microarray and Reads track  to Histogram and Reads track
-Ext.define('DataPeak',{
- extend: 'Ext.data.Model',
- fields: [
-    'id',
-    'link',
-    'pos',
-    'val'
-]
-});
-
-Ext.define("Sv.tracks.MicroarrayTrack",{
+Ext.define("Sv.tracks.DensityTrack",{
   extend:"Sv.tracks.BrowserTrack",
+  requires: ['DataPeak'],
   single   : false,
 	clsAbove : 'AJ_above',
 	clsBelow : 'AJ_below',
 	color_above: 'A00608',
 	color_below: '003300',
-	has_peaks: false,
+	hasPeaks: false,
+	style: 'area',
 	initComponent : function(){
 	    this.callParent(arguments);
 	    var self = this;
@@ -144,11 +135,13 @@ Ext.define("Sv.tracks.MicroarrayTrack",{
       	{
       		var dataA = new HistogramData();
       		var dataB = new HistogramData();
-      		var canvasA = new Sv.painters.HistogramCanvas();
-      		var canvasB = new Sv.painters.HistogramCanvas();
+      		var canvasA = new Sv.painters.DensityCanvas();
+      		var canvasB = new Sv.painters.DensityCanvas();
 
       		canvasA.setColor(self.color_above)
       		canvasB.setColor(self.color_below)
+      		canvasA.setStyle(self.style)
+      		canvasB.setStyle(self.style)
       		function parse(data)
       		{
       			// for (var series in data[0])
@@ -201,7 +194,7 @@ Ext.define("Sv.tracks.MicroarrayTrack",{
         self.Toolbar.insert(4,Ext.create('Ext.toolbar.Separator'));
         
         //Peak navigation
-      	if(self.has_peaks){
+      	if(self.hasPeaks){
              self.peak_prev = new Ext.Button({
                  iconCls: 'silk_blue_rewind',
                  tooltip: 'Show previous peak',
@@ -404,12 +397,6 @@ Ext.define("Sv.tracks.MicroarrayTrack",{
           handler.canvasA.setScaler(newVal);
           handler.canvasB.setScaler(newVal);
           multiplierText.setText(+newVal+" x");
-          //var f = Math.pow(f*2, 4);
-          // handler.canvasA.setScaler(f);
-          // handler.canvasB.setScaler(f);
-          // handler.canvasA.refresh();
-          // handler.canvasB.refresh();
-          // scale_text.setText("Scale: "+f.toFixed(2))
       	};	
       	this.clearCanvas = function()
       	{
@@ -451,7 +438,7 @@ Ext.define("Sv.tracks.MicroarrayTrack",{
   open: function(){
     var self = this;
     this.callParent();
-    if(self.has_peaks){
+    if(self.hasPeaks){
       //Send request for Peak data
       Ext.Ajax.request(
       {       

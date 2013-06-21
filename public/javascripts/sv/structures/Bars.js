@@ -20,7 +20,7 @@ var HistogramData = function()
 		var length = data.length;
     for (var i = 0; i < length; i++) {
       var x = (data[i][0]|0)
-      dataSet[x] = {x:x,y:parseFloat(data[i][1])}
+      dataSet[x] = {x:x,y:parseFloat(data[i][1]),w:1}
     };
     for (prop in dataSet) {
       if (prop > 0) cnt+=1;
@@ -32,14 +32,15 @@ var HistogramData = function()
     if(left<0){left=0}
     var item;
     var a = []
+    var mult = pixels / bases;
     for (prop in dataSet) {
-      //test range, also removes an properties from list
-      if (prop > left && prop < right) {
+      //test range, also removes any properties from list
+      if (prop >= (left-mult) && prop <= (right+mult)) {
         item=dataSet[prop]
         if (item.x) {
           a.push(
             {
-              x: (((item.x-left) * pixels / bases) | 0),
+              x: ((item.x-left) * mult)|0,
               y: item.y,
               w: 1
             }
@@ -47,7 +48,7 @@ var HistogramData = function()
         }
       }
     }
-    return a;
+    return a.sort(function(a,b){return a.x-b.x});
 	};
 	
 	this.getMaxY = function(left, right)

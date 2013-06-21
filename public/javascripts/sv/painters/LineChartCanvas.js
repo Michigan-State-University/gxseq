@@ -1,5 +1,6 @@
 /*
 * Class for a line chart
+  Expects data as percentage from 0.0-1.0
 */
 Ext.define('Sv.painters.LineChartCanvas',{
   extend: 'Sv.painters.DataCanvas',
@@ -71,7 +72,6 @@ Ext.define('Sv.painters.LineChartCanvas',{
       brush.fillStyle = "rgb(100,100,200)";
       if(height > 40)
       {
-        brush.fillText('25%',10,(height*0.75)+5)
         brush.fillText('25%',10,(height*0.75)+5)
         brush.fillText('75%',10,(height*0.25)+5)
       }

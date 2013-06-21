@@ -15,6 +15,7 @@ Ext.define("Sv.tracks.ReadsTrack",{
   readLength : 36,
   readLimit : 1000,
   scale : 1,
+  style : 'area',
   initComponent : function(){
     this.callParent(arguments);
     var self = this;
@@ -303,7 +304,8 @@ Ext.define("Sv.tracks.ReadsTrack",{
        dataA.parse(data,true);
      };
     
-     var canvasA = new Sv.painters.HistogramCanvas();
+     var canvasA = new Sv.painters.DensityCanvas();
+     canvasA.setStyle(self.style);
      canvasA.setColor(self.hist_color);
      canvasA.setContainer(containerA.dom);    
      canvasA.flipY();
