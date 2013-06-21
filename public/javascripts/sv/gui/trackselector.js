@@ -37,18 +37,20 @@ Ext.define('Sv.gui.TrackSelector',{
         fn: function(plugin, obj){
           //return unless finished
           if(obj.record.editing) return;          
-          var editNode = obj.record
-          var newValue = obj.value
-          //update inactive children
-          Ext.each(editNode.childNodes, function(){
-            this.updatePath(newValue);
-          });
-          //update active children
-          Ext.each(obj.grid.active.childNodes, function(child){
-            if(child.originalParent == editNode){
-              child.updatePath(newValue);
-            }
-          });
+          var editNode = obj.record;
+          var newValue = obj.value;
+          if(newValue!=obj.originalValue){
+            //update inactive children
+            Ext.each(editNode.childNodes, function(){
+              this.updatePath(newValue);
+            });
+            //update active children
+            Ext.each(obj.grid.active.childNodes, function(child){
+              if(child.originalParent == editNode){
+                child.updatePath(newValue);
+              }
+            });
+          }
         }
       }
     }
@@ -123,7 +125,6 @@ Ext.define('Sv.gui.TrackSelector',{
         self.toggle_active(record);
       }
     });
-
     //Context Menu for tracks (when inactive)
     var trackMenu = (function(){
       var item ;
@@ -148,7 +149,6 @@ Ext.define('Sv.gui.TrackSelector',{
         setItem : setItem
       };
     })();
-    
     //Context Menu for folders
     var folderMenu = (function(){
       var folder = this.inactive;
@@ -174,14 +174,11 @@ Ext.define('Sv.gui.TrackSelector',{
         };
       }
     )();
-
-
     // Save Layout Form
     var txtField = new Ext.form.TextField({
       fieldLabel: 'Layout Name',
       allowBlank: false
-    });        
-    
+    });
     this.win = new Ext.Window({
       title:'New Layout',
       x: 500, y: 300, width:280, height:110, minWidth:290, minHeight:110,
@@ -241,11 +238,13 @@ Ext.define('Sv.gui.TrackSelector',{
         });
       };
       node.updateParent = function(newParent){
-        node.originalParent = newParent;
-        node.updatePath(newParent.data.text);
+        if(node.originalParent!=newParent){
+          node.originalParent = newParent;
+          node.updatePath(newParent.data.text); 
+        }
       }
       track.node = node;
-      //Tightly coupled...Move to App setup?
+      //TODO Tightly coupled...Move to App setup?
       track.on('close', function(track,event){self.inactivate(track)});
 
       //Attach a listener for the node move event

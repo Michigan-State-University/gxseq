@@ -116,7 +116,7 @@ var BaseJS = (function()
 				request : JSON.stringify(params.data)
 			};
 		}
-		params.data.authenticity_token = AnnoJ.config.auth_token
+		if(params.method == 'POST'){params.data.authenticity_token = AnnoJ.config.auth_token;}
 		Ext.Ajax.request(
 		{
 			url : params.url,

@@ -271,7 +271,7 @@ class Biosql::BioentriesController < ApplicationController
         :entry => {
           :accession => bioentry.accession,
           :accession_link => ACCESSION_LINK,
-          :size => (bioentry.length rescue 1000),
+          :size => (bioentry.length),
         }
       }
     }

@@ -85,7 +85,7 @@ var AnnoJ = (function()
         success : function(response)
         {
           progressBar.updateProgress(0.75, 'Building tracks...');
-          GUI.NavBar.setLocation(config.location);
+          //GUI.NavBar.setLocation(config.location);
           buildTracks();
           progressBar.updateProgress(1.0, 'Finished');
           progressBar.hide();
@@ -127,26 +127,14 @@ var AnnoJ = (function()
 		GUI.TrackSelector.expand();
 		Ext.each(config.tracks, function(trackConfig, index)
 		{
-			////Try to create the track defaulting to a base track if no plugin type is provided
-      // try
-      // {
-				//var track = new Sv.tracks[trackConfig.type](trackConfig);
-				var track = Ext.create("Sv.tracks."+trackConfig.type,trackConfig)
-      // }
-      // catch (e)
-      // {
-      //   config.tracks[index] = null;
-      //   console.log("Track Creation Error: '"+e+"'");
-      //   return;
-      // };
-			
-			//Add the track to the track selector tree and the track main window
-			GUI.Tracks.tracks.manage(track);
-			GUI.TrackSelector.manage(track);
-			//Bind app wide events
-			track.on('open',setupTrack);
-			track.on('close',closeTrack);
-			track.on('frameLoaded',handleFrame)
+      var track = new Sv.tracks[trackConfig.type](trackConfig);
+      //Add the track to the track selector tree and the track main window
+      GUI.Tracks.tracks.manage(track);
+      GUI.TrackSelector.manage(track);
+      //Bind app wide events
+      track.on('open',setupTrack);
+      track.on('close',closeTrack);
+      track.on('frameLoaded',handleFrame)
 		});
 		//Hook the info buttons of all of the tracks
 		// Ext.each(GUI.Tracks.tracks.tracks, function(track)

@@ -213,9 +213,8 @@ AnnoJ.Navigator = function()
               max : syndication.entry.size,
             });
             
-            AnnoJ.getGUI().Tracks.doLayout();
+            //AnnoJ.getGUI().Tracks.doLayout();
             AnnoJ.getGUI().Tracks.doComponentLayout();
-            
             params.success(response);
           }
         },
