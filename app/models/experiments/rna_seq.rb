@@ -106,4 +106,7 @@ class RnaSeq < Experiment
     true
   end
   
+  def track_style
+    'area'
+  end
 end

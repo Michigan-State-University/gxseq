@@ -39,9 +39,9 @@ class FetchersController < ApplicationController
       c_item = exp.concordance_items.with_bioentry(bioentry_id)[0]
       density=param['density']||1000
       data = exp.summary_data(param['left'],param['right'],density,c_item.reference_name)
-      offset = (param['right']-param['left'])/density
+      offset = (param['right']-param['left'])/density.to_f
       #{(stop-start)/bases
-      data.fill{|i| [param['left']+(i*offset),data[i].round(2)]}
+      data.fill{|i| [param['left']+(i*offset).to_i,data[i].round(2)]}
       #We Render the text directly for speed efficiency
       render :text =>"{\"success\":true,\"data\":#{data.inspect}}"
     when 'peak_genes'

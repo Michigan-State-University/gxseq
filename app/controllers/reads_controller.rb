@@ -42,9 +42,12 @@ class ReadsController < ApplicationController
           render :json => {:success => false}
           return
         end
-          data = experiment.summary_data(param['left'],param['right'],((param['right']-param['left'])/param['bases']),c_item.reference_name)
-          data = data.fill{|i| [param['left']+(i*param['bases']),data[i].to_i]}
-          render :text =>"{\"success\":true,\"data\":#{data.inspect}}"
+        density=param['density']||1000
+        data = experiment.summary_data(param['left'],param['right'],density,c_item.reference_name)
+        offset = (param['right']-param['left'])/density.to_f
+        #{(stop-start)/bases
+        data.fill{|i| [param['left']+(i*offset).to_i,data[i].to_i]}
+        render :text =>"{\"success\":true,\"data\":#{data.inspect}}"
       when 'reads'
         bioentry = Biosql::Bioentry.find(param['bioentry'])
         experiment = Experiment.find(param['experiment'])

@@ -54,7 +54,6 @@ class ChipSeq < Experiment
     end
   end
   
-  # TODO: should we remove peaks? What about uploaded peaks. Should we remove big_wig if we have a wig?
   def remove_asset_data
     super
   end
@@ -67,15 +66,6 @@ class ChipSeq < Experiment
     self.big_wig ? big_wig.summary_data(start,stop,num,chrom).map(&:to_f) : []
   end
 
-  ##Track Config
-  def iconCls
-    "chip_seq_track"
-  end
-
-  def single
-    "true"
-  end
-
   ##Class Specific
   def max(chrom='')
     begin
@@ -84,5 +74,19 @@ class ChipSeq < Experiment
       1
     end
   end
+  
+  ##Track Config
+  def iconCls
+    "chip_seq_track"
+  end
+
+  def single
+    "true"
+  end
+  
+  # def track_style
+  #   'area'
+  # end
+  
 
 end

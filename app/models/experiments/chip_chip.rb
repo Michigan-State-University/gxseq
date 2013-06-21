@@ -68,15 +68,6 @@ class ChipChip < Experiment
     big_wig.summary_data(start,stop,num,chrom).map(&:to_f)
   end
 
-  ##Track Config
-  def iconCls
-    "chip_chip_track"
-  end
-
-  def single
-    self.show_negative == "No" ? "true" : "false"
-  end
-
   ##Class Specific
   def max(chrom='')
     begin
@@ -85,6 +76,18 @@ class ChipChip < Experiment
       1
     end
   end
+  
+  ##Track Config
+  def iconCls
+    "chip_chip_track"
+  end
 
+  def single
+    self.show_negative == "No" ? "true" : "false"
+  end
+  
+  def track_style
+    'bar'
+  end
 end
 

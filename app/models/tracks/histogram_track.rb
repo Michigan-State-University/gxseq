@@ -20,12 +20,13 @@ class HistogramTrack < Track
       experiment: '#{experiment.id}',
       name  		: '#{name}',
       single	  : #{experiment.single},
-      type  		: 'MicroarrayTrack',
+      type  		: 'DensityTrack',
       data  		: '#{root_path}/fetchers/base_counts',
       storeLocal: true,
       iconCls : '#{iconCls}',
       height 	: 100,
-      has_peaks : #{has_peaks}"
+      hasPeaks : #{has_peaks},
+      style: '#{style}'"
   end
   
   def name
@@ -41,7 +42,7 @@ class HistogramTrack < Track
   end
   
   def type
-      "type  		: 'MicroarrayTrack',\n"
+      "type  		: 'DensityTrack',\n"
   end
   
   def path
@@ -52,5 +53,8 @@ class HistogramTrack < Track
     "#{experiment.respond_to?('peaks') ? (experiment.peaks.size > 0) : false}"
   end
   
+  def style
+    experiment.respond_to?('track_style') ? experiment.track_style : 'area'
+  end
 end
 
