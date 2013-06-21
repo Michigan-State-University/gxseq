@@ -47,8 +47,6 @@ Ext.define('Sv.painters.DensityCanvas',{
     		var lastX=data[data.length-1].x;
         var firstX=data[0].x
         //clip the first and last boundaries
-        // if (lastX > width){lastX=width;}
-        // if (firstX < 0){firstX=0;}
     		//Start Path
     		if(self.style=='area'||self.style=='line'){
           brush.beginPath();
@@ -73,13 +71,13 @@ Ext.define('Sv.painters.DensityCanvas',{
     			  y = 0;
     			}else{
             // if(datum.y <= 0) return;
-    				y = height - h - 1;					
+    				y = height - h;					
     			}
     		  //clip boundaries
     			if (h >= height)
     			{
     				y = 0;
-    				h = height-1;
+    				h = height;
     			}
           //default width
     			w = datum.w || 1;
@@ -101,7 +99,7 @@ Ext.define('Sv.painters.DensityCanvas',{
           if(flippedY){
             brush.lineTo(lastX, 0);
           }else{
-            brush.lineTo(lastX, height+1);
+            brush.lineTo(lastX, height);
           }
           if(self.style=='area'){
             brush.fill()
