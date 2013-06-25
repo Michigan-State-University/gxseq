@@ -33,8 +33,8 @@ var ReadsList = function()
     				};
     				if (read.id && read.x && read.w )
     				{
-					
-    					var node = self.createNode(read.id, read.x, read.x + read.w - 1, read);
+					    //composite: id plus position because Bam ID's are not unique 
+    					var node = self.createNode(read.id+read.x, read.x, read.x + read.w - 1, read);
     					self.insert(node);
     				}
     			});

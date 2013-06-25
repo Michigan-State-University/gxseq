@@ -276,7 +276,7 @@ class Bam < Asset
       width = (set_item[2]-start)+1                             # inclusive width (calend - pos) + 1
       strand = (set_item[0][1].to_i & 0x0010 > 0) ? '+' : '-'   # sam_data bit flag for strand -- 0x10 SEQ being reverse complemented
       
-      reads << "[\"#{seq_name}_#{start}\",#{start},#{width},\"#{strand}\",\"#{seq}\",[#{gaps.join(',')}]],"
+      reads << "[\"#{seq_name}\",#{start},#{width},\"#{strand}\",\"#{seq}\",[#{gaps.join(',')}]],"
     end
 
     bam.close
