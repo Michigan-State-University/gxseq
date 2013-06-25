@@ -1,4 +1,6 @@
 class Sequence < Thor
+  require "#{File.expand_path File.dirname(__FILE__)}/shared_thor"
+  include SharedThor
   ENV['RAILS_ENV'] ||= 'development'
   desc 'load FILE','Load genomic sequence into the database'
   method_options :verbose => false, :show_percent => false, :version => "1", :source_name => "EMBL/GenBank/SwissProt"
@@ -418,8 +420,8 @@ class Sequence < Thor
   end
   
   desc 'dump_features', 'Export sequence for annotated features'
-  method_options %w(assembly_id -a) => :required,
-    %w(feature_type -f) => 'Gene'
+  method_options %w(feature_type -f) => 'Gene'
+  method_option :assembly, :aliases => '-a', :desc => 'Id of the assembly to reindex'
   method_option :output, :required => true, :aliases => '-o', :desc => 'Output file name'
   method_option :extra_flanking, :aliases => 'e', :default => 0, :desc => 'Number of extra flanking bases to include before and after annotation'
   method_option :defline, :aliases => '-d', :default => 'description', :desc => 'Source for defline. Can be any stored index field. Ignored if blast is supplied'
@@ -429,7 +431,7 @@ class Sequence < Thor
   def dump_features
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     # lookup assembly
-    assembly = ::Assembly.find(options[:assembly_id])
+    assembly = assembly_option_or_ask
     # setup defline
     if(options[:blast_db])
       blast_db = BlastDatabase.find_by_name(options[:blast_db]) || BlastDatabase.find_by_id(options[:blast_db])
@@ -444,7 +446,7 @@ class Sequence < Thor
       end
       stored_def = "blast_#{blast_run.id}_text"
     else
-      stored_def = 'description_text'
+      stored_def = options[:defline]+'_text'
     end
     # Set output
     out = File.open(options[:output],'w')
@@ -477,19 +479,14 @@ class Sequence < Thor
     cur_bioentry_id = 0
     cur_seq = nil
     seqh = {}
-    # lookup/cache bioseq
-    Biosql::Biosequence.where{bioentry_id.in search.hits.collect{|hit| hit.stored(:bioentry_id)}.flatten}.each do |bioseq|
-      seqh[bioseq.bioentry_id]=bioseq.seq
+    # lookup/cache bioseq for gene shortcut
+    if(options[:feature_type].downcase == 'gene')
+      Biosql::Biosequence.where{bioentry_id.in search.hits.collect{|hit| hit.stored(:bioentry_id)}.flatten}.each do |bioseq|
+        seqh[bioseq.bioentry_id]=bioseq.seq
+      end
     end
     # write out initial data
-    search.hits.each do |hit|
-      # write defline
-      out << ">#{Array(hit.stored(:locus_tag_text)).first} #{Array(hit.stored(stored_def)).first}\n"
-      # Slice the sequence
-      start_pos = Array(hit.stored(:start_pos)).first
-      end_pos = Array(hit.stored(:end_pos)).first
-      out << "#{seqh[hit.stored(:bioentry_id)][start_pos-1,(end_pos-start_pos)+1].scan(/.{1,#{100}}/m).join("\n")}\n"
-    end
+    write_fasta_from_search(out,search,stored_def,seqh,options)
     bar.increment!(search.hits.length)
     # Start main loop - Work in batches to avoid large memory use
     while(current_page < total_pages)
@@ -501,17 +498,12 @@ class Sequence < Thor
         paginate(:page => current_page, :per_page => 500)
       end
       # lookup/cache bioseq
-      Biosql::Biosequence.where{bioentry_id.in search.hits.collect{|hit| hit.stored(:bioentry_id)}.flatten}.each do |bioseq|
-        seqh[bioseq.bioentry_id]=bioseq.seq
+      if(options[:feature_type].downcase == 'gene')
+        Biosql::Biosequence.where{bioentry_id.in search.hits.collect{|hit| hit.stored(:bioentry_id)}.flatten}.each do |bioseq|
+          seqh[bioseq.bioentry_id]=bioseq.seq
+        end
       end
-      search.hits.each do |hit|
-        # write defline
-        out << ">#{Array(hit.stored(:locus_tag_text)).first} #{Array(hit.stored(stored_def)).first}\n"
-        # Slice the sequence
-        start_pos = Array(hit.stored(:start_pos)).first
-        end_pos = Array(hit.stored(:end_pos)).first
-        out << "#{seqh[hit.stored(:bioentry_id)][start_pos-1,(end_pos-start_pos)+1].scan(/.{1,#{100}}/m).join("\n")}\n"
-      end
+      write_fasta_from_search(out,search,stored_def,seqh,options)
       bar.increment!(search.hits.length)
     end
     # Create the blast database
@@ -527,6 +519,25 @@ class Sequence < Thor
   end
   
   protected
+  # Write out a fasta formatted line to the provided IO
+  def write_fasta_from_search(out_io,search,stored_def,seqh,options)
+    # Use features instead of bioseq lookup for mRNA/cds
+    if(options[:feature_type].downcase != 'gene')
+      search.each_hit_with_result do |hit,feature|
+        out_io << ">#{Array(hit.stored(:locus_tag_text)).first} #{Array(hit.stored(stored_def)).first}\n"
+        out_io << "#{feature.na_sequence.scan(/.{1,#{100}}/m).join("\n")}\n"
+      end
+    else
+      search.hits.each do |hit,feature|
+        # write defline
+        out_io << ">#{Array(hit.stored(:locus_tag_text)).first} #{Array(hit.stored(stored_def)).first}\n"
+        # Slice the sequence
+        start_pos = Array(hit.stored(:start_pos)).first
+        end_pos = Array(hit.stored(:end_pos)).first
+        out_io << "#{seqh[hit.stored(:bioentry_id)][start_pos-1,(end_pos-start_pos)+1].scan(/.{1,#{100}}/m).join("\n")}\n"
+      end
+    end
+  end
   # Compare the types we loaded to the Classes that exist in the app
   def check_feature_types(type_names)
     type_names.each do |name|

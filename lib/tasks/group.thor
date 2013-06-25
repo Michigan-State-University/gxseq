@@ -1,6 +1,6 @@
 class Group < Thor
   ENV['RAILS_ENV'] ||= 'development'
-  # return all of the assemblies in the database
+  # return all of the groups in the database
   desc 'list','Report information about groups in the database'
   def list
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")

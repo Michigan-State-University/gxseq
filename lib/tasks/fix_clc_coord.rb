@@ -19,11 +19,15 @@ bam_view_in, bam_view_out, bam_view_err = Open3.popen3("#{samtools_path} view #{
 puts "Processing bam"
 count = 0
 while bam_line = bam_view_out.gets
+  # Count and Log
   count+=1
   printf "--#{count}\r" if count%10000==0
+  # Parse the line
   sam_data = bam_line.split("\t")
+  # id
   id=sam_data[2]
   puts id unless hsh[id]
+  # START CHANGES
   strand=hsh[id][4].to_i
   # Set Reference name to chromosome instead of Gene
   sam_data[2]=hsh[id][3]
@@ -38,7 +42,7 @@ while bam_line = bam_view_out.gets
    sam_data[9].reverse!
    sam_data[9].tr!('atcgATCG','tagcTAGC')
   end
-  # Write to the sam input where it is waiting for standard in
+  # Write to the temp file
   temp_file.puts sam_data.join("\t")
 end
 while bam_err = bam_view_err.gets
@@ -52,3 +56,4 @@ temp_file.close
 `#{samtools_path} view -uSt #{indexed_fa} #{ARGV[4]+'.tmp'} | #{samtools_path} calmd -u - #{ref_fa} | #{samtools_path} sort -m 1000000000 - #{ARGV[4]}`
 
 puts "Done"
+TGGTAAGCGTCTGCAATCCATCAGCAGTGAAGTTGTTTTCATCCCGCAAGACATGATAATGAGCAGGACGGCTAGTGCCCTTGATGCCAGCATGGCTGCACAAGTAGAAATCAAATTCATTTGGATGACAGATCTTTGAATCTACAACTG

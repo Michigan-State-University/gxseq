@@ -20,7 +20,7 @@ group :development do
   gem 'binding_of_caller'
   # Code analyzers and security
   gem 'reek'
-  gem 'rails_best_practices'
+  # gem 'rails_best_practices'
   gem 'flay'
   gem 'flog'
   gem 'cane'
