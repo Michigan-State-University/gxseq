@@ -85,7 +85,7 @@ var AnnoJ = (function()
         success : function(response)
         {
           progressBar.updateProgress(0.75, 'Building tracks...');
-          //GUI.NavBar.setLocation(config.location);
+          GUI.NavBar.setLocation(config.location);
           buildTracks();
           progressBar.updateProgress(1.0, 'Finished');
           progressBar.hide();
