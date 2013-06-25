@@ -7,7 +7,7 @@ module SharedThor
     else
       puts "\nSelect an assembly ID from the list below."
       print_assembly_table
-      printf "Assembly ID to reindex:"
+      printf "Assembly ID:"
       assembly = ::Assembly.find(STDIN.gets.chomp)
     end
   end

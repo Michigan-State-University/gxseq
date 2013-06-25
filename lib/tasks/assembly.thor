@@ -10,12 +10,13 @@ class Assembly < Thor
     print_assembly_table
   end
   desc 'dump_gene_coords', 'Dump out the name,start,end,chr, and strand of all genes in an asssembly.'
-  method_option :assembly, :aliases => '-a', :required => true, :desc => 'Id for the assembly to export'
+  method_option :assembly, :aliases => '-a', :desc => 'Id for the assembly to export'
   method_option :output, :aliases => '-o', :required => true, :desc => 'Output file name'
   def dump_gene_coords
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
+    assembly = assembly_option_or_ask
     # lookup bioentries
-    bioentries = Biosql::Bioentry.where{ assembly_id==my{options[:assembly]} }
+    bioentries = Biosql::Bioentry.where{ assembly_id==my{assembly.id} }
     # Set output
     out = File.open(options[:output],'w')
     # Grab all the Genes - use unique l_strand to avoid calling Seqfeature::strand method during output

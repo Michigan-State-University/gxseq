@@ -147,22 +147,9 @@ Ext.define('Sv.painters.ReadsCanvas',{
   		if (h < self.boxHeightMin) h = self.boxHeightMin;
   		if (h > self.boxHeightMax) h = self.boxHeightMax;
   		
-      // //JS will be too slow if too many divs are being drawn - use an array and innerHTML instead
-      // //create div we can use to alter innerHTML
-      //       var containerDiv = document.createElement('DIV');
-      //       containerDiv.style.width = width+"px";
-      //       containerDiv.style.height = height+"px";
-      //       containerDiv.style.left = "0px";
-      //       containerDiv.style.top = "0px";
-      //       containerDiv.style.position = "absolute";
-      //       container.appendChild(containerDiv);
-      //       
-      // var newDivs = [];
-  		
   		var maxLevel = Math.ceil(height/h);
   		
   		// Build Image Map for click event    
-      //Add an empty map 
       var readMap = document.createElement('MAP');
       readMap.setAttribute("id",""+container.id+"map");
       readMap.setAttribute("name",""+container.id+"map");
@@ -197,7 +184,6 @@ Ext.define('Sv.painters.ReadsCanvas',{
         
         if(w>3)
         {
-          //newDivs.push("<div id="+container.id+"_read_"+read.id+" data-id="+read.id+" style='width: "+w+"px; height: "+h+"px; left: "+x+"px; top: "+y+"px; cursor: pointer; position: absolute;'></div>");
           mapAreas.push("<area shape='rect' coords='"+x+","+y+","+(x+w)+","+(y+h)+"' id=model_"+read.id+" data-id="+read.id+" href='#' alt='"+read.id+"' title='"+read.id+"'>");
         }
         //Setup read style. TODO: allow user control of read colors
@@ -235,13 +221,6 @@ Ext.define('Sv.painters.ReadsCanvas',{
       if(self.drawFrames){
         self.drawFrameBreaks();
       }
-      
-      // //Append all the html DIVs we created
-      // containerDiv.innerHTML+=newDivs.join("\n");
-
-      // //setup the click event
-      // for(i=0;i<containerDiv.children.length;i++)
-      //   Ext.get(containerDiv.children[i]).addListener('mouseup', selectItem);
       
       //click handler
       function selectItem(event, srcEl, obj)
