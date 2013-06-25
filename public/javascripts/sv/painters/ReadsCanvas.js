@@ -198,7 +198,7 @@ Ext.define('Sv.painters.ReadsCanvas',{
         if(w>3)
         {
           //newDivs.push("<div id="+container.id+"_read_"+read.id+" data-id="+read.id+" style='width: "+w+"px; height: "+h+"px; left: "+x+"px; top: "+y+"px; cursor: pointer; position: absolute;'></div>");
-          mapAreas.push("<area shape='rect' coords='"+x+","+y+","+(x+w)+","+(y+h)+"' id=model_"+read.id+" data-id="+read.id+" href='#' alt='"+read.id+"' title='Read Details'>");
+          mapAreas.push("<area shape='rect' coords='"+x+","+y+","+(x+w)+","+(y+h)+"' id=model_"+read.id+" data-id="+read.id+" href='#' alt='"+read.id+"' title='"+read.id+"'>");
         }
         //Setup read style. TODO: allow user control of read colors
   			aw = 5
