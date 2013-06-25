@@ -71,7 +71,7 @@ var ReadsList = function()
 				sequence : node.value.sequence,
 				level : node.level,
 				strand : node.value.strand,
-				id : node.id,
+				id : node.value.id,
 				children : node.value.children
 			});
 			return true;
