@@ -198,7 +198,7 @@ Ext.define('Sv.painters.ReadsCanvas',{
         if(w>3)
         {
           //newDivs.push("<div id="+container.id+"_read_"+read.id+" data-id="+read.id+" style='width: "+w+"px; height: "+h+"px; left: "+x+"px; top: "+y+"px; cursor: pointer; position: absolute;'></div>");
-          mapAreas.push("<area shape='rect' coords='"+x+","+y+","+(x+w)+","+(y+h)+"' id=model_"+read.id+" data-id="+read.id+" href='#' alt='Read Details' title='Read Details'>");
+          mapAreas.push("<area shape='rect' coords='"+x+","+y+","+(x+w)+","+(y+h)+"' id=model_"+read.id+" data-id="+read.id+" href='#' alt='"+read.id+"' title='Read Details'>");
         }
         //Setup read style. TODO: allow user control of read colors
   			aw = 5
@@ -274,15 +274,16 @@ Ext.define('Sv.painters.ReadsCanvas',{
   			var letter = sequence.charAt(i);
   			
 			  var cls = 'base'
+			  var alwaysColor = false;
 			  if(self.colorBases){ 
   				switch (letter){
             case '-': cls = '';break;
             case 'n': cls = 'base_spacer';break;
-            case 'D': cls = 'base_deletion';break;
-            case 'a': cls = 'A_mis'; break;
-            case 't': cls = 'T_mis'; break;
-            case 'c': cls = 'C_mis'; break;
-            case 'g': cls = 'G_mis'; break;
+            case 'D': cls = 'base_deletion';alwaysColor=true;break;
+            case 'a': cls = 'A_mis';alwaysColor=true;break;
+            case 't': cls = 'T_mis';alwaysColor=true;break;
+            case 'c': cls = 'C_mis';alwaysColor=true;break;
+            case 'g': cls = 'G_mis';alwaysColor=true;break;
             case 'A': cls = 'A'; break;
             case 'T': cls = 'T'; break;
             case 'C': cls = 'C'; break;
@@ -298,6 +299,8 @@ Ext.define('Sv.painters.ReadsCanvas',{
   			  brush.fillStyle = '#fff'
       		brush.font = 'bold '+(letterW+1)+'px'+' courier new, monospace'
   				brush.fillText(letter,letterX,y+h-1)
+  			}else if(alwaysColor){
+  			  self.paintBox(cls, letterX, y, letterW, h);
   			}
   		};
   	};
