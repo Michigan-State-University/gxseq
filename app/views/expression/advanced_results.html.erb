@@ -20,7 +20,7 @@
   <div class="table">
     <table class="listing">
       <thead>
-        <th style="white-space:nowrap"><%= sort_link "Locus", 'locus_tag_value' %></th>
+        <th style="white-space:nowrap"><%= sort_link "Locus", 'locus_tag' %></th>
         <th width="65%">Definition</th>
         <% @blast_runs.each do |blast_run| %>
           <th><%= sort_link blast_run.name, "blast_acc_#{blast_run.id}" %></th>
