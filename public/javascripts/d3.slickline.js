@@ -16,32 +16,9 @@ d3.slickline = function(config){
     forceFitColumns: true,
     autoEdit: false
   };
-
-  // var dataView = new Slick.Data.DataView();
-  // var grid = new Slick.Grid(grid_selector, dataView, columns, options);
-  // var pager = new Slick.Controls.Pager(dataView, grid, $(page_selector));
-  
-  
-  // wire up model events to drive the grid
-  // dataView.onRowCountChanged.subscribe(function (e, args) {
-  //   grid.updateRowCount();
-  //   grid.render();
-  // });
-  // 
-  // dataView.onRowsChanged.subscribe(function (e, args) {
-  //   grid.invalidateRows(args.rows);
-  //   grid.render();
-  // });
-  
-  // function gridUpdate(data) {
-  //   dataView.beginUpdate();
-  //   dataView.setItems(data);
-  //   dataView.endUpdate();
-  // };
       
   var display = function(error,rawData){
     var grid = new Slick.Grid(grid_selector, rawData, columns, options);
-    //gridUpdate(rawData);
     grid.setSelectionModel(Slick.RowSelectionModel);
     // highlight row in linechart on change
     grid.onMouseEnter.subscribe(function(e,args) {
