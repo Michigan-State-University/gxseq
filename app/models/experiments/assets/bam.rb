@@ -249,7 +249,7 @@ class Bam < Asset
           when 'MD'
             md = set_item[0][i].split(":")[2]
             scanner = StringScanner.new(md)
-            while(val = scanner.scan(md_reg))
+            while(val = scanner.scan(md_reg) && idx < seq.length)
               if(val.match(cnt_reg))
                 # match - move on
                 idx+=val.to_i
