@@ -577,7 +577,7 @@ class Sequence < Thor
     # setup user supplied strain/variety
     strain_taxon = nil
     if(opts[:strain])
-      strain_taxon = (Biosql::TaxonName.find_by_name(opts[:strain]) || create_taxon(opts[:strain],'varietas')).try(:taxon) 
+      strain_taxon = Biosql::TaxonName.find_by_name(opts[:strain]).try(:taxon) || create_taxon(opts[:strain],'varietas')
     elsif(opts[:strain_id])
       strain_taxon = Biosql::Taxon.find(opts[:strain_id])
     end
