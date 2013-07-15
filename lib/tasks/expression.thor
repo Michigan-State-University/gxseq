@@ -73,9 +73,9 @@ class Expression < Thor
       dataset = []
       # grab the columns
       dataset << data[options[:id_column]-1]
-      dataset << options[:count_column]<=0 ? nil : data[options[:count_column]-1].to_i
+      dataset << (options[:count_column]<=0 ? nil : data[options[:count_column]-1].to_i)
       dataset << data[options[:normalized_column]-1].to_f
-      dataset << options[:unique_column]<=0 ? nil : data[options[:unique_column]-1].to_i
+      dataset << (options[:unique_column]<=0 ? nil : data[options[:unique_column]-1].to_i)
       items << dataset
     end
     # check existing counts
