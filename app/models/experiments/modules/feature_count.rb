@@ -34,8 +34,6 @@ class FeatureCount < ActiveRecord::Base
         }
         next
       end
-      total_sum = bc.inject{|sum,x| sum + x } || 1
-      avg_read_length = total_sum / fc.count
       case count_type
       when 'count'
         base_counts << {
@@ -43,6 +41,9 @@ class FeatureCount < ActiveRecord::Base
           :values => as_numbered_array(bc,graph_length).map{|data| {:base => data[0],:count =>(data[1]||0).to_i}}
         }
       when 'rpkm'
+        # TODO : test alternatives, not currently in use
+        total_sum = bc.inject{|sum,x| sum + x } || 1
+        avg_read_length = total_sum / fc.count
         pk = graph_length.to_f/1000
         pm = fc.experiment.total_mapped_reads.to_f/1000000
         base_counts << {
