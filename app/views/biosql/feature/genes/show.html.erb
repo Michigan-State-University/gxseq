@@ -4,12 +4,13 @@
 	<%= render :partial => "common/extjs" %>
 	<%= render :partial => "common/svjs" %>
 <% end %>
-<!-- TODO: add title() helper and name tabs -->
+
 <%= content_for :sidebar do %>
 	<%= render :partial => "sidebar", :locals => {:active => ''} %>
 <% end %>
 
 <% if @gene %>
+  <% content_for :pagetitle do %> <%=  @gene.locus_tag.value + (@gene.gene.nil? ? "" : " - "+@gene.gene.value) %> <% end %>
 	<% content_for :top_bar do %>
 		<h1 class="pagetitle"> 
 			<%= @gene.locus_tag.value + (@gene.gene.nil? ? "" : " - "+@gene.gene.value) %>

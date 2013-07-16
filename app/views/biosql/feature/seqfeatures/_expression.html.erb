@@ -19,7 +19,7 @@
       <% end %>
     </tr>
     <tr>
-      <td style="width:20px"><b>RPKM</b></td>
+      <td style="width:20px"><b>Normalized</b></td>
       <% @feature_counts.each do |m| %>
         <td><%= m.normalized_count.round(2) %></td>
       <% end %>
@@ -32,7 +32,7 @@
 <%= render :partial => "shared/expression_profile", :locals => {
   :feature_counts => @feature_counts,
   :element_id => 'expression_profile',
-  :data => coexpressed_counts_seqfeature_path(@gene,:format => :json)
+  :data => coexpressed_counts_seqfeature_path(feature,:format => :json)
 } %>
 
 <br/>
@@ -41,7 +41,7 @@
   <div class="border" style="overflow:hidden">
     <h2>Density of Aligned Reads</h2>
     <%= render :partial => "graphic" %>
-    <%= render :partial => "shared/base_count_chart", :locals => {:data => feature_counts_seqfeature_path(@gene,:format => :json)} %>
+    <%= render :partial => "shared/base_count_chart", :locals => {:data => feature_counts_seqfeature_path(feature,:format => :json)} %>
   </div>
 </div>
 

@@ -1,5 +1,5 @@
+<% content_for :pagetitle do %> <%= @bioentry.display_info %> <% end %>
 <% if params[:fmt] == 'genbank' || params[:fmt] == 'fasta' %>
-
   <% content_for :top_bar do -%>
     <h2 class="title">
       <%= @bioentry.display_name %> <span style="font-size:75%"><%= @bioentry.description %></span>

@@ -1,4 +1,4 @@
-<!-- TODO: add title() helper and name tabs -->
+
 <% content_for :head do %>
 	<%= render :partial => "common/extjs_css" %>
 	<%= render :partial => "common/svjs_css" %>
@@ -11,6 +11,7 @@
 <% end %>
 
 <% if @seqfeature %>
+  <% content_for :pagetitle do %> <%= "#{@seqfeature.display_type} : #{@seqfeature.label_type} #{@seqfeature.label}" %> <% end %>
 	<% content_for :top_bar do %>
 		<h1 class="pagetitle">
 			<%= "#{@seqfeature.display_type} : #{@seqfeature.label_type} #{@seqfeature.label} #{(@seqfeature.gene.nil? ? "" : " - "+@seqfeature.gene.value)}" %>

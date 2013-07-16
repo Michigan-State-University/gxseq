@@ -1,3 +1,6 @@
+<% content_for :pagetitle do -%>
+  <%= experiment.class.to_label %>: <%= experiment.name %>
+<% end -%>
 <% content_for :head do %>
 	<%= render :partial => "common/extjs" %>
 <% end %>

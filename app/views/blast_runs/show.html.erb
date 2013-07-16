@@ -1,3 +1,6 @@
+<% content_for :pagetitle do -%>
+  GS: Blast Run <%= @blast_run.id %>
+<% end -%>
 <% content_for :top_bar do -%>
   <h1 class="pagetitle">Blast results for <%= pluralize(@blast_run.blast_reports.count,'query') %></h1>
 <% end -%>

@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Genome Suite</title>
+	<% title = yield :pagetitle %>
+  <% title = "Genome Suite" if title.blank? %>
+  <title><%= title %></title>
 	<%= csrf_meta_tag %>
 	<%= stylesheet_link_tag 'main_layout', 'layout_extras' %>
 	<%= yield :head %>
