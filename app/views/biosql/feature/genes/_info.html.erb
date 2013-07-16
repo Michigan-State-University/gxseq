@@ -1,6 +1,6 @@
 <b>Gene Model: <%=@gene_model.locus_tag+(@gene_model.variants==1 ? "" : ".#{@gene_model.rank.to_i}")%></b>&nbsp;&nbsp;
 <hr/>
-<div style="float:right"><%= link_to "more details...", gene_path(@gene_model.locus_tag), :target => @gene_model.locus_tag %></div>
+<div style="float:right"><%= link_to "more details...", gene_path(@gene_model.gene.id), :target => @gene_model.gene.id %></div>
 <table>
   <tr><td>Location:</td><td> <%=@gene_model.start_pos.to_i%>,<%=@gene_model.end_pos.to_i%></td></tr>
   <tr><td>Strand:</td><td> <%=@gene.locations.first.strand==1 ? "Forward" : "Reverse"%> </td></tr>
@@ -13,6 +13,15 @@
   <% @gene.db_xrefs.each do |x|%>
     <tr><td>db_xref:</td><td><%=x.value.html_safe%></td></tr>
   <%end%>
+  <% @ontologies.each do |ont| %>
+    <% next unless @gene.qualifiers.with_ontology(ont.id).length > 0%>
+    <tr></tr>
+    <tr><td colspan=2 style="font-size:90%"><b><%= ont.name %></b></td></tr>
+    <% @gene.qualifiers.with_ontology(ont.id).each do |qualifier|%>
+      <% next if ['db_xref','note','product','gene','gene_synonym','locus_tag'].include? qualifier.term.name %>
+      <tr><td><%= qualifier.term.name.capitalize %>:</td><td><%=truncate(qualifier.value,:length=>50)%></td></tr>
+    <% end %>
+  <% end %>
 </table>
 
 <% if @cds%>
@@ -28,6 +37,15 @@
 	  <% @cds.db_xrefs.each do |x|%>
       <tr><td>db_xref:</td><td><%=x.value.html_safe%></td></tr>
     <%end%>
+    <% @ontologies.each do |ont| %>
+      <% next unless @cds.qualifiers.with_ontology(ont.id).length > 0%>
+      <tr></tr>
+      <tr><td colspan=2 style="font-size:90%"><b><%= ont.name %></b></td></tr>
+      <% @cds.qualifiers.with_ontology(ont.id).each do |qualifier|%>
+        <% next if ['db_xref','note','product','protein_id','locus_tag','translation'].include? qualifier.term.name %>
+        <tr><td><%= qualifier.term.name.capitalize %>:</td><td><%=truncate(qualifier.value,:length=>50)%></td></tr>
+      <% end %>
+    <% end %>
 	</table>
 <% end %>
 
@@ -44,5 +62,14 @@
     <% @mrna.db_xrefs.each do |x|%>
       <tr><td>db_xref:</td><td><%=x.value.html_safe%></td></tr>
     <%end%>
+    <% @ontologies.each do |ont| %>
+      <% next unless @mrna.qualifiers.with_ontology(ont.id).length > 0%>
+      <tr></tr>
+      <tr><td colspan=2 style="font-size:90%"><b><%= ont.name %></b></td></tr>
+      <% @mrna.qualifiers.with_ontology(ont.id).each do |qualifier|%>
+        <% next if ['db_xref','note','product','transcript_id','locus_tag'].include? qualifier.term.name %>
+        <tr><td><%= qualifier.term.name.capitalize %>:</td><td><%=truncate(qualifier.value,:length=>50)%></td></tr>
+      <% end %>
+    <% end %>
   </table>
 <% end %>

@@ -28,10 +28,10 @@ class FeatureCount < ActiveRecord::Base
     feature_counts.each do |fc|
       bc = fc.experiment.summary_data(fc.seqfeature.min_start,fc.seqfeature.max_end,data_count,fc.experiment.sequence_name(bioentry_id))
       if bc.length == 0
-        base_counts << {
-          :key => fc.experiment.name,
-          :values => [{:base => 0,:count => 0}]
-        }
+        # base_counts << {
+        #   :key => fc.experiment.name,
+        #   :values => [{:base => 0,:count => 0}]
+        # }
         next
       end
       case count_type

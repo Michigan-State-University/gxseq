@@ -122,8 +122,8 @@ class Biosql::Feature::GenesController < ApplicationController
     when 'blast'
       @blast_reports = @gene.blast_reports
       params[:blast_report_id]||=@blast_reports.first.id
-      @blast_report = BlastReport.find(params[:blast_report_id])
-      @blast_run = @blast_report.blast_run
+      @blast_report = BlastReport.find_by_id(params[:blast_report_id])
+      @blast_run = @blast_report.try(:blast_run)
     end
     rescue => e
       logger.info "\n#{e}\n\n#{e.backtrace.inspect}\n\n"
@@ -175,23 +175,6 @@ class Biosql::Feature::GenesController < ApplicationController
       @assembly = Assembly.find_by_id(params[:assembly_id])
       @bioentry = @assembly.bioentries.first if @assembly
     end
-    # begin
-    #   params[:assembly_id]||=params[:genes][:assembly_id] rescue nil
-    #   params[:bioentry_id]||=params[:genes][:bioentry_id] rescue nil
-    #   @gene = Biosql::Feature::Gene.new
-    # if(params[:assembly_id] && @assembly = Assembly.accessible_by(current_ability).find(params[:assembly_id]))
-    #   @bioentries = @assembly.bioentries
-    #   params[:bioentry_id]=@bioentries.first.id if @bioentries.count ==1
-    #   if(params[:bioentry_id] && @bioentry = Biosql::Bioentry.accessible_by(current_ability).find(params[:bioentry_id]))
-
-    #     # get the annotation terms
-    #     @annotation_terms = Biosql::Term.annotation_tags.order(:name).reject{|t|t.name=='locus_tag'}
-    #   end
-    # else
-    #   @bioentries = []
-    # end
-    # rescue
-    # end
   end
   
   def lookup_gene
