@@ -1,6 +1,6 @@
 class CreateBlastRuns < ActiveRecord::Migration
   def self.up
-    create_table :blast_runs, :force => true, do |t|
+    create_table :blast_runs, :force => true do |t|
       t.belongs_to :blast_database
       t.belongs_to :taxon_version
       t.text :parameters
