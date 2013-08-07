@@ -450,61 +450,17 @@ class Sequence < Thor
     end
     # Set output
     out = File.open(options[:output],'w')
-    # Setup the search
-    search = Biosql::Feature::Seqfeature.search do
-      with :display_name, options[:feature_type]
-      with :assembly_id, assembly.id
-      order_by :locus_tag
-      paginate(:page => 1, :per_page => 500)
-    end
-    current_page = 1
-    total_pages = search.hits.total_pages
-    bar = ProgressBar.new(search.total)
-    if(search.total > 0)
-      puts "Dumping #{search.total} entries..."
-    else
-      puts "0 entries found for -f #{options[:feature_type]}"
-      search = Biosql::Feature::Seqfeature.search do
-        with :assembly_id, assembly.id
-        facet :display_name
-      end
-      if search.total > 0
-        puts "Try one of these:\n"
-        search.facet(:display_name).rows.each do |row|
-          puts "\t#{row.value} : #{row.count}"
-        end
-        exit 0
-      end
-    end
     cur_bioentry_id = 0
     cur_seq = nil
     seqh = {}
-    # lookup/cache bioseq for gene shortcut
-    if(options[:feature_type].downcase == 'gene')
-      Biosql::Biosequence.where{bioentry_id.in search.hits.collect{|hit| hit.stored(:bioentry_id)}.flatten}.each do |bioseq|
-        seqh[bioseq.bioentry_id]=bioseq.seq
-      end
-    end
-    # write out initial data
-    write_fasta_from_search(out,search,stored_def,seqh,options)
-    bar.increment!(search.hits.length)
-    # Start main loop - Work in batches to avoid large memory use
-    while(current_page < total_pages)
-      current_page+=1
-      search = Biosql::Feature::Seqfeature.search do
-        with :display_name, options[:feature_type]
-        with :assembly_id, assembly.id
-        order_by :locus_tag
-        paginate(:page => current_page, :per_page => 500)
-      end
-      # lookup/cache bioseq
+    assembly.iterate_features({:type => options[:feature_type]}) do |search|
+      # lookup/cache bioseq for gene shortcut
       if(options[:feature_type].downcase == 'gene')
         Biosql::Biosequence.where{bioentry_id.in search.hits.collect{|hit| hit.stored(:bioentry_id)}.flatten}.each do |bioseq|
           seqh[bioseq.bioentry_id]=bioseq.seq
         end
       end
       write_fasta_from_search(out,search,stored_def,seqh,options)
-      bar.increment!(search.hits.length)
     end
     # Create the blast database
     if(options[:db_name])

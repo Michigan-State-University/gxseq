@@ -199,6 +199,64 @@ class Assembly < ActiveRecord::Base
     Biosql::Bioentry.select('bioentry_id').where{assembly_id == my{id}}
   end
   
+  # loops over features and calls block
+  def iterate_features(opts={})
+    # Setup the search
+    search = feature_search(opts)
+    current_page = 1
+    total_pages = search.hits.total_pages
+    bar = ProgressBar.new(search.total)
+    if(search.total > 0)
+      puts "Found #{search.total} features..."
+    else
+      if opts[:type]
+        puts "0 #{opts[:type]} features found"
+        search = Biosql::Feature::Seqfeature.search do
+          with :assembly_id, self.id
+          facet :display_name
+        end
+        if search.total > 0
+          puts "Try one of these:\n"
+          search.facet(:display_name).rows.each do |row|
+            puts "\t#{row.value} : #{row.count}"
+          end
+          return false
+        else
+          puts "0 alternates found"
+        end
+      else
+        puts "0 features found"
+      end
+    end
+    # initial output
+    yield search
+    bar.increment!(search.hits.length)
+    # Start main loop - Work in batches to avoid large memory use
+    while(current_page < total_pages)
+      current_page+=1
+      yield feature_search(opts.merge(:page => current_page))
+      bar.increment!(search.hits.length)
+    end
+  end
+  
+  # returns a search object matching with results from the supplied options
+  def feature_search(opts={})
+    per_page = opts[:per_page]||500
+    page = opts[:page]||1
+    
+    Biosql::Feature::Seqfeature.search do
+      if(opts[:type])
+        with :display_name, opts[:type]
+      end
+      if(opts[:locus_list])
+        with :locus_tag, opts[:locus_list]
+      end
+      with :assembly_id, self.id
+      order_by :locus_tag
+      paginate(:page => page, :per_page => per_page)
+    end
+  end
+  
   # TODO: Add method to quickly remove data and reindex. Current callbacks with destroy take far too long
   def remove_all_data
     # TODO: Remove the seqfeatures
