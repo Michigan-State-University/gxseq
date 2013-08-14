@@ -178,7 +178,7 @@ class Taxonomy < Thor
               next unless response == 'yes'
             end
             base.connection.execute("DELETE FROM Taxon where ncbi_taxon_id=#{delete_node}")
-            base.connection.execute("DELETE FROM TaxonName where taxon_id=#{db_taxon_id}")
+            base.connection.execute("DELETE FROM Taxon_Name where taxon_id=#{db_taxon_id}")
           end
           progress_bar.increment!(delete_batch.length)
         end
