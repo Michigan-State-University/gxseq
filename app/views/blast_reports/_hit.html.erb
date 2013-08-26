@@ -1,5 +1,5 @@
 <td style="width:100px;white-space:nowrap">
-  <%= link_to (hit.accession), blast_db.link_ref + hit.accession %>
+  <%= link_to (hit.accession), (blast_db.link_ref||"") + hit.accession, :target => "_blank" %>
 </td>
 <td style='text-align:left' id='hit_<%= idx %>'>
 	<%= sliced_toggle((params[:incoming_query] ? highlight(hit.definition, params[:incoming_query]) : hit.definition),nil,"hit_#{idx}") %>
