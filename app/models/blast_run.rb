@@ -48,11 +48,12 @@ class BlastRun < ActiveRecord::Base
     return false if (program=opts[:program]).blank?
     return false if (sequence=opts[:sequence]).blank?
     # Try to find file in default directory or on the system
-    if File.exist?("#{RAILS_ROOT}/lib/data/blast_db/#{opts[:filepath]}")
+    if File.exist?("#{RAILS_ROOT}/lib/data/blast_db/#{opts[:filepath]}.nsq")
       path_to_database="#{RAILS_ROOT}/lib/data/blast_db/#{opts[:filepath]}"
-    elsif File.exist?(opts[:filepath])
+    elsif File.exist?(opts[:filepath]+".nsq")
       path_to_database = opts[:filepath]
     else
+      logger.info "\n\nunknown blast file: #{opts[:filepath]}\n\n"
       return false
     end
     # defaults
