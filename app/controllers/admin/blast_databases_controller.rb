@@ -57,11 +57,13 @@ class Admin::BlastDatabasesController < Admin::AdminController
   # DELETE /blast_databases/1
   def destroy
     bd_name = @blast_database.name
-    @blast_database.destroy
-
-    respond_to do |wants|
+    if((br_count = @blast_database.blast_runs.count) > 0)
+      flash[:error] = "You must remove all #{br_count} blast runs before destroying #{bd_name}"
+      redirect_to(admin_blast_databases_path)
+    else
+      @blast_database.destroy
       flash[:warning] = bd_name+' destroyed successfully.'
-      wants.html { redirect_to(admin_blast_databases_path) }
+      redirect_to(admin_blast_databases_path)
     end
   end
 
