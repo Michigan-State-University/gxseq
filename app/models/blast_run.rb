@@ -47,6 +47,8 @@ class BlastRun < ActiveRecord::Base
     blastpath = APP_CONFIG[:blast_path]+'/blastall'
     return false if (program=opts[:program]).blank?
     return false if (sequence=opts[:sequence]).blank?
+    path_to_database="#{RAILS_ROOT}/lib/data/blast_db/#{opts[:filepath]}"
+
     # defaults
     matrix=opts[:matrix]||'BLOSUM62'
     evalue=opts[:evalue]||10
