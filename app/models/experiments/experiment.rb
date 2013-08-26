@@ -62,7 +62,7 @@ class Experiment < ActiveRecord::Base
   
   
 ## Class Methods
-# TODO: Document to_label remove if unused
+  # returns label used by formtastic in views
   def self.to_label
     name
   end

@@ -15,7 +15,7 @@
 class Assembly < ActiveRecord::Base
   has_many :bioentries, :class_name => "Biosql::Bioentry", :order => "name asc", :dependent => :destroy
   has_many :experiments
-  #TODO experiment STI - can this be dynamic?
+  #NOTE experiment STI - can this be dynamic?
   has_many :chip_chips, :order => "experiments.name asc"
   has_many :chip_seqs, :order => "experiments.name asc"
   has_many :synthetics, :order => "experiments.name asc"
@@ -29,8 +29,6 @@ class Assembly < ActiveRecord::Base
   has_many :generic_feature_tracks
   has_many :concordance_sets
   has_one :six_frame_track
-  # TODO: fix or remove protein sequence track
-  #has_one :protein_sequence_track
   has_one :gc_file
   belongs_to :taxon, :class_name => "Biosql::Taxon"
   belongs_to :species, :class_name => "Biosql::Taxon", :foreign_key => :species_id

@@ -54,11 +54,15 @@ class BlastRun < ActiveRecord::Base
     evalue=opts[:evalue]||10
     hits=opts[:hits]||25
     format=opts[:format]||7
-    
+    blast_params="-M #{matrix} -e #{evalue} -v #{hits} -b #{hits} -m #{format}"
+    if program == 'blastx'
+      blast_params+=" -f 14 -F \"m S\""
+      #blast_params+=" -F \"m S\""
+    end
     local_blast_factory = Bio::Blast.local(
       program,
       path_to_database,
-      "-M #{matrix} -e #{evalue} -v #{hits} -b #{hits} -m #{format}",
+      blast_params,
       blastpath
     )
     return local_blast_factory.query(sequence)

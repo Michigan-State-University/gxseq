@@ -11,9 +11,6 @@
   		<th>Options</th>
   	</thead>
   	<tbody>
-  		<% if report.message %>
-  			<%#= TODO: Should we represent report.message ?%>
-  		<% end %>
 			<% report.hits.each_with_index do |hit,idx| %>
 				<tr class="<%= cycle('odd','even') %>">
 					<%= render :partial  => 'blast_reports/hit', :locals => {:hit => hit, :idx => idx, :blast_db => @blast_report.blast_database, :blast_report => @blast_report} %>

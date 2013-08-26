@@ -1,29 +1,4 @@
 class SeqfeatureQualifierValuesController < ApplicationController
-  
-  # TODO: Remove unused actions
-  # before_filter :find_seqfeature_qualifier_value, :only => [:show, :edit, :update, :destroy]
-  
-  # # GET /seqfeature_qualifier_values
-  # def index
-  #   @seqfeature_qualifier_values = Biosql::SeqfeatureQualifierValue.all
-  # # index.html.erb
-  # end
-  # 
-  # # GET /_seqfeature_qualifier_values/1
-  # def show
-  # # show.html.erb
-  # end
-  # 
-  # # GET /seqfeature_qualifier_values/new
-  # def new
-  #   @seqfeature_qualifier_value = Biosql::SeqfeatureQualifierValue.new
-  # # new.html.erb
-  # end
-  # 
-  # # GET /seqfeature_qualifier_values/1/edit
-  # def edit
-  # end
-
   # POST /seqfeature_qualifier_values
   def create
     @seqfeature_qualifier_value = Biosql::SeqfeatureQualifierValue.new(params[:biosql_seqfeature_qualifier_value])
@@ -43,7 +18,6 @@ class SeqfeatureQualifierValuesController < ApplicationController
         end
       end
   end
-
   # PUT /seqfeature_qualifier_values/1
   def update
     respond_to do |wants|
@@ -55,19 +29,4 @@ class SeqfeatureQualifierValuesController < ApplicationController
       end
     end
   end
-
-  # # DELETE /seqfeature_qualifier_values/1
-  # def destroy
-  #   @seqfeature_qualifier_value.destroy
-  # 
-  #   respond_to do |wants|
-  #     wants.html { redirect_to(seqfeature_qualifier_values_url) }
-  #   end
-  # end
-  # 
-  # private
-  #   def find_seqfeature_qualifier_value
-  #     @seqfeature_qualifier_value = Biosql::SeqfeatureQualifierValue.find(params[:id])
-  #   end
-
 end

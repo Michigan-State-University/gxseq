@@ -95,7 +95,7 @@ class User < ActiveRecord::Base
     end
   end
   
-  # TODO: Make this configurable - default remote users are members, all others are guests
+  # By default remote users are members, all others are guests
   def set_default_role
     if self.roles.empty?
       if is_remote?

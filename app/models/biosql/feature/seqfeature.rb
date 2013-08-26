@@ -45,7 +45,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     :after_remove => :update_assoc_mem
   # Define attributes to simplify eager_loading. _assoc suffix avoids name collision with dynamic qualifier methods
   # Use :qualifiers when including the entire attribute set. Use _assoc when including a subset
-  # !!FIXME Cannot be used in 'count' queries or with conditions on includes... !!
+  # NOTE: *_assoc Cannot be used in 'count' queries or with conditions on includes... !!
   has_one :product_assoc, :class_name => "SeqfeatureQualifierValue", :foreign_key => "seqfeature_id", :include => :term, :conditions => "term.name = 'product'"
   has_one :function_assoc, :class_name => "SeqfeatureQualifierValue", :foreign_key => "seqfeature_id", :include => :term, :conditions => "term.name = 'function'"
   has_one :transcript_id_assoc, :class_name => "SeqfeatureQualifierValue", :foreign_key => "seqfeature_id", :include => :term, :conditions => "term.name = 'transcript_id'"
@@ -54,7 +54,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   has_one :parent_assoc, :class_name => "SeqfeatureQualifierValue", :foreign_key => "seqfeature_id", :include => :term, :conditions => "term.name = 'Parent'"
   has_one :locus_assoc, :class_name => "SeqfeatureQualifierValue", :foreign_key => "seqfeature_id", :include => :term, :conditions => "term.name = 'locus_tag'"
   # Use the scope for counting or conditions on qualifiers
-  # DO NOT mix with eager load on SeqfeatureQualifierValue tableor results are limited to the supplied qualifier
+  # DO NOT mix with eager load on SeqfeatureQualifierValue table or results are limited to the supplied qualifier
   scope :with_qualifier, lambda {|term_name| joins{qualifiers.term}.where{lower(qualifiers.term.name)== my{term_name.downcase}}}
   # For index eager loading we add gene_models here but only Gene features will have gene_models
   # TODO: Test this for side effects against create/update gene
@@ -664,18 +664,10 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     return nil if x_sum == 0
     sxx = xsquare - ((x_sum*x_sum)/total_feature_counts)
     
-    # ysum += y
-    # ysquare += (y*y)
-    # product += (x*y)
-    # syy = ysquare - ((ysum*ysum)/@size)
-    # sxy = product - ((xsum*ysum)/@size)
-    # r = ( sxy / (sqrt(sxx)*sqrt(syy)) )
-    
     exp_strings = ordered_counts.collect{|fc| "exp_#{fc.experiment_id}".to_sym}
     exp_square = ordered_counts.collect{|fc| [:pow,"exp_#{fc.experiment_id}".to_sym,'2']}
     exp_product = ordered_counts.collect{|fc| [:product,"#{fc.send(value_type).to_f}","exp_#{fc.experiment_id}".to_sym]}
-    # FIXME: Need to fix gem patch
-    # Re-use of the clause leads to errors due to removal of first argument
+    # FIXME: Re-use of the clause leads to errors due to removal of first argument
     y_sum = [:sum,*exp_strings]
     y_sum_dup = [:sum,*exp_strings]
     y_square = [:sum,*exp_square]

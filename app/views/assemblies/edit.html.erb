@@ -23,7 +23,7 @@
     <p>
       <%= @assembly.taxon.ancestors.collect(&:name).join(' > ') %>
     </p>
-    <!-- TODO: Allow species/taxon edit in assemblies -->
+    <!-- TODO: Shoould we allow species/taxon edit in assemblies ? -->
     <p>Species:<br/><%= @assembly.species.scientific_name.name %></p>
     <p>Taxon:<br/><%= @assembly.taxon.scientific_name.name %></p>
 

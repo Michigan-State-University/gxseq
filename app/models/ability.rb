@@ -133,7 +133,6 @@ class Ability
       can :read, Asset, :experiment => {:group => {:users => {:id => user.id}}}
       can :read, FeatureCount, :experiment => {:group => {:users => {:id => user.id}}}
       can :read, BlastDatabase, :group => {:users => {:id => user.id}}
-    #TODO: What about users with no role?
     
     # Anybody from the public can view data in the Public group.
     else

@@ -18,7 +18,6 @@ class Biosql::Biodatabase < ActiveRecord::Base
   # sync up all of the items in the database. Generate denormalized data / tracks / assets
   def sync_database
     # Build GeneModels from gene / cds / mrna pairs based on locus_tag.
-    # TODO: replace this with seqfeature relationship?
     puts "Syncing database"
     begin
       "Syncing Gene Models"

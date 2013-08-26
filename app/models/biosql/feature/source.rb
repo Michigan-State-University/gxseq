@@ -13,22 +13,12 @@
 #
 
 class Biosql::Feature::Source < Biosql::Feature::Seqfeature
-  #TODO: comment,refactor and condense multiple methods
+  # overrides label for this feature
   def label
-    generic_label
-  end
-  #
-  def label_type
-    generic_label_type
-  end
-  
-  def generic_label
-    #A generic label to display for this source in a dropdown i.e. Chr 1, mitochondrion or plasmid xyz
     (chromosome || organelle || plasmid || mol_type || 'Unknown').to_s
   end
-  
-  def generic_label_type
-    #A generic label to display for this source in a dropdown i.e. Chr 1, mitochondrion or plasmid xyz
+  # overrides label type for this feature
+  def label_type
     if chromosome
       return "Chr"
     elsif organelle

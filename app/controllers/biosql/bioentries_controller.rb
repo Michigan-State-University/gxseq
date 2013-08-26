@@ -263,7 +263,7 @@ class Biosql::BioentriesController < ApplicationController
         },
         :entries => {
           :data => bioentries, 
-          :selected => bioentry.generic_label,
+          :selected => bioentry.sequence_name,
           :use_search => use_bioentry_search,
           :search_url => bioentries_path(:format => :json),
           :assembly_id => bioentry_tv.id
@@ -286,7 +286,6 @@ class Biosql::BioentriesController < ApplicationController
       param = jrws['param']
       case jrws['method']
       when 'syndicate'
-        #TODO: Remove or use syndication data
         render :json  => {
           :success => true,
           :data => {
@@ -407,7 +406,7 @@ class Biosql::BioentriesController < ApplicationController
       end
       # Filters
       s.with :assembly_id, params[:assembly] unless params[:assembly].blank?
-      # TODO: Hash out use case for biodatabase segmentation
+      # NOTE: Hash out use case for biodatabase segmentation
       #s.with :biodatabase_id, params[:biodatabase] unless params[:biodatabase].blank?
       s.with :assembly_type, params[:taxon_type] unless params[:taxon_type].blank?
       # Sort
