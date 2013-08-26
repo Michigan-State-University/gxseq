@@ -20,7 +20,7 @@
 class BlastDatabase < ActiveRecord::Base
   has_many :blast_reports
   has_many :assemblies, :through => :blast_runs
-  has_many :blast_runs
+  has_many :blast_runs, :dependent => :destroy
   belongs_to :taxon, :class_name => "Biosql::Taxon"
   belongs_to :group
   validates_presence_of :name

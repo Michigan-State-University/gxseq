@@ -31,7 +31,7 @@
     		<th><%= sort_link "Blast Runs", 'blast_runs.count' %></th>
       	<th><%= sort_link "Created", :created_at %></th>
       	<th><%= sort_link "Updated", :updated_at %></th>
-  			<th>Options</th>
+  			<th width="100px">Options</th>
   	</thead>
   
   	<% for blast_db in @blast_databases %>
@@ -46,7 +46,8 @@
     		<td><%= blast_db.created_at.strftime("%b %d '%y") %></td>
     		<td><%= blast_db.updated_at.strftime("%b %d '%y") %></td>
 	    	<td>
-				  <%= link_to '[Edit]', edit_admin_blast_database_path(blast_db) %>
+				  <%= link_to '[Edit]', edit_admin_blast_database_path(blast_db) %> |
+				  <%= link_to '[Destroy]', admin_blast_database_path(blast_db), :method => :delete, :confirm => "Remove blastdb: #{blast_db.name}? \nAll associated Blast runs and reports will be removed.\n This CANNOT be undone!\n" %>
 				</td>
   	  </tr>
   	<% end %>

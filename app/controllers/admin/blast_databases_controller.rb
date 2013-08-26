@@ -56,10 +56,12 @@ class Admin::BlastDatabasesController < Admin::AdminController
 
   # DELETE /blast_databases/1
   def destroy
+    bd_name = @blast_database.name
     @blast_database.destroy
 
     respond_to do |wants|
-      wants.html { redirect_to(blast_databases_url) }
+      flash[:warning] = bd_name+' destroyed successfully.'
+      wants.html { redirect_to(admin_blast_databases_path) }
     end
   end
 
