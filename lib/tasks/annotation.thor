@@ -6,9 +6,9 @@ class Annotation < Thor
   method_option :feature_type, :aliases => '-f', :desc => 'If supplied will only annotate given type'
   method_option :blast_run, :aliases => '-b', :required => true, :desc  => 'Id of blast run for lookup'
   method_option :ontology, :aliases => '-o', :required => true, :desc => 'Name or Id of ontology for new terms'
-  method_option :skip_missing, :aliases => '-s', :default => false, :desc => 'Supply flag to skip missing items.'
   method_option :test, :aliases => '-t', :default => false, :desc => "Supply to perform test only run with no data changes"
   method_option :verbose, :aliases => '-v', :default => false, :desc => "Supply for verbose output"
+  method_option :use_search, :aliases => '-s', :default => false, :desc => "Use indexed searching for faster lookup"
   def tag_blast(input_file)
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     require 'csv'
@@ -55,38 +55,66 @@ class Annotation < Thor
     uniq_count_table = {}
     # Report total counts
     items.each{|key,arr| c=arr.length;(count_table[c]||=0);count_table[c]+=1}
-    count_table.keys.sort.each{|key| puts " - #{count_table[key]} \t#{key} time#{key>1 ? 's' : ''}"}
+    if(options[:verbose])
+      count_table.keys.sort.each{|key| puts " - #{count_table[key]} \t#{key} time#{key>1 ? 's' : ''}"}
+    end
     puts "---"
     # report uniq counts
     items.each{|key,arr| c=arr.uniq.length;(uniq_count_table[c]||=0);uniq_count_table[c]+=1}
-    uniq_count_table.keys.sort.each{|key| puts " - #{uniq_count_table[key]} \t#{key} uniq value#{key>1 ? 's' : ''}"}
+    if(options[:verbose])
+      uniq_count_table.keys.sort.each{|key| puts " - #{uniq_count_table[key]} \t#{key} uniq value#{key>1 ? 's' : ''}"}
+    end
     # initial setup
     features = []
     # Wrap in a transaction to avoid partial load
     begin
     Biosql::Feature::Seqfeature.transaction do
       # First get the new term
-      puts "Find or Create - #{ontology.name} :: #{options[:new_annotation]}"
+      puts "Find or Create - #{ontology.name} :: #{options[:new_annotation]}" if options[:verbose]
       new_term = Biosql::Term.find_or_create_by_name_and_ontology_id(options[:new_annotation],ontology.id)
       # Start progress meter and begin the main loop
       progress_bar = ProgressBar.new(items.length)
       items.each do |key,values|
         # grab Seqfeatures using seqfeature ids from reports with this key
-        features = Biosql::Feature::Seqfeature.where{seqfeature_id.in(BlastReport.select('seqfeature_id').where{hit_acc==my{key}}.where{blast_run_id==my{blast_run.id}})}
-        puts "#{features.length} features with blast_hit #{key}" if options[:verbose]
-        features.each do |feature|
-          if(options[:feature_type]&&feature.display_name!=options[:feature_type])
-            next
-          end
-          # Add a new qualifier for each value
-          values.uniq.each_with_index do |value,idx|
-            next if value.blank?
-            if(options[:verbose])
-              puts "Adding #{new_term.name} - feature id: #{feature.id}, type: #{feature.display_name}, value: #{value}"
+        if(options[:use_search])
+          search = Biosql::Feature::Seqfeature.search do |s|
+            s.dynamic :blast_acc do
+              with("blast_#{blast_run.id}",key)
             end
-            # We cannot use the fast_insert method because of composite keys and active_record is quite slow so we insert by hand
-            Biosql::Feature::Seqfeature.connection.execute("INSERT INTO SEQFEATURE_QUALIFIER_VALUE (seqfeature_id,term_id,value,rank)
-            VALUES(#{feature.id},#{new_term.id},'#{value}',#{idx+1})")
+            if(options[:feature_type])
+              s.with :display_name, options[:feature_type]
+            end
+          end
+          puts "#{search.total} features with blast_hit #{key}" if options[:verbose]
+          search.hits.each do |hit|
+            # Add a new qualifier for each value
+            values.uniq.each_with_index do |value,idx|
+              next if value.blank?
+              if(options[:verbose])
+                puts "Adding #{new_term.name} - feature id: #{hit.stored(:id)}, value: #{value}"
+              end
+              # We cannot use the fast_insert method because of composite keys and active_record is quite slow so we insert by hand
+              Biosql::Feature::Seqfeature.connection.execute("INSERT INTO SEQFEATURE_QUALIFIER_VALUE (seqfeature_id,term_id,value,rank)
+              VALUES(#{hit.stored(:id)},#{new_term.id},'#{value}',#{idx+1})")
+            end
+          end
+        else
+          features = Biosql::Feature::Seqfeature.where{seqfeature_id.in(BlastReport.select('seqfeature_id').where{hit_acc==my{key}}.where{blast_run_id==my{blast_run.id}})}
+          puts "#{features.length} features with blast_hit #{key}" if options[:verbose]
+          features.each do |feature|
+            if(options[:feature_type]&&feature.display_name!=options[:feature_type])
+              next
+            end
+            # Add a new qualifier for each value
+            values.uniq.each_with_index do |value,idx|
+              next if value.blank?
+              if(options[:verbose])
+                puts "Adding #{new_term.name} - feature id: #{feature.id}, type: #{feature.display_name}, value: #{value}"
+              end
+              # We cannot use the fast_insert method because of composite keys and active_record is quite slow so we insert by hand
+              Biosql::Feature::Seqfeature.connection.execute("INSERT INTO SEQFEATURE_QUALIFIER_VALUE (seqfeature_id,term_id,value,rank)
+              VALUES(#{feature.id},#{new_term.id},'#{value}',#{idx+1})")
+            end
           end
         end
         # done
