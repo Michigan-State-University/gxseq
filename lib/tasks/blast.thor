@@ -146,10 +146,12 @@ class Blast < Thor
             :hit_def => best_def,
             :report => report
           )
-          if br.valid?
-            br.save! unless options[:test]
-          else
-            puts "Invalid BlastReport: #{br.inspect}"
+          unless options[:test]
+            if br.valid?
+              br.save!
+            else
+              puts "Invalid BlastReport: #{br.inspect}"
+            end
           end
           seqfeature_ids << feature_id
         end
@@ -170,7 +172,39 @@ class Blast < Thor
       reindex = 'yes'
     end
     if reindex =='yes'
-      Biosql::Feature::Seqfeature.reindex_all_by_id(seqfeature_ids)
+      `/bin/bash -c 'RAILS_ENV=#{ENV['RAILS_ENV']} thor assembly:index_features -a #{options[:assembly_id]}'`
+    end
+    puts "\n..done"
+  end
+  
+  desc "delete_run", "Remove blast run and all dependent blast_reports"
+  method_option :blast_run, :aliases => '-b', :desc => 'ID of blast run to remove'
+  def delete_run
+    require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
+    blast_run = BlastRun.find_by_id(options[:blast_run])
+    unless blast_run
+      puts "No blast run found for: #{options[:blast_run]}"
+      exit 0
+    end
+    puts "Found Blast Run: #{blast_run.id} - #{blast_run.name_with_description}"
+    puts "\t-- #{blast_run.blast_reports.count} blast reports"
+    remove_run = ask("To delete permanently type \'yes\'; anything else to skip:")
+    begin
+      if remove_run == 'yes'
+        blast_run_assembly = blast_run.assembly
+        blast_run.destroy
+        puts "..deleted"
+        if(blast_run_assembly)
+          puts "reindexing assembly features"
+          `/bin/bash -c 'RAILS_ENV=#{ENV['RAILS_ENV']} thor assembly:index_features -a #{blast_run_assembly.id}'`
+          puts "\n..done"
+        end
+      else
+        puts '..skipped'
+      end
+    rescue => e
+      puts "Error removing blast run:\n"
+      puts e
     end
   end
   
