@@ -1,7 +1,7 @@
 class Admin::BlastDatabasesController < Admin::AdminController
 
   before_filter :find_blast_database, :only => [:show, :edit, :update, :destroy]
-  autocomplete :taxon_name, :taxon_id, :full => true, :full_model => true, :column_name => 'name'
+  autocomplete :taxon_name, :taxon_id, :full => true, :full_model => true,:class_name => 'biosql/taxon_name', :column_name => 'name'
   autocomplete :group, :id, :full => true, :column_name => 'name'
   skip_authorize_resource :only => :autocomplete_taxon_name_taxon_id
   # GET /blast_databases
