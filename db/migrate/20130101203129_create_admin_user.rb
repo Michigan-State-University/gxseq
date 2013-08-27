@@ -16,8 +16,8 @@ class CreateAdminUser < ActiveRecord::Migration
   end
 
   def self.down
-    User.find_by_login((APP_CONFIG[:admin_user] || "admin")).destroy
-    Role.find_by_name('admin').destroy
-    Group.find_by_name('admin').destroy
+    User.find_by_login((APP_CONFIG[:admin_user] || "admin")).try(:destroy)
+    Role.find_by_name('admin').try(:destroy)
+    Group.find_by_name('admin').try(:destroy)
   end
 end
