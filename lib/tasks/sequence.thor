@@ -462,6 +462,7 @@ class Sequence < Thor
       end
       write_fasta_from_search(out,search,stored_def,seqh,options)
     end
+    out.close
     # Create the blast database
     if(options[:db_name])
       BlastDatabase.create(
