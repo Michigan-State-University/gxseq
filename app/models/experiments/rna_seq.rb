@@ -99,7 +99,7 @@ class RnaSeq < Experiment
   
   ##Track Config
   def iconCls
-    "blocks"
+    "rna_seq_track"
   end
 
   def single

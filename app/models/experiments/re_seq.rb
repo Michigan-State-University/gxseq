@@ -81,7 +81,7 @@ class ReSeq < Experiment
   
   ##Track Config
   def iconCls
-    "blocks"
+    "sequence_track"
   end
 
   def single

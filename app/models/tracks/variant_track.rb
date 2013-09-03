@@ -40,6 +40,6 @@ class VariantTrack < Track
   end
   
   def iconCls
-    "silk_bricks"
+    "variant_track"
   end
 end

@@ -7,10 +7,12 @@
 }
 
 /* Track Icons */
-.sequence_track			{ background-image:url('../images/geneseq.png')!important;}
-.gene_track				{ background-image:url('../images/gene.png')!important;}
-.chip_chip_track		{ background-image:url('../images/chipchip.png')!important;}
-.chip_seq_track			{ background-image:url('../images/chipseq.png')!important;}
+.sequence_track			{ background-image:url('../images/geneseq.gif')!important;}
+.gene_track				{ background-image:url('../images/gene.gif')!important;}
+.chip_chip_track		{ background-image:url('../images/chip_chip.gif')!important;}
+.chip_seq_track			{ background-image:url('../images/chip_seq.gif')!important;}
+.rna_seq_track		{ background-image:url('../images/rnaseq.gif')!important;}
+.variant_track		{ background-image:url('../images/variant.gif')!important;}
 .synthetic_track		{ background-image:url('../images/synthetic.png')!important;}
 
 
