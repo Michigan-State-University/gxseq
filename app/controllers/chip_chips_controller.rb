@@ -2,10 +2,10 @@ class ChipChipsController < ApplicationController
   load_and_authorize_resource
   
   ##custom actions - rjs
-  def initialize_experiment
-    @chip_chip.initialize_experiment
+  def initialize_sample
+    @chip_chip.initialize_sample
     render :update do |page|
-      page.replace_html 'initialize_experiment', "Job Started. Refresh to view updates in the console."
+      page.replace_html 'initialize_sample', "Job Started. Refresh to view updates in the console."
     end
   end
   
@@ -33,14 +33,14 @@ class ChipChipsController < ApplicationController
     begin
       if @chip_chip.valid?
         @chip_chip.save
-        flash[:notice]="Experiment created succesfully"
+        flash[:notice]="Sample created succesfully"
         redirect_to :action => :index
       else
         render :action => :new
       end
     rescue
       logger.info "\n\nRescued from Chip Chip#{$!}\n\n"
-      flash[:error]="Could not create experiment"
+      flash[:error]="Could not create sample"
       redirect_to :action => :index
     end
   end
@@ -70,7 +70,7 @@ class ChipChipsController < ApplicationController
 
   def destroy
     @chip_chip.destroy
-    flash[:warning]="Experiment #{@chip_chip.name} has been removed"
+    flash[:warning]="Sample #{@chip_chip.name} has been removed"
     redirect_to :action => :index
   end
 end

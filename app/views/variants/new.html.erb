@@ -1,16 +1,16 @@
 <% content_for :top_bar do -%>
-	<h1 class="pagetitle">New Variant Experiment</h1>
+	<h1 class="pagetitle">New Variant Sample</h1>
 <% end -%>
 
 <% content_for :item_bar do -%>
-  <p style="float:left">Enter the information for your Variant experiment below. Please view the <%= link_to "details", details_variants_path %> page for more information</p>
+  <p style="float:left">Enter the information for your Variant sample below. Please view the <%= link_to "details", details_variants_path %> page for more information</p>
   <div style="float:right;padding-right:1em">
     <%= link_to "Cancel", variants_path, :class => "button" %>
   </div>
 <% end -%>
 
-<%= render :partial => "experiments/sidebar" %>
+<%= render :partial => "samples/sidebar" %>
 
 <%= error_messages_for :variant %>
 
-<%= render :partial => 'experiments/form', :locals => {:experiment => @variant} %>
+<%= render :partial => 'samples/form', :locals => {:sample => @variant} %>

@@ -14,7 +14,7 @@ If Transcriptome Load Blast
 
 Load Samples
 -Identify/Create Group => group:list, UI
--Load Samples => experiment:create
+-Load Samples => sample:create
 -load Expression => expression:load
 
 
@@ -25,7 +25,7 @@ Common Commands
 
 	ls ./ | grep "bam" | awk '{gsub(".bam","");print $0}' | xargs
 	
-- Load Multiple Experiments and Expression
+- Load Multiple Samples and Expression
 	
 	LIBS="one two three";  	//All sample names minus '.bam' '.csv'
 	ASM_ID=1001;  			//Assembly id
@@ -33,7 +33,7 @@ Common Commands
 	CONCORD_FILE=concordance.txt; //Concordance file for expression
 	C_COL=4; //Counts column in csv. use 4 for CLC Transcriptome(Reference without annoations), 6 for CLC Genome
 	
-	for x in $LIBS; do echo $x; thor experiment:create -t RnaSeq -n $x -a $ASM_ID -c $CONCORD_ID -g "admin" -f Bam:./$x.bam; thor expression:load ./$x.csv -e $x -a $ASM_ID -f 'Mrna' -c $C_COL -n 2 -h -d $CONCORD_FILE --no_index; done
+	for x in $LIBS; do echo $x; thor sample:create -t RnaSeq -n $x -a $ASM_ID -c $CONCORD_ID -g "admin" -f Bam:./$x.bam; thor expression:load ./$x.csv -e $x -a $ASM_ID -f 'Mrna' -c $C_COL -n 2 -h -d $CONCORD_FILE --no_index; done
  
 - Run a blastx
 
@@ -182,7 +182,7 @@ Samples can be loaded through the UI or command line.
 
 To use thor you must supply a sample type, unique name, assembly_id and concordance_set_id
 
-	thor experiment:create --data Bam:path/to/myfile.bam --name 'sample_1' --type RnaSeq --assembly_id 3 --concordance_set_id 5
+	thor sample:create --data Bam:path/to/myfile.bam --name 'sample_1' --type RnaSeq --assembly_id 3 --concordance_set_id 5
 	
 You can also add a description or group name
 	-description 'tissue dpa' --group 'MyGroup'
@@ -193,7 +193,7 @@ Loading Expression
 Expression data for a sample is loaded from the command line. The sample must already exist and there must be annotations
 with a locus_tag on the sample's bioentry. The loader expects 3 columns. Id, Count, and Normalized Count. They can be tab or comma delimited.
 
-Supply the command with the expression file and experiment name or ID.
+Supply the command with the expression file and sample name or ID.
 	
 	thor expression:load sample_1.csv -e sample_1
 

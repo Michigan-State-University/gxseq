@@ -26,7 +26,7 @@ class AssembliesController < ApplicationController
         wants.html { redirect_to edit_assembly_path(@assembly) }
       else
         logger.info "\n\n\n\n\n\n\n\n\nNO UPDATE\n\n#{@assembly.errors.inspect}\n\n\n\n"
-        @experiments = @assembly.experiments
+        @samples = @assembly.samples
         wants.html { render :action => "edit" }
       end
     end
@@ -34,7 +34,7 @@ class AssembliesController < ApplicationController
   
   def concordance_sets
     @concordance_sets = Assembly.find(params[:assembly_id]).concordance_sets
-    render :partial => 'concordance_set_selection', :locals => {:concordance_sets => @concordance_sets, :exp_type => params[:exp_type]}
+    render :partial => 'concordance_set_selection', :locals => {:concordance_sets => @concordance_sets, :sample_type => params[:sample_type]}
   end
   
   private
@@ -44,6 +44,6 @@ class AssembliesController < ApplicationController
     def load_assoc
       @groups = Group.all
       order_d = (params[:d]=='up' ? 'asc' : 'desc')
-      @experiments = @assembly.experiments.includes(:group).order("#{params[:c]||'groups.name'} #{order_d}").order("experiments.name")
+      @samples = @assembly.samples.includes(:group).order("#{params[:c]||'groups.name'} #{order_d}").order("samples.name")
     end
 end

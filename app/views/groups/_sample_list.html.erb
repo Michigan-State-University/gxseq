@@ -1,4 +1,4 @@
-<% if group.experiments.empty? %>
+<% if group.samples.empty? %>
   No samples have been assigned to this group
 <% else %>
   <div class="table">
@@ -9,7 +9,7 @@
         <th>Description</th>
         <th>Options</th>
       </thead>
-      <% group.experiments.each do |sample| %>
+      <% group.samples.each do |sample| %>
         <tr>
           <td><%= sample.class.name %></td>
           <td><%= sample.name%></td>

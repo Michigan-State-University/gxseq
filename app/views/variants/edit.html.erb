@@ -1,17 +1,17 @@
 <% content_for :top_bar do -%>
-  <h1 class="pagetitle">Edit Variant Experiment <%= @variant.name %></h1>
+  <h1 class="pagetitle">Edit Variant Sample <%= @variant.name %></h1>
 <% end -%>
 
 <% content_for :item_bar do -%>
   <% if can? :delete, @variant %>
     <% #TODO: Change remove buttons to red style %>
-    <%= link_to "Remove Variant", @variant, :method => 'delete', :class => "button", :confirm => "Remove experiment: #{@variant.name}? \n This CANNOT be undone." %>
+    <%= link_to "Remove Variant", @variant, :method => 'delete', :class => "button", :confirm => "Remove sample: #{@variant.name}? \n This CANNOT be undone." %>
   <% end %>
   <%= link_to "Cancel", variants_path, :style => "float:right", :class => "button" %>
 <% end -%>
 
-<%= render :partial => "experiments/sidebar" %>
+<%= render :partial => "samples/sidebar" %>
 
 <%= error_messages_for :variant %>
 
-<%= render :partial => 'experiments/form', :locals => {:experiment => @variant} %>
+<%= render :partial => 'samples/form', :locals => {:sample => @variant} %>

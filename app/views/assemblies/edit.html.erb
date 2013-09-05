@@ -30,28 +30,28 @@
     <p><%= f.label 'version' %><br/>
     <%= f.text_field :version %></p>
     
-    <h2 class="smalltitle">Experiments</h2>
+    <h2 class="smalltitle">Samples</h2>
     
     <table>
-      <% exp_count = 0 %>
+      <% sample_count = 0 %>
       <tr>
         <th>#</th>
-        <th><%= sort_link "Name", "experiments.name" %></th>
+        <th><%= sort_link "Name", "samples.name" %></th>
         <th><%= sort_link "Group", "groups.name" %></th>
         <th>New Name</th>
         <th>New Description</th>
       </tr>
-      <% f.fields_for :experiments, @experiments do |exp| %>
-      <% exp_count +=1 %>
+      <% f.fields_for :samples, @samples do |sample| %>
+      <% sample_count +=1 %>
         <tr>
           <td>
-          <%= exp.error_messages %>
-            <%= "#{exp_count} )" %>
+          <%= sample.error_messages %>
+            <%= "#{sample_count} )" %>
           </td>
-          <td><%= exp.object.name %></td>
-          <td><%= exp.collection_select :group_id, @groups, :id, :name %><br/></td>
-          <td><%= exp.text_field :name %></td>
-          <td><%= exp.text_area :description, :size => "30x1" %></td>
+          <td><%= sample.object.name %></td>
+          <td><%= sample.collection_select :group_id, @groups, :id, :name %><br/></td>
+          <td><%= sample.text_field :name %></td>
+          <td><%= sample.text_area :description, :size => "30x1" %></td>
         </tr>
       <% end %>
     </table>

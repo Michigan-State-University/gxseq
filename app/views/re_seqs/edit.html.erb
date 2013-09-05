@@ -1,17 +1,17 @@
 <% content_for :top_bar do -%>
-  <h1 class="pagetitle">Edit Re-Sequencing Experiment <%= @re_seq.name %></h1>
+  <h1 class="pagetitle">Edit Re-Sequencing Sample <%= @re_seq.name %></h1>
 <% end -%>
 
 <% content_for :item_bar do -%>
   <% if can? :delete, @re_seq %>
     <% #TODO: Change remove buttons to red style %>
-    <%= link_to "Remove Re-Seq", @re_seq, :method => 'delete', :class => "button", :confirm => "Remove experiment: #{@re_seq.name}? \n This CANNOT be undone." %>
+    <%= link_to "Remove Re-Seq", @re_seq, :method => 'delete', :class => "button", :confirm => "Remove sample: #{@re_seq.name}? \n This CANNOT be undone." %>
   <% end %>
   <%= link_to "Cancel", @re_seq, :style => "float:right", :class => "button"%>
 <% end -%>
 
-<%= render :partial => "experiments/sidebar" %>
+<%= render :partial => "samples/sidebar" %>
 
 <%= error_messages_for :re_seq %>
 
-<%= render :partial => 'experiments/form', :locals => {:experiment => @re_seq} %>
+<%= render :partial => 'samples/form', :locals => {:sample => @re_seq} %>

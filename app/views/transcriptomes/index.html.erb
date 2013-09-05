@@ -20,4 +20,4 @@
 	<%= render :partial => "biosql/bioentries/sidebar", :locals => {:active => 'transcriptome'} %>
 <% end %>
 
-<%= render :partial => "assemblies/species_list", :locals => {:species => @species} %>
+<%= render :partial => "assemblies/species_list", :locals => {:species => @species, :assembly_method => :species_transcriptomes} %>

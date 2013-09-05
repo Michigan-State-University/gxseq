@@ -24,7 +24,7 @@ ActiveRecord::Schema.define(:version => 20131004192401) do
 
   create_table "assets", :force => true do |t|
     t.string   "type"
-    t.integer  "experiment_id",     :precision => 38, :scale => 0
+    t.integer  "experiment_id"
     t.string   "data_file_name"
     t.string   "data_content_type"
     t.string   "state",                                            :default => "pending"
@@ -47,6 +47,15 @@ ActiveRecord::Schema.define(:version => 20131004192401) do
   create_table "biodatabases_taxons", :id => false, :force => true do |t|
     t.integer "biodatabase_id", :precision => 38, :scale => 0
     t.integer "taxon_id",       :precision => 38, :scale => 0
+  end
+
+  create_table "bioentries_experiments", :force => true do |t|
+    t.integer  "bioentry_id"
+    t.integer  "experiment_id"
+    t.string   "sequence_name"
+    t.decimal  "abs_max",       :precision => 15, :scale => 2
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "bioentry", :primary_key => "bioentry_id", :force => true do |t|
@@ -128,6 +137,7 @@ ActiveRecord::Schema.define(:version => 20131004192401) do
 
   create_table "blast_databases", :force => true do |t|
     t.string   "name"
+    t.string   "abbreviation"
     t.string   "link_ref"
     t.string   "description"
     t.string   "taxon_id"
@@ -184,8 +194,8 @@ ActiveRecord::Schema.define(:version => 20131004192401) do
 
   create_table "components", :force => true do |t|
     t.string   "type"
-    t.integer  "experiment_id",           :precision => 38, :scale => 0
-    t.integer  "synthetic_experiment_id", :precision => 38, :scale => 0
+    t.integer  "experiment_id"
+    t.integer  "synthetic_experiment_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -281,9 +291,9 @@ ActiveRecord::Schema.define(:version => 20131004192401) do
   end
 
   create_table "feature_counts", :force => true do |t|
-    t.integer  "seqfeature_id",    :precision => 38, :scale => 0
-    t.integer  "experiment_id",    :precision => 38, :scale => 0
-    t.integer  "count",            :precision => 38, :scale => 0
+    t.integer  "seqfeature_id"
+    t.integer  "experiment_id"
+    t.integer  "count"
     t.decimal  "normalized_count", :precision => 10, :scale => 2
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -398,12 +408,12 @@ ActiveRecord::Schema.define(:version => 20131004192401) do
   add_index "ontology", ["name"], :name => "ontology_idx", :unique => true
 
   create_table "peaks", :force => true do |t|
-    t.integer  "experiment_id", :precision => 38, :scale => 0
-    t.integer  "bioentry_id",   :precision => 38, :scale => 0
-    t.integer  "start_pos",     :precision => 38, :scale => 0
-    t.integer  "end_pos",       :precision => 38, :scale => 0
-    t.decimal  "val"
-    t.integer  "pos",           :precision => 38, :scale => 0
+    t.integer  "experiment_id"
+    t.integer  "bioentry_id"
+    t.integer  "start_pos"
+    t.integer  "end_pos"
+    t.float    "val"
+    t.integer  "pos"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -576,6 +586,16 @@ ActiveRecord::Schema.define(:version => 20131004192401) do
   add_index "taxon_name", ["name"], :name => "taxon_name_idx2"
   add_index "taxon_name", ["taxon_id", "name", "name_class"], :name => "taxon_name_idx", :unique => true
 
+  create_table "taxon_versions", :force => true do |t|
+    t.integer  "taxon_id"
+    t.integer  "species_id"
+    t.string   "version"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "type"
+    t.integer  "group_id"
+  end
+
   create_table "term", :primary_key => "term_id", :force => true do |t|
     t.string   "name",                                                       :null => false
     t.string   "definition",  :limit => 4000
@@ -667,8 +687,8 @@ ActiveRecord::Schema.define(:version => 20131004192401) do
 
   create_table "tracks", :force => true do |t|
     t.string   "type"
-    t.integer  "assembly_id",    :precision => 38, :scale => 0
-    t.integer  "experiment_id",  :precision => 38, :scale => 0
+    t.integer  "bioentry_id"
+    t.integer  "experiment_id"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "sample"

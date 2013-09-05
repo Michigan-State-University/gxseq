@@ -230,8 +230,8 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     def get_feature_counts
       @seqfeature.feature_counts
         .accessible_by(current_ability)
-        .includes(:experiment)
-        .order("experiments.name")
+        .includes(:sample)
+        .order("samples.name")
     end
     
     def setup_xhr_form

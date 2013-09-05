@@ -28,6 +28,6 @@ class ConcordanceItem < ActiveRecord::Base
   end
   
   def name
-    'Experiment Sequence'
+    'Sample Sequence'
   end
 end

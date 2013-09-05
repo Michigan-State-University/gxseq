@@ -1,4 +1,0 @@
-<% if can? :update, experiment %>
-  <%= link_to "Edit", send("edit_"+experiment.class.name.underscore+"_path",experiment), :class => "button" %>
-<% end %>
-<%= link_to "Back", send(experiment.class.name.underscore+"s_path"), :class => "button" %>

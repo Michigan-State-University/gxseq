@@ -6,7 +6,7 @@ module ApplicationHelper
       #:home => [root_path,[:home,:'devise/sessions',:user]],
       :sequence => [genomes_path,[:bioentries,:genomes,:transcriptomes]],
       :features => [genes_path,[:genes,:seqfeatures]],
-      :samples => [experiments_path,[:experiments, :chip_chips, :chip_seqs, :synthetics, :variants]],
+      :samples => [samples_path,[:samples, :chip_chips, :chip_seqs, :synthetics, :variants]],
       :tools => [tools_path,[:tools,:expression,:blast_runs]],
       :help => [faq_path,[:help]]
     }

@@ -1,5 +1,5 @@
 <td style="white-space:nowrap">
-  <%= stored_locus_link(hit,experiments) %>
+  <%= stored_locus_link(hit,samples) %>
   <% feature_id = Array(hit.stored(:id)).first %>
   <% #NOTE: This is the only location requiring n+1 seqfeature queries. Can this come from the index somehow? %>
   <% if can? :edit, feature %>

@@ -2,10 +2,10 @@ class ReSeqsController < ApplicationController
   load_and_authorize_resource
   
   ##custom actions - rjs
-  def initialize_experiment
-    @re_seq.initialize_experiment
+  def initialize_sample
+    @re_seq.initialize_sample
     render :update do |page|
-      page.replace_html 'initialize_experiment', "Job Started. Refresh to view updates in the console."
+      page.replace_html 'initialize_sample', "Job Started. Refresh to view updates in the console."
     end
   end
   
@@ -26,14 +26,14 @@ class ReSeqsController < ApplicationController
     begin
       if @re_seq.valid?
         @re_seq.save
-        flash[:notice]="Experiment created succesfully"
+        flash[:notice]="Sample created succesfully"
         redirect_to :action => :index
       else
         render :action => :new
       end
     rescue
       logger.info "\n\nRescued from ReSeq Exp:#{$!}\n\n"
-      flash[:error]="Could not create experiment"
+      flash[:error]="Could not create sample"
       redirect_to :action => :index
     end
   end
@@ -54,7 +54,7 @@ class ReSeqsController < ApplicationController
   def update
     @assemblies = Assembly.includes(:taxon => :scientific_name).order('taxon_name.name asc')
     if @re_seq.update_attributes(params[:re_seq])        
-      flash[:notice] = 'Re-Sequencing experiment was successfully updated.'
+      flash[:notice] = 'Re-Sequencing sample was successfully updated.'
       redirect_to(@re_seq)
     else
       render :action => "edit"
@@ -63,7 +63,7 @@ class ReSeqsController < ApplicationController
 
   def destroy
     @re_seq.destroy
-    flash[:warning]="Experiment #{@re_seq.name} has been removed"
+    flash[:warning]="Sample #{@re_seq.name} has been removed"
     redirect_to :action => :index
   end
 end

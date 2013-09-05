@@ -15,7 +15,7 @@
         <td><%= link_to group.name, group %></td>
         <td><%= group.users.count %></td>
         <td><%= group.assemblies.count %></td>
-        <td><%= group.experiments.count %></td>
+        <td><%= group.samples.count %></td>
         <td>
           <%= link_to "View", group %>
           <% if can? :update, group %>

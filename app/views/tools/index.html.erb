@@ -5,23 +5,19 @@
 <%= render :partial => "sidebar", :locals => {:active => 'tools'} %>
 
 <% content_for :item_bar do %>
-<p>The tools provided here allow you to process and analyze experiments. For more information about each tool please read the tool <%= link_to 'details', details_tools_path %> page</p>
+<p>The tools provided here allow you to process and analyze samples. For more information about each tool please read the tool <%= link_to 'details', details_tools_path %> page</p>
 <%# add search here %>
 <% end -%>
 
 <h3><%= link_to "Smooth Data", smooth_tools_path  %></h3><hr><br/>
 <p>
-  The smoothing tool uses the 'rolling average' or 'windowed cutoff' algorithm to create a new experiment. The rolling average uses a configurable window size. The windowed cutoff uses a supplied cutoff value and returns the number of inflection points that cross the cutoff within each window.
+  The smoothing tool uses the 'rolling average' or 'windowed cutoff' algorithm to create a new sample. The rolling average uses a configurable window size. The windowed cutoff uses a supplied cutoff value and returns the number of inflection points that cross the cutoff within each window.
 </p>
 <h3><%= link_to "Expression Viewer", expression_viewer_path %></h3><hr><br/>
 <p>
-  Select interesting experiments to view a profile of the expression for each feature. Search on annotations and sort by counts. 
+  Select interesting samples to view a profile of the expression for each feature. Search on annotations and sort by counts. 
 </p>
 <h3><%= link_to "Blast", new_blast_path %></h3><hr><br/>
 <p>
   Use the blast suite to compare your sequence against the database.
 </p>
-<!-- <h3><%#= link_to "Variant Genes", variant_genes_tools_path  %></h3><hr><br/>
-<p>
-  This tool allows you to query variant experiment sets for genes with opposing variation.
-</p> -->

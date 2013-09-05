@@ -1,5 +1,5 @@
 <% content_for :top_bar do%>
-	<h1 class="pagetitle">ChIP Seq Experiments</h1>
+	<h1 class="pagetitle">ChIP Seq Samples</h1>
 <% end %>
-<%= render :partial => "experiments/sidebar", :locals => {:active => 'chip_seq'} %>
-<%= render :partial => "experiments/listing", :locals => {:exp_type => "chip_seq"} %>
+<%= render :partial => "samples/sidebar", :locals => {:active => 'chip_seq'} %>
+<%= render :partial => "samples/listing", :locals => {:sample_type => "chip_seq"} %>

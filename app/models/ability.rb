@@ -11,7 +11,7 @@ class Ability
   @@bioentry_auth_ids = {}
   # clear out the auth cache
   # The cache is reset when sample or group information changes
-  # see: GroupsController::remove_user, Group::add_user, Experiment::update_cache
+  # see: GroupsController::remove_user, Group::add_user, Sample::update_cache
   def self.reset_cache
     @@seqfeature_auth_ids = {}
     @@gene_model_auth_ids = {}
@@ -35,7 +35,7 @@ class Ability
     @stored_user_id
   end
   # NOTE: There is an issue when combining abilities that reference the same table
-  # when searching experiment->users and sequence->users we need to use different lookup method
+  # when searching sample->users and sequence->users we need to use different lookup method
   # group -> users -> id => user.id   vs.  group -> id => user.group_ids
   # otherwise the sql produced will not use the generated join table name and will be incorrect
   # example:
@@ -67,50 +67,50 @@ class Ability
       #can :create, Group
       #Taxon
       can :read, Biosql::Taxon, :species_assemblies => {:group => {:users => {:id => user.id}}}
-      can :read, Biosql::Taxon, :species_assemblies => {:experiments => {:group => {:id => user.group_ids}}}
+      can :read, Biosql::Taxon, :species_assemblies => {:samples => {:group => {:id => user.group_ids}}}
       #Assemblies
       can :read, Assembly, :group => {:users => {:id => user.id}}
-      can :read, Assembly, :experiments => {:group => {:id => user.group_ids}}
+      can :read, Assembly, :samples => {:group => {:id => user.group_ids}}
       #Sequence
       can :read, Biosql::Bioentry, :assembly => {:group => {:users => {:id => user.id}}}
-      can :read, Biosql::Bioentry, :assembly => {:experiments => {:group => {:id => user.group_ids}}}
+      can :read, Biosql::Bioentry, :assembly => {:samples => {:group => {:id => user.group_ids}}}
       #Features
       #can [:read,:update, :toggle_favorite, :feature_counts, :coexpressed_counts], Biosql::Feature::Seqfeature, :bioentry => {:assembly => {:group => {:users => {:id => user.id}}}}
-      can [:read,:update, :toggle_favorite, :feature_counts, :coexpressed_counts], Biosql::Feature::Seqfeature, :bioentry => {:assembly => {:experiments => {:group => {:id => user.group_ids}}}}
+      can [:read,:update, :toggle_favorite, :feature_counts, :coexpressed_counts], Biosql::Feature::Seqfeature, :bioentry => {:assembly => {:samples => {:group => {:id => user.group_ids}}}}
       can :create, Biosql::Feature::Seqfeature
       #GeneModels
       can [:read,:update], GeneModel, :bioentry => {:assembly => {:group => {:users => {:id => user.id}}}}
-      can [:read,:update], GeneModel, :bioentry => {:assembly => {:experiments => {:group => {:id => user.group_ids}}}}
+      can [:read,:update], GeneModel, :bioentry => {:assembly => {:samples => {:group => {:id => user.group_ids}}}}
       #TODO: Update gene model create view before enabling
       #can :create, GeneModel
       #Samples
-      can :manage, Experiment, :user_id => user.id
-      can :read, Experiment, :group => {:users => {:id => user.id}}
-      can :track_data, Experiment, :group => {:users => {:id => user.id}}
-      can :track_data, Experiment, :user_id => user.id
+      can :manage, Sample, :user_id => user.id
+      can :read, Sample, :group => {:users => {:id => user.id}}
+      can :track_data, Sample, :group => {:users => {:id => user.id}}
+      can :track_data, Sample, :user_id => user.id
       #Tracks
-      # Tracks are only accessible if they have experiments
-      # Non-experiment tracks are not tested in controllers/models (models,generic,six_frame)
-      can :read, Track, :experiment => {:group => {:id => user.group_ids}}
+      # Tracks are only accessible if they have samples
+      # Non-sample tracks are not tested in controllers/models (models,generic,six_frame)
+      can :read, Track, :sample => {:group => {:id => user.group_ids}}
       #Asset
-      can :read, Asset, :experiment => {:group => {:users => {:id => user.id}}}
+      can :read, Asset, :sample => {:group => {:users => {:id => user.id}}}
       #Expression
-      can :read, FeatureCount, :experiment => {:group => {:users => {:id => user.id}}}
-      can :read, FeatureCount, :experiment => {:user_id => user.id}
+      can :read, FeatureCount, :sample => {:group => {:users => {:id => user.id}}}
+      can :read, FeatureCount, :sample => {:user_id => user.id}
       #Blast Database
       can :read, BlastDatabase, :group => {:users => {:id => user.id}}
-      # TODO: coordinate user_id,owner_id,owns? methods for consistency (Experiment,Group,What Else?)
-      # Need explicit create to allow new experiments
+      # TODO: coordinate user_id,owner_id,owns? methods for consistency (Sample,Group,What Else?)
+      # Need explicit create to allow new samples
       #
       # Owner tests - these were added as extra feature/sequence visibilty tests. Removed for simplicity.
       # They did allow users to view sequence and features if they could view any associated samples
       # Removed because these lookups take several seconds on mysql and only the admin can manage groups, samples, and sequence right now
       #
-      # can :read, Taxon, :species_assemblies => {:experiments => {:user_id => user.id}}
-      # can :read, Assembly, :experiments => {:user_id => user.id}
-      # can :read, Bioentry, :assembly => {:experiments => {:user_id => user.id}}
-      # can [:read,:update, :toggle_favorite], Seqfeature, :bioentry => {:assembly => {:experiments => {:user_id => user.id}}}
-      # can [:read,:update], GeneModel, :bioentry => {:assembly => {:experiments => {:user_id => user.id}}}
+      # can :read, Taxon, :species_assemblies => {:samples => {:user_id => user.id}}
+      # can :read, Assembly, :samples => {:user_id => user.id}
+      # can :read, Bioentry, :assembly => {:samples => {:user_id => user.id}}
+      # can [:read,:update, :toggle_favorite], Seqfeature, :bioentry => {:assembly => {:samples => {:user_id => user.id}}}
+      # can [:read,:update], GeneModel, :bioentry => {:assembly => {:samples => {:user_id => user.id}}}
     
     # Guest users have group based access but annotation is limited.
     elsif user.has_role?('guest')
@@ -118,20 +118,20 @@ class Ability
       can :update, User, :id => user.id
       can :read, Group, :users => {:id => user.id}
       can :read, Biosql::Taxon, :species_assemblies => {:group => {:users => {:id => user.id}}}
-      can :read, Biosql::Taxon, :species_assemblies => {:experiments => {:group => {:id => user.group_ids}}}
+      can :read, Biosql::Taxon, :species_assemblies => {:samples => {:group => {:id => user.group_ids}}}
       can :read, Assembly, :group => {:users => {:id => user.id}}
-      can :read, Assembly, :experiments => {:group => {:id => user.group_ids}}
+      can :read, Assembly, :samples => {:group => {:id => user.group_ids}}
       can :read, Biosql::Bioentry, :assembly => {:group => {:users => {:id => user.id}}}
-      can :read, Biosql::Bioentry, :assembly => {:experiments => {:group => {:id => user.group_ids}}}
+      can :read, Biosql::Bioentry, :assembly => {:samples => {:group => {:id => user.group_ids}}}
       can [:read, :toggle_favorite], Biosql::Feature::Seqfeature, :bioentry => {:assembly => {:group => {:users => {:id => user.id}}}}
-      can [:read, :toggle_favorite], Biosql::Feature::Seqfeature, :bioentry => {:assembly => {:experiments => {:group => {:id => user.group_ids}}}}
+      can [:read, :toggle_favorite], Biosql::Feature::Seqfeature, :bioentry => {:assembly => {:samples => {:group => {:id => user.group_ids}}}}
       can [:read,], GeneModel, :bioentry => {:assembly => {:group => {:users => {:id => user.id}}}}
-      can [:read,], GeneModel, :bioentry => {:assembly => {:experiments => {:group => {:id => user.group_ids}}}}
-      can :read, Experiment, :group => {:users => {:id => user.id}}
-      can :track_data, Experiment, :group => {:users => {:id => user.id}}
-      can :read, Track, :experiment => {:group => {:id => user.group_ids}}
-      can :read, Asset, :experiment => {:group => {:users => {:id => user.id}}}
-      can :read, FeatureCount, :experiment => {:group => {:users => {:id => user.id}}}
+      can [:read,], GeneModel, :bioentry => {:assembly => {:samples => {:group => {:id => user.group_ids}}}}
+      can :read, Sample, :group => {:users => {:id => user.id}}
+      can :track_data, Sample, :group => {:users => {:id => user.id}}
+      can :read, Track, :sample => {:group => {:id => user.group_ids}}
+      can :read, Asset, :sample => {:group => {:users => {:id => user.id}}}
+      can :read, FeatureCount, :sample => {:group => {:users => {:id => user.id}}}
       can :read, BlastDatabase, :group => {:users => {:id => user.id}}
     
     # Anybody from the public can view data in the Public group.
@@ -143,11 +143,11 @@ class Ability
       can :read, Biosql::Bioentry, :assembly => {:group => {:name => 'public'}}
       can :read, Biosql::Feature::Seqfeature, :bioentry => {:assembly => {:group => {:name => 'public'}}}
       can :read, GeneModel, :bioentry => {:assembly => {:group => {:name => 'public'}}}
-      can :read, Experiment, :group => {:name => 'public'}
-      can :track_data, Experiment, :group => {:name => 'public'}
-      can :read, Track, :experiment => {:group => {:name => 'public'}}
-      can :read, Asset, :experiment => {:group => {:name => 'public'}}
-      can :read, FeatureCount, :experiment => {:group => {:name => 'public'}}
+      can :read, Sample, :group => {:name => 'public'}
+      can :track_data, Sample, :group => {:name => 'public'}
+      can :read, Track, :sample => {:group => {:name => 'public'}}
+      can :read, Asset, :sample => {:group => {:name => 'public'}}
+      can :read, FeatureCount, :sample => {:group => {:name => 'public'}}
       can :read, BlastDatabase, :group => {:name => 'public'}
     end
   end

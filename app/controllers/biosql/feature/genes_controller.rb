@@ -117,7 +117,7 @@ class Biosql::Feature::GenesController < ApplicationController
     when 'history'
       @changelogs = Version.order('id desc').where(:parent_id => @gene.id).where(:parent_type => 'Biosql::Feature::Gene')
     when 'expression'
-      @feature_counts = @gene.feature_counts.accessible_by(current_ability).includes(:experiment).order("experiments.name")
+      @feature_counts = @gene.feature_counts.accessible_by(current_ability).includes(:sample).order("samples.name")
       setup_graphics_data
     when 'blast'
       @blast_reports = @gene.blast_reports

@@ -3,7 +3,7 @@
     <tr>
       <th style="width:20px"></th>
       <% @feature_counts.each do |m| %>
-        <th><%= link_to m.experiment.name, m.experiment %></th>
+        <th><%= link_to m.sample.name, m.sample %></th>
       <% end %>
     </tr>
     <tr>

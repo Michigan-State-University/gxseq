@@ -36,7 +36,7 @@ class User < ActiveRecord::Base
   has_many :favorites, :order => :type, :dependent => :destroy
   has_many :favorite_seqfeatures
   has_many :seqfeatures, :through => :favorite_seqfeatures
-  has_many :experiments
+  has_many :samples
   has_many :blast_runs, :order => 'id desc', :dependent => :destroy
   # Remove private_group for now, not useful without private samples/sequence
   # has_one :private_group, :class_name => "Group", :include => :owner, :foreign_key => 'owner_id', :conditions => "name = users.login", :dependent => :destroy
