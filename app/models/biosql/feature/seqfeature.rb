@@ -85,15 +85,15 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     self.search(:include => :feature_counts) do
       with(:assembly_id, assembly.id)
       any_of do
-        assembly.experiments.each do |exp|
+        assembly.samples.each do |sample|
           dynamic(:normalized_counts) do
-            without "exp_#{exp.id}", nil
+            without "sample_#{sample.id}", nil
           end
           dynamic(:counts) do
-            without "exp_#{exp.id}", nil
+            without "sample_#{sample.id}", nil
           end
           dynamic(:unique_counts) do
-            without "exp_#{exp.id}", nil
+            without "sample_#{sample.id}", nil
           end
         end
       end
@@ -150,7 +150,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     product_assoc.try(:value)
   end
   def indexed_function
-    product_assoc.try(:value)
+    function_assoc.try(:value)
   end
   def indexed_transcript_id
     transcript_id.try(:value)
@@ -392,43 +392,36 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   # Expression search methods
   # TODO: Think about moving to new Expression or Search class instead
   # Set A vs Set B. Currently called by advanced_results action
-  def self.ratio_search(current_ability,assembly_id,type_term_id,a_experiments,b_experiments,opts)
+  def self.ratio_search(current_ability,assembly_id,type_term_id,a_samples,b_samples,opts)
     # Default options
     sort_column = opts[:c]||'ratio'
     value_type = opts[:value_type]||'normalized_counts'
     order_d = (['ASC','asc','up'].include?(opts[:d]) ? :asc : :desc)
     # Infinite location setup
     infinity_offset = (opts[:infinite_order] == 'l' ? '-0.000001' : '0.000001' )
-    # Order by experiment ratio setup
-    a_clause = [:div, [:sum, *a_experiments.collect{|e| "exp_#{e.id}".to_sym}], "#{a_experiments.length}"]
-    b_clause = [:div, [:sum, *b_experiments.collect{|e| "exp_#{e.id}".to_sym}], "#{b_experiments.length}"]
+    # Order by sample ratio setup
+    a_clause = [:div, [:sum, *a_samples.collect{|e| "sample_#{e.id}".to_sym}], "#{a_samples.length}"]
+    b_clause = [:div, [:sum, *b_samples.collect{|e| "sample_#{e.id}".to_sym}], "#{b_samples.length}"]
     # Run base search with additional options
     base_search(current_ability,assembly_id,type_term_id,opts) do |s|
       # Minimum Count
-      if opts[:min_exp_value]
+      if opts[:min_sample_value]
         s.any_of do |any_a|
-          a_experiments.each do |exp|
+          a_samples.each do |sample|
             any_a.dynamic(value_type) do
-              with("exp_#{exp.id}").greater_than opts[:min_exp_value]
-            end
-          end
-        end
-        s.any_of do |any_b|
-          b_experiments.each do |exp|
-            any_b.dynamic(value_type) do
-              with("exp_#{exp.id}").greater_than opts[:min_exp_value]
+              with("sample_#{sample.id}").greater_than opts[:min_sample_value]
             end
           end
         end
       end
       # Sorting
       case sort_column
-      # dynamic 'exp_X' attribute
-      when 'exp_a'
+      # dynamic 'sample_X' attribute
+      when 'sample_a'
         s.dynamic(value_type) do
           order_by_function *a_clause,  order_d
         end
-      when 'exp_b'
+      when 'sample_b'
         s.dynamic(value_type) do
           order_by_function *b_clause,  order_d
         end
@@ -455,7 +448,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     end
   end
   # Returns a csv string from a ratio search result. No header is present
-  def self.ratio_search_to_csv(search,a_experiments,b_experiments,blast_runs,opts)
+  def self.ratio_search_to_csv(search,a_samples,b_samples,blast_runs,opts)
     result = []
     search.hits.each do |hit|
       data1 = [
@@ -475,9 +468,9 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
       # Counts
       data3 = [
         # Set A
-        "%.2f" % (a_avg=a_experiments.inject(0.0){|sum, exp| sum+=(hit.stored(opts[:value_type],"exp_#{exp.id}")||0)}/a_experiments.length),
+        "%.2f" % (a_avg=a_samples.inject(0.0){|sum, sample| sum+=(hit.stored(opts[:value_type],"sample_#{sample.id}")||0)}/a_samples.length),
         # Set B
-        "%.2f" % (b_avg=b_experiments.inject(0.0){|sum, exp| sum+=(hit.stored(opts[:value_type],"exp_#{exp.id}")||0)}/b_experiments.length),
+        "%.2f" % (b_avg=b_samples.inject(0.0){|sum, sample| sum+=(hit.stored(opts[:value_type],"sample_#{sample.id}")||0)}/b_samples.length),
         # Ratio
         b_avg == 0 ? 'Inf' : "%.2f" % (a_avg/b_avg)
       ]
@@ -486,18 +479,18 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     return result.join("")
   end
   # 1 column per sample. Currently called by results action
-  def self.matrix_search(current_ability,assembly_id,type_term_id,experiments,opts)
+  def self.matrix_search(current_ability,assembly_id,type_term_id,samples,opts)
     # Default options
     sort_column = opts[:c]||'sum'
     value_type = opts[:value_type]||'normalized_counts'
     order_d = (['ASC','asc','up'].include?(opts[:d]) ? :asc : :desc)
-    experiment_symbols = experiments.collect{|e| "exp_#{e.id}".to_sym}
+    sample_symbols = samples.collect{|sample| "sample_#{sample.id}".to_sym}
     # begin the sunspot search definition
     base_search(current_ability,assembly_id,type_term_id,opts) do |s|
       # Sorting
       case sort_column
-      # dynamic 'exp_X' attribute
-      when /exp_/
+      # dynamic 'sample_X' attribute
+      when /sample_/
         s.dynamic(value_type) do
           order_by sort_column, order_d
         end
@@ -513,7 +506,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
       # sum function
       when 'sum'
         s.dynamic(value_type) do
-          order_by_function :sum, *experiment_symbols,  order_d
+          order_by_function :sum, *sample_symbols,  order_d
         end
       # default
       else
@@ -524,7 +517,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     end
   end
   # Returns a csv string for a matrix search result. No header is present
-  def self.matrix_search_to_csv(search,experiments,blast_runs,opts)
+  def self.matrix_search_to_csv(search,samples,blast_runs,opts)
     result = []
     search.hits.each do |hit|
       data1 = [
@@ -545,8 +538,8 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
       sum=0
       val=0
       data3 = []
-      experiments.each do |exp|
-        val = hit.stored(opts[:value_type],"exp_#{exp.id}")
+      samples.each do |sample|
+        val = hit.stored(opts[:value_type],"sample_#{sample.id}")
         sum += (val||0)
         data3 << val
       end
@@ -655,7 +648,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     page=opts[:page]||1
     x_sum = 0
     xsquare = 0
-    ordered_counts = feature_counts.order("experiment_id").accessible_by(ability)
+    ordered_counts = feature_counts.order("sample_id").accessible_by(ability)
     ordered_counts.each do |feature_count|
       x = feature_count.send(value_type).to_f
       x_sum += x
@@ -664,14 +657,14 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     return nil if x_sum == 0
     sxx = xsquare - ((x_sum*x_sum)/total_feature_counts)
     
-    exp_strings = ordered_counts.collect{|fc| "exp_#{fc.experiment_id}".to_sym}
-    exp_square = ordered_counts.collect{|fc| [:pow,"exp_#{fc.experiment_id}".to_sym,'2']}
-    exp_product = ordered_counts.collect{|fc| [:product,"#{fc.send(value_type).to_f}","exp_#{fc.experiment_id}".to_sym]}
+    sample_strings = ordered_counts.collect{|fc| "sample_#{fc.sample_id}".to_sym}
+    sample_square = ordered_counts.collect{|fc| [:pow,"sample_#{fc.sample_id}".to_sym,'2']}
+    sample_product = ordered_counts.collect{|fc| [:product,"#{fc.send(value_type).to_f}","sample_#{fc.sample_id}".to_sym]}
     # FIXME: Re-use of the clause leads to errors due to removal of first argument
-    y_sum = [:sum,*exp_strings]
-    y_sum_dup = [:sum,*exp_strings]
-    y_square = [:sum,*exp_square]
-    product = [:sum,*exp_product]
+    y_sum = [:sum,*sample_strings]
+    y_sum_dup = [:sum,*sample_strings]
+    y_square = [:sum,*sample_square]
+    product = [:sum,*sample_product]
     sxy_clause = [:sub,product,[:div,[:product,y_sum_dup,"#{x_sum.round(4)}"],"#{total_feature_counts}"]]
     syy_clause = [:sub,y_square,[:div,[:pow,y_sum,'2'],"#{total_feature_counts}"]]
     denom_clause = [:product, [:sqrt,syy_clause],"#{Math.sqrt(sxx).round(4)}" ]
@@ -691,7 +684,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
       any_of do
         dynamic(value_type+'s') do
           ordered_counts.each do |oc|
-            with("exp_#{oc.experiment_id}").greater_than(0)
+            with("sample_#{oc.sample_id}").greater_than(0)
           end
         end
       end
@@ -711,7 +704,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     ordered_values = []
     f_counts.each do |f_count|
       ordered_values.push(f_count.send(value_type).to_f)
-      compared_values.push(compared_hit.stored(value_type+'s',"exp_#{f_count.experiment_id}").to_f)
+      compared_values.push(compared_hit.stored(value_type+'s',"sample_#{f_count.sample_id}").to_f)
     end
     # Collect the sum and sum of squares
     ordered_values.zip(compared_values).each do |x,y|
@@ -729,19 +722,19 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     r =  ( sxy / (Math.sqrt(sxx)*Math.sqrt(syy)) )
     return r.round(4)
   end
-  # Computes the sum of all experiments for the supplied hit and feature_counts
+  # Computes the sum of all samples for the supplied hit and feature_counts
   def get_sum(hit,f_counts,opts={})
     # Default to normalized values
     value_type=opts[:value_type]||'normalized_count'
     # Sum the counts
-    f_counts.inject(0){|sum,f_count| sum+hit.stored(value_type+'s',"exp_#{f_count.experiment_id}").to_f}.round(2)
+    f_counts.inject(0){|sum,f_count| sum+hit.stored(value_type+'s',"sample_#{f_count.sample_id}").to_f}.round(2)
   end
   # returns formatted counts for all coexpressed features
   # [{:id,:name,:description,:correlation,:sample1,:sample2,...}]
   def corr_search_to_matrix(corr_search,f_counts,opts={})
     value_type=opts[:value_type]||'normalized_count'
     results = []
-    blast_run_texts = blast_reports.each.map{|blast_report|"blast_#{blast_report.blast_run_id}_text".to_sym}
+    blast_run_texts = bioentry.assembly.blast_runs.each.map{|blast_run|"blast_#{blast_run.id}_text".to_sym}
     corr_search.hits.each_with_index do |hit|
       desc = ''
       desc += Array(hit.stored(:description_text)).first.to_s
@@ -757,8 +750,8 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
       }
       item[:values]=[]
       f_counts.each do |f_count|
-        item[:values] << {:x => f_count.experiment.name, :y => hit.stored(value_type+'s',"exp_#{f_count.experiment_id}")}
-        #item[f_count.experiment.name]= hit.stored(value_type+'s',"exp_#{f_count.experiment_id}")
+        item[:values] << {:x => f_count.sample.name, :y => hit.stored(value_type+'s',"sample_#{f_count.sample_id}")}
+        #item[f_count.sample.name]= hit.stored(value_type+'s',"sample_#{f_count.sample_id}")
       end
       results.push(item)
     end
@@ -846,13 +839,13 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     # field names need to start with non numeric characters. Numbers cause solr query errors
     # dynamic feature expression
     s.dynamic_float :normalized_counts, :stored => true do
-      feature_counts.inject({}){|h,x| h["exp_#{x.experiment_id}"]=x.normalized_count;h}
+      feature_counts.inject({}){|h,x| h["sample_#{x.sample_id}"]=x.normalized_count;h}
     end
     s.dynamic_float :counts, :stored => true do
-      feature_counts.inject({}){|h,x| h["exp_#{x.experiment_id}"]=x.count;h}
+      feature_counts.inject({}){|h,x| h["sample_#{x.sample_id}"]=x.count;h}
     end
     s.dynamic_float :unique_counts, :stored => true do
-      feature_counts.inject({}){|h,x| h["exp_#{x.experiment_id}"]=x.unique_count;h}
+      feature_counts.inject({}){|h,x| h["sample_#{x.sample_id}"]=x.unique_count;h}
     end
     # TODO: Add acts_as_taggable indexed tags for better search/filtering of [Transcription Factor] tag
     # # dynamic tags
