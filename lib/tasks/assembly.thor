@@ -37,7 +37,7 @@ class Assembly < Thor
     assembly.reindex
   end
   
-  desc 'reindex_features', 'Reindex the features in an assembly'
+  desc 'index_features', 'Reindex the features in an assembly'
   method_option :assembly, :aliases => '-a', :desc => 'Id of the assembly to reindex'
   def index_features
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
