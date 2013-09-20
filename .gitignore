@@ -1,4 +1,8 @@
 .bundle
 db/*.sqlite3
 log/*.log
+log/*.lck
 tmp/
+config/*.yml
+solr/data
+solr/pids
