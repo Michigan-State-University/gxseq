@@ -27,18 +27,7 @@ class BlastsController < ApplicationController
             :user => current_user,
           )
           local_run.reports.each do |report|
-            if hit = report.hits.first
-              hit_acc = hit.accession
-              hit_def = hit.definition[0..3999]
-            else
-              hit_acc = nil
-              hit_def = nil
-            end
-            blast_report = blast_run.blast_reports.create(
-              :report => report,
-              :hit_acc => hit_acc,
-              :hit_def => hit_def
-            )
+            blast_run.populate_blast_iteration(report)
           end
           redirect_to blast_run
         end

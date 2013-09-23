@@ -16,16 +16,16 @@
 
 <% blast_reports.each do |blast_report| %>
   <div id="blast_report_hsps_<%= blast_report.id %>" style="width:850px;height:300px;overflow-y:auto">
-    HSP Hits for: <%= blast_report.report.query_id %> <%= blast_report.report.query_def %>
-    <%= number_line(0,800,{:per_pixel => blast_report.report.query_len/800.0,:id => blast_report.id}) %>
-    <% hsp_data = blast_report.report.hits.collect{|hit| hit.hsps.collect{|hsp| [hsp.query_from,(hsp.query_to-hsp.query_from),hsp.score]}} %>
+    HSP Hits for: <%= blast_report.query_id %> <%= blast_report.query_def %>
+    <%= number_line(0,800,{:per_pixel => blast_report.query_len/800.0,:id => blast_report.id}) %>
+    <% hsp_data = blast_report.hits.collect{|hit| hit.hsps.collect{|hsp| [hsp.query_from,(hsp.query_to-hsp.query_from),hsp.score]}} %>
     <script "text/javascript">
       graph = new BlastHsp(
         {
           width:800,
           boxHeight:10,
           height:<%= (hsp_data.length*10) %>,
-          length:<%= blast_report.report.query_len %>,
+          length:<%= blast_report.query_len %>,
           renderTo:"blast_report_hsps_<%= blast_report.id %>"
         }
       )

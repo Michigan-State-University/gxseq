@@ -18,6 +18,7 @@ class BlastRun < ActiveRecord::Base
   belongs_to :assembly
   belongs_to :user
   has_many :blast_reports, :dependent => :delete_all
+  has_many :blast_iterations, :dependent => :delete_all
   delegate :taxon, :filepath, :name, :description, :name_with_description, :to => :blast_database, :allow_nil => true
   serialize :parameters, Hash
   validates_presence_of :blast_database
@@ -66,5 +67,56 @@ class BlastRun < ActiveRecord::Base
       blastpath
     )
     return local_blast_factory.query(sequence)
+  end
+  
+  def populate_blast_iteration(iteration=nil,seqfeature_id=nil,load_options=nil)
+    load_options ||= {}
+    blast_iteration = self.blast_iterations.build(
+      :query_id => iteration.query_id,
+      :query_def => iteration.query_def,
+      :query_len => iteration.query_len,
+      :seqfeature_id => seqfeature_id
+    )
+    
+    iteration.hits.each do |hit|
+      if(load_options[:remove_splice])
+        accession = hit.accession.split(".")[0]
+      end
+      blast_hit = blast_iteration.hits.build(
+        :accession => hit.accession,
+        :definition => hit.definition.length > 4000 ? hit.definition.slice(0..3999) : hit.definition,
+        :length => hit.len,
+        :hit_num => hit.num
+      )
+      
+      hit.hsps.each do |hsp|
+        blast_hit.hsps.build(
+          :bit_score => hsp.bit_score,
+          :score => hsp.score,
+          :query_from => hsp.query_from,
+          :query_to => hsp.query_to,
+          :hit_from => hsp.hit_from,
+          :hit_to => hsp.hit_to,
+          :query_frame => hsp.query_frame,
+          :hit_frame => hsp.hit_frame,
+          :identity => hsp.identity,
+          :positive => hsp.positive,
+          :gaps => hsp.gaps,
+          :align_length => hsp.align_len,
+          :evalue => hsp.evalue,
+          :query_seq => hsp.qseq,
+          :hit_seq => hsp.hseq,
+          :midline => hsp.midline
+        )
+      end
+    end
+    
+    unless load_options[:test]
+      if blast_iteration.valid?
+        blast_iteration.save!
+      else
+        puts "Invalid BlastIteration: #{blast_iteration.inspect}"
+      end
+    end
   end
 end
