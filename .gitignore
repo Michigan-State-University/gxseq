@@ -3,6 +3,8 @@ db/*.sqlite3
 log/*.log
 log/*.lck
 tmp/
-config/*.yml
+config/database.yml
+config/settings.yml
+config/sunspot.yml
 solr/data
 solr/pids
