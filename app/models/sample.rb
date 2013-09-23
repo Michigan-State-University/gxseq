@@ -30,11 +30,11 @@ class Sample < ActiveRecord::Base
   belongs_to :group
   belongs_to :concordance_set
   has_many :bioentries, :through => :concordance_items
-  #has_many :bioentries, :finder_sql => 'select b.* from bioentries_samples be left outer join bioentry b on be.bioentry_id = b.bioentry_id where be.sample_id =#{id}'
   has_many :assets, :dependent => :destroy
   has_many :components
   has_many :tracks
-  
+  has_many :traits
+  has_many :trait_types, :through => :traits, :source => :term, :uniq => true
   # We don't force an assets presence. It might be added later or an expression only rna_seq
   # validates_presence_of :assets
   validates_presence_of :user
@@ -46,6 +46,7 @@ class Sample < ActiveRecord::Base
   validates_length_of :description, :maximum => 500, :on => :create, :message => "must be less than 500 characters"
 
   accepts_nested_attributes_for :assets, :allow_destroy => true
+  accepts_nested_attributes_for :traits, :allow_destroy => true
   
   before_validation :initialize_assets, :on => :create
   before_create 'self.state = "pending"'

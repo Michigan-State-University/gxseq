@@ -24,6 +24,8 @@ GenomeSuite::Application.routes.draw do
     end
     resources :locations
     resources :seqfeature_qualifier_values
+    resources :ontologies
+    resources :terms
   end
   # biosql simple helper, simple url
   scope :module => 'biosql' do
@@ -70,7 +72,7 @@ GenomeSuite::Application.routes.draw do
       end
     end
   end
-
+  
   # Genome
   resources :assemblies do
     get 'concordance_sets', :on => :collection
@@ -193,8 +195,10 @@ GenomeSuite::Application.routes.draw do
       get :autocomplete_group_id, :on => :collection
     end
     resources :blast_runs
-    resources :ontologies
-    resources :terms
+    scope :module => 'biosql', :as => 'biosql' do
+      resources :ontologies
+      resources :terms
+    end
   end
   
 end

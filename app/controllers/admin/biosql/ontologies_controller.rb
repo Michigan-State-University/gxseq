@@ -1,10 +1,10 @@
-class Admin::OntologiesController < ApplicationController
+class Admin::Biosql::OntologiesController < ApplicationController
 
   before_filter :find_ontology, :only => [:show, :edit, :update, :destroy]
 
   # GET /ontologies
   def index
-    @ontologies = Biosql::Ontology.scoped
+    @ontologies = ::Biosql::Ontology.scoped
     unless params[:query].blank?
       @ontologies = @ontologies.where{(upper(name)=~my{"%#{params[:query].upcase}%"})|(upper(definition)=~my{"%#{params[:query].upcase}%"})}
     end
@@ -18,7 +18,7 @@ class Admin::OntologiesController < ApplicationController
 
   # GET /ontologies/new
   def new
-    @ontology = Biosql::Ontology.new
+    @ontology = ::Biosql::Ontology.new
   # new.html.erb
   end
 
@@ -28,12 +28,12 @@ class Admin::OntologiesController < ApplicationController
 
   # POST /ontologies
   def create
-    @ontology = Biosql::Ontology.new(params[:ontology])
+    @ontology = ::Biosql::Ontology.new(params[:biosql_ontology])
 
     respond_to do |wants|
       if @ontology.save
         flash[:notice] = 'Ontology was successfully created.'
-        wants.html { redirect_to(admin_ontologies_url) }
+        wants.html { redirect_to(admin_biosql_ontologies_url) }
       else
         wants.html { render :action => "new" }
       end
@@ -43,9 +43,9 @@ class Admin::OntologiesController < ApplicationController
   # PUT /ontologies/1
   def update
     respond_to do |wants|
-      if @ontology.update_attributes(params[:ontology])
+      if @ontology.update_attributes(params[:biosql_ontology])
         flash[:notice] = 'Ontology was successfully updated.'
-        wants.html { redirect_to(admin_ontologies_url) }
+        wants.html { redirect_to(admin_biosql_ontologies_url) }
       else
         wants.html { render :action => "edit" }
       end
@@ -60,13 +60,13 @@ class Admin::OntologiesController < ApplicationController
       @ontology.destroy
     end
     respond_to do |wants|
-      wants.html { redirect_to(admin_ontologies_url) }
+      wants.html { redirect_to(admin_biosql_ontologies_url) }
     end
   end
 
   private
     def find_ontology
-      @ontology = Biosql::Ontology.find(params[:id])
+      @ontology = ::Biosql::Ontology.find(params[:id])
     end
 
 end

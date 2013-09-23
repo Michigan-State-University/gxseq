@@ -24,7 +24,7 @@ ActiveRecord::Schema.define(:version => 20131004192401) do
 
   create_table "assets", :force => true do |t|
     t.string   "type"
-    t.integer  "experiment_id"
+    t.integer  "sample_id"
     t.string   "data_file_name"
     t.string   "data_content_type"
     t.string   "state",                                            :default => "pending"
@@ -47,15 +47,6 @@ ActiveRecord::Schema.define(:version => 20131004192401) do
   create_table "biodatabases_taxons", :id => false, :force => true do |t|
     t.integer "biodatabase_id", :precision => 38, :scale => 0
     t.integer "taxon_id",       :precision => 38, :scale => 0
-  end
-
-  create_table "bioentries_experiments", :force => true do |t|
-    t.integer  "bioentry_id"
-    t.integer  "experiment_id"
-    t.string   "sequence_name"
-    t.decimal  "abs_max",       :precision => 15, :scale => 2
-    t.datetime "created_at"
-    t.datetime "updated_at"
   end
 
   create_table "bioentry", :primary_key => "bioentry_id", :force => true do |t|
@@ -137,7 +128,6 @@ ActiveRecord::Schema.define(:version => 20131004192401) do
 
   create_table "blast_databases", :force => true do |t|
     t.string   "name"
-    t.string   "abbreviation"
     t.string   "link_ref"
     t.string   "description"
     t.string   "taxon_id"
@@ -194,7 +184,7 @@ ActiveRecord::Schema.define(:version => 20131004192401) do
 
   create_table "components", :force => true do |t|
     t.string   "type"
-    t.integer  "experiment_id"
+    t.integer  "sample_id"
     t.integer  "synthetic_experiment_id"
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -292,7 +282,7 @@ ActiveRecord::Schema.define(:version => 20131004192401) do
 
   create_table "feature_counts", :force => true do |t|
     t.integer  "seqfeature_id"
-    t.integer  "experiment_id"
+    t.integer  "sample_id"
     t.integer  "count"
     t.decimal  "normalized_count", :precision => 10, :scale => 2
     t.datetime "created_at"
@@ -300,7 +290,7 @@ ActiveRecord::Schema.define(:version => 20131004192401) do
     t.integer  "unique_count",     :precision => 38, :scale => 0
   end
 
-  add_index "feature_counts", ["experiment_id", "seqfeature_id"], :name => "idx_exp_and_feature"
+  add_index "feature_counts", ["sample_id", "seqfeature_id"], :name => "idx_exp_and_feature"
   add_index "feature_counts", ["seqfeature_id"], :name => "idx_feature"
 
   create_table "gene_models", :force => true do |t|
@@ -408,7 +398,7 @@ ActiveRecord::Schema.define(:version => 20131004192401) do
   add_index "ontology", ["name"], :name => "ontology_idx", :unique => true
 
   create_table "peaks", :force => true do |t|
-    t.integer  "experiment_id"
+    t.integer  "sample_id"
     t.integer  "bioentry_id"
     t.integer  "start_pos"
     t.integer  "end_pos"
@@ -457,6 +447,28 @@ ActiveRecord::Schema.define(:version => 20131004192401) do
 
   add_index "roles_users", ["role_id"], :name => "index_roles_users_on_role_id"
   add_index "roles_users", ["user_id"], :name => "index_roles_users_on_user_id"
+
+  create_table "samples", :force => true do |t|
+    t.integer  "assembly_id"
+    t.integer  "user_id"
+    t.string   "name"
+    t.string   "type"
+    t.string   "description",        :limit => 500
+    t.string   "file_name"
+    t.string   "a_op"
+    t.string   "b_op"
+    t.string   "mid_op"
+    t.string   "sequence_name"
+    t.string   "state"
+    t.string   "show_negative"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer  "group_id"
+    t.integer  "concordance_set_id"
+    t.integer  "total_count"
+  end
+
+  add_index "samples", ["assembly_id", "group_id", "user_id"], :name => "experiment_idx1"
 
   create_table "seqfeature", :primary_key => "seqfeature_id", :force => true do |t|
     t.integer  "bioentry_id",    :limit => 10, :precision => 10, :scale => 0,                :null => false
@@ -586,16 +598,6 @@ ActiveRecord::Schema.define(:version => 20131004192401) do
   add_index "taxon_name", ["name"], :name => "taxon_name_idx2"
   add_index "taxon_name", ["taxon_id", "name", "name_class"], :name => "taxon_name_idx", :unique => true
 
-  create_table "taxon_versions", :force => true do |t|
-    t.integer  "taxon_id"
-    t.integer  "species_id"
-    t.string   "version"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.string   "type"
-    t.integer  "group_id"
-  end
-
   create_table "term", :primary_key => "term_id", :force => true do |t|
     t.string   "name",                                                       :null => false
     t.string   "definition",  :limit => 4000
@@ -687,12 +689,19 @@ ActiveRecord::Schema.define(:version => 20131004192401) do
 
   create_table "tracks", :force => true do |t|
     t.string   "type"
-    t.integer  "bioentry_id"
-    t.integer  "experiment_id"
+    t.integer  "assembly_id"
+    t.integer  "sample_id"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "sample"
     t.integer  "source_term_id", :precision => 38, :scale => 0
+  end
+
+  create_table "traits", :force => true do |t|
+    t.integer "term_id"
+    t.integer "sample_id"
+    t.integer "user_id"
+    t.string  "value"
   end
 
   create_table "users", :force => true do |t|

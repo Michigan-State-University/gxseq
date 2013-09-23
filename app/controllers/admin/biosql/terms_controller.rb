@@ -1,11 +1,11 @@
-class Admin::TermsController < ApplicationController
+class Admin::Biosql::TermsController < ApplicationController
 
   before_filter :find_term, :only => [:show, :edit, :update, :destroy]
 
   # GET /admin::_terms
   def index
-    @terms = Biosql::Term.scoped
-    @ontologies = Biosql::Ontology.all
+    @terms = ::Biosql::Term.scoped
+    @ontologies = ::Biosql::Ontology.all
     unless params[:ontology_id].blank?
       @terms = @terms.where{ontology_id == my{params[:ontology_id]}}
     end
@@ -30,7 +30,7 @@ class Admin::TermsController < ApplicationController
 
   # GET /admin::_terms/new
   def new
-    @term = Biosql::Term.new
+    @term = ::Biosql::Term.new
   # new.html.erb
   end
 
@@ -40,12 +40,12 @@ class Admin::TermsController < ApplicationController
 
   # POST /admin::_terms
   def create
-    @term = Biosql::Term.new(params[:term])
+    @term = ::Biosql::Term.new(params[:biosql_term])
 
     respond_to do |wants|
       if @term.save
         flash[:notice] = 'Term was successfully created.'
-        wants.html { redirect_to(admin_terms_url) }
+        wants.html { redirect_to(admin_biosql_terms_url) }
       else
         wants.html { render :action => "new" }
       end
@@ -55,9 +55,9 @@ class Admin::TermsController < ApplicationController
   # PUT /admin::_terms/1
   def update
     respond_to do |wants|
-      if @term.update_attributes(params[:term])
+      if @term.update_attributes(params[:biosql_term])
         flash[:notice] = 'Term was successfully updated.'
-        wants.html { redirect_to(admin_terms_url) }
+        wants.html { redirect_to(admin_biosql_terms_url) }
       else
         wants.html { render :action => "edit" }
       end
@@ -66,16 +66,23 @@ class Admin::TermsController < ApplicationController
 
   # DELETE /admin::_terms/1
   def destroy
-    @term.destroy
-
+    term_name = @term.name
+    associates = @term.bioentry_qualifer_values.count + @term.seqfeature_sources.count + @term.seqfeature_types.count + @term.qualifiers.count + @term.locations.count + @term.sample_traits.count
+    if(associates > 0)
+      flash[:warning]="'#{term_name}' still has #{associates} items attached. You cannot remove it"
+    else
+      flash[:warning]="#{term_name} has been removed"
+      @term.destroy
+    end
     respond_to do |wants|
-      wants.html { redirect_to(admin_terms_url) }
+      
+      wants.html { redirect_to(admin_biosql_terms_url) }
     end
   end
 
   private
     def find_term
-      @term = Biosql::Term.find(params[:id])
+      @term = ::Biosql::Term.find(params[:id])
     end
 
 end

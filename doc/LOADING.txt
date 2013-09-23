@@ -31,9 +31,10 @@ Common Commands
 	ASM_ID=1001;  			//Assembly id
 	CONCORD_ID=1001;		//Sample concordance id
 	CONCORD_FILE=concordance.txt; //Concordance file for expression
-	C_COL=4; //Counts column in csv. use 4 for CLC Transcriptome(Reference without annoations), 6 for CLC Genome
+	C_COL=5; //Counts column in csv
+	U_COL=4; //Unique counts column
 	
-	for x in $LIBS; do echo $x; thor sample:create -t RnaSeq -n $x -a $ASM_ID -c $CONCORD_ID -g "admin" -f Bam:./$x.bam; thor expression:load ./$x.csv -e $x -a $ASM_ID -f 'Mrna' -c $C_COL -n 2 -h -d $CONCORD_FILE --no_index; done
+	for x in $LIBS; do echo $x; thor sample:create -t RnaSeq -n $x -a $ASM_ID -c $CONCORD_ID -g "admin" -f Bam:./$x.bam; thor expression:load ./$x.csv -e $x -a $ASM_ID -f 'Mrna' -u $U_COL -c $C_COL -n 2 -h -d $CONCORD_FILE --no_index; done
  
 - Run a blastx
 

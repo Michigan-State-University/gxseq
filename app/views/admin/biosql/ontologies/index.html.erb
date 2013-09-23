@@ -5,9 +5,9 @@
 <%= render :partial => "admin/sidebar", :locals => {:active => 'ontology'} %>
 
 <% content_for :item_bar do %>
-<%= link_to 'New Ontology', new_admin_ontology_path, :class => 'button' %>
+<%= link_to 'New Ontology', new_admin_biosql_ontology_path, :class => 'button' %>
 <div style="float:right">
-  <%= form_tag admin_ontologies_path, :method => :get do %>
+  <%= form_tag admin_biosql_ontologies_path, :method => :get do %>
 
     <div style="float:right">
       <label>
@@ -39,12 +39,12 @@ Adding/Removing requires a restart to take effect
         <td><%= ont.id %></th>
         <td><%= ont.name %></th>
         <td><%= ont.definition %></th>
-        <td><%= link_to ont.terms.size, admin_terms_path(:ontology_id => ont.id) %></t>
+        <td><%= link_to ont.terms.size, admin_biosql_terms_path(:ontology_id => ont.id) %></t>
         <td class="style3"><%= ont.created_at.strftime('%b %d \'%y') %></td>
         <td class="style3"><%= ont.updated_at.strftime('%b %d \'%y') %></td>
         <td>
-          <%= link_to '[Edit]', edit_admin_ontology_path(ont) %>
-          <%= link_to '[Remove]', admin_ontology_path(ont), :method => :delete %>
+          <%= link_to '[Edit]', edit_admin_biosql_ontology_path(ont) %>
+          <%= link_to '[Remove]', admin_biosql_ontology_path(ont), :method => :delete %>
         </td>
       </tr>
     <% end %>

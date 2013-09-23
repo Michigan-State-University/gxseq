@@ -25,7 +25,8 @@
 <table id="sstree-sample" class="listing sstree">
   <thead>
     <th class="top" style="border:none" width="55%">Name</th>
-    <th class="top" style="border:none" width="15%">Date</th>
+    <th class="top" style="border:none" width="15%">Description</th>
+    <th class="top" style="border:none" width="15%">Traits</th>
     <th class="top" style="border:none" width="15%">Options</th>
   </thead>
     <!-- Taxon -->
@@ -43,6 +44,7 @@
         </td>
         <td width="15%"></td>
         <td width="15%"></td>
+        <td width="15%"></td>
       </tr>
       <!-- Taxon Version -->
       <% s.species_assemblies.accessible_by(current_ability).each_with_index do |t, t_idx| %>
@@ -57,6 +59,7 @@
           </td>
           <td></td>
           <td></td>
+          <td></td>
         </tr>
         <!-- Sample -->
         <% t.send(sample_type+'s').accessible_by(current_ability).each_with_index do |sample, sample_idx| %>
@@ -69,7 +72,12 @@
                 <%= link_to sample.name.gsub(/(.{22})/,'\1 '), send("#{sample_type}_path",sample) %>
             </div>
             </td>
-            <td><%= sample.created_at.strftime("%D") %></td>
+            <td><%= truncate(sample.description)%></td>
+            <td>
+              <% sample.traits.each do |trait| %>
+                <b><%= trait.term.name %></b>:<%= trait.value %>;
+              <% end %>
+            </td>
             <td>
               <div style="float:right;">
                 <span style="float:left;padding-right:1em;font-size:80%;color:darkblue"><%= sample.state.camelize unless (sample.state.nil? || sample.state == "ready" || sample.state == 'complete') %></span>

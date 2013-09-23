@@ -1,0 +1,17 @@
+<div class="nested-fields" style="clear:both;">
+  <% f.object.errors.each do |key,val| %>
+    <span style='color:darkred'><%= "#{key} #{val}"%></span>
+    <br/>
+  <% end %>
+  <div style="float:left">
+    <%= f.select :term_id, Biosql::Term.sample_tags.map{|tag| [tag.name,tag.id]}, :class => "asset_file_type"%>
+  </div>
+  <div style="padding-left:1em;float:right">
+    <% if f.object.new_record? || (can? :delete, f.object) %>
+      <%= link_to_remove_fields image_tag("delete.png",:alt => "Remove Trait"), f %>
+    <% end %>
+  </div>
+  <div style="padding-left:5em;float:right">
+    <%= f.text_field :value, :size => 25 %><br/>
+  </div>
+</div>

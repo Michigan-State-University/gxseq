@@ -1,16 +1,31 @@
 <% form_for sample, :html => {:multipart => true} do |f| %>
   <% #TODO: convert sample form to semantic form %>
   <div class="form_item">
-  	<h3>Metadata</h3>
-  	Choose a unique name for your sample. Try to keep it concise.<br/>
-  	<%= f.text_field :name, :size => 25%>
-  	<br/><br/>
-  	Which group will be able to view this data.<br/>
-  	<%= f.collection_select :group_id, Group.accessible_by(current_ability), :id, :name %><br/>
-  	<br/>
-  	Enter any descriptive information you would like to remember.<br/>
-  	<%= f.text_area :description, :rows => "7" %><br/>
-  	<%= render :partial => "metadata", :locals => {:f => f} rescue nil%>
+    <h3>Metadata</h3>
+    Choose a unique name for your sample. Try to keep it concise.<br/>
+    <%= f.text_field :name, :size => 25%>
+    <br/><br/>
+    Which group will be able to view this data.<br/>
+    <%= f.collection_select :group_id, Group.accessible_by(current_ability), :id, :name %><br/>
+    <br/>
+    Enter any descriptive information you would like to remember.<br/>
+    <%= f.text_area :description, :rows => "7" %><br/>
+    <br/>
+    <div style="clear:both;width:75%">
+      <span style="float:right;margin-right:1em"><%= link_to "Manage Selections", biosql_ontology_path(Biosql::Term.sample_ont_id), :target => "_blank" %></span>
+      <span style="float:left;width:5em">Add Traits</span>
+      <%= link_to_add_fields image_tag("add.gif", :title => "Add new trait", :style => "float:left"),
+        f, :traits, {:render => "below",:partial => "samples/trait_fields"}
+      %>
+      <br style="clear:both"/>
+      <hr/>
+      <% f.fields_for :traits do |trait| %>
+        <%= render :partial => "samples/trait_fields", :locals => {:f => trait} %>
+      <% end %>
+    </div>
+    <%# There is no sample specific metadata %>
+    <%#= render :partial => "metadata", :locals => {:f => f} rescue nil%>
+    <br/>
   </div>
 
   <div class="form_item">
@@ -36,28 +51,28 @@
   </div>
 
   <div class="form_item">
-    	<h3 style="float:left;width:8em">Asset File(s)</h3>
-    	<%= link_to_add_fields image_tag("add.gif", :title => "Add another File", :style => "float:left"),
-    	  f, 
-    	  :assets,
-    	  {:render => "below",:partial => "samples/asset_fields", :locals => {:asset_types => sample.asset_types} }
-    	%>
-    	<% f.fields_for :assets do |asset| %>
-  	    <%= 
-  	      begin
-  	        render :partial => "asset_fields", :locals => {:f => asset}
-  	      rescue 
-  	        render :partial => "samples/asset_fields",
-  	        :locals => {:asset_types => sample.asset_types,:f => asset}
-  	      end
-  	    %>
-  	  <% end %>
+      <h3 style="float:left;width:8em">Asset File(s)</h3>
+      <%= link_to_add_fields image_tag("add.gif", :title => "Add another File", :style => "float:left"),
+        f, 
+        :assets,
+        {:render => "below",:partial => "samples/asset_fields", :locals => {:asset_types => sample.asset_types} }
+      %>
+      <% f.fields_for :assets do |asset| %>
+        <%= 
+          #begin
+            # There are no sample specific asset fields
+            #render :partial => "asset_fields", :locals => {:f => asset}
+          #rescue 
+            render :partial => "samples/asset_fields", :locals => {:asset_types => sample.asset_types,:f => asset}
+          #end
+        %>
+      <% end %>
   </div>
 
   <div style="clear:both">
-  	<br/><hr/><br/><br/>
-  	<%= f.submit "Save Sample" %>
+    <br/><hr/><br/><br/>
+    <%= f.submit "Save Sample", :class => 'button' %>
   </div>
-  	
+    
 <% end %>
   

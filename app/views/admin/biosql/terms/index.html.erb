@@ -5,9 +5,9 @@
 <%= render :partial => "admin/sidebar", :locals => {:active => 'term'} %>
 
 <% content_for :item_bar do %>
-<%= link_to 'New Term', new_admin_term_path, :class => 'button' %>
+<%= link_to 'New Term', new_admin_biosql_term_path, :class => 'button' %>
 <div style="float:right">
-  <%= form_tag admin_terms_path, :method => :get do %>
+  <%= form_tag admin_biosql_terms_path, :method => :get do %>
   <div style='float:left'>
     Ontology:<br/>
     <%= select_tag :ontology_id, options_from_collection_for_select(@ontologies, :id, :name,params[:ontology_id]), {:include_blank => 'None Selected', :onchange => 'this.form.submit()'} %>
@@ -33,11 +33,6 @@
       <th><%= sort_link "Name", :name %></th>
       <th><%= sort_link "Identifier", :identifier %></th>
       <th><%= sort_link "Definition", :definition %></th>
-      <th>Bioentry Qualifiers</th>
-      <th>Seqfeature Qualifiers</th>
-      <th>Type Features</th>
-      <th>Source Features</th>
-      <th>Locations</th>
       <th><%= sort_link "Created", :created_at %></th>
       <th><%= sort_link "Updated", :updated_at %></th>
       <th>Options</th>
@@ -45,20 +40,16 @@
   
   	<% for term in @terms %>
   		<tr>
-        <td><%= link_to term.ontology.name, admin_ontologies_path %></t>
+        <td><%= link_to term.ontology.name, admin_biosql_ontologies_path %></t>
         <td><%= term.name %></th>
         <td><%= term.identifier %></th>
         <td><%= term.definition %></th>
-        <td><%= term.bioentry_qualifer_values.count %></th>
-        <td><%= term.qualifiers.count %></th>
-        <td><%= term.seqfeature_types.count %></th>
-        <td><%= term.seqfeature_sources.count %></th>
-        <td><%= term.locations.count %></th>
         <td class="style3"><%= term.created_at.strftime('%b %d \'%y') %></td>
         <td class="style3"><%= term.updated_at.strftime('%b %d \'%y') %></td>
         <td>
-          <%= link_to '[Edit]', edit_admin_term_path(term) %>
-          <%= link_to '[Remove]', admin_term_path(term), :method => :delete, :confirm => "Remove #{term.name} permanently?" %>
+          <%= link_to "[Details]", admin_biosql_term_path(term) %>
+          <%= link_to '[Edit]', edit_admin_biosql_term_path(term) %>
+          <%= link_to '[Remove]', admin_biosql_term_path(term), :method => :delete, :confirm => "Remove #{term.name} permanently?" %>
         </td>
   	  </tr>
   	<% end %>

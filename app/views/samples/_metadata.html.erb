@@ -1,4 +1,23 @@
 <div style="clear:both;float:left">
+  <p>
+		<b>Created by:</b> <%= sample.user.login unless sample.user.nil?%>
+		<%= sample.created_at.strftime("%m/%d/%Y") %>
+	</p>
+	
+	<% if sample.group %>
+    <p>
+  	  <b>Group:</b>
+  		<%= link_to sample.group.name, sample.group %>
+  	</p>
+	<% end %>
+	<br/>
+	<% sample.traits.each do |trait| %>
+	  <p>
+	   <b><%= trait.term.name %>:</b>
+	   <%= trait.value %>
+	  </p>
+	<% end %>
+	
 	<% unless sample.description.blank? %>
 	<p>
 		<b>Description:</b><br/>
@@ -6,20 +25,7 @@
 	</p>
 	<% end %>
 
-	<p>
-		<b>Created by:</b>
-		<%= sample.user.login unless sample.user.nil?%>
-	</p>
-	<p>
-	  <b>Uploaded on:</b>
-		<%= sample.created_at.strftime("%m/%d/%Y at %I:%M%p") %>
-	</p>
-	<% if sample.group %>
-    <p>
-  	  <b>Group:</b>
-  		<%= link_to sample.group.name, sample.group %>
-  	</p>
-	<% end %>
+
 </div>
 
 
