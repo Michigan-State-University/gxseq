@@ -2,7 +2,7 @@
   GS: Blast Run <%= @blast_run.id %>
 <% end -%>
 <% content_for :top_bar do -%>
-  <h1 class="pagetitle">Blast results for <%= pluralize(@blast_run.blast_reports.count,'query') %></h1>
+  <h1 class="pagetitle">Blast results for <%= pluralize(@blast_run.blast_iterations.count,'query') %></h1>
 <% end -%>
 <% content_for :sidebar do -%>
   <%= render :partial => "tools/sidebar", :locals => {:active => 'blast'} %>
@@ -25,33 +25,33 @@
       <th>Hits</th>
       <th>Options</th>
     </thead>
-  <% @blast_reports.each_with_index do |blast_report,br_idx| %>
+  <% @blast_reports.each_with_index do |blast_iteration,br_idx| %>
     <tr>
-      <td><%= link_to blast_report.report.query_id, blast_run_path(@blast_run,:blast_report_id => blast_report.id)%></td>
-      <td><%= link_to blast_report.seqfeature.label, seqfeature_path(blast_report.seqfeature) if blast_report.seqfeature %></td>
-      <td><%= blast_report.report.query_def.truncate(50) %></td>
-      <td><%= blast_report.report.query_len %></td>
-      <td><%= blast_report.report.hits.count %></td>
+      <td><%= link_to blast_iteration.query_id, blast_run_path(@blast_run,:blast_report_id => blast_iteration.id)%></td>
+      <td><%= link_to blast_iteration.seqfeature.label, seqfeature_path(blast_iteration.seqfeature) if blast_iteration.seqfeature %></td>
+      <td><%= blast_iteration.query_def.truncate(50) %></td>
+      <td><%= blast_iteration.query_len %></td>
+      <td><%= blast_iteration.hits.count %></td>
       <td>
         <%= link_to "Show",'#',
-          :onclick => "$('blast_report_#{blast_report.id}').toggle();$('link_#{blast_report.id}_show').toggle();$('link_#{blast_report.id}_hide').toggle()",
-          :id => "link_#{blast_report.id}_show",
+          :onclick => "$('blast_report_#{blast_iteration.id}').toggle();$('link_#{blast_iteration.id}_show').toggle();$('link_#{blast_iteration.id}_hide').toggle()",
+          :id => "link_#{blast_iteration.id}_show",
           :style => "#{br_idx==0 ? 'display:none' : ''}"
         %>
         <%= link_to "Hide",'#',
-          :onclick => "$('blast_report_#{blast_report.id}').toggle();$('link_#{blast_report.id}_show').toggle();$('link_#{blast_report.id}_hide').toggle()",
-          :id => "link_#{blast_report.id}_hide",
+          :onclick => "$('blast_report_#{blast_iteration.id}').toggle();$('link_#{blast_iteration.id}_show').toggle();$('link_#{blast_iteration.id}_hide').toggle()",
+          :id => "link_#{blast_iteration.id}_hide",
           :style => "#{br_idx==0 ? '': 'display:none'}"
           
         %>
       </td>
     </tr>
-    <tr id="blast_report_<%= blast_report.id %>" style="<%= br_idx==0 ? '': 'display:none'%>">
+    <tr id="blast_report_<%= blast_iteration.id %>" style="<%= br_idx==0 ? '': 'display:none'%>">
       <td colspan="6">
         <table class="dropdown_blue">
-          <% blast_report.report.hits.each_with_index do |hit,idx| %>
+          <% blast_iteration.hits.each_with_index do |hit,idx| %>
             <tr class="even">
-              <%= render :partial => 'blast_reports/hit', :locals => {:hit => hit, :idx => idx, :blast_db => @blast_run.blast_database, :blast_report => blast_report} %>
+              <%= render :partial => 'blast_reports/hit', :locals => {:hit => hit, :idx => idx, :blast_db => @blast_run.blast_database, :blast_report => blast_iteration} %>
             </tr>
           <% end %>
         </table>

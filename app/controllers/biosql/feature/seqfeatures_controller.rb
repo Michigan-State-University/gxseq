@@ -102,9 +102,9 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
       @feature_counts = get_feature_counts
       setup_graphics_data
     when 'blast'
-      @blast_reports = @seqfeature.blast_reports
+      @blast_reports = @seqfeature.blast_iterations
       params[:blast_report_id]||=@blast_reports.first.id
-      @blast_report = BlastReport.find_by_id(params[:blast_report_id])
+      @blast_report = BlastIteration.find_by_id(params[:blast_report_id])
       @blast_run = @blast_report.try(:blast_run)
     end
     rescue => e
@@ -236,7 +236,7 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     
     def setup_xhr_form
       @skip_locations=@extjs=true
-      @blast_reports = @seqfeature.blast_reports
+      @blast_reports = @seqfeature.blast_iterations
       @changelogs = Version.order('id desc').where(:parent_id => @seqfeature.id).where(:parent_type => @seqfeature.class.name)
       @changelogs = @changelogs.where{item_type != 'Biosql::Location'}.where{item_type != 'GeneModel'}
     end
