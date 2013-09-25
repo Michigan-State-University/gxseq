@@ -46,6 +46,8 @@ GenomeSuite::Application.routes.draw do
         get 'toggle_favorite'
         get 'feature_counts'
         get 'coexpressed_counts'
+        get 'base_counts'
+        get 'expression_chart'
       end
     end
     resources :genes do
@@ -63,6 +65,8 @@ GenomeSuite::Application.routes.draw do
         get 'toggle_favorite'
         get 'feature_counts'
         get 'coexpressed_counts'
+        get 'base_counts'
+        get 'expression_chart'
       end
     end
     resources :genes do

@@ -1,3 +1,7 @@
+<% content_for :head do -%>
+  <%= stylesheet_link_tag 'formtastic_overrides' %>
+<% end -%>
+
 <% content_for :top_bar do -%>
   <h1 class="pagetitle">Manage <%= @ontology.name %></h1>
 <% end -%>
@@ -13,7 +17,7 @@
     <% end %>
 
     <%= f.actions do %>
-      <%= f.action :submit, :label => "Add New Item", :button_html => { :class => 'button'} %>
+      <%= f.action :submit, :label => " Add New Item", :button_html => { :class => 'button', :style => '' } %>
     <% end %>
   <% end %>
   </div>

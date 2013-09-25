@@ -39,6 +39,10 @@ class Assembly < ActiveRecord::Base
   accepts_nested_attributes_for :samples
   validates_associated :samples
   
+  # returns uniq list of terms for traits associated with samples
+  def trait_types
+    samples.map(&:trait_types).flatten.compact.uniq
+  end
   # returns true if any bioentry -> seqfeature has feature_counts
   def has_expression?
     !bioentries.joins{seqfeatures.feature_counts}.except(:order).first.nil?

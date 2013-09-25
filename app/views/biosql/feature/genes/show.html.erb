@@ -25,7 +25,7 @@
 			<%= link_to "New Gene", new_gene_path, :class => "button" %>
 			<%= link_to "Open Sequence Viewer", bioentry_path(@gene.bioentry,{:pos => @gene.min_start,:feature_id => @gene.id}), :class => 'button'%>
 		</div>
-		<%= render :partial => 'format_links' %>
+		<%= render :partial => 'biosql/feature/seqfeatures/format_links' %>
 	<% end -%>
 	
 	<% if @genes.size > 1 %>

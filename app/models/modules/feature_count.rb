@@ -16,7 +16,7 @@ class FeatureCount < ActiveRecord::Base
   belongs_to :seqfeature, :class_name => "Biosql::Feature::Seqfeature"
   belongs_to :sample
   # Convert an array of feature_counts into graphable data
-  def self.create_graph_data(feature_counts,hsh={})
+  def self.create_base_data(feature_counts,hsh={})
     return [] if feature_counts.empty?
     base_counts = []
     # Dynamic data count keeps return set close to 1k
@@ -28,10 +28,6 @@ class FeatureCount < ActiveRecord::Base
     feature_counts.each do |fc|
       bc = fc.sample.summary_data(fc.seqfeature.min_start,fc.seqfeature.max_end,data_count,fc.sample.sequence_name(bioentry_id))
       if bc.length == 0
-        # base_counts << {
-        #   :key => fc.sample.name,
-        #   :values => [{:base => 0,:count => 0}]
-        # }
         next
       end
       case count_type
@@ -53,6 +49,41 @@ class FeatureCount < ActiveRecord::Base
       end
     end
     return base_counts
+  end
+  
+  def self.create_sample_data(feature_counts,hsh={})
+    return [] if feature_counts.empty?
+    value_type=hsh[:value_type]||'normalized_count'
+    # make multiple series. One for each unique trait value
+    if(hsh[:group_trait]&&Biosql::Term.find_by_term_id(hsh[:group_trait]))
+      all_series ={}
+      maxCount = 0;
+      feature_counts.each do |fc|
+        if(this_trait = fc.sample.traits.with_term(hsh[:group_trait]).first)
+          all_series[this_trait.value] ||= {:id => this_trait.id,:series => this_trait.value,:values => []}
+          all_series[this_trait.value][:values] << {:x => fc.sample.name, :y => fc.send(value_type.to_sym)}
+          maxCount=all_series[this_trait.value][:values].length if all_series[this_trait.value][:values].length > maxCount
+        end
+      end
+      #Pad any blank slots with 0
+      all_series.each do |key,value|
+        while value[:values].length < maxCount
+          value[:values] << {:x => "?#{value[:values].length+1}", :y => 0}
+        end
+      end
+      return all_series.values
+    else
+      # only one series for a basic line
+      item = {
+        :id => feature_counts.first.seqfeature_id,
+        :series => feature_counts.first.seqfeature.label,
+        :values => []
+      }
+      feature_counts.each do |f_count|
+        item[:values] << {:x => f_count.sample.name, :y => f_count.send(value_type.to_sym) }
+      end
+      return[item]
+    end
   end
   
   def self.as_numbered_array(array,position_max)

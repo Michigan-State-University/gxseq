@@ -48,7 +48,7 @@ class Ability
     # guest user (not logged in) == new user
     user ||= User.new
     # store the user id or nil for cache lookup
-    @stored_user_id = user.id
+    @stored_user_id = user.id || 'guest'
     # admin can view and edit everything
     if user.is_admin?
       can :manage, :all
@@ -138,10 +138,13 @@ class Ability
     else
       can :read, User, :id => user.id
       can :read, Group, :name => 'public'
-      can :read, Biosql::Taxon, :species_assemblies => {:group => {:name => 'public'}}
-      can :read, Assembly, :group => {:name => 'public'}
+      #can :read, Biosql::Taxon, :species_assemblies => {:group => {:name => 'public'}}
+      can :read, Biosql::Taxon, :species_assemblies => {:samples => {:group => {:name => 'public'}}}
+      #can :read, Assembly, :group => {:name => 'public'}
+      can :read, Assembly, :samples => {:group => {:name => 'public'}}
       can :read, Biosql::Bioentry, :assembly => {:group => {:name => 'public'}}
-      can :read, Biosql::Feature::Seqfeature, :bioentry => {:assembly => {:group => {:name => 'public'}}}
+      #can :read, Biosql::Feature::Seqfeature, :bioentry => {:assembly => {:group => {:name => 'public'}}}
+      can [:read, :feature_counts, :coexpressed_counts], Biosql::Feature::Seqfeature, :bioentry => {:assembly => {:samples => {:group => {:name => 'public'}}}}
       can :read, GeneModel, :bioentry => {:assembly => {:group => {:name => 'public'}}}
       can :read, Sample, :group => {:name => 'public'}
       can :track_data, Sample, :group => {:name => 'public'}

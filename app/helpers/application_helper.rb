@@ -127,4 +127,16 @@ module ApplicationHelper
         :style => "display:none;text-align:left")
     ].join.html_safe
   end
+  
+  def feature_format_link(feature,fmt,fmt_label,current_fmt)
+    if current_fmt==fmt
+      content_tag(:div, fmt_label,
+        :style => "display:inline;padding:.5em;padding-bottom:1em;border: 2px solid #C3C4C7;border-bottom: 2px solid white;margin-right:-.25em;margin-left:-.25em"
+		  )
+		else
+		  content_tag(:div, link_to( fmt_label, seqfeature_path(feature, :fmt => fmt)),
+        :style => "display:inline;padding:.5em;padding-top:.2em;border-right: 1px solid #C3C4C7;border-left: 1px solid #C3C4C7;margin-right:-.25em;margin-left:-.25em"
+		  )
+		end
+  end
 end

@@ -5,7 +5,9 @@
   <% if can? :edit, feature %>
     <%= link_to( image_tag('comment_edit.png'), edit_seqfeature_path(feature_id), :class => 'popupbox', :'data-form' => "edit_seqfeature_#{feature_id}", :'data-post_to' => seqfeature_path(feature_id), :'data-update_id' => "#{feature_id}_definition", :'data-update_from' => request.fullpath+'&seqfeature_id='+feature_id.to_s) %>
   <% end %>
-  <%= link_to(image_tag(Array(hit.stored(:favorite_user_ids)).include?(current_user.id) ? 'star.png' : 'star_gray.png'), toggle_favorite_seqfeature_path(feature_id), {:class => 'favorite',:id => "favorite_#{feature_id}",:remote => true,:'data-loading' => "#{image_tag("loading.gif")}"}) %>
+  <% if can? :toggle_favorite, feature %>
+    <%= link_to(image_tag(Array(hit.stored(:favorite_user_ids)).include?(current_user.id) ? 'star.png' : 'star_gray.png'), toggle_favorite_seqfeature_path(feature_id), {:class => 'favorite',:id => "favorite_#{feature_id}",:remote => true,:'data-loading' => "#{image_tag("loading.gif")}"}) %>
+  <% end %>
 </td>
 <td id='<%= feature_id %>_definition' style='min-width:25em'>
   <%= render :partial => "hit_definition", :locals => {:hit => hit, :definition_type => params[:definition_type], :multi_definition_type => params[:multi_definition_type]} %>
