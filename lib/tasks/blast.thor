@@ -301,7 +301,7 @@ class Blast < Thor
     matched = 0
     puts "working on #{blast_run.blast_reports.count} reports"
     BlastReport.transaction do
-      blast_run.blast_reports.select('seqfeature_id,report').find_in_batches(:batch_size => 500) do |batch|
+      blast_run.blast_reports.select('id,seqfeature_id,report').find_in_batches(:batch_size => 500) do |batch|
         batch.each do |blast_report|
           blast_report.report.iterations.each do |iteration|
             blast_run.populate_blast_iteration(iteration,blast_report.seqfeature_id)
