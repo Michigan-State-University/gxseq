@@ -1,4 +1,4 @@
-<% report = @blast_report.report %>
+<%# report = @blast_report.report %>
 <div id="blast_alignment" class="blast_alignment" style="display:none; position:absolute; z-index:100; top:0px; left:0px;"></div>
 
 <div class="table">
@@ -11,7 +11,7 @@
   		<th>Options</th>
   	</thead>
   	<tbody>
-			<% report.hits.each_with_index do |hit,idx| %>
+			<% @blast_report.hits.each_with_index do |hit,idx| %>
 				<tr class="<%= cycle('odd','even') %>">
 					<%= render :partial  => 'blast_reports/hit', :locals => {:hit => hit, :idx => idx, :blast_db => @blast_report.blast_database, :blast_report => @blast_report} %>
 				</tr>

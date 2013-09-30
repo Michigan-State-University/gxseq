@@ -21,4 +21,5 @@ class BlastReport < ActiveRecord::Base
   validates_presence_of :blast_run_id
   has_paper_trail :skip => :report
   
+  
 end

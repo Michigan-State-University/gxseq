@@ -47,7 +47,10 @@
         Show Empty Results<br/>
         <%= select_tag :show_blank, options_for_select({'Yes' => 'y','No' => 'n','Only Empty' => 'e'}, params[:show_blank])%>
       </div>
-      
+      <div style="float:left;margin-top:.5em">
+        Show Best Blast Evalue<br/>
+        <%= select_tag :show_best_evalue, options_for_select({'Yes' => 'y','No' => 'n'}, params[:show_best_evalue] || 'n')%>
+      </div>
       <div style="float:left;margin-top:.5em">
         Infinite Values<br/>
         <%= select_tag :infinite_order, options_for_select({'High' => 'f','Low' => 'l'}, params[:infinite_order]) %>

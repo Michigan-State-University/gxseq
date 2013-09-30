@@ -64,7 +64,7 @@ gem 'paperclip', '~> 3.0'
 gem 'squeel', '~>0.9'
 gem 'thor', '~> 0.14.6'
 gem 'will_paginate', '~>3'
-gem 'bio-tabix', '~>0.1'
+gem 'bio-tabix', '~>1'
 gem 'bio-ucsc-util', '0.1.2'
 #gem 'bio-ucsc-util', :path => '~/gems/bio-ucsc-util'
 git 'git://github.com/throwern/sunspot.git' do

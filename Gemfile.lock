@@ -83,7 +83,7 @@ GEM
     binding_of_caller (0.7.2)
       debug_inspector (>= 0.0.1)
     bio (1.4.3.0001)
-    bio-tabix (0.1.3)
+    bio-tabix (1.0.0)
       ffi
     bio-ucsc-util (0.1.2)
       ffi
@@ -341,7 +341,7 @@ DEPENDENCIES
   binding_of_caller
   bio (~> 1.4.3)
   bio-samtools (~> 0.4)!
-  bio-tabix (~> 0.1)
+  bio-tabix (~> 1)
   bio-ucsc-util (= 0.1.2)
   brakeman
   cancan

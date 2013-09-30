@@ -5,16 +5,15 @@ class BlastReportsController < ApplicationController
   end
   
   def alignment
-    @hit = @report.hits.find{|hit| hit.accession == params[:hit_accession]}
+    @hit = @blast_report.hits.find(params[:hit_id])
     respond_to do |format|
-      format.html {render :partial => 'alignment', :locals => {:hit => @hit, :report => @report}}
+      format.html {render :partial => 'alignment', :locals => {:hit => @hit, :report => @blast_report}}
       format.js {}
     end
   end
   
   def find_blast_report
-    @blast_report = BlastReport.find(params[:id])
+    @blast_report = BlastIteration.find(params[:id])
     @blast_run = @blast_report.blast_run
-    @report = @blast_report.report
   end
 end

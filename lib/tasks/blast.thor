@@ -66,7 +66,6 @@ class Blast < Thor
     # Begin loading
     progress_bar = ProgressBar.new(count)
     begin
-    seqfeature_ids = []
     # begin a transaction before making any changes
     BlastRun.transaction do
       PaperTrail.enabled = false
@@ -126,36 +125,9 @@ class Blast < Thor
             feature_id=feature.id
           end
         end
-        # parse the hit data. Do not add empty definition
-        if hit = report.hits.first
-          accession = hit.accession
-          # remove splice variant number if requested
-          if(options[:remove_splice])
-            accession = accession.split(".")[0]
-          end
-          # get definition and verify length
-          best_def = hit.definition
-          if best_def.length > 4000
-            best_def = best_def.slice(0..3999)
-          end
-          # create the new report entry text
-          br = BlastReport.new(
-            :blast_run => blast_run,
-            :seqfeature_id => feature_id,
-            :hit_acc => accession,
-            :hit_def => best_def,
-            :report => report
-          )
-          unless options[:test]
-            if br.valid?
-              br.save!
-            else
-              puts "Invalid BlastReport: #{br.inspect}"
-            end
-          end
-          seqfeature_ids << feature_id
-        end
-
+        
+        blast_run.populate_blast_iteration(report,feature_id,options)
+        
         # all done ...next
         progress_bar.increment!
       end
@@ -187,7 +159,7 @@ class Blast < Thor
       exit 0
     end
     puts "Found Blast Run: #{blast_run.id} - #{blast_run.name_with_description}"
-    puts "\t-- #{blast_run.blast_reports.count} blast reports"
+    puts "\t-- #{blast_run.blast_iterations.count} blast iterations"
     remove_run = ask("To delete permanently type \'yes\'; anything else to skip:")
     begin
       if remove_run == 'yes'
@@ -314,5 +286,31 @@ class Blast < Thor
         ) sub_blast
         set sub_blast.hit_def = sub_blast.new_def
     ")
+  end
+  
+  desc "transfer", "Transfer each serialized blast report to 3rd normal form structure"
+  method_options %w(blast_run -b) => :required
+  def transfer
+    require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
+    blast_run = BlastRun.find_by_id(options[:blast_run])
+    unless blast_run
+      puts "No blast run found for: #{options[:blast_run]}"
+      exit 0
+    end
+    bar = ProgressBar.new(blast_run.blast_reports.count)
+    matched = 0
+    puts "working on #{blast_run.blast_reports.count} reports"
+    BlastReport.transaction do
+      blast_run.blast_reports.select('seqfeature_id,report').find_in_batches(:batch_size => 500) do |batch|
+        batch.each do |blast_report|
+          blast_report.report.iterations.each do |iteration|
+            blast_run.populate_blast_iteration(iteration,blast_report.seqfeature_id)
+            matched += 1
+          end
+        end
+        bar.increment!(batch.length)
+      end
+      puts "Found #{matched} matching reports"
+    end
   end
 end

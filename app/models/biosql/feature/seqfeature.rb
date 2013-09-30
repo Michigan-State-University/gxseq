@@ -34,6 +34,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   #extensions
   has_many :feature_counts
   has_many :blast_reports, :dependent => :destroy
+  has_many :blast_iterations, :dependent => :destroy
   has_many :blast_reports_without_report, :class_name => "BlastReport", :select => [:id,:hit_acc,:hit_def,:seqfeature_id,:blast_run_id]
   has_many :favorite_seqfeatures, :foreign_key => :favorite_item_id
   has_many :favorite_users, :through => :favorite_seqfeatures, :source => :user
@@ -105,7 +106,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     puts "Re-indexing #{seqfeature_ids.length} features"
     progress_bar = ProgressBar.new(seqfeature_ids.length)
     seqfeature_ids.each_slice(batch_size) do |id_batch|
-      Sunspot.index self.includes(:bioentry,:qualifiers,:feature_counts,:blast_reports_without_report,:locations,:favorite_users,:product_assoc,:function_assoc,:gene_models => [:cds => [:product_assoc, :protein_id_assoc], :mrna => [:function_assoc, :transcript_id_assoc]])
+      Sunspot.index self.includes(:bioentry,:qualifiers,:feature_counts,:locations,:favorite_users,:product_assoc,:function_assoc,:blast_iterations => [:hits => :best_hsp_with_scores],:gene_models => [:cds => [:product_assoc, :protein_id_assoc], :mrna => [:function_assoc, :transcript_id_assoc]])
         .where{seqfeature_id.in(my{id_batch})}
       progress_bar.increment!(id_batch.length)
       if((progress_bar.count%10000)==0)
@@ -202,7 +203,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   end
   # All best blast hits concatenated
   def blast_description
-    blast_reports.collect(&:hit_def).join('; ')
+    blast_iterations.collect{|i| i.hits.collect(&:definition)}.flatten.compact.join('; ')
   end
   # All descriptions concatenated
   def full_description
@@ -768,7 +769,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   protected
   ## Sunspot search definition
   ## TODO: Document Search attributes
-  searchable(:include => [:bioentry,:qualifiers,:feature_counts,:blast_reports_without_report,:locations,:favorite_users,:product_assoc,:function_assoc,:gene_models => [:cds => [:product_assoc, :protein_id_assoc], :mrna => [:function_assoc, :transcript_id_assoc]]]) do |s|
+  searchable(:include => [:bioentry,:qualifiers,:feature_counts,:locations,:favorite_users,:product_assoc,:function_assoc,:blast_iterations => [:hits => :best_hsp_with_scores],:gene_models => [:cds => [:product_assoc, :protein_id_assoc], :mrna => [:function_assoc, :transcript_id_assoc]]]) do |s|
     # Text Searchable
     # must be stored for highlighted results
     s.text :locus_tag_text, :stored => true do
@@ -860,10 +861,13 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     # end
     # dynamic blast reports
     s.dynamic_string :blast_acc, :stored => true do
-      blast_reports_without_report.inject({}){|hash,report| hash["blast_#{report.blast_run_id}"]=report.hit_acc;hash}
+      blast_iterations.inject({}){|hash,report| hash["blast_#{report.blast_run_id}"]=report.best_hit.accession;hash}
     end
     s.dynamic_string :blast_id, :stored => true do
-      blast_reports_without_report.inject({}){|hash,report| hash["blast_#{report.blast_run_id}"]=report.id;hash}
+      blast_iterations.inject({}){|hash,report| hash["blast_#{report.blast_run_id}"]=report.id;hash}
+    end
+    s.dynamic_float :blast_evalue, :stored => true do
+      blast_iterations.inject({}){|hash,report| hash["blast_#{report.blast_run_id}"]=report.best_hit.best_hsp_with_scores.evalue;hash}
     end
     # Fake dynamic blast text - defined for 'every' blast_run on 'every' seqfeature
     # These a baked into the class, so it needs to be reloaded when new BlastRuns are created
@@ -871,12 +875,12 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     begin
     BlastRun.all.each do |blast_run|
       s.string "blast_#{blast_run.id}".to_sym do
-        report = blast_reports_without_report.select{|b| b.blast_run_id == blast_run.id }.first
-        report ? report.hit_def : nil
+        report = blast_iterations.select{|b| b.blast_run_id == blast_run.id }.first
+        report ? report.best_hit.definition : nil
       end
       s.text "blast_#{blast_run.id}_text".to_sym, :stored => true do
-        report = blast_reports_without_report.select{|b| b.blast_run_id == blast_run.id }.first
-        report ? report.hit_def : nil
+        report = blast_iterations.select{|b| b.blast_run_id == blast_run.id }.first
+        report ? report.best_hit.definition : nil
       end
     end
     # More fake dynamic text ... for custom ontologies and annotation
