@@ -22,7 +22,7 @@
   <tr>
     <td><%= link_to blast_run.blast_database.name, admin_blast_databases_path if blast_run.blast_database %></td>
     <td><%= link_to blast_run.assembly.name_with_version, blast_run.assembly if blast_run.assembly %></td>
-    <td><%= blast_run.blast_reports.count %></td>
+    <td><%= blast_run.blast_iterations.count %></td>
     <td>
       <%= link_to 'View', blast_run %>
       |
@@ -48,7 +48,7 @@
   <tr>
     <td><%= blast_run.user.try(:login) || "Guest" %></td>
     <td><%= link_to blast_run.blast_database.name, admin_blast_databases_path if blast_run.blast_database %></td>
-    <td><%= blast_run.blast_reports.count %></td>
+    <td><%= blast_run.blast_iterations.count %></td>
     <td><%= link_to 'View', blast_run %></td>
   </tr>
 <% end %>
