@@ -159,6 +159,7 @@ class Blast < Thor
   
   desc "delete_run", "Remove blast run and all dependent blast_reports"
   method_option :blast_run, :aliases => '-b', :desc => 'ID of blast run to remove'
+  method_option :reindex, :aliases => '-r', :default => false, :desc => 'Re-index features'
   def delete_run
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     blast_run = BlastRun.find_by_id(options[:blast_run])
@@ -174,7 +175,7 @@ class Blast < Thor
         blast_run_assembly = blast_run.assembly
         blast_run.destroy
         puts "..deleted"
-        if(blast_run_assembly)
+        if(blast_run_assembly && options[:reindex])
           puts "reindexing assembly features"
           `/bin/bash -c 'RAILS_ENV=#{ENV['RAILS_ENV']} thor assembly:index_features -a #{blast_run_assembly.id}'`
           puts "\n..done"
