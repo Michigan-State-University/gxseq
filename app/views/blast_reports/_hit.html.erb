@@ -8,7 +8,7 @@
 	<%= hit.hsps.inject(0){|sum,hsp| sum+=hsp.score} %>
 </td>
 <td style="width:100px;white-space:nowrap">
-	<%= hit.best_hsp_with_scores.evalue %>
+	<%= hit.best_hsp_with_scores.evalue.to_f %>
 </td>
 <td>
 	<%= link_to "[Alignment]",alignment_blast_report_path(blast_report.id, :hit_id => hit.id), :remote => true %>

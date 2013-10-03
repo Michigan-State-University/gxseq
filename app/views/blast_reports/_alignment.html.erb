@@ -38,11 +38,11 @@
   			<td class="subhead">Score</td>
   			<td class="odd" width="25%">
   				<%= hsp.score %>
-  				 (<%= hsp.bit_score %>)
+  				 (<%= hsp.bit_score.round(4) %>)
   			</td>
   			<td class="subhead" width="20%">Expect</td>
   			<td class="odd" width="25%" colspan="3">
-  				<%= hsp.evalue %>
+  				<%= hsp.evalue.to_f %>
   			</td>
   		</tr>
   		<tr>

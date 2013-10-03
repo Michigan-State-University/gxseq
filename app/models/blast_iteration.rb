@@ -7,5 +7,5 @@ class BlastIteration < ActiveRecord::Base
   delegate :taxon, :filepath, :name, :description, :name_with_description, :to => :blast_database, :allow_nil => true
   
   validates_presence_of :blast_run_id
-  accepts_nested_attributes_for :hits
+  # accepts_nested_attributes_for :hits
 end

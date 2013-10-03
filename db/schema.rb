@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20131002165723) do
+ActiveRecord::Schema.define(:version => 20130924185112) do
 
   create_table "assemblies", :force => true do |t|
     t.integer  "taxon_id",   :precision => 38, :scale => 0
@@ -341,7 +341,7 @@ ActiveRecord::Schema.define(:version => 20131002165723) do
 
   create_table "hsps", :force => true do |t|
     t.integer "hit_id",       :precision => 38, :scale => 0
-    t.decimal "bit_score"
+    t.decimal "bit_score",    :precision => 9,  :scale => 4
     t.integer "score",        :precision => 38, :scale => 0
     t.integer "query_from",   :precision => 38, :scale => 0
     t.integer "query_to",     :precision => 38, :scale => 0
@@ -353,7 +353,7 @@ ActiveRecord::Schema.define(:version => 20131002165723) do
     t.integer "positive",     :precision => 38, :scale => 0
     t.integer "gaps",         :precision => 38, :scale => 0
     t.integer "align_length", :precision => 38, :scale => 0
-    t.integer "evalue",       :precision => 38, :scale => 0
+    t.string  "evalue"
     t.text    "query_seq"
     t.text    "hit_seq"
     t.text    "midline"

@@ -14,7 +14,7 @@
   <td style="white-space:nowrap">
   <% if hit.stored(:blast_acc, "blast_#{blast_run.id}") %>
     <%= link_to Array(hit.stored(:blast_acc,"blast_#{blast_run.id}")).first, seqfeature_path(feature_id, {:fmt => 'blast', :blast_report_id => Array(hit.stored(:blast_id,"blast_#{blast_run.id}")).first} ) %>
-		<% if params[:show_best_evalue] %>
+		<% if params[:show_best_evalue] == 'y' %>
 			<br/>
 			(<%= Array(hit.stored(:blast_evalue,"blast_#{blast_run.id}")).first %>)
 		<% end %>
