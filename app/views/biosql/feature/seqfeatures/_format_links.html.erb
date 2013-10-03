@@ -5,7 +5,7 @@
 		<% if @seqfeature.feature_counts.accessible_by(current_ability).count>0 %>
 		| <%= link_to_unless @format=='expression', "Expression", seqfeature_path(@seqfeature, :fmt => 'expression') %>
 		<% end %>
-		<% if @seqfeature.blast_reports.count > 0 %>
+		<% if @seqfeature.blast_iterations.count > 0 %>
 		| <%= link_to_unless @format=='blast', "Blast", seqfeature_path(@seqfeature, :fmt => 'blast') %>
 		<% end %>
 		| <%= link_to_unless @format=='history', "History", seqfeature_path(@seqfeature, :fmt => 'history') %>
