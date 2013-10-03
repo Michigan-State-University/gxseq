@@ -16,7 +16,7 @@
         "<u style='font-size:120%'>#{name}</u>".html_safe
       end %>
 		<% end %>
-		<% if @gene.blast_reports.count %>
+		<% if @gene.blast_iterations.count %>
 		| <%= link_to_unless @format=='blast', "Blast", gene_path(@gene, :fmt => 'blast') do |name| 
         "<u style='font-size:120%'>#{name}</u>".html_safe
       end %>
