@@ -71,7 +71,9 @@ class BlastRun < ActiveRecord::Base
   
   def populate_blast_iteration(iteration=nil,seqfeature_id=nil,load_options=nil)
     load_options ||= {}
-    blast_iteration = self.blast_iterations.build(
+    # blast_iteration = self.blast_iterations.build(
+    blast_iteration_id = BlastIteration.fast_insert(
+      :blast_run_id => self.id,
       :query_id => iteration.query_id,
       :query_def => iteration.query_def,
       :query_len => iteration.query_len,
@@ -82,7 +84,8 @@ class BlastRun < ActiveRecord::Base
       if(load_options[:remove_splice])
         accession = hit.accession.split(".")[0]
       end
-      blast_hit = blast_iteration.hits.build(
+      blast_hit_id = Hit.fast_insert(
+        :blast_iteration_id => blast_iteration_id,
         :accession => hit.accession,
         :definition => hit.definition.length > 4000 ? hit.definition.slice(0..3999) : hit.definition,
         :length => hit.len,
@@ -90,7 +93,8 @@ class BlastRun < ActiveRecord::Base
       )
       
       hit.hsps.each do |hsp|
-        blast_hit.hsps.build(
+        Hsp.create(
+          :hit_id => blast_hit_id,
           :bit_score => hsp.bit_score,
           :score => hsp.score,
           :query_from => hsp.query_from,
@@ -103,7 +107,7 @@ class BlastRun < ActiveRecord::Base
           :positive => hsp.positive,
           :gaps => hsp.gaps,
           :align_length => hsp.align_len,
-          :evalue => hsp.evalue,
+          :evalue => hsp.evalue.to_f,
           :query_seq => hsp.qseq,
           :hit_seq => hsp.hseq,
           :midline => hsp.midline
@@ -111,12 +115,8 @@ class BlastRun < ActiveRecord::Base
       end
     end
     
-    unless load_options[:test]
-      if blast_iteration.valid?
-        blast_iteration.save!
-      else
-        puts "Invalid BlastIteration: #{blast_iteration.inspect}"
-      end
+    if load_options[:test]
+      raise "test option supplied"
     end
   end
 end

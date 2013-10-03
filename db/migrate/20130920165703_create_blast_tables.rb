@@ -17,11 +17,15 @@ class CreateBlastTables < ActiveRecord::Migration
     
     create_table :hsps, :force => true do |t|
       t.references :hit
-      t.float :bit_score
+      t.decimal :bit_score, :precision => 9, :scale => 4
       t.integer :score, :query_from, :query_to, :hit_from, :hit_to, :query_frame, :hit_frame, :identity, :positive, :gaps, :align_length
-      t.decimal :evalue
+      t.string :evalue
       t.text :query_seq, :hit_seq, :midline
     end
+    
+    add_index :blast_iterations, :seqfeature_id
+    add_index :hits, :blast_iteration_id
+    add_index :hsps, :hit_id
   end
 
   def self.down

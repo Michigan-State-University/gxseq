@@ -86,9 +86,13 @@ class Blast < Thor
       # xml_parser will create a 'report' object for every iteration
       # adding 'blanks' for missing iteration numbers (none hits)
       # Each report should have 1 iteration, report.hits is shorthand for report.iterations.last.hits
+      
+      GC.disable
+      gci = 0
       blast_file.reports.each do |report|
         # move on if this query has no hits
         next unless report.hits.length > 0
+        gci += 1
         query_def = report.query_def.split(" ")[0]
         locus = concordance_hash[query_def] || query_def
         ## Lookup the feature_id from query_def
@@ -127,7 +131,11 @@ class Blast < Thor
         end
         
         blast_run.populate_blast_iteration(report,feature_id,options)
-        
+        if gci % 100 == 0
+          GC.enable
+          GC.start
+          GC.disable
+        end
         # all done ...next
         progress_bar.increment!
       end

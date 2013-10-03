@@ -1,5 +1,5 @@
 class Hsp < ActiveRecord::Base
   belongs_to :hit, :inverse_of => :hsps
   
-  validates_presence_of :hit
+  validates_presence_of :hit_id
 end
