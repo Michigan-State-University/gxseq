@@ -866,7 +866,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     s.dynamic_string :blast_id, :stored => true do
       blast_iterations.inject({}){|hash,report| hash["blast_#{report.blast_run_id}"]=report.id;hash}
     end
-    s.dynamic_float :blast_evalue, :stored => true do
+    s.dynamic_string :blast_evalue, :stored => true do
       blast_iterations.inject({}){|hash,report| hash["blast_#{report.blast_run_id}"]=report.best_hit.best_hsp_with_scores.evalue;hash}
     end
     # Fake dynamic blast text - defined for 'every' blast_run on 'every' seqfeature
