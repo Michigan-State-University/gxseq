@@ -28,7 +28,7 @@ module GenomeSuite
     config.middleware.use ::ExceptionNotifier,
       :email_prefix => "GenomeSuite-Errors:",
       :sender_address => %w{gs-notifier@gs.glbrc.org},
-      :exception_recipients => %w{throwern@msu.edu}
+      :exception_recipients => %w{APP_CONFIG[:admin_email]}
       
     # Only load the plugins named here, in the order given (default is alphabetical).
     # :all can be used as a placeholder for all plugins not explicitly named.
