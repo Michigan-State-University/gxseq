@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130924185112) do
+ActiveRecord::Schema.define(:version => 20131004192401) do
 
   create_table "assemblies", :force => true do |t|
     t.integer  "taxon_id",   :precision => 38, :scale => 0
@@ -340,23 +340,26 @@ ActiveRecord::Schema.define(:version => 20130924185112) do
   add_index "hits", ["blast_iteration_id"], :name => "i_hits_blast_iteration_id"
 
   create_table "hsps", :force => true do |t|
-    t.integer "hit_id",       :precision => 38, :scale => 0
-    t.decimal "bit_score",    :precision => 9,  :scale => 4
-    t.integer "score",        :precision => 38, :scale => 0
-    t.integer "query_from",   :precision => 38, :scale => 0
-    t.integer "query_to",     :precision => 38, :scale => 0
-    t.integer "hit_from",     :precision => 38, :scale => 0
-    t.integer "hit_to",       :precision => 38, :scale => 0
-    t.integer "query_frame",  :precision => 38, :scale => 0
-    t.integer "hit_frame",    :precision => 38, :scale => 0
-    t.integer "identity",     :precision => 38, :scale => 0
-    t.integer "positive",     :precision => 38, :scale => 0
-    t.integer "gaps",         :precision => 38, :scale => 0
-    t.integer "align_length", :precision => 38, :scale => 0
+    t.integer "hit_id",                        :precision => 38, :scale => 0
+    t.decimal "bit_score",                     :precision => 9,  :scale => 4
+    t.integer "score",                         :precision => 38, :scale => 0
+    t.integer "query_from",                    :precision => 38, :scale => 0
+    t.integer "query_to",                      :precision => 38, :scale => 0
+    t.integer "hit_from",                      :precision => 38, :scale => 0
+    t.integer "hit_to",                        :precision => 38, :scale => 0
+    t.integer "query_frame",                   :precision => 38, :scale => 0
+    t.integer "hit_frame",                     :precision => 38, :scale => 0
+    t.integer "identity",                      :precision => 38, :scale => 0
+    t.integer "positive",                      :precision => 38, :scale => 0
+    t.integer "gaps",                          :precision => 38, :scale => 0
+    t.integer "align_length",                  :precision => 38, :scale => 0
     t.string  "evalue"
     t.text    "query_seq"
     t.text    "hit_seq"
     t.text    "midline"
+    t.string  "query_seq_str", :limit => 4000
+    t.string  "hit_seq_str",   :limit => 4000
+    t.string  "midline_str",   :limit => 4000
   end
 
   add_index "hsps", ["hit_id"], :name => "index_hsps_on_hit_id"
