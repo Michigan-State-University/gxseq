@@ -6,6 +6,7 @@ class Blast < Thor
     %w(assembly_id -a) => :required,
     %w(remove_splice -r) => false,
     %w(use_search_index -u) => false,
+    %w(limit_hits -h) => nil,
     %w(feature_type -f) => 'Gene', %w(concordance -d) => nil,
     :test => false
   def create_run(input_file)
@@ -92,6 +93,7 @@ class Blast < Thor
       blast_file.reports.each do |report|
         # move on if this query has no hits
         next unless report.hits.length > 0
+        # puts "Report # #{gci} -  Hits: #{report.hits.length} - Total Hsps: #{report.hits.collect{|h| h.hsps.length}.sum}"
         gci += 1
         query_def = report.query_def.split(" ")[0]
         locus = concordance_hash[query_def] || query_def
@@ -130,7 +132,7 @@ class Blast < Thor
           end
         end
         
-        blast_run.populate_blast_iteration(report,feature_id,options)
+        BlastRun.populate_blast_iteration(blast_run.id,report,feature_id,options)
         if gci % 100 == 0
           GC.enable
           GC.start
@@ -322,4 +324,23 @@ class Blast < Thor
       puts "Found #{matched} matching reports"
     end
   end
+  
+  # desc "statistics", "Get statistics from a blast file"
+  # def statistics(input_file)
+  #   require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
+  #   puts "Opening blast report ... this could take a while"
+  #   open_blast = File.open(input_file,'r')
+  #   
+  #   array = []
+  #   open_blast.each do |line|
+  #     if line.match(/Hsp_align-len/)
+  #       # puts line.scan(/\d+/)
+  #       array.push(line.scan(/\d+/))
+  #     end
+  #   end
+  #   
+  #   puts array.size
+  #   puts array.sum / array.size
+  #   puts array.sort.last
+  # end
 end

@@ -69,11 +69,11 @@ class BlastRun < ActiveRecord::Base
     return local_blast_factory.query(sequence)
   end
   
-  def populate_blast_iteration(iteration=nil,seqfeature_id=nil,load_options=nil)
+  def self.populate_blast_iteration(blast_run_id=nil,iteration=nil,seqfeature_id=nil,load_options=nil)
     load_options ||= {}
     # blast_iteration = self.blast_iterations.build(
     blast_iteration_id = BlastIteration.fast_insert(
-      :blast_run_id => self.id,
+      :blast_run_id => blast_run_id,
       :query_id => iteration.query_id,
       :query_def => iteration.query_def,
       :query_len => iteration.query_len,
@@ -81,6 +81,10 @@ class BlastRun < ActiveRecord::Base
     )
     
     iteration.hits.each do |hit|
+      if load_options[:limit_hits]
+        next if hit.num.to_i > load_options[:limit_hits].to_i
+      end
+      
       if(load_options[:remove_splice])
         accession = hit.accession.split(".")[0]
       end
