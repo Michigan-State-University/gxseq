@@ -14,9 +14,11 @@ class Expression < Thor
   # --concordance/-d => concordance file, supply tab separated id mapping file with 'locus_tag  file_id'
   # --test/-t => test only, run the loader and check ids but do not commit any inserts
   desc 'load FILE',"Load feature counts into the database"
-  method_options %w(experiment -e) => :required, :existing => 'raise', %w(feature -f) => 'Gene', 
-    %w(id_column -i) => 1, %w(count_column -c) => 2, %w(unique_column -u) => 3, %w(normalized_column -n) => 4, %w(header -h) => false, 
+  method_options %w(experiment -e) => :required, :existing => 'raise', 
+    %w(id_column -i) => 1, %w(count_column -c) => 2, %w(unique_column -q) => 3, %w(normalized_column -n) => 4, %w(header -h) => false, 
     %w(test -t) => false, %w(skip_not_found -s) => false, %w(concordance -d) => nil, :no_index => false
+  method_option :feature_type, :aliases => '-f', :required => true, :desc => 'Supply the feature type. "Mrna" for a transcriptome.'
+  method_option :use_search_index, :aliases => '-u', :default => false
   method_option :assembly_id, :aliases => '-a', :type => :numeric, :required => true, :desc => 'Supply the ID for sequence taxonomy. Use thor taxonomy:list to lookup'
   def load(input_file)
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
@@ -41,6 +43,14 @@ class Expression < Thor
     unless experiment
       puts "experiment '#{options[:experiment]}' not found"
       exit 0
+    end
+    # verify type if provided
+    if(options[:feature_type])
+      unless type_term = Biosql::Term.where{(upper(name)==my{options[:feature_type].upcase}) & (ontology_id == Biosql::Term.seq_key_ont_id)}.first
+        puts "Could not find term: #{options[:feature_type]}"
+        exit 0
+      end
+      type_term_id = type_term.id
     end
     # Check and parse concordance
     concordance_hash={}
@@ -86,8 +96,6 @@ class Expression < Thor
       when 'truncate'
         puts "truncating existing feature counts for experiment #{experiment.name}"
         FeatureCount.where(:experiment_id => experiment.id).delete_all
-      when 'merge'
-        # nothing done here, existing matches will be replaced later
       when 'raise'
         puts "Experiment already has #{counts} #{options[:feature]}s with expression. You need to supply an :existing option of 'truncate','append' or 'override' to continue"
         exit 0
@@ -104,10 +112,12 @@ class Expression < Thor
     progress_bar = ProgressBar.new(total_items)
     seqfeature_ids = []
     # Begin Transcation
-    FeatureCount.transaction do       
+    FeatureCount.transaction do
       # Process the file data in chunks
       idx = 0
       items.each_slice(999) do |batch|
+        seqfeature_ids = []
+        feature_ids = []
         # build file data lookup hash
         idx+=batch.size
         batch_ids = []
@@ -118,16 +128,30 @@ class Expression < Thor
           batch_hsh[concordance_hash[item[0]]]=item
         end
         # Grab all of the matching features
-        features = Biosql::Feature::Seqfeature.find_all_with_locus_tags(batch_ids)
-          .includes(:bioentry,:qualifiers => [:term])
-          .where{bioentry.assembly_id == my{experiment.assembly_id}}
-          .where{display_name == my{options[:feature]}}
-        # Add Id's to the running total array
-        seqfeature_ids.concat(features.map(&:seqfeature_id))
-        # Collect the locus tags for this batch
-        feature_ids = features.collect{|f|f.locus_tag.value}
+        if(options[:use_search_index])
+          # Use the sunspot index to save time
+          # This is not default in case the index is unavailable
+          search = Biosql::Feature::Seqfeature.search do
+            with :locus_tag, batch_ids
+            with :assembly_id, options[:assembly_id]
+            with :type_term_id, type_term_id
+            paginate(:page => 1, :per_page => 999)
+          end
+          # verify that 1 and only 1 matching feature is found
+          seqfeature_ids = search.hits.collect{|hit| hit.stored(:id)}
+          feature_ids = search.hits.collect{|hit| hit.stored(:locus_tag)}
+        else
+          features = Biosql::Feature::Seqfeature.find_all_with_locus_tags(batch_ids)
+            .includes(:bioentry,:qualifiers => [:term])
+            .where{bioentry.assembly_id == my{experiment.assembly_id}}
+            .where{seqfeature.type_term_id == my{type_term_id}}
+          # Add Id's to the running total array
+          seqfeature_ids.concat(features.map(&:seqfeature_id))
+          # Collect the locus tags for this batch
+          feature_ids = features.collect{|f|f.locus_tag.value}
+        end
         # check for missing locus
-        if feature_ids.size < batch_ids.size
+        if feature_ids.size != batch_ids.size
           puts "#{(batch_ids - feature_ids).size} features were not found in this batch:\n#{[batch_ids - feature_ids][0,5]} ..."
           if options[:skip_not_found]
             puts "\n-s supplied, ignoring missing features...\n"
@@ -137,26 +161,22 @@ class Expression < Thor
         end
         # print out a sample insert if test-only
         if options[:test]
-          feature = features.first
+          seqfeature_id = seqfeature_ids.first
+          locus_tag = feature_ids.first
           puts "Sample FeatureCount::
-            seqfeature=>#{feature.id},
+            seqfeature=>#{seqfeature_id},
             experiment=>#{experiment.id},
-            count=>#{batch_hsh[feature.locus_tag.value][1]},
-            normalized=>#{batch_hsh[feature.locus_tag.value][2]}"
+            count=>#{batch_hsh[locus_tag][1]},
+            normalized=>#{batch_hsh[locus_tag][2]}"
         # Save the new records
         else
-          features.each do |feature|
-            if(options[:existing]=='merge')
-              if f = experiment.features.find_by_id(feature.id)
-                f.delete
-              end
-            end
+          seqfeature_ids.each_with_index do |seqfeature_id,index|
             FeatureCount.fast_insert(
-              :seqfeature_id => feature.id,
+              :seqfeature_id => seqfeature_id,
               :experiment_id => experiment.id,
-              :count => batch_hsh[feature.locus_tag.value][1],
-              :normalized_count => batch_hsh[feature.locus_tag.value][2],
-              :unique_count => batch_hsh[feature.locus_tag.value][3]
+              :count => batch_hsh[feature_ids[index]][1],
+              :normalized_count => batch_hsh[feature_ids[index]][2],
+              :unique_count => batch_hsh[feature_ids[index]][3]
             )
           end
         end
