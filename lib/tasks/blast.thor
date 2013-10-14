@@ -275,7 +275,6 @@ class Blast < Thor
   end
   
   desc 'fix_tair', 'Fix a tair annotation by removing "| Symbols:" and "| chr.*"'
-  method_option :assembly_id, :aliases => '-a', :type => :numeric, :required => true, :desc => 'Supply the ID for sequence taxonomy. Use thor taxonomy:list to lookup'
   method_option :blast_run, :aliases => '-b', :required => true, :desc => 'ID of blast run to annotate'
   def fix_tair
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
@@ -283,19 +282,14 @@ class Blast < Thor
       puts "No blast run found for: #{options[:blast_run]}"
       exit 0
     end
-    unless ::Assembly.find_by_id(options[:assembly_id])
-      puts "No assembly with id #{options[:assembly_id]} found. Try: thor taxonomy:list"
-      exit 0
-    end
     puts ActiveRecord::Base.connection.update("
       update (
-          select regexp_replace(hit_def,'\\| Symbols: (.+) \\| chr.+$','\\1') new_def, hit_def
-          from blast_reports
-          left outer join blast_runs on blast_runs.id = blast_reports.blast_run_id
-          where assembly_id = #{options[:assembly_id]}
-          and blast_runs.id = #{options[:blast_run]}
+          select regexp_replace(definition,'\\| Symbols: (.+) \\| chr.+$','\\1') new_def, definition
+          from hits
+          left outer join blast_iterations on blast_iterations.id = hits.blast_iteration_id
+          where blast_iterations.blast_run_id = #{options[:blast_run]}
         ) sub_blast
-        set sub_blast.hit_def = sub_blast.new_def
+        set sub_blast.definition = sub_blast.new_def
     ")
   end
   
