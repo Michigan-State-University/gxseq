@@ -27,7 +27,7 @@ class BlastsController < ApplicationController
             :user => current_user,
           )
           local_run.reports.each do |report|
-            blast_run.populate_blast_iteration(report)
+            BlastRun.populate_blast_iteration(blast_run.id,report)
           end
           redirect_to blast_run
         end
