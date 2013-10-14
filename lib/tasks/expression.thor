@@ -191,7 +191,7 @@ class Expression < Thor
       reindex = options[:no_index] ? 'no' : 'yes'
     end
     if reindex =='yes'
-      Biosql::Feature::Seqfeature.reindex_all_by_id(seqfeature_ids)
+      Assembly.find(assembly_id).reindex_features
     end
     puts "..Done"
   end#End load method
