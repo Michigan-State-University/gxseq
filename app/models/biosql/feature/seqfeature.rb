@@ -825,7 +825,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     s.string :transcript_id do
       indexed_transcript_id
     end
-    s.string :locus_tag do
+    s.string :locus_tag, :stored => true do
       locus_tag.try(:value)
     end
     # IDs
