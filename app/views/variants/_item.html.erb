@@ -1,12 +1,12 @@
 <% @variants.each do |variant| %>
-  <% if @experiment.tabix_vcf %>
+  <% if @sample.tabix_vcf %>
     <h2><span style="font-size:120%"><%= @position %></span></h2><hr/>
     <table>
-      <% @experiment.tabix_vcf.header_line.split("\t").each_with_index do |head,idx| %>
+      <% @sample.tabix_vcf.header_line.split("\t").each_with_index do |head,idx| %>
         <tr><td><b><%= head %></b></td><td><%= variant[idx] %></td></tr>
       <% end %>
     </table><br/>
-  <% elsif @experiment.bcf %>
+  <% elsif @sample.bcf %>
     <% v = variant[:v] %>
     <h2><span style="font-size:120%"><%= v.variant_type %></span> : <%= v.pos %></h2><hr/>
     <table>
@@ -29,7 +29,7 @@
               <td><%= g.format %></td>
             <% end %>
           </tr>
-          <% @experiment.samples.each_with_index do |sample,idx| %>
+          <% @sample.samples.each_with_index do |sample,idx| %>
             <tr>
               <td><%= sample %></td>
               <% v.geno_fields.each do |g| %>

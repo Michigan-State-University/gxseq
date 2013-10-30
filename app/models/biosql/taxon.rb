@@ -57,7 +57,7 @@ class Biosql::Taxon < ActiveRecord::Base
     if t = Biosql::TaxonName.find_by_name('root')
       return t.taxon
     else
-      return self.where("parent_taxon_id == taxon_id OR parent_taxon_id is null").first || self.create_root
+      return self.where("parent_taxon_id = taxon_id").first || self.create_root
     end
   end
   # find or create the 'unknown' taxon
@@ -119,7 +119,7 @@ class Biosql::Taxon < ActiveRecord::Base
   # create a new root
   def self.create_root
     root = self.create(:node_rank  => 'no rank', :genetic_code => '1', :mito_genetic_code  => '1', :non_ncbi => 1)
-    root.update_attribute(:parent_id,root.id) 
+    root.update_attribute(:parent_taxon_id,root.id) 
     root.taxon_names.create(:name => 'root', :name_class => "scientific name")
     root.taxon_names.create(:name => 'all', :name_class => "synonym")
     return root

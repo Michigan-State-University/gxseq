@@ -12,12 +12,13 @@ class Sequence < Thor
   method_option :division
   method_option :molecule_type
   method_option :renumber_contigs, :type => :string, :desc => "Renumber each contig with the supplied prefix. Outputs genome.concordance"
-  method_option :database, :default => 'Public', :desc  => "Name of Biosql::Biodatabase to use. Not used by app"
+  #method_option :database, :default => 'Public', :desc  => "Name of Biosql::Biodatabase to use. Not used by app"
+  method_option :check_species_source, :default => true, :desc => "Inspect source annotation to identify species if no species_id is provided"
   def load(input_file)
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     # setup
     version = options[:version]
-    database = options[:database]
+    database = "Public" #options[:database]
     verbose = options[:verbose]
     taxon_name = options[:taxon_name]
     division = options[:division]
@@ -68,12 +69,23 @@ class Sequence < Thor
     begin
       Biosql::Biodatabase.transaction do
         # Setup taxon version and taxon ids just once for a transcriptome to speed up the load -  allows only one species per load
+        species_taxon, strain_taxon = get_entry_taxonomy(data.entries.first,options)
         if(is_transcriptome)
-          species_taxon, strain_taxon = get_entry_taxonomy(data.entries.first,{:strain => strain,:species_id => species_id,:strain_id => strain_id})
           assembly = Transcriptome.find_or_create_by_version_and_species_id_and_taxon_id(version,species_taxon.id,strain_taxon.id)
-          # link Biosql::Biodatabase
-          bio_db.taxons << species_taxon unless bio_db.taxons.include?(species_taxon)
+          # default division
+          division ||= 'HTC'
+          # default molecule type
+          molecule_type ||= 'mRNA'
+        else
+          assembly = Genome.find_or_create_by_version_and_species_id_and_taxon_id(version,species_taxon.id,strain_taxon.id)
         end
+        #Validate assembly and raise errors
+        assembly.save!
+        # link Biosql::Biodatabase
+        bio_db.taxons << species_taxon unless bio_db.taxons.include?(species_taxon)
+        # log assembly
+        puts "Using taxonomy: #{assembly.taxon.ancestors.map(&:name).join(" > ")}"
+        
         # Setup the entry_feature term id once and grab the locus term id
         if(entry_feature)
           entry_feature_type_term_id = Biosql::Term.find_or_create_by_name_and_ontology_id(entry_feature,Biosql::Term.seq_key_ont_id).id
@@ -103,24 +115,16 @@ class Sequence < Thor
           end
           # grab the converted biosequence
           entry_bioseq = entry.to_biosequence
-          # log
-          puts "Working on entry #{entry_count}: #{(entry.definition.length > 75) ? entry.definition[0,74]+"..." : entry.definition}" if verbose          
+                 
           # Get Entry version
           if(entry.respond_to?(:version))
             entry_version = (entry.version.nil? ? 1 : entry.version)
           else
             entry_version = 1
           end
-
-          # Get Taxon Version - Genomes lookup for each entry
-          unless(is_transcriptome)
-            species_taxon, strain_taxon = get_entry_taxonomy(entry,{:strain => strain,:species_id => species_id,:strain_id => strain_id})
-            # Get version
-            assembly = Genome.find_or_create_by_version_and_species_id_and_taxon_id(version,species_taxon.id,strain_taxon.id)
-            # link Biosql::Biodatabase
-            bio_db.taxons << species_taxon unless bio_db.taxons.include?(species_taxon)
-          end
-
+          
+          # log
+          puts "Working on entry #{entry_count}: #{(entry.definition.length > 75) ? entry.definition[0,74]+"..." : entry.definition}" if verbose
           
           # get Division
           unless(entry_division = division || (entry.respond_to?(:division) ? entry.division : nil))
@@ -408,6 +412,7 @@ class Sequence < Thor
     # Sync the data with indexer and generate track data
     puts "Syncing Assembly"
     begin
+      assembly.try(:save)
       assembly.try(:sync)
     rescue => e
       puts "Error Syncing Assembly #{e}"
@@ -475,6 +480,13 @@ class Sequence < Thor
     end
   end
   
+  desc 'update_sti', 'Check STI Seqfeatures and create classes for missing types'
+  def update_sti
+    require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
+    sti_types = ActiveRecord::Base.connection.select_all("SELECT distinct(display_name) from seqfeature").map{|s| s["display_name"]}
+    puts "Found #{sti_types.length} Feature types"
+    check_feature_types(sti_types)
+  end
   protected
   # Write out a fasta formatted line to the provided IO
   def write_fasta_from_search(out_io,search,stored_def,seqh,options)
@@ -499,10 +511,20 @@ class Sequence < Thor
   def check_feature_types(type_names)
     type_names.each do |name|
       begin
-        Object.const_get "Biosql::Feature::#{name}"
+        Biosql::Feature.const_get(name)
       rescue
-        puts " -- #{name} not found"
-        puts "class Biosql::Feature::#{name} < Biosql::Feature::Seqfeature; end;"
+        puts " -- #{name} class not found"
+        filepath = File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../app/models/biosql/feature/#{name.underscore}.rb")
+        klass_code = "class Biosql::Feature::#{name} < Biosql::Feature::Seqfeature\nend"
+        puts "Creating #{name.underscore}.rb : #{filepath}\n#{klass_code}"
+        begin
+          raise "File Exists!" if File.exist?(filepath)
+          outfile = File.open(filepath,'w')
+          outfile.puts klass_code
+          outfile.close
+        rescue => e
+          puts "Error creating #{name.underscore}:\n\t#{e}"
+        end
       end
     end
   end
@@ -540,18 +562,17 @@ class Sequence < Thor
     end
     
     # look at organism
-    if(species_taxon.nil? && entry.respond_to?(:organism))
+    if(opts[:check_species_source]==true && species_taxon.nil? && entry.respond_to?(:organism))
       if(tn = Biosql::TaxonName.find_by_name(entry.organism) )
         org_taxon = tn.taxon
       else
         t = nil
         # FIXME: Biosql doesn't like source_features method on brachy genome
-        entry.source_features.find do |source|
-          unless (results = source.qualifiers.select{|q| q.qualifier=='db_xref' && q.value.match(/taxon/)}.collect{|q| Biosql::Taxon.find_by_ncbi_taxon_id(q.value.match(/taxon:(\d+)/)[1])}).empty?
-            t = results.first
-            true
-          end
-          false
+        if(source = entry.features.select{|f| f.feature=='source'}.first)
+          t = source.qualifiers
+            .select{|q| q.qualifier=='db_xref' && q.value.match(/taxon/)}
+            .collect{|q| Biosql::Taxon.find_by_ncbi_taxon_id(q.value.gsub(/taxon:(\d+)/,"\\1"))}
+            .first
         end
         org_taxon = t
       end
@@ -559,10 +580,10 @@ class Sequence < Thor
 
     # species not supplied
     if species_taxon.nil?
-      species_taxon = strain_taxon.try(:species) || org_taxon || Biosql::Taxon.unknown
+      species_taxon = strain_taxon.try(:species) || org_taxon.try(:species) || Biosql::Taxon.unknown
     # species supplied - check strain
     else
-      strain_taxon ||= species_taxon
+      strain_taxon ||= (org_taxon || species_taxon)
     end
     # check for ancestry
     unless species_taxon.parent_taxon_id
@@ -575,13 +596,13 @@ class Sequence < Thor
   end
   
   def create_taxon(taxon_name, node_rank='species')
-    puts "No taxon found for #{taxon_name} - Do you want to create a new entry? (This is not advised. Use taxonomy:load and taxonomy:find to get the correct taxon) (Y or N):"
+    printf "No taxon found for #{taxon_name} - Do you want to create a new entry? (This is not advised. Use taxonomy:load and taxonomy:find to get the correct taxon) (Y or N):"
     unless(STDIN.gets.chomp=='Y')
       raise 'No Taxon Available - Try taxonomy:load or taxonomy:find'
     end
     begin
       unless (Biosql::Taxon.count > 0)
-        response = "*** The taxonomy tree is empty. You should load it before running this script with - 'thor taxonomy:load'  Type 'yes' to continue:"
+        response = ask "*** The taxonomy tree is empty. You should load it before running this script with - 'thor taxonomy:load'  Type 'yes' to continue:"
         unless response == 'yes'
           exit 0
         end

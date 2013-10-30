@@ -75,8 +75,8 @@ d3.linechart = function(config){
   };
   // Un-highlight series with given id
   chart.unhighlight=function(itemId){
-    var item = d3.select('#i'+itemId).style("stroke", function(d){return d.r<0 ? negColor: lineColor}).style('opacity', 0.5).style('stroke-width',2);
-    //d3.selectAll("path.line").style("stroke", function(d){return d.r<0 ? negColor: lineColor}).style('opacity', 0.5).style('stroke-width',2);
+    //var item = d3.select('#i'+itemId).style("stroke", function(d){return d.r<0 ? negColor: lineColor}).style('opacity', 0.5).style('stroke-width',2);
+    d3.selectAll("path.line").style("stroke", function(d){return d.r<0 ? negColor: lineColor}).style('opacity', 0.5).style('stroke-width',2);
   };
   //display the data
   var display = function(error, rawData) {

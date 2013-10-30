@@ -1,23 +1,23 @@
-<%= link_to 'Select All','#', :onclick => 'jQuery(".exp_check").attr("checked", true );' %>
-|<%= link_to 'Select None','#', :onclick => 'jQuery(".exp_check").attr("checked", false );' %>
+<%= link_to 'Select All','#', :onclick => 'jQuery(".sample_check").attr("checked", true );' %>
+|<%= link_to 'Select None','#', :onclick => 'jQuery(".sample_check").attr("checked", false );' %>
 
 <%= form_tag expression_results_path, :method => :get do %>
 <%= hidden_field_tag :assembly_id, assembly.try(:id) %>
 <%= hidden_field_tag :type_term_id, type_term_id %>
 <div style="width:25em">
   <dl style="font-weight:bold;">
-    <span style="float:left">Experiment</span>
+    <span style="float:left">Sample</span>
     <span style="float:right">Mapped Fragments</span>
   </dl>
-  <% experiment_options.each do |experiment| %>
+  <% sample_options.each do |sample| %>
     <div style="clear:both;">
     	<span style="float:left">
-    		<%= check_box_tag "experiments[]", experiment.id, (params[:experiments] && params[:experiments].include?(experiment.id.to_s)), :class => 'exp_check'  %> 
-    		<%= experiment.name %>
+    		<%= check_box_tag "samples[]", sample.id, (params[:samples] && params[:samples].include?(sample.id.to_s)), :class => 'sample_check'  %> 
+    		<%= sample.name %>
     	</span>
     	
     	<span style="float:right">
-    	<%= number_to_human(experiment.total_count,precision: 2) %></span>
+    	<%= number_to_human(sample.total_count,precision: 2) %></span>
     </div>
   <% end %>
   <hr/ style="clear:both">

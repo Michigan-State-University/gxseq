@@ -1,0 +1,71 @@
+<% content_for :default_override do -%>
+  <%= javascript_include_tag 'jquery_ujs.js' %>
+<% end -%>
+<%= javascript_include_tag 'd3.v3.min' %>
+<%= javascript_include_tag 'colorbrewer' %>
+<%= javascript_include_tag 'd3.multiAxis' %>
+
+
+<style>
+	/* tell the SVG path to be a thin blue line without any area fill */
+	path {
+		fill: none;
+	}
+	.axis, .brush {
+	  shape-rendering: crispEdges;
+	}
+	.x.axis line {
+	  display: none;
+	}
+
+	.x.axis line, .x.axis path {
+/*    display: none;*/
+    stroke: #000;
+	}
+
+	.y.axis line, .y.axis path {
+	  fill: none;
+	  stroke: #000;
+	}
+	.y.brush line, .y.brush path {
+	  fill: none;
+	  stroke: #000;
+	}
+  .extent {
+    fill: rgba(150,150,150,0.5);
+    stroke: rgba(0,0,0,0.6);
+  }
+  .rect {
+    stroke: white;
+    fill: steelblue;
+  }
+	div.tooltip {
+    position: absolute;
+    text-align: center;
+/*    height: 12px;*/
+    padding: 8px;
+    font: 10px sans-serif;
+    background: #ddd;
+    border: solid 2px #aaa;
+    border-radius: 8px;
+    pointer-events: none;
+    box-sizing:content-box;
+    webkit-box-size:content-box;
+    box-shadow:3px 3px 9px 1px #777;
+  }
+</style>
+<div>
+  <%= link_to "Stack", '#',:id => 'stack', :class => 'switch' %> |
+  <%= link_to "Lines", '#',:id => 'line', :class => 'switch' %>
+</div>
+<div id="graph" width="100%" style="height:300px;padding-top:1em"></div>
+<div id="legend" width="100%"></div>
+
+<script type='text/javascript'>
+  // Setup chart with handler
+  var multichart = d3.multiAxis({
+    graph:'#graph',
+    tooltip:'x'
+  });
+  multichart.load(<%= "'#{data}'" %>)
+</script>

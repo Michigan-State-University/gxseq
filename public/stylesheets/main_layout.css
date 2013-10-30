@@ -364,7 +364,7 @@ ul.nav a.active {
 /*.item-bar select {width:145px;margin:0 2px;}*/
 
 /* orange button */
-.item-bar input.button {
+input.button {
 	text-align:center;
 	color:#fff;
 	font-weight:bold;
@@ -388,7 +388,7 @@ ul.nav a.active {
 	-moz-border-radius: 7px;
 	-webkit-border-radius: 7px;
 }
-.item-bar input.button:hover{
+input.button:hover{
     cursor:pointer;
     background: #ffcd4e;
     background: -webkit-gradient(

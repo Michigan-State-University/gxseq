@@ -8,8 +8,8 @@
     <li><%= link_to "Groups", groups_path, :class => "#{'active' if active== 'group'}" %></li>
     <li><%= link_to "Blast DB", admin_blast_databases_path,:class => "#{'active' if active== 'blast_db'}" %></li>
     <li><%= link_to "Blast Run", admin_blast_runs_path,:class => "#{'active' if active== 'blast_run'}" %></li>
-    <li><%= link_to "Ontology", admin_ontologies_path,:class => "#{'active' if active== 'ontology'}" %></li>
-    <li><%= link_to "Terms", admin_terms_path,:class => "#{'active' if active== 'term'}" %></li>
+    <li><%= link_to "Ontology", admin_biosql_ontologies_path,:class => "#{'active' if active== 'ontology'}" %></li>
+    <li><%= link_to "Terms", admin_biosql_terms_path,:class => "#{'active' if active== 'term'}" %></li>
 	</ul>
 
 <% end %>

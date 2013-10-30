@@ -10,7 +10,7 @@ class Group < Thor
     puts "There are #{groups.length} groups in the database"
     puts "-\t-\tID\tName#{' '*(max_name_count-4)}Owner\temail\tAssemblyCount\tSampleCount"
     groups.each_with_index do |group,idx|
-      puts "\t#{idx})\t#{group.id}\t#{group.name}#{' '*(max_name_count-group.name.length)}#{group.owner.login}\t#{group.owner.email}\t#{group.assemblies.count}\t#{group.experiments.count}"
+      puts "\t#{idx})\t#{group.id}\t#{group.name}#{' '*(max_name_count-group.name.length)}#{group.owner.login}\t#{group.owner.email}\t#{group.assemblies.count}\t#{group.samples.count}"
     end
   end
 end

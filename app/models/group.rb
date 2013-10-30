@@ -14,7 +14,7 @@ class Group < ActiveRecord::Base
   has_and_belongs_to_many :users
   has_many :assemblies
   has_many :bioentries, :through => :assemblies
-  has_many :experiments
+  has_many :samples
   validate :new_user_login
   before_save :add_new_user
   attr_accessor :new_user

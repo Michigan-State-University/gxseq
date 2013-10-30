@@ -1,5 +1,5 @@
 <div style="float:left;width:650px">
-<p>The entries below correspond to each Variant Experiment (SNP, Indel) uploaded for this sequence. The nucleic and protein sequence are computed from the data in each Experiment. Click <%= link_to "here",details_variants_path,:popup => true %> for details.</p>
+<p>The entries below correspond to each Variant Sample (SNP, Indel) uploaded for this sequence. The nucleic and protein sequence are computed from the data in each Sample. Click <%= link_to "here",details_variants_path,:popup => true %> for details.</p>
 <p>
 	You can choose the number of flanking upstream and downstream bases displayed.
 	<%= select_tag :window, options_for_select([0,100,500,1000],@variant_window), :onchange => "window.location='#{gene_path(@gene.locus_tag.value)}?fmt=variants&v_win='+this[this.selectedIndex].value+'&v_fmt=#{@variant_format}'"%><br/>

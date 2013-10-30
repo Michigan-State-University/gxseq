@@ -1,24 +1,24 @@
 class ToolsController < ApplicationController
   def smooth
-    @experiments = ChipChip.accessible_by(current_ability).order(:created_at)    
-    #create a new smoothed dataset from the supplied experiment.
+    @samples = ChipChip.accessible_by(current_ability).order(:created_at)    
+    #create a new smoothed dataset from the supplied sample.
     if(request.post?)
       begin
-        @original=Experiment.find(params[:experiment_id])
+        @original=Sample.find(params[:sample_id])
         # just to test validity
-        @new_experiment = @original.clone({:name => params[:name], :description => params[:description]})
-        if(@new_experiment.valid?)
-          @original.delay.create_smoothed_experiment( {:name => params[:name], :description => params[:description]}, # pass the exp options again (for use in backgorund job)
+        @new_sample = @original.clone({:name => params[:name], :description => params[:description]})
+        if(@new_sample.valid?)
+          @original.delay.create_smoothed_sample( {:name => params[:name], :description => params[:description]}, # pass the sample options again (for use in backgorund job)
             {:window => params[:window].to_i,:type => params[:type],:cutoff => params[:cutoff]}
           )
-          flash[:notice] = "The Smoothing Job has been submitted. When it is complete #{params[:name]} will be listed with the other #{@original.class} experiments"
+          flash[:notice] = "The Smoothing Job has been submitted. When it is complete #{params[:name]} will be listed with the other #{@original.class} samples"
           redirect_to :action => :index
         else
           render :action => "smooth"
         end
       rescue
         logger.info "\n\nError Smoothing dataset: #{$!}\n\n"
-        flash[:error] = "Could not create new experiment"
+        flash[:error] = "Could not create new sample"
         redirect_to :action => "smooth"
       end
     else      

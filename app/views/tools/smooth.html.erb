@@ -6,17 +6,17 @@
 
 <% content_for :item_bar do -%>
   <p>
-		This tool allows you to create a new experiment altering the original with a smoothing algorithm. More details about the smoothing tool can be found <%= link_to "here", details_tools_path %>.
+		This tool allows you to create a new sample altering the original with a smoothing algorithm. More details about the smoothing tool can be found <%= link_to "here", details_tools_path %>.
 	</p>
 <% end -%>
 <div style="float:left;width:600px">
-<%= error_messages_for :new_experiment %>
+<%= error_messages_for :new_sample %>
 <% form_tag(:action => "smooth") do %>
 
-  <%= label_tag :experiment %><br/>
+  <%= label_tag :sample %><br/>
   <% #TODO: Update this selection to possibly a sample search not dropdown %>
-  <%= select_tag(:experiment_id, "<option>-Select the experiment to smooth</option>".html_safe +
-  options_from_collection_for_select(@experiments,:id,:typed_display_info), :'data-onchange' => asset_details_experiments_url, :'data-with' => 'exp_id', :'data-element' => :exp_info )%>
+  <%= select_tag(:sample_id, "<option>-Select the sample to smooth</option>".html_safe +
+  options_from_collection_for_select(@samples,:id,:typed_display_info), :'data-onchange' => asset_details_samples_url, :'data-with' => 'sample_id', :'data-element' => :sample_info )%>
   <br/><br/>
   
   <%= label_tag :name %><br/>
@@ -49,6 +49,6 @@
 
 </div>
 					
-<div id="exp_info" style="float:right">
+<div id="sample_info" style="float:right">
 
 </div>

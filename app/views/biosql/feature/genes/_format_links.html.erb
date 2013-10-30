@@ -1,5 +1,4 @@
 <div style="float:right;" id="format_links">
-	<h2>
 		<%= link_to_unless @format=='standard', "Standard", gene_path(@gene, :fmt => 'standard') do |name| 
         "<u style='font-size:120%'>#{name}</u>".html_safe
       end %>
@@ -15,6 +14,10 @@
 		| <%= link_to_unless @format=='expression', "Expression", gene_path(@gene, :fmt => 'expression') do |name| 
         "<u style='font-size:120%'>#{name}</u>".html_safe
       end %>
+    |
+      <%= link_to_unless @format=='coexpression', "Co-Expression", gene_path(@gene, :fmt => 'coexpression') do |name|
+          "<u style='font-size:120%'>#{name}</u>".html_safe
+  		  end %>
 		<% end %>
 		<% if @gene.blast_iterations.count %>
 		| <%= link_to_unless @format=='blast', "Blast", gene_path(@gene, :fmt => 'blast') do |name| 

@@ -14,6 +14,9 @@ module SharedThor
   
   def print_assembly_table
     assemblies = ::Assembly.includes(:taxon => :scientific_name).order('taxon_name.name asc, version asc')
+    if assemblies.empty?
+      return
+    end
     # get max character counts
     species_length = assemblies.max{|a1,a2| a1.species_name.length <=> a2.species_name.length}.species_name.length
     seq_length = assemblies.max{|a1,a2| a1.name_with_version.length <=> a2.name_with_version.length}.name_with_version.length

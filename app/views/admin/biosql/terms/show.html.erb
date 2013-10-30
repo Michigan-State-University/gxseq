@@ -1,0 +1,26 @@
+<% content_for :top_bar do %>
+	<h1 class="pagetitle"> <%= @term.ontology.name %> : <%= @term.name %></h1>
+<% end %>
+
+<%= render :partial => "admin/sidebar", :locals => {:active => 'term'} %>
+
+<% content_for :item_bar do %>
+  <%= link_to 'Back to Listing', admin_biosql_terms_path, :class => 'button' %>
+  <%= link_to 'Edit this Term', edit_admin_biosql_term_path(@term), :class => 'button' %>
+<% end %>
+<p><b>Name</b>: <%= @term.name %></p>
+<p><b>Id</b>: <%= @term.identifier %></p>
+<p><b>Definition</b>: <%= @term.definition %></p>
+<p><b>Created</b>: <%= @term.created_at.strftime('%b %d \'%y') %> </p>
+<p><b>Last Update</b>: <%= @term.updated_at.strftime('%b %d \'%y') %> </p>
+
+<h3>Use Count:</h3>
+
+<p>Sequence: <%= @term.bioentry_qualifer_values.count %></p>
+<p>Feature Source: <%= @term.seqfeature_sources.count %></p>
+<p>Feature Type: <%= @term.seqfeature_types.count %></p>
+<p>Attributes: <%= @term.qualifiers.count %></p>
+<p>Location: <%= @term.locations.count %></p>
+<p>Samples: <%= @term.sample_traits.count %></p>
+
+

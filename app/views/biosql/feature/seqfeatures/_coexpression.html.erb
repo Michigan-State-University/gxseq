@@ -1,0 +1,11 @@
+<%= render :partial => "biosql/feature/seqfeatures/feature_count_table", :locals => {:link_fmt => 'coexpression', :feature => feature} %>
+
+<div id='expression_profile' style="clear:both"></div>
+<% if @feature_counts.length > 1 %>
+  <%= render :partial => "shared/expression_profile", :locals => {
+    :feature_counts => @feature_counts,
+    :element_id => 'expression_profile',
+    :data => coexpressed_counts_seqfeature_path(feature,:format => :json,:fc_ids => @fc_ids)
+  } %>
+<% end %>
+<br/>

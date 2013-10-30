@@ -1,5 +1,5 @@
-<h1 class="pagetitle">Chip Seq Experiment Details</h1>
-<%= render :partial => "experiments/sidebar" %>
+<h1 class="pagetitle">Chip Seq Sample Details</h1>
+<%= render :partial => "samples/sidebar" %>
 
 <h2>Description</h2><hr><br/>
 <p>
@@ -8,12 +8,12 @@
 
 <h2>Browsing</h2><hr><br/>
 <p>
-	ChIP-Seq experiments will be located in the ChipSeq folder within the Track Selection pane.<br/>
+	ChIP-Seq samples will be located in the ChipSeq folder within the Track Selection pane.<br/>
 	<%= image_tag("chip_seq_folder.png") %>
 	<br/>
 </p>
 <p>
-	To activate a ChipSeq experiment click and drag it into the Active Tracks section.<br/>
+	To activate a ChipSeq sample click and drag it into the Active Tracks section.<br/>
 	<%= image_tag("active_tracks.png") %>
 </p>
 <p>
@@ -23,7 +23,7 @@
 
 <h2>Loading Data</h2><hr><br/>
 <p>
-	Chip Seq experiments are loaded using tag density data. The files should be tab delimited including base position and density.<br/>
+	Chip Seq samples are loaded using tag density data. The files should be tab delimited including base position and density.<br/>
 	Here is an example of the upload format:
 </p>
 <div style="margin-left:2em">
@@ -47,4 +47,4 @@
 	Reads can be mapped to a genome using eland (single end) or SOAP (paired end)<br/>
 </p>
 
-<%= link_to "Chip Seq Experiments", chip_seqs_path %> | <%= link_to "Experiment Types", experiments_path %>
+<%= link_to "Chip Seq Samples", chip_seqs_path %> | <%= link_to "Sample Types", samples_path %>

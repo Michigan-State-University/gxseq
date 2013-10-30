@@ -3,7 +3,7 @@
 <% end -%>
 
 <% content_for :item_bar do -%>
-  <%= link_to "Update Selection", expression_viewer_path(:experiments => @experiments,:assembly_id => params[:assembly_id],params[:fmt] => 'parallel'), :class => "button" %>
+  <%= link_to "Update Selection", expression_viewer_path(:samples => @samples,:assembly_id => params[:assembly_id],params[:fmt] => 'parallel'), :class => "button" %>
   <%#= link_to "Download", url_for( params.merge(:format=>:csv)), :class => "button" %>
   <%= render :partial => 'results_form' %>
 <% end -%>
@@ -24,8 +24,8 @@
         <% @blast_runs.each do |blast_run| %>
           <th><%= sort_link blast_run.name, "blast_acc_#{blast_run.id}" %></th>
         <% end %>
-        <% @experiments.each do |exp| %>
-          <th width="5%" style="white-space:nowrap" ><%=sort_link exp.name,"exp_#{exp.id}" %></th>
+        <% @samples.each do |sample| %>
+          <th width="5%" style="white-space:nowrap" ><%=sort_link sample.name,"sample_#{sample.id}" %></th>
         <% end %>
         <th style="white-space:nowrap"><%= sort_link "Sum", 'sum' %></th>
         <th>Options</th>

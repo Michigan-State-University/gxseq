@@ -103,6 +103,7 @@ class Biosql::Feature::GenesController < ApplicationController
   
   def show
     # TODO: Dry up the seqfeature/gene show methods. Duplicate code
+    @seqfeature = @gene
     @format = params[:fmt] || 'standard'
     begin
     case @format
@@ -117,8 +118,23 @@ class Biosql::Feature::GenesController < ApplicationController
     when 'history'
       @changelogs = Version.order('id desc').where(:parent_id => @gene.id).where(:parent_type => 'Biosql::Feature::Gene')
     when 'expression'
-      @feature_counts = @gene.feature_counts.accessible_by(current_ability).includes(:experiment).order("experiments.name")
-      setup_graphics_data
+      assembly = @gene.bioentry.assembly
+      @trait_types = @gene.bioentry.assembly.trait_types
+      @trait_types = assembly.trait_types
+      if params[:trait_type_id]
+        if current_user
+          current_user.preferred_trait_group_id = params[:trait_type_id], assembly
+          current_user.save
+        end
+        @trait_type_id = params[:trait_type_id]
+      else
+        if current_user
+          @trait_type_id = current_user.preferred_trait_group_id(assembly)
+        end
+      end
+      @feature_counts = @gene.feature_counts.accessible_by(current_ability).includes(:sample).order("samples.name")
+    when 'coexpression'
+      @feature_counts = @gene.feature_counts.accessible_by(current_ability).includes(:sample).order("samples.name")
     when 'blast'
       @blast_reports = @gene.blast_reports
       params[:blast_report_id]||=@blast_reports.first.id

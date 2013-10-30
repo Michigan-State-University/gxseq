@@ -1,10 +1,10 @@
 class Expression < Thor
   ENV['RAILS_ENV'] ||= 'development'
-  # Insert expression results into the database. Expression is attached to an RNA-Seq experiment and a seqfeature
+  # Insert expression results into the database. Expression is attached to an RNA-Seq sample and a seqfeature
   # The file is expected to have at least three columns. The id (locus_tag) column, the count(mapped reads) column and the normalized(rpkm) column
   # These columns can be defined in the options with 1-based indexes
   # The file can be tab or comma delimited
-  # --experiment/-e  => experiment name or id. Use 'experiment:list' to verify this before loading [Required]
+  # --sample/-e  => sample name or id. Use 'sample:list' to verify this before loading [Required]
   # --feature/-f  => type of feature expression will be assigned to. [Gene]
   # --id_column/-i  => id column index [1]
   # --count_column/-c  => count column index [2]
@@ -14,7 +14,7 @@ class Expression < Thor
   # --concordance/-d => concordance file, supply tab separated id mapping file with 'locus_tag  file_id'
   # --test/-t => test only, run the loader and check ids but do not commit any inserts
   desc 'load FILE',"Load feature counts into the database"
-  method_options %w(experiment -e) => :required, :existing => 'raise', 
+  method_options %w(sample -e) => :required, :existing => 'raise', 
     %w(id_column -i) => 1, %w(count_column -c) => 2, %w(unique_column -q) => 3, %w(normalized_column -n) => 4, %w(header -h) => false, 
     %w(test -t) => false, %w(skip_not_found -s) => false, %w(concordance -d) => nil, :no_index => false
   method_option :feature_type, :aliases => '-f', :required => true, :desc => 'Supply the feature type. "Mrna" for a transcriptome.'
@@ -38,10 +38,10 @@ class Expression < Thor
       puts "No taxon with id #{options[:assembly_id]} found. Try: thor taxonomy:list"
       return
     end
-    # Check Experiment
-    experiment = RnaSeq.find_by_name_and_assembly_id(options[:experiment],options[:assembly_id]) || RnaSeq.find_by_id(options[:experiment].to_i)
-    unless experiment
-      puts "experiment '#{options[:experiment]}' not found"
+    # Check Sample
+    sample = RnaSeq.find_by_name_and_assembly_id(options[:sample],options[:assembly_id]) || RnaSeq.find_by_id(options[:sample].to_i)
+    unless sample
+      puts "sample '#{options[:sample]}' not found"
       exit 0
     end
     # verify type if provided
@@ -89,15 +89,15 @@ class Expression < Thor
       items << dataset
     end
     # check existing counts
-    if (counts = experiment.feature_counts.includes(:seqfeature).where{seqfeature.display_name==my{options[:feature]}}.count) == 0
-      puts "Experiment looks good"
+    if (counts = sample.feature_counts.includes(:seqfeature).where{seqfeature.display_name==my{options[:feature]}}.count) == 0
+      puts "Sample looks good"
     else
       case options[:existing]
       when 'truncate'
-        puts "truncating existing feature counts for experiment #{experiment.name}"
-        FeatureCount.where(:experiment_id => experiment.id).delete_all
+        puts "truncating existing feature counts for sample #{sample.name}"
+        FeatureCount.where(:sample_id => sample.id).delete_all
       when 'raise'
-        puts "Experiment already has #{counts} #{options[:feature]}s with expression. You need to supply an :existing option of 'truncate','append' or 'override' to continue"
+        puts "Sample already has #{counts} #{options[:feature]}s with expression. You need to supply an :existing option of 'truncate','append' or 'override' to continue"
         exit 0
       else
         puts "Invalid :existing option found"
@@ -143,7 +143,7 @@ class Expression < Thor
         else
           features = Biosql::Feature::Seqfeature.find_all_with_locus_tags(batch_ids)
             .includes(:bioentry,:qualifiers => [:term])
-            .where{bioentry.assembly_id == my{experiment.assembly_id}}
+            .where{bioentry.assembly_id == my{sample.assembly_id}}
             .where{seqfeature.type_term_id == my{type_term_id}}
           # Add Id's to the running total array
           seqfeature_ids.concat(features.map(&:seqfeature_id))
@@ -165,7 +165,7 @@ class Expression < Thor
           locus_tag = feature_ids.first
           puts "Sample FeatureCount::
             seqfeature=>#{seqfeature_id},
-            experiment=>#{experiment.id},
+            sample=>#{sample.id},
             count=>#{batch_hsh[locus_tag][1]},
             normalized=>#{batch_hsh[locus_tag][2]}"
         # Save the new records
@@ -173,7 +173,7 @@ class Expression < Thor
           seqfeature_ids.each_with_index do |seqfeature_id,index|
             FeatureCount.fast_insert(
               :seqfeature_id => seqfeature_id,
-              :experiment_id => experiment.id,
+              :sample_id => sample.id,
               :count => batch_hsh[feature_ids[index]][1],
               :normalized_count => batch_hsh[feature_ids[index]][2],
               :unique_count => batch_hsh[feature_ids[index]][3]

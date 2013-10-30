@@ -89,6 +89,8 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
       redirect_to gene_path(@seqfeature,:fmt => @format)
     end
     case @format
+    when 'edit'
+      redirect_to :action => :edit
     when 'standard'
       setup_graphics_data
       @ontologies = Biosql::Term.annotation_ontologies
@@ -99,8 +101,23 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     when 'history'
       @changelogs = Version.order('id desc').where(:parent_id => @seqfeature.id).where(:parent_type => @seqfeature.class.name)
     when 'expression'
-      @feature_counts = get_feature_counts
-      setup_graphics_data
+      assembly = @seqfeature.bioentry.assembly
+      @trait_types = assembly.trait_types
+      if params[:trait_type_id]
+        if current_user
+          current_user.preferred_trait_group_id = params[:trait_type_id], assembly
+          current_user.save
+        end
+        @trait_type_id = params[:trait_type_id]
+      else
+        if current_user
+          @trait_type_id = current_user.preferred_trait_group_id(assembly)
+        end
+      end
+      get_feature_counts
+      #setup_graphics_data
+    when 'coexpression'
+      get_feature_counts
     when 'blast'
       @blast_reports = @seqfeature.blast_iterations
       params[:blast_report_id]||=@blast_reports.first.id
@@ -173,21 +190,29 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
   end
   
   # Custom Routes
-  respond_to :json, :only => [:feature_counts,:coexpressed_counts]
+  respond_to :json, :only => [:base_counts,:feature_counts,:coexpressed_counts]
   # returns formatted counts for all feature counts tied to seqfeature
   # [{:key => sample_name, :values => {:base => int, :count => float }}, ...]
+  def base_counts
+    get_feature_counts
+    @feature_counts = @feature_counts.select{|fc| params[:fc_ids].include?(fc.id.to_s)} if params[:fc_ids]
+    data = FeatureCount.create_base_data(@feature_counts, {:type => (params[:type]||'count')} )
+    respond_with data
+  end
   def feature_counts
-    @feature_counts = get_feature_counts
-    data = FeatureCount.create_graph_data(@feature_counts, {:type => (params[:type]||'count')} )
+    get_feature_counts
+    @feature_counts = @feature_counts.select{|fc| params[:fc_ids].include?(fc.id.to_s)} if params[:fc_ids]
+    data = FeatureCount.create_sample_data(@feature_counts, {:group_trait => params[:group_trait], :type => (params[:type]||'count')} )
     respond_with data
   end
   # returns formatted counts for all coexpressed features
   #[{:id,:name,:sample1,:sample2,...}]
   def coexpressed_counts
-    feature_counts = get_feature_counts
+    get_feature_counts
+    @feature_counts = @feature_counts.select{|fc| params[:fc_ids].include?(fc.id.to_s)} if params[:fc_ids]
     search = @seqfeature.correlated_search(current_ability,{:per_page => 500})
     if search
-      respond_with @seqfeature.corr_search_to_matrix(search,feature_counts)
+      respond_with @seqfeature.corr_search_to_matrix(search,@feature_counts)
     else
       respond_with []
     end
@@ -204,7 +229,16 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     end
     @seqfeature.index!
   end
-
+  # return html and js to render expression data
+  def expression_chart
+    authorize! :read, @seqfeature
+    render :partial => "shared/expression_chart",
+      :locals => {
+        :data => feature_counts_seqfeature_path(@seqfeature,:format => :json, :group_trait => params[:trait_type_id]),
+        :no_template => true
+      }
+  end
+     
   private
     def find_seqfeature
       feature_id = Biosql::Feature::Seqfeature.with_locus_tag(params[:id]).first.try(:id) || params[:id]
@@ -228,10 +262,16 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     end
     
     def get_feature_counts
-      @seqfeature.feature_counts
+      @feature_counts = @seqfeature.feature_counts
         .accessible_by(current_ability)
-        .includes(:experiment)
-        .order("experiments.name")
+        .includes(:sample)
+        .order("samples.name")
+        if(params[:fc_ids])
+          # store preference
+          @fc_ids = params[:fc_ids]
+        elsif(false)
+          # get preference
+        end
     end
     
     def setup_xhr_form

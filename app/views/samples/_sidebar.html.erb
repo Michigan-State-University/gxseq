@@ -1,0 +1,14 @@
+<% content_for :sidebar do -%>
+	<% active = sample.class.name.underscore if defined? sample %>
+	<% active = '' unless defined? active %>
+	<h3>Sample types</h3>
+	<ul class="nav">
+	<li><%= link_to "All", samples_path, :class => "#{'active' if active== 'all'}" %></li>
+	<li><%= link_to "ChipSeq", chip_seqs_path, :class => "#{'active' if active== 'chip_seq'}" %></li>
+	<li><%= link_to "ChipChip", chip_chips_path, :class => "#{'active' if active== 'chip_chip'}" %></li>
+	<li><%= link_to "Re-Seq", re_seqs_path, :class => "#{'active' if active== 're_seq'}" %></li>
+	<li><%= link_to "mRNA-Seq", rna_seqs_path, :class => "#{'active' if active== 'rna_seq'}" %></li>
+	<!-- <li><%#= link_to "Synthetic", synthetics_path, :class => "#{'active' if active== 'synthetic'}" %></li> -->
+	<li><%= link_to "Variants", variants_path, :class => "#{'active' if active== 'variant'}" %></li>
+	</ul>
+<% end -%>

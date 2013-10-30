@@ -142,10 +142,10 @@ class Biosql::BioentriesController < ApplicationController
     # Scope track access by ability
     # Active tracks will be ignored if not in this list
     @all_tracks = assembly.tracks.accessible_by(current_ability)
-    # We add the non-experiment tracks. There are not 'accessible_by' normal users in can can
+    # We add the non-sample tracks. There are not 'accessible_by' normal users in can can
     # Instead, they are always accessible if the bioentry is accessible
     @all_tracks += [assembly.six_frame_track,assembly.models_tracks,assembly.generic_feature_tracks].flatten.compact
-    # admin users will see non-experiment tracks twice if we don't uniq the list
+    # admin users will see non-sample tracks twice if we don't uniq the list
     @all_tracks.uniq!
     # Setup the view
     @view ={

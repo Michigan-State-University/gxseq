@@ -31,41 +31,41 @@ class ReadsController < ApplicationController
             }
          }
       when 'abs_max'
-        exp = Experiment.find(param['experiment'])
-        render :text => exp.max(exp.get_chrom(param['bioentry'])).to_s
+        sample= Sample.find(param['sample'])
+        render :text => sample.max(sample.get_chrom(param['bioentry'])).to_s
       when 'range'
         bioentry = Biosql::Bioentry.find(param['bioentry'])
-        experiment = Experiment.find(param['experiment'])
-        authorize! :track_data, experiment
-        c_item = experiment.concordance_items.with_bioentry(bioentry)[0]
-        unless(c_item && bioentry && experiment && experiment.respond_to?(:get_reads))
+        sample = Sample.find(param['sample'])
+        authorize! :track_data, sample
+        c_item = sample.concordance_items.with_bioentry(bioentry)[0]
+        unless(c_item && bioentry && sample && sample.respond_to?(:get_reads))
           render :json => {:success => false}
           return
         end
         density=param['density']||1000
-        data = experiment.summary_data(param['left'],param['right'],density,c_item.reference_name)
+        data = sample.summary_data(param['left'],param['right'],density,c_item.reference_name)
         offset = (param['right']-param['left'])/density.to_f
         #{(stop-start)/bases
         data.fill{|i| [param['left']+(i*offset).to_i,data[i].to_i]}
         render :text =>"{\"success\":true,\"data\":#{data.inspect}}"
       when 'reads'
         bioentry = Biosql::Bioentry.find(param['bioentry'])
-        experiment = Experiment.find(param['experiment'])
-        authorize! :track_data, experiment
-        c_item = experiment.concordance_items.with_bioentry(bioentry)[0]
-        unless(c_item && bioentry && experiment && experiment.respond_to?(:get_reads))
+        sample = Sample.find(param['sample'])
+        authorize! :track_data, sample
+        c_item = sample.concordance_items.with_bioentry(bioentry)[0]
+        unless(c_item && bioentry && sample && sample.respond_to?(:get_reads))
           render :json => {:success => false}
           return
         end
-         reads_text = experiment.get_reads_text(param['left'],param['right'],c_item.reference_name,{:include_seq => true, :read_limit => param['read_limit']})
+         reads_text = sample.get_reads_text(param['left'],param['right'],c_item.reference_name,{:include_seq => true, :read_limit => param['read_limit']})
          render :text => "{\"success\":true,\"data\":{#{"\"notice\": \"#{reads_text[2]} of #{reads_text[1]} reads\","}\"reads\":["+reads_text[0]+"]}}"
       when 'describe'
         bioentry_id = Biosql::Bioentry.find(param['bioentry'])
-        experiment = Experiment.find(param['experiment'])
-        authorize! :track_data, experiment
+        sample = Sample.find(param['sample'])
+        authorize! :track_data, sample
         pos = param['pos']
-        c_item = experiment.concordance_items.with_bioentry(bioentry_id)[0]
-        @read = experiment.find_read(param['id'],c_item.reference_name,pos)
+        c_item = sample.concordance_items.with_bioentry(bioentry_id)[0]
+        @read = sample.find_read(param['id'],c_item.reference_name,pos)
         render :partial => "reads/show"
       end
       

@@ -1,0 +1,45 @@
+<% content_for :head do -%>
+  <%= stylesheet_link_tag 'formtastic_overrides' %>
+<% end -%>
+
+<% content_for :top_bar do -%>
+  <h1 class="pagetitle">Manage <%= @ontology.name %></h1>
+<% end -%>
+
+<% content_for :item_bar do %>
+<div class="clear">
+  <div class="border" style="width:50%">
+  <%= semantic_form_for @ontology.terms.build do |f| %>
+    <%= f.inputs do %>
+      <%= f.input :ontology_id, :as => :hidden  %>
+      <%= f.input :name %>
+      <%= f.input :definition %>
+    <% end %>
+
+    <%= f.actions do %>
+      <%= f.action :submit, :label => " Add New Item", :button_html => { :class => 'button', :style => '' } %>
+    <% end %>
+  <% end %>
+  </div>
+</div>
+
+<% end %>
+
+
+<div class="table">
+  <table class="listing">
+  	<thead>
+      <th><%= sort_link "Name", :name %></th>
+      <th><%= sort_link "Definition", :definition %></th>
+  	</thead>
+  	<% for term in @ontology.terms %>
+  		<tr>
+        <td><%= term.name %></td>
+        <td><%= term.definition %></td>
+  	  </tr>
+  	<% end %>
+  	<% if @ontology.terms.size ==0 %>
+  	  <tr><td colspan="3">No Terms Found</td></tr>
+  	<% end %>
+  </table>
+</div>

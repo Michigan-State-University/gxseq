@@ -1,17 +1,17 @@
 <% content_for :top_bar do -%>
-  <h1 class="pagetitle">Edit Chip Chip Experiment <%= @chip_chip.name %></h1>
+  <h1 class="pagetitle">Edit Chip Chip Sample <%= @chip_chip.name %></h1>
 <% end -%>
 
 <% content_for :item_bar do -%>
   <% if can? :delete, @rna_seq %>
     <% #TODO: Change remove buttons to red style %>
-    <%= link_to "Remove ChIP-Chip", @chip_chip, :method => 'delete', :class => "button", :confirm => "Remove experiment: #{@chip_chip.name}? \n This CANNOT be undone." %>
+    <%= link_to "Remove ChIP-Chip", @chip_chip, :method => 'delete', :class => "button", :confirm => "Remove sample: #{@chip_chip.name}? \n This CANNOT be undone." %>
   <% end %>
   <%= link_to "Cancel", @chip_chip, :style => "float:right", :class => "button"%>
 <% end -%>
 
-<%= render :partial => "experiments/sidebar" %>
+<%= render :partial => "samples/sidebar" %>
 
 <%= error_messages_for :chip_seq %>
 
-<%= render :partial => 'experiments/form', :locals => {:experiment => @chip_chip} %>
+<%= render :partial => 'samples/form', :locals => {:sample => @chip_chip} %>

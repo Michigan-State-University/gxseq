@@ -146,22 +146,22 @@ class GeneModel < ActiveRecord::Base
   def self.find_differential_variants(set_a, set_b=[])
     return [] if set_a.empty? #|| set_b.empty? Allow empty set_b
     query = GeneModel.scoped
-    set_a.each do |exp_id|
+    set_a.each do |sample_id|
       query = query.where("EXISTS (
         SELECT * FROM sequence_variants sv
         WHERE gene_models.bioentry_id = sv.bioentry_id
         AND start_pos <= sv.pos
         AND end_pos >= sv.pos
-        AND sv.experiment_id = #{exp_id}
+        AND sv.sample_id = #{sample_id}
       )")
     end
-    set_b.each do |exp_id|
+    set_b.each do |sample_id|
       query = query.where("NOT EXISTS (
         SELECT * FROM sequence_variants sv
         WHERE gene_models.bioentry_id = sv.bioentry_id
         AND start_pos <= sv.pos
         AND end_pos >= sv.pos
-        AND sv.experiment_id = #{exp_id}
+        AND sv.sample_id = #{sample_id}
       )")
     end
     return query
@@ -199,8 +199,8 @@ class GeneModel < ActiveRecord::Base
     cds.locations.sort{|a,b|a.end_pos<=>b.end_pos}.last.end_pos
   end
   
-  def variant_na_sequence(exp_id,opts={})
-    return nil unless (v = Variant.find(exp_id))
+  def variant_na_sequence(sample_id,opts={})
+    return nil unless (v = Variant.find(sample_id))
     window = (opts[:window] || 0).to_i
     start = self.start_pos-window
     stop = self.end_pos+window
@@ -231,11 +231,11 @@ class GeneModel < ActiveRecord::Base
     cds.try(:na_sequence)
   end
   
-  def variant_protein_sequence(exp_id,opts={})
+  def variant_protein_sequence(sample_id,opts={})
     if(cds)
       frame = (cds.codon_start.try(:value)||1).to_i
       frame += 3 if strand.to_i != 1
-      return Bio::Sequence::NA.new(variant_na_sequence(exp_id,opts)).translate(frame, bioentry.taxon.genetic_code || 1)
+      return Bio::Sequence::NA.new(variant_na_sequence(sample_id,opts)).translate(frame, bioentry.taxon.genetic_code || 1)
     else
       return nil
     end

@@ -24,6 +24,8 @@ GenomeSuite::Application.routes.draw do
     end
     resources :locations
     resources :seqfeature_qualifier_values
+    resources :ontologies
+    resources :terms
   end
   # biosql simple helper, simple url
   scope :module => 'biosql' do
@@ -44,6 +46,8 @@ GenomeSuite::Application.routes.draw do
         get 'toggle_favorite'
         get 'feature_counts'
         get 'coexpressed_counts'
+        get 'base_counts'
+        get 'expression_chart'
       end
     end
     resources :genes do
@@ -61,6 +65,8 @@ GenomeSuite::Application.routes.draw do
         get 'toggle_favorite'
         get 'feature_counts'
         get 'coexpressed_counts'
+        get 'base_counts'
+        get 'expression_chart'
       end
     end
     resources :genes do
@@ -70,7 +76,7 @@ GenomeSuite::Application.routes.draw do
       end
     end
   end
-
+  
   # Genome
   resources :assemblies do
     get 'concordance_sets', :on => :collection
@@ -88,13 +94,13 @@ GenomeSuite::Application.routes.draw do
   match "protein_sequence/genome"
   match "reads/track_data"
   
-  ##Experiments
+  ##Samples
   resources :assets, :only => [:show]
   resources :chip_chips do
     get 'details', :on => :collection
     get 'compute_peaks', :on => :member
     member do
-      get 'initialize_experiment'
+      get 'initialize_sample'
       get 'graphics'
     end
   end
@@ -102,24 +108,24 @@ GenomeSuite::Application.routes.draw do
     get 'details', :on => :collection
     get 'compute_peaks', :on => :member
     member do
-      get 'initialize_experiment'
+      get 'initialize_sample'
       get 'graphics'
     end
   end
-  resources :experiments do
+  resources :samples do
     get 'asset_details', :on => :collection
   end
   resources :re_seqs do
     get 'details', :on => :collection
     member do
-      get 'initialize_experiment'
+      get 'initialize_sample'
       get 'graphics'
     end
   end
   resources :rna_seqs do
     get 'details', :on => :collection
     member do
-      get 'initialize_experiment'
+      get 'initialize_sample'
       get 'graphics'
     end
   end
@@ -127,7 +133,7 @@ GenomeSuite::Application.routes.draw do
     get 'details', :on => :collection
     get 'compute_peaks', :on => :member
     member do
-      get 'initialize_experiment'
+      get 'initialize_sample'
       get 'graphics'
     end
   end
@@ -138,7 +144,7 @@ GenomeSuite::Application.routes.draw do
       post 'reload_assets'
     end
     member do
-      get 'initialize_experiment'
+      get 'initialize_sample'
       get 'graphics'
     end
   end
@@ -193,8 +199,10 @@ GenomeSuite::Application.routes.draw do
       get :autocomplete_group_id, :on => :collection
     end
     resources :blast_runs
-    resources :ontologies
-    resources :terms
+    scope :module => 'biosql', :as => 'biosql' do
+      resources :ontologies
+      resources :terms
+    end
   end
   
 end

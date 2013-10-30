@@ -15,4 +15,6 @@ class Biosql::Ontology < ActiveRecord::Base
   has_many :terms, :class_name => "Biosql::Term", :order => 'name asc'
   has_many :term_paths, :class_name => "TermPath"
   has_many :term_relationships, :class_name => "TermRelationship"
+  validates_presence_of :name
+  validates_uniqueness_of :name
 end

@@ -2,10 +2,10 @@ class RnaSeqsController < ApplicationController
   load_and_authorize_resource
   
   ##custom actions - rjs
-  def initialize_experiment
-    @rna_seq.initialize_experiment
+  def initialize_sample
+    @rna_seq.initialize_sample
     render :update do |page|
-      page.replace_html 'initialize_experiment', "Job Started. Refresh to view updates in the console."
+      page.replace_html 'initialize_sample', "Job Started. Refresh to view updates in the console."
     end
   end
   
@@ -26,14 +26,14 @@ class RnaSeqsController < ApplicationController
     begin
       if @rna_seq.valid?
         @rna_seq.save
-        flash[:notice]="Experiment created succesfully"
+        flash[:notice]="Sample created succesfully"
         redirect_to :action => :index
       else
         render :action => :new
       end
     rescue
       logger.info "\n\nRescued from RnaSeq Exp:#{$!}\n\n"
-      flash[:error]="Could not create experiment"
+      flash[:error]="Could not create sample"
       redirect_to :action => :index
     end
   end
@@ -65,7 +65,7 @@ class RnaSeqsController < ApplicationController
 
   def destroy
     @rna_seq.destroy
-    flash[:warning]="Experiment #{@rna_seq.name} has been removed"
+    flash[:warning]="Sample #{@rna_seq.name} has been removed"
     redirect_to :action => :index
   end
 end
