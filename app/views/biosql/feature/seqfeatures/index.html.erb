@@ -1,4 +1,4 @@
-<%= render :partial => "biosql/feature/genes/sidebar", :locals => {:active => 'features'} %>
+<%= render :partial => "sidebar", :locals => {:active => 'features'} %>
 <% content_for :top_bar do -%>
   <h1 class="pagetitle">Feature Listing</h1>
 <% end -%>
@@ -17,6 +17,12 @@
       <%= select_tag 'assembly_id', options_for_select(@assemblies.collect{|s| [s.name_with_version,s.id]},params[:assembly_id]), {:include_blank => "No Filter"} %><br/>
     </div>
     
+    <div style="float:right;margin-right:2em">
+      Feature Type:<br/>
+      <%= select_tag 'type_term_id', options_for_select(@type_search.facet(:type_term_id).rows.collect{|s| ["#{s.instance.try(:name)} (#{s.count})",s.value]},params[:type_term_id]), {:include_blank => "No Filter"} %><br/>
+      <br/>
+    </div>
+    
 	  <%= render :partial => 'shared/item_bar_toggle' %>
 	  
 	  <!-- Advanced Options -->
@@ -33,12 +39,6 @@
   	  <div style="clear:both;float:right;margin-top:.5em;margin-right:2em">
         Strand:<br/>
         <%= select_tag 'strand', options_for_select(@search.facet(:strand).rows.collect{|s| ["#{s.value.to_i > 0 ? 'Forward (5\' -> 3\')' : 'Reverse (3\' -> 5\')'} (#{s.count})",s.value]},params[:strand]), {:include_blank => "No Filter"} %><br/>
-      </div>
-      
-      <div style="clear:both;float:right;margin-top:.5em;margin-right:2em">
-        Type:<br/>
-        <%= select_tag 'type_term_id', options_for_select(@search.facet(:type_term_id).rows.collect{|s| ["#{s.instance.try(:name)} (#{s.count})",s.value]},params[:type_term_id]), {:include_blank => "No Filter"} %><br/>
-        <br/>
       </div>
 
       <div style="clear:both;float:right; margin:2em">

@@ -271,7 +271,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     locations.each do |l|
       seq += bioentry.biosequence_without_seq.get_seq(l.start_pos-1, (l.end_pos-l.start_pos)+1)
     end
-    return seq
+    return (locations.first.strand.to_i == 1) ? seq : Bio::Sequence::NA.new(seq).complement!.to_s.upcase
   end
   # default protein sequence, convert na
   def protein_sequence

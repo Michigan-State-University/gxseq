@@ -6,6 +6,8 @@ d3.multiAxis = function(config){
   tooltipName = config.tooltip;
   mouseoverFunc = config.mouseover;
   mouseclickFunc = config.mouseclick;
+  var legendId = config.legendId;
+  var switchClass = config.switchClass;
   var fontSize = 14;
   var duration = 500;
   // Setup global values
@@ -110,11 +112,11 @@ d3.multiAxis = function(config){
    topPadding = 0;
    BoxSpace = 40;
    var columnCount = 4;
-   container = document.getElementById('legend');
+   container = document.getElementById(legendId);
    legendWidth = container.scrollWidth*.95;
    var keyOffset = Math.floor(legendWidth/columnCount);
    legendHeight = topPadding + (Math.ceil(data.length/columnCount))*BoxSpace
-   legend = d3.select("#legend").append("svg").attr("width", legendWidth).attr("height", legendHeight);
+   legend = d3.select("#"+legendId).append("svg").attr("width", legendWidth).attr("height", legendHeight);
    legendG = legend.append("g").attr("class", "panel");
    keys = legendG.selectAll("g").data(data).enter().append("g").attr("transform", function(d, i) {
      var iMod = i%columnCount;
@@ -159,7 +161,7 @@ d3.multiAxis = function(config){
     });
     var highlight_id = rawData.highlight
     //setup click event
-    d3.selectAll(".switch").on("click", function(d) {
+    d3.selectAll("."+switchClass).on("click", function(d) {
       var id;
       d3.event.preventDefault();
       id = d3.select(this).attr("id");

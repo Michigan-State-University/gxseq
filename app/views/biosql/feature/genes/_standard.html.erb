@@ -1,74 +1,80 @@
+<% content_for :head do %>
+	<%= render :partial => "common/extjs_css" %>
+	<%= render :partial => "common/svjs_css" %>
+	<%= render :partial => "common/extjs" %>
+	<%= render :partial => "common/svjs" %>
+<% end %>
 <div class="clear">
 	<!-- Gene Details -->
 	<div class="border">
 	<h2>Gene</h2>
 	<table>
 		<% reset_cycle %>
-		<% if @gene.gene %>
+		<% if feature.gene %>
 			<tr class=<%= cycle("odd","even") %>>
 				<td class="keyword">Gene Name</td>
-				<td><%= @gene.gene.value %></td>
+				<td><%= feature.gene.value %></td>
 			</tr>
 		<% end %>
-		<% if @gene.gene_synonym %>
+		<% if feature.gene_synonym %>
 		<tr class=<%= cycle("odd","even") %>>
 			<td class="keyword">Other Names</td>
-			<td><%= @gene.gene_synonym %></td>
+			<td><%= feature.gene_synonym %></td>
 		</tr>
 		<% end %>
-		<% products = [@gene.gene_models.collect(&:cds).compact.collect(&:product),@gene.product].flatten.compact.uniq %>
+		<% products = [feature.gene_models.collect(&:cds).compact.collect(&:product),feature.product].flatten.compact.uniq %>
 		<% products.each do |p| %>
 		<tr class=<%= cycle("odd","even") %>>
 			<td class="keyword">Product</td>
 			<td><%= p.value%></td>
 		</tr>
 		<% end %>
-		<% if @gene.function %>
+		<% if feature.function %>
 		<tr class=<%= cycle("odd","even") %>>
 			<td class="keyword">Function</td>
-			<td><%= @gene.function.value%></td>
+			<td><%= feature.function.value%></td>
 		</tr>
 		<% end %>
 		<tr class=<%= cycle("odd","even") %>>
 			<td class="keyword">Start Position</td>
-			<td><%= @gene.locations.first.start_pos %></td>
+			<td><%= feature.locations.first.start_pos %></td>
 		</tr>
 		<tr class=<%= cycle("odd","even") %>>
 			<td class="keyword">End Position</td>
-			<td><%= @gene.locations.first.end_pos %></td>
+			<td><%= feature.locations.first.end_pos %></td>
 		</tr>
-		<% unless @gene.db_xrefs.empty? %>
+		<% unless feature.db_xrefs.empty? %>
   		<tr class=<%= cycle("odd","even") %>>
   			<td class="keyword">External Reference(s)</td>
   			<td>
-  			  <%= @gene.db_xrefs.map(&:value).join("<br/>").html_safe%>
+  			  <%= feature.db_xrefs.map(&:value).join("<br/>").html_safe%>
   			</td>
   		</tr>
   	<% end %>
 	</table>
 	
-	<%# unless @gene.notes.empty? %>
+	<%# unless feature.notes.empty? %>
 	<table>
-	  <%= render :partial => "note_feature", :locals => {:f => @gene, :name => "Notes"} %>
+	  <%= render :partial => "biosql/feature/genes/note_feature", :locals => {:f => feature, :name => "Notes"} %>
 	  </table>
 	<%# end %>
 	</div>
 	
 	<!-- Graphic Gene-->
 	<div class="border" style="overflow:hidden">
-		<%= render :partial => 'graphic' %>
+		<%= render :partial => 'biosql/feature/genes/graphic', :locals => {:feature => feature} %>
 	</div>
 	<!-- Gene Models -->
-	<% if @gene.gene_models.size > 1 %>
+	<% if feature.gene_models.size > 1 %>
 		<div class="border">
 			<h2>
-				<%= "This locus has #{@gene.gene_models.size.to_s} gene models: #{@gene.gene_models.collect{|g| (link_to g.display_name, "##{g.display_name}")}.to_sentence}".html_safe %>
+				<%= "This locus has #{feature.gene_models.size.to_s} gene models: #{feature.gene_models.collect{|g| (link_to g.display_name, "##{g.display_name}")}.to_sentence}".html_safe %>
 			</h2>
 			<p class="caption" style="margin:0 0 0 1em"> *Gene suffixes do not correlate to any external database reference. They are generated for graphical disambiguation only.</p>
 		</div>
 	<% end %>
 	
-	<% @gene.gene_models.each do |gene_model| %>
+	<% feature.gene_models.each do |gene_model| %>
 		<h1 class="pagetitle" style="font-size:190%">
 			<%= link_to_function(
 				gene_model.display_name,
@@ -88,8 +94,8 @@
 				<h2>Notes</h2>
 				<table>
 					<% reset_cycle %>
-					<%= render :partial => "note_feature", :locals => {:f => gene_model.mrna, :name => "mRNA"} if gene_model.mrna%>
-					<%= render :partial => "note_feature", :locals => {:f => gene_model.cds, :name => "CDS"} if gene_model.cds %>
+					<%= render :partial => "biosql/feature/genes/note_feature", :locals => {:f => gene_model.mrna, :name => "mRNA"} if gene_model.mrna%>
+					<%= render :partial => "biosql/feature/genes/note_feature", :locals => {:f => gene_model.cds, :name => "CDS"} if gene_model.cds %>
 				</table>
 			</div>
 			<!-- Sequence Details -->

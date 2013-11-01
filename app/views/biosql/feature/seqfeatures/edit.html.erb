@@ -7,24 +7,35 @@
 <% end %>
 
 <%= content_for :sidebar do %>
-	<%= render :partial => "biosql/feature/genes/sidebar", :locals => {:active => 'features'} %>
+	<%= render :partial => "sidebar", :locals => {:active => 'features'} %>
 <% end %>
 
 <% #TODO: Add tests for Edit seqfeature and GeneModel %>
 <% if @seqfeature %>
+  <% content_for :pagetitle do %> <%= "#{@seqfeature.display_type} : #{@seqfeature.label_type} #{@seqfeature.label}" %> <% end %>
 	<% content_for :top_bar do %>
 		<h1 class="pagetitle">
 			<%= "#{@seqfeature.display_type} : #{@seqfeature.label_type} #{@seqfeature.label} #{(@seqfeature.gene.nil? ? "" : " - "+@seqfeature.gene.value)}" %>
-			<div style="float:right;font-size:50%;padding-top:1em">
-				<%= @seqfeature.bioentry.display_info %>
+			<div style="float:right;font-size:50%">
+				<%= @seqfeature.bioentry.display_info %><br/>
+				<div style="font-size:75%">
+				  <%= link_to "Open Sequence Viewer", bioentry_path(@seqfeature.bioentry_id,
+				    :pos => @seqfeature.min_start,
+				    :feature_id => @seqfeature.id),
+				    :target => "_blank"
+				  %> |
+				  <%= link_to "Sequence Details", bioentry_path(@seqfeature.bioentry_id,
+				    :fmt => 'genbank'),
+			    :target => "_blank"%>
+				</div>
 			</div>
 		</h1>
 	<% end %>
 
   <% content_for :item_bar do -%>
   	<div style="float:left">
-  		<%= link_to "New Feature", new_seqfeature_path, :class => "button" %>
-  		<%= link_to "Open Sequence Viewer", bioentry_path(@seqfeature.bioentry,{:pos => @seqfeature.min_start,:feature_id => @seqfeature.id,:tracks => [@seqfeature.bioentry.assembly.six_frame_track.id,@seqfeature.bioentry.assembly.generic_feature_tracks.first.id]}), :class => 'button' %>
+  		<%#= link_to "New Feature", new_seqfeature_path, :class => "button" %>
+  		<%#= link_to "Open Sequence Viewer", bioentry_path(@seqfeature.bioentry,{:pos => @seqfeature.min_start,:feature_id => @seqfeature.id,:tracks => [@seqfeature.bioentry.assembly.six_frame_track.id,@seqfeature.bioentry.assembly.generic_feature_tracks.first.id]}), :class => 'button' %>
   	</div>
   	<%= render :partial => 'format_links' %>
   <% end -%>

@@ -55,17 +55,19 @@
   }
 </style>
 <div>
-  <%= link_to "Stack", '#',:id => 'stack', :class => 'switch' %> |
-  <%= link_to "Lines", '#',:id => 'line', :class => 'switch' %>
+  <%= link_to "Stack", '#',:id => 'stack', :class => 'exp_switch' %> |
+  <%= link_to "Lines", '#',:id => 'line', :class => 'exp_switch' %>
 </div>
 <div id="graph" width="100%" style="height:300px;padding-top:1em"></div>
-<div id="legend" width="100%"></div>
+<div id="exp_legend" width="100%"></div>
 
 <script type='text/javascript'>
   // Setup chart with handler
   var multichart = d3.multiAxis({
     graph:'#graph',
-    tooltip:'x'
+    tooltip:'x',
+    legendId:'exp_legend',
+    switchClass: 'exp_switch'
   });
   multichart.load(<%= "'#{data}'" %>)
 </script>

@@ -5,7 +5,7 @@ module ApplicationHelper
     {
       #:home => [root_path,[:home,:'devise/sessions',:user]],
       :sequence => [genomes_path,[:bioentries,:genomes,:transcriptomes]],
-      :features => [genes_path,[:genes,:seqfeatures]],
+      :features => [seqfeatures_path,[:genes,:seqfeatures]],
       :samples => [samples_path,[:samples, :chip_chips, :chip_seqs, :synthetics, :variants]],
       :tools => [tools_path,[:tools,:expression,:blast_runs]],
       :help => [faq_path,[:help]]
@@ -131,7 +131,7 @@ module ApplicationHelper
   def feature_format_link(feature,fmt,fmt_label,current_fmt)
     if current_fmt==fmt
       content_tag(:div, fmt_label,
-        :style => "display:inline;padding:.5em;padding-bottom:1em;border: 2px solid #C3C4C7;border-bottom: 2px solid white;margin-right:-.25em;margin-left:-.25em"
+        :style => "display:inline;padding:.5em;padding-bottom:.4em;border: 2px solid #C3C4C7;border-bottom: 2px solid white;margin-right:-.25em;margin-left:-.25em"
 		  )
 		else
 		  content_tag(:div, link_to( fmt_label, seqfeature_path(feature, :fmt => fmt)),

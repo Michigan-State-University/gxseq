@@ -216,7 +216,7 @@ class GeneModel < ActiveRecord::Base
     if(window>0)
       seq += v.get_sequence(cds_end+1,cds_end+window,bioentry.id,opts[:sample],opts)
     end
-    return seq
+    return (strand.to_i == 1) ? seq : Bio::Sequence::NA.new(seq).complement!.to_s.upcase
   end
   
   def na_sequence
@@ -233,9 +233,9 @@ class GeneModel < ActiveRecord::Base
   
   def variant_protein_sequence(sample_id,opts={})
     if(cds)
-      frame = (cds.codon_start.try(:value)||1).to_i
-      frame += 3 if strand.to_i != 1
-      return Bio::Sequence::NA.new(variant_na_sequence(sample_id,opts)).translate(frame, bioentry.taxon.genetic_code || 1)
+      #frame = (cds.codon_start.try(:value)||1).to_i
+      #frame += 3 if strand.to_i != 1
+      return Bio::Sequence::NA.new(variant_na_sequence(sample_id,opts)).translate(1, bioentry.taxon.genetic_code || 1)
     else
       return nil
     end
@@ -243,9 +243,9 @@ class GeneModel < ActiveRecord::Base
   
   def protein_sequence
     if(cds)
-      frame = (cds.codon_start.try(:value)||1).to_i
-      frame += 3 if strand.to_i != 1
-      return Bio::Sequence::NA.new(na_sequence).translate(frame, bioentry.taxon.genetic_code || 1)
+      #frame = (cds.codon_start.try(:value)||1).to_i
+      #frame += 3 if strand.to_i != 1
+      return Bio::Sequence::NA.new(na_sequence).translate(1, bioentry.taxon.genetic_code || 1)
     else
       return nil
     end

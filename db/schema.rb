@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20131004192401) do
+ActiveRecord::Schema.define(:version => 20131105141601) do
 
   create_table "assemblies", :force => true do |t|
     t.integer  "taxon_id",   :precision => 38, :scale => 0
@@ -24,7 +24,7 @@ ActiveRecord::Schema.define(:version => 20131004192401) do
 
   create_table "assets", :force => true do |t|
     t.string   "type"
-    t.integer  "sample_id"
+    t.integer  "sample_id",         :precision => 38, :scale => 0
     t.string   "data_file_name"
     t.string   "data_content_type"
     t.string   "state",                                            :default => "pending"
@@ -50,6 +50,7 @@ ActiveRecord::Schema.define(:version => 20131004192401) do
   end
 
   create_table "bioentry", :primary_key => "bioentry_id", :force => true do |t|
+    t.integer  "assembly_id",    :limit => 10,   :precision => 10, :scale => 0, :null => false
     t.integer  "biodatabase_id", :limit => 10,   :precision => 10, :scale => 0, :null => false
     t.integer  "taxon_id",       :limit => 10,   :precision => 10, :scale => 0
     t.string   "name",           :limit => 40,                                  :null => false
@@ -60,8 +61,10 @@ ActiveRecord::Schema.define(:version => 20131004192401) do
     t.string   "version",                                                       :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "assembly_id",                    :precision => 38, :scale => 0, :null => false
   end
+
+  add_index "bioentry", ["assembly_id", "accession", "biodatabase_id", "version"], :name => "bioentry_idx", :unique => true
+  add_index "bioentry", ["version"], :name => "bioentry_idx_2"
 
   create_table "bioentry_dbxref", :id => false, :force => true do |t|
     t.integer  "bioentry_id", :limit => 10, :precision => 10, :scale => 0, :null => false
@@ -124,7 +127,7 @@ ActiveRecord::Schema.define(:version => 20131004192401) do
     t.datetime "updated_at"
   end
 
-  add_index "biosequence", ["bioentry_id", "version"], :name => "bioseq_idx", :unique => true
+  add_index "biosequence", ["bioentry_id", "version"], :name => "bioseq_idx"
 
   create_table "blast_databases", :force => true do |t|
     t.string   "name"
@@ -141,7 +144,8 @@ ActiveRecord::Schema.define(:version => 20131004192401) do
     t.integer  "group_id",          :precision => 38, :scale => 0
   end
 
-  create_table "blast_iterations", :force => true do |t|
+  create_table "blast_iterations", :id => false, :force => true do |t|
+    t.integer "id",                            :precision => 38, :scale => 0, :null => false
     t.integer "blast_run_id",                  :precision => 38, :scale => 0
     t.integer "seqfeature_id",                 :precision => 38, :scale => 0
     t.string  "query_id"
@@ -184,8 +188,8 @@ ActiveRecord::Schema.define(:version => 20131004192401) do
 
   create_table "components", :force => true do |t|
     t.string   "type"
-    t.integer  "sample_id"
-    t.integer  "synthetic_experiment_id"
+    t.integer  "sample_id",               :precision => 38, :scale => 0
+    t.integer  "synthetic_experiment_id", :precision => 38, :scale => 0
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -250,28 +254,6 @@ ActiveRecord::Schema.define(:version => 20131004192401) do
 
   add_index "delayed_jobs", ["priority", "run_at"], :name => "delayed_jobs_priority"
 
-  create_table "experiments", :force => true do |t|
-    t.integer  "assembly_id",                       :precision => 38, :scale => 0
-    t.integer  "user_id",                           :precision => 38, :scale => 0
-    t.string   "name"
-    t.string   "type"
-    t.string   "description",        :limit => 500
-    t.string   "file_name"
-    t.string   "a_op"
-    t.string   "b_op"
-    t.string   "mid_op"
-    t.string   "sequence_name"
-    t.string   "state"
-    t.string   "show_negative"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.integer  "group_id",                          :precision => 38, :scale => 0
-    t.integer  "concordance_set_id",                :precision => 38, :scale => 0
-    t.integer  "total_count",                       :precision => 38, :scale => 0
-  end
-
-  add_index "experiments", ["assembly_id", "group_id", "user_id"], :name => "experiment_idx1"
-
   create_table "favorites", :force => true do |t|
     t.integer  "user_id",          :precision => 38, :scale => 0
     t.string   "type"
@@ -281,17 +263,17 @@ ActiveRecord::Schema.define(:version => 20131004192401) do
   end
 
   create_table "feature_counts", :force => true do |t|
-    t.integer  "seqfeature_id"
-    t.integer  "sample_id"
-    t.integer  "count"
+    t.integer  "seqfeature_id",    :precision => 38, :scale => 0
+    t.integer  "sample_id",        :precision => 38, :scale => 0
+    t.integer  "count",            :precision => 38, :scale => 0
     t.decimal  "normalized_count", :precision => 10, :scale => 2
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "unique_count",     :precision => 38, :scale => 0
   end
 
-  add_index "feature_counts", ["sample_id", "seqfeature_id"], :name => "idx_exp_and_feature"
-  add_index "feature_counts", ["seqfeature_id"], :name => "idx_feature"
+  add_index "feature_counts", ["sample_id", "seqfeature_id"], :name => "idx$$_31e30001"
+  add_index "feature_counts", ["seqfeature_id"], :name => "idx$$_31e60001"
 
   create_table "gene_models", :force => true do |t|
     t.string  "transcript_id"
@@ -321,6 +303,13 @@ ActiveRecord::Schema.define(:version => 20131004192401) do
     t.datetime "updated_at"
   end
 
+  create_table "groups_seqfeatures", :id => false, :force => true do |t|
+    t.integer "seqfeature_id", :precision => 38, :scale => 0, :null => false
+    t.integer "group_id",      :precision => 38, :scale => 0
+  end
+
+  add_index "groups_seqfeatures", ["seqfeature_id", "group_id"], :name => "groups_seqfeatures_idx"
+
   create_table "groups_users", :id => false, :force => true do |t|
     t.integer "group_id", :precision => 38, :scale => 0
     t.integer "user_id",  :precision => 38, :scale => 0
@@ -340,26 +329,23 @@ ActiveRecord::Schema.define(:version => 20131004192401) do
   add_index "hits", ["blast_iteration_id"], :name => "i_hits_blast_iteration_id"
 
   create_table "hsps", :force => true do |t|
-    t.integer "hit_id",                        :precision => 38, :scale => 0
-    t.decimal "bit_score",                     :precision => 9,  :scale => 4
-    t.integer "score",                         :precision => 38, :scale => 0
-    t.integer "query_from",                    :precision => 38, :scale => 0
-    t.integer "query_to",                      :precision => 38, :scale => 0
-    t.integer "hit_from",                      :precision => 38, :scale => 0
-    t.integer "hit_to",                        :precision => 38, :scale => 0
-    t.integer "query_frame",                   :precision => 38, :scale => 0
-    t.integer "hit_frame",                     :precision => 38, :scale => 0
-    t.integer "identity",                      :precision => 38, :scale => 0
-    t.integer "positive",                      :precision => 38, :scale => 0
-    t.integer "gaps",                          :precision => 38, :scale => 0
-    t.integer "align_length",                  :precision => 38, :scale => 0
+    t.integer "hit_id",       :precision => 38, :scale => 0
+    t.decimal "bit_score",    :precision => 9,  :scale => 4
+    t.integer "score",        :precision => 38, :scale => 0
+    t.integer "query_from",   :precision => 38, :scale => 0
+    t.integer "query_to",     :precision => 38, :scale => 0
+    t.integer "hit_from",     :precision => 38, :scale => 0
+    t.integer "hit_to",       :precision => 38, :scale => 0
+    t.integer "query_frame",  :precision => 38, :scale => 0
+    t.integer "hit_frame",    :precision => 38, :scale => 0
+    t.integer "identity",     :precision => 38, :scale => 0
+    t.integer "positive",     :precision => 38, :scale => 0
+    t.integer "gaps",         :precision => 38, :scale => 0
+    t.integer "align_length", :precision => 38, :scale => 0
     t.string  "evalue"
     t.text    "query_seq"
     t.text    "hit_seq"
     t.text    "midline"
-    t.string  "query_seq_str", :limit => 4000
-    t.string  "hit_seq_str",   :limit => 4000
-    t.string  "midline_str",   :limit => 4000
   end
 
   add_index "hsps", ["hit_id"], :name => "index_hsps_on_hit_id"
@@ -378,6 +364,7 @@ ActiveRecord::Schema.define(:version => 20131004192401) do
 
   add_index "location", ["seqfeature_id", "rank"], :name => "location_idx", :unique => true
   add_index "location", ["seqfeature_id"], :name => "location_idx_1"
+  add_index "location", ["term_id"], :name => "idx$$_32830001"
 
   create_table "location_qualifier_value", :id => false, :force => true do |t|
     t.integer  "location_id", :limit => 10, :precision => 10, :scale => 0, :null => false
@@ -398,12 +385,12 @@ ActiveRecord::Schema.define(:version => 20131004192401) do
   add_index "ontology", ["name"], :name => "ontology_idx", :unique => true
 
   create_table "peaks", :force => true do |t|
-    t.integer  "sample_id"
-    t.integer  "bioentry_id"
-    t.integer  "start_pos"
-    t.integer  "end_pos"
-    t.float    "val"
-    t.integer  "pos"
+    t.integer  "sample_id",   :precision => 38, :scale => 0
+    t.integer  "bioentry_id", :precision => 38, :scale => 0
+    t.integer  "start_pos",   :precision => 38, :scale => 0
+    t.integer  "end_pos",     :precision => 38, :scale => 0
+    t.decimal  "val"
+    t.integer  "pos",         :precision => 38, :scale => 0
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -449,11 +436,11 @@ ActiveRecord::Schema.define(:version => 20131004192401) do
   add_index "roles_users", ["user_id"], :name => "index_roles_users_on_user_id"
 
   create_table "samples", :force => true do |t|
-    t.integer  "assembly_id"
-    t.integer  "user_id"
+    t.integer  "assembly_id",                        :precision => 38, :scale => 0
+    t.integer  "user_id",                            :precision => 38, :scale => 0
     t.string   "name"
     t.string   "type"
-    t.string   "description",        :limit => 500
+    t.string   "description",        :limit => 2000
     t.string   "file_name"
     t.string   "a_op"
     t.string   "b_op"
@@ -463,12 +450,10 @@ ActiveRecord::Schema.define(:version => 20131004192401) do
     t.string   "show_negative"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "group_id"
-    t.integer  "concordance_set_id"
-    t.integer  "total_count"
+    t.integer  "group_id",                           :precision => 38, :scale => 0
+    t.integer  "concordance_set_id",                 :precision => 38, :scale => 0
+    t.integer  "total_count",                        :precision => 38, :scale => 0
   end
-
-  add_index "samples", ["assembly_id", "group_id", "user_id"], :name => "experiment_idx1"
 
   create_table "seqfeature", :primary_key => "seqfeature_id", :force => true do |t|
     t.integer  "bioentry_id",    :limit => 10, :precision => 10, :scale => 0,                :null => false
@@ -482,7 +467,7 @@ ActiveRecord::Schema.define(:version => 20131004192401) do
 
   add_index "seqfeature", ["bioentry_id", "type_term_id", "source_term_id", "rank"], :name => "seqfeature_idx", :unique => true
   add_index "seqfeature", ["display_name"], :name => "seqfeature_idx_1"
-  add_index "seqfeature", ["type_term_id", "seqfeature_id"], :name => "idx_type_term"
+  add_index "seqfeature", ["type_term_id", "seqfeature_id"], :name => "idx$$_31e30002"
 
   create_table "seqfeature_dbxref", :id => false, :force => true do |t|
     t.integer  "seqfeature_id", :limit => 10, :precision => 10, :scale => 0, :null => false
@@ -512,6 +497,7 @@ ActiveRecord::Schema.define(:version => 20131004192401) do
     t.datetime "updated_at"
   end
 
+  add_index "seqfeature_qualifier_value", ["UPPER(\"VALUE\")", "seqfeature_id"], :name => "sqv_index_val"
   add_index "seqfeature_qualifier_value", ["seqfeature_id", "term_id", "rank"], :name => "sqv_idx_2", :unique => true
   add_index "seqfeature_qualifier_value", ["seqfeature_id"], :name => "sqv_idx"
   add_index "seqfeature_qualifier_value", ["term_id"], :name => "sqv_idx_1"
@@ -679,6 +665,7 @@ ActiveRecord::Schema.define(:version => 20131004192401) do
     t.integer  "assembly_id",   :precision => 38, :scale => 0
     t.integer  "user_id",       :precision => 38, :scale => 0
     t.string   "name"
+    t.string   "assembly"
     t.string   "position"
     t.string   "bases"
     t.string   "pixels"
@@ -689,18 +676,18 @@ ActiveRecord::Schema.define(:version => 20131004192401) do
 
   create_table "tracks", :force => true do |t|
     t.string   "type"
-    t.integer  "assembly_id"
-    t.integer  "sample_id"
+    t.integer  "assembly_id",     :precision => 38, :scale => 0
+    t.integer  "sample_id",       :precision => 38, :scale => 0
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "sample"
-    t.integer  "source_term_id", :precision => 38, :scale => 0
+    t.string   "genotype_sample"
+    t.integer  "source_term_id",  :precision => 38, :scale => 0
   end
 
   create_table "traits", :force => true do |t|
-    t.integer "term_id"
-    t.integer "sample_id"
-    t.integer "user_id"
+    t.integer "term_id",   :precision => 38, :scale => 0
+    t.integer "sample_id", :precision => 38, :scale => 0
+    t.integer "user_id",   :precision => 38, :scale => 0
     t.string  "value"
   end
 

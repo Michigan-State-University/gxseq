@@ -4,28 +4,22 @@ class SeqfeatureQualifierValuesController < ApplicationController
     @seqfeature_qualifier_value = Biosql::SeqfeatureQualifierValue.new(params[:biosql_seqfeature_qualifier_value])
       if @seqfeature_qualifier_value.save
         flash[:notice] = 'SeqfeatureQualifierValue was successfully created.'
-        if @seqfeature_qualifier_value.seqfeature.respond_to?(:gene_model)
-          redirect_to( :controller => 'biosql/feature/genes', :action => :show , :id => @seqfeature_qualifier_value.seqfeature.gene_model.gene_id )
-        else
-          redirect_to( :controller => 'biosql/feature/seqfeatures', :action => :show , :id => @seqfeature_qualifier_value.seqfeature.id )
-        end
+        redirect_to( seqfeature_path(@seqfeature_qualifier_value.seqfeature_id) )
       else
         flash[:error] = @seqfeature_qualifier_value.errors.inspect
-        if @seqfeature_qualifier_value.seqfeature.respond_to?(:gene_model)
-          redirect_to( :controller => 'biosql/feature/genes', :action => :edit , :id => @seqfeature_qualifier_value.seqfeature.gene_model.gene_id )
-        else
-          redirect_to( :controller => 'biosql/feature/seqfeatures', :action => :edit , :id => params[:biosql_seqfeature_qualifier_value][:seqfeature_id] )
-        end
+        wants.html { redirect_to( seqfeature_path(@seqfeature_qualifier_value.seqfeature_id) ) }
       end
   end
   # PUT /seqfeature_qualifier_values/1
   def update
+    @seqfeature_qualifier_value = Biosql::SeqfeatureQualifierValue.find(params[:id])
     respond_to do |wants|
-      if @seqfeature_qualifier_value.update_attributes(params[:seqfeature_qualifier_value])
+      if @seqfeature_qualifier_value.update_attributes(params[:biosql_seqfeature_qualifier_value])
         flash[:notice] = 'SeqfeatureQualifierValue was successfully updated.'
-        wants.html { redirect_to( :controller => :genes, :action => :show , :id => (@seqfeature_qualifier_value.seqfeature.respond_to?(:gene_model) ? @seqfeature_qualifier_value.seqfeature.gene_model.gene_id : @seqfeature_qualifier_value.seqfeature.id) ) }
+        wants.html { redirect_to( seqfeature_path(@seqfeature_qualifier_value.seqfeature_id) ) }
       else
-        wants.html { render :action => "edit" }
+        flash[:error] = @seqfeature_qualifier_value.errors.inspect
+        wants.html { redirect_to( seqfeature_path(@seqfeature_qualifier_value.seqfeature_id) ) }
       end
     end
   end

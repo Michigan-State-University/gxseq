@@ -8,6 +8,7 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     params[:page]||=1
     params[:c]||='assembly_id'
     order_d = (params[:d]=='down' ? 'desc' : 'asc')
+    params[:type_term_id] ||= Biosql::Term.seqfeature_tags.where{upper(name) == 'GENE'}.first.id
     # Filter setup
     @assemblies = Assembly.accessible_by(current_ability).includes(:taxon => :scientific_name).order('taxon_name.name')
     # Verify Bioentry param
@@ -58,9 +59,24 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
       if(params[:seqfeature_id])
         with :id, params[:seqfeature_id]
       end
-      # Facets (group counts)
-      facet(:type_term_id)
       facet(:strand)
+    end
+    
+    @type_search = Biosql::Feature::Seqfeature.search do
+      # Auth      
+      any_of do |any_s|
+        authorized_id_set.each do |id_range|
+          any_s.with :id, id_range
+        end
+      end
+      # Text Keywords
+      if params[:keywords]
+        keywords params[:keywords], :highlight => true
+      end
+      with :assembly_id, params[:assembly_id] unless params[:assembly_id].blank?
+      with :strand, params[:strand] unless params[:strand].blank?
+      with :bioentry_id, params[:bioentry_id] unless params[:bioentry_id].blank?
+      facet(:type_term_id)
     end
     
     # Check XHR
@@ -84,10 +100,6 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     authorize! :read, @seqfeature
     @format = params[:fmt] || 'standard'
     begin
-    # Gene features have special show pages
-    if @seqfeature.kind_of?(Biosql::Feature::Gene)
-      redirect_to gene_path(@seqfeature,:fmt => @format)
-    end
     case @format
     when 'edit'
       redirect_to :action => :edit
@@ -243,6 +255,12 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     def find_seqfeature
       feature_id = Biosql::Feature::Seqfeature.with_locus_tag(params[:id]).first.try(:id) || params[:id]
       @seqfeature = Biosql::Feature::Seqfeature.where{seqfeature_id == feature_id}.includes(:locations,:qualifiers,[:bioentry => [:assembly]]).first
+      # Lookup all features with the same type and locus tag for warning display
+      if(@seqfeature && @seqfeature.locus_tag)
+        @seqfeatures = @seqfeature.class.with_locus_tag( @seqfeature.locus_tag.value)
+      else
+        @seqfeatures = []
+      end
     end
     # TODO: refactor this method is duplicated from genes_controller
     def get_feature_data
@@ -286,12 +304,18 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
       @model_height = 15
       @edit_box_height = 320
       min_width = 800
+      limit = 500
       feature_size = @seqfeature.max_end - @seqfeature.min_start
       @pixels = [(min_width / (feature_size*1.1)).floor,1].max
       @bases = [((feature_size*1.1) / min_width).floor,1].max
+      @gui_zoom = (@pixels/@bases).floor+10
       @view_start = @seqfeature.min_start - (feature_size*0.05).floor
       @view_stop = (@seqfeature.min_start+(feature_size*1.05)).ceil
-      @graphic_data = Biosql::Feature::Seqfeature.get_track_data(@view_start,@view_stop,@seqfeature.bioentry_id,{:feature => @seqfeature})
+      if(@seqfeature.class == Biosql::Feature::Gene)
+        @graphic_data = GeneModel.get_canvas_data(@view_start,@view_stop,@seqfeature.bioentry.id,@gui_zoom,@seqfeature.strand,limit)
+      else
+        @graphic_data = Biosql::Feature::Seqfeature.get_track_data(@view_start,@view_stop,@seqfeature.bioentry_id,{:feature => @seqfeature})
+      end
       @depth = 3
       @canvas_height = ( @depth * (@model_height * 2))+10 # each model and label plus padding
       @graphic_data=@graphic_data.to_json

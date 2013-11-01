@@ -167,7 +167,7 @@ Ext.define("Sv.tracks.ReadsTrack",{
             param   : {
               id : id,
               bioentry : self.bioentry,
-              experiment : self.experiment,
+              sample : self.sample,
               pos : pos
             }
           })
@@ -568,7 +568,7 @@ Ext.define("Sv.tracks.ReadsTrack",{
                   method: self.requestFormat(),
                   param: {
                       id: self.id,
-                      experiment: self.experiment,
+                      sample: self.sample,
                       left: pos.left,
                       right: pos.right,
                       bases: policy.bases,

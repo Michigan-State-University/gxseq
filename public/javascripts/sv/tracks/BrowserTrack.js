@@ -414,7 +414,7 @@ Ext.define('Sv.tracks.BrowserTrack', {
                   method: me.requestFormat(),
                   param: {
                       id: me.id,
-                      experiment: me.experiment,
+                      sample: me.sample,
                       left: pos.left,
                       right: pos.right,
                       bases: policy.bases,

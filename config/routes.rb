@@ -50,7 +50,7 @@ GenomeSuite::Application.routes.draw do
         get 'expression_chart'
       end
     end
-    resources :genes do
+    resources :genes, :except => :index do
       collection do
         get 'details'
         get :autocomplete_bioentry_bioentry_id
@@ -69,7 +69,7 @@ GenomeSuite::Application.routes.draw do
         get 'expression_chart'
       end
     end
-    resources :genes do
+    resources :genes, :except => :index do
       collection do
         get 'details'
         get :autocomplete_bioentry_bioentry_id

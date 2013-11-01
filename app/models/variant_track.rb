@@ -22,7 +22,7 @@ class VariantTrack < Track
     " id    		: '#{self.id}',
       sample: '#{sample.id}',
       name  		: '#{name}',
-      sample    : '#{sample}',
+      genotype_sample    : '#{genotype_sample}',
       type  		: 'VariantTrack',
       data  		: '#{root_path}/variants/track_data',
       storeLocal: true,
@@ -31,7 +31,7 @@ class VariantTrack < Track
   end
   
   def name
-    "#{sample.name.gsub("\\","\\\\\\\\").gsub("'",%q(\\\'))}"+(sample ? "::#{(sample).gsub("\\","\\\\\\\\").gsub("'",%q(\\\'))}" : '')
+    "#{sample.name.gsub("\\","\\\\\\\\").gsub("'",%q(\\\'))}"+(genotype_sample ? "::#{(genotype_sample).gsub("\\","\\\\\\\\").gsub("'",%q(\\\'))}" : '')
   end
   
   def custom_config

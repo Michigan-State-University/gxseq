@@ -73,7 +73,7 @@ class VariantsController < ApplicationController
         render :json => {:success => true}
       when 'range'   
         variant = Variant.find(param['sample'])
-        sample = param['sample']
+        genotype_sample = param['genotype_sample']
         left = param['left']
         right = param['right']
         bioentry = Biosql::Bioentry.find(param['bioentry'])
@@ -82,7 +82,7 @@ class VariantsController < ApplicationController
         bioentry_id = bioentry.id
         c_item = variant.concordance_items.find_by_bioentry_id(bioentry_id)
         data = {}
-        variant.get_data(c_item.reference_name, left, right, {:limit => limit, :sample => sample, :split_hets => true, :only_variants => only_variants_flag}).each do |v|  
+        variant.get_data(c_item.reference_name, left, right, {:limit => limit, :sample => genotype_sample, :split_hets => true, :only_variants => only_variants_flag}).each do |v|  
           data[v[:type]] ||=[]
           data[v[:type]] << [v[:allele],v[:id],v[:pos],v[:ref].length,v[:ref],v[:alt],v[:qual]]
         end

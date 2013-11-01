@@ -27,7 +27,7 @@
 	<td></td>
 </tr>
 <% notes.each do |note| %>
-	<%= render :partial => 'note_line', :locals => {:note => note} %>
+	<%= render :partial => 'biosql/feature/genes/note_line', :locals => {:note => note} %>
 <% end %>
 <% if notes.empty? %>
 	<tr><td></td><td><td></td></td><td></td></tr>

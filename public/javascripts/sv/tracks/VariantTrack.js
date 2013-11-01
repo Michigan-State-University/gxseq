@@ -194,7 +194,7 @@ Ext.define('Sv.tracks.VariantTrack',{
               param   : {
                 pos : pos,
                 bioentry : self.bioentry,
-                experiment : self.experiment}
+                sample : self.sample}
               })
         },
         success  : function(response){
@@ -363,13 +363,13 @@ Ext.define('Sv.tracks.VariantTrack',{
                   method: 'range',
                   param: {
                       id: self.id,
-                      experiment: self.experiment,
+                      sample: self.sample,
                       left: pos.left,
                       right: pos.right,
                       bases: policy.bases,
                       pixels: policy.pixels,
                       bioentry: self.bioentry,
-                      sample : self.sample
+                      genotype_sample : self.genotype_sample
                   }
               })
           },
