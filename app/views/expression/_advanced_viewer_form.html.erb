@@ -1,7 +1,7 @@
 <%= form_tag expression_advanced_results_path, :method => :get do %>
 <%= hidden_field_tag :assembly_id, assembly.try(:id) %>
 <%= hidden_field_tag :type_term_id, type_term_id %>
-Minimum Value:
+Minimum for at least one Set A sample:
 <%= select_tag :min_sample_value, options_for_select([0,10,50,100,500,1000,5000],(params[:min_sample_value]||50)) %>
 
 <div style="width:25em">

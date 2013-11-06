@@ -106,7 +106,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     puts "Re-indexing #{seqfeature_ids.length} features"
     progress_bar = ProgressBar.new(seqfeature_ids.length)
     seqfeature_ids.each_slice(batch_size) do |id_batch|
-      Sunspot.index self.includes(:bioentry,:qualifiers,:feature_counts,:locations,:favorite_users,:product_assoc,:function_assoc,:blast_iterations => [:hits => :best_hsp_with_scores],:gene_models => [:cds => [:product_assoc, :protein_id_assoc], :mrna => [:function_assoc, :transcript_id_assoc]])
+      Sunspot.index self.includes(:bioentry,:qualifiers,:feature_counts,:locations,:favorite_users,:product_assoc,:function_assoc,:blast_iterations => [:best_hit => :best_hsp_with_scores],:gene_models => [:cds => [:product_assoc, :protein_id_assoc], :mrna => [:function_assoc, :transcript_id_assoc]])
         .where{seqfeature_id.in(my{id_batch})}
       progress_bar.increment!(id_batch.length)
       if((progress_bar.count%10000)==0)
@@ -410,13 +410,6 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
         s.any_of do |any_a|
           a_samples.each do |sample|
             any_a.dynamic(value_type) do
-              with("sample_#{sample.id}").greater_than opts[:min_sample_value]
-            end
-          end
-        end
-        s.any_of do |any_b|
-          b_samples.each do |sample|
-            any_b.dynamic(value_type) do
               with("sample_#{sample.id}").greater_than opts[:min_sample_value]
             end
           end
@@ -769,7 +762,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   protected
   ## Sunspot search definition
   ## TODO: Document Search attributes
-  searchable(:include => [:bioentry,:qualifiers,:feature_counts,:locations,:favorite_users,:product_assoc,:function_assoc,:blast_iterations => [:hits => :best_hsp_with_scores],:gene_models => [:cds => [:product_assoc, :protein_id_assoc], :mrna => [:function_assoc, :transcript_id_assoc]]]) do |s|
+  searchable(:include => [:bioentry,:qualifiers,:feature_counts,:locations,:favorite_users,:product_assoc,:function_assoc,:blast_iterations => [:best_hit => :best_hsp_with_scores],:gene_models => [:cds => [:product_assoc, :protein_id_assoc], :mrna => [:function_assoc, :transcript_id_assoc]]]) do |s|
     # Text Searchable
     # must be stored for highlighted results
     s.text :locus_tag_text, :stored => true do
