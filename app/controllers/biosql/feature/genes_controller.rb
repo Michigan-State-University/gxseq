@@ -120,9 +120,9 @@ class Biosql::Feature::GenesController < ApplicationController
       @feature_counts = @gene.feature_counts.accessible_by(current_ability).includes(:experiment).order("experiments.name")
       setup_graphics_data
     when 'blast'
-      @blast_reports = @gene.blast_reports
+      @blast_reports = @gene.blast_iterations
       params[:blast_report_id]||=@blast_reports.first.id
-      @blast_report = BlastReport.find_by_id(params[:blast_report_id])
+      @blast_report = BlastIteration.find_by_id(params[:blast_report_id])
       @blast_run = @blast_report.try(:blast_run)
     end
     rescue => e
