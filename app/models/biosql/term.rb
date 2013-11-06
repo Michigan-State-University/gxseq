@@ -60,10 +60,10 @@ class Biosql::Term < ActiveRecord::Base
     @seq_key_id ||= Biosql::Ontology.find_or_create_by_name("SeqFeature Keys").try(:id)
   end
   def self.ano_tag_ont_id
-    Biosql::Ontology.find_or_create_by_name("Annotation Tags").try(:id)
+    @ano_tag_ont_id ||= Biosql::Ontology.find_or_create_by_name("Annotation Tags").try(:id)
   end
   def self.sample_ont_id
-    Biosql::Ontology.find_or_create_by_name("Sample Traits").try(:id)
+    @sample_ont_id ||= Biosql::Ontology.find_or_create_by_name("Sample Traits").try(:id)
   end
   # All but seqfeature source and seqfeature keys
   def self.annotation_ontologies
@@ -71,7 +71,7 @@ class Biosql::Term < ActiveRecord::Base
   end
   # All non standard ontologies
   def self.custom_ontologies
-    Biosql::Ontology.where("ontology_id not in(#{seq_src_ont_id},#{seq_key_ont_id},#{ano_tag_ont_id},#{sample_ont_id})")
+    @custom_ont ||= Biosql::Ontology.where("ontology_id not in(#{seq_src_ont_id},#{seq_key_ont_id},#{ano_tag_ont_id},#{sample_ont_id})")
   end
   # returns the default source term for use with seqfeature source_term
   def self.default_source_term
