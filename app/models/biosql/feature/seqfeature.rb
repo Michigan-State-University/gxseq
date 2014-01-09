@@ -72,6 +72,8 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   validates_presence_of :bioentry
   validates_associated :qualifiers
   validates_associated :locations
+  #TODO: deprecate and remove all rank columns
+  #validates_uniqueness_of :rank, :scope => [:bioentry_id, :type_term_id, :source_term_id]
   before_validation :initialize_associations
   # Update in memory assoc of delete. This is done for updates but not deletes TODO Investigate bug fixes in rails 3.1/3.2 and test inverse of
   def update_assoc_mem(q)
@@ -329,11 +331,11 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
       seq_key_ont_id = Biosql::Term.seq_key_ont_id
       self.type_term_id = Biosql::Term.find_or_create_by_name_and_ontology_id(self.display_name,seq_key_ont_id).id
     end
-    if !self.rank || self.rank==0 && self.bioentry_id && self.type_term_id
-      self.rank = (self.bioentry.seqfeatures.where(:type_term_id => self.type_term_id).maximum(:rank)||0) + 1
-      # TODO: Create test for this reverse assoc scenario, does inverse_of fix it?
-      self.bioentry.seqfeatures.build(self)
-    end
+    # TODO: Deprecate and remove all rank columns
+    # if (!self.rank || rank==0) && self.bioentry_id && self.type_term_id
+    #   self.rank = (self.bioentry.seqfeatures.where(:type_term_id => self.type_term_id).maximum(:rank)||0) + 1
+    #   self.bioentry.seqfeatures.build(self)
+    # end
   end
 
   # TODO: Move track data to Decorator or Exhibit maybe?
