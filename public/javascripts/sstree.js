@@ -49,21 +49,49 @@ function matchStart(target, pattern, matchDirectChildrenOnly) {
 }
 
 function collapseAllRows() {
- var rows = document.getElementsByTagName("TR");
- for (var j = 0; j < rows.length; j++) {
-   var r = rows[j];
-   if (r.id.indexOf("-") >= 0) {
-     r.style.display = "none";    
-   }
- }
+  var rows = document.getElementsByTagName("TR");
+  for (var j = 0; j < rows.length; j++) {
+    var r = rows[j];
+    //Set image
+    var cell = r.getElementsByTagName("TD")[0]
+    if(cell){
+      var img = cell.getElementsByTagName("DIV")[0].getElementsByTagName("A")[0];
+      if(img){
+        if (img.getAttribute("onclick") != null) {
+        if(img.className.match(/folder/))
+          img.style.backgroundImage = "url(images/folder.png)";
+        else
+          img.style.backgroundImage = "url(images/arrow_closed.png)";
+        }
+      }
+    }
+    //hide
+    if (r.id.indexOf("-") >= 0) {
+      r.style.display = "none";
+    }
+  }
 }
 
 function showAllRows() {
  var rows = document.getElementsByTagName("TR");
  for (var j = 0; j < rows.length; j++) {
    var r = rows[j];
+   //Show
    if (r.id.indexOf("-") >= 0) {
      r.style.display = "table-row";    
+   }
+   //Set image
+   var cell = r.getElementsByTagName("TD")[0]
+   if(cell){
+     var img = cell.getElementsByTagName("DIV")[0].getElementsByTagName("A")[0];
+     if(img){
+       if (img.getAttribute("onclick") != null) {
+       if(img.className.match(/folder/))
+         img.style.backgroundImage = "url(images/folder-open.png)";
+       else
+         img.style.backgroundImage = "url(images/arrow_open.png)";
+       }
+     }
    }
  }
 }
