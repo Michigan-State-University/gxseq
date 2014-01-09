@@ -16,6 +16,7 @@ class Group < ActiveRecord::Base
   has_many :bioentries, :through => :assemblies
   has_many :samples
   validate :new_user_login
+  validates_uniqueness_of :name, :on => :create, :message => "must be unique"
   before_save :add_new_user
   attr_accessor :new_user
   

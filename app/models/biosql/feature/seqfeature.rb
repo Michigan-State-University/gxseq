@@ -555,8 +555,9 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   def self.base_search(ability,assembly_id,type_term_id,opts={})
     # Find minimum set of id ranges accessible by current user
     # Set to -1 if no items are found. This will force empty search results
-    authorized_id_set = ability.authorized_seqfeature_ids
-    authorized_id_set=[-1] if authorized_id_set.empty?
+    authorized_assembly_ids = ability.authorized_assembly_ids
+    authorized_assembly_ids=[-1] if authorized_assembly_ids.empty?
+    assembly_id = -1 unless authorized_assembly_ids.include?(assembly_id.to_i)
     # Optional arguments
     locus_tag = opts[:locus_tag]
     keywords = opts[:keywords]
@@ -569,15 +570,13 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     # Begin search block
     self.search do |s|
       # Auth
-      s.any_of do |any_s|
-        authorized_id_set.each do |id_range|
-          any_s.with :id, id_range
-        end
-      end
+      s.with :assembly_id, authorized_assembly_ids
       # limit to the current assembly
       s.with(:assembly_id, assembly_id.to_i)
       # limit to the supplied type
-      s.with(:type_term_id, type_term_id.to_i)
+      unless type_term_id.blank?
+        s.with(:type_term_id, type_term_id.to_i)
+      end
       # Search Filters - locus_tag is an example
       unless locus_tag.blank?
         s.with :locus_tag, locus_tag
@@ -644,8 +643,6 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   def correlated_search(ability,opts={})
     return nil if feature_counts.nil?
     total_feature_counts = feature_counts.accessible_by(ability).length
-    authorized_id_set = ability.authorized_seqfeature_ids
-    authorized_id_set=[-1] if authorized_id_set.empty?
     value_type=opts[:value_type]||'normalized_count'
     per_page=opts[:per_page]||50
     page=opts[:page]||1
@@ -829,7 +826,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     s.integer :type_term_id, :references => Biosql::Term
     s.integer :source_term_id, :references => Biosql::Term
     s.integer :strand, :stored => true
-    s.integer :assembly_id do
+    s.integer :assembly_id, :stored => true do
       bioentry.assembly_id
     end
     s.integer :start_pos, :stored => true do

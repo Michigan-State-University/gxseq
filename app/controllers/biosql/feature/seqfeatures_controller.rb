@@ -17,18 +17,15 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     end
     # Grab blast run ids for description
     @blast_run_fields = BlastRun.all.collect{|br| "blast_#{br.id}_text"}
-    
-    # Find minimum set of id ranges accessible by current user. Set to -1 if no items are found. This will force empty search results
-    authorized_id_set = current_ability.authorized_seqfeature_ids
-    authorized_id_set=[-1] if authorized_id_set.empty?
+    # Find minimum set of id ranges accessible by current user.
+    # Set to -1 if no items are found. This will force empty search results
+    authorized_assembly_ids = current_ability.authorized_assembly_ids
+    authorized_assembly_ids=[-1] if authorized_assembly_ids.empty?
+    params[:assembly]=nil unless authorized_assembly_ids.include?(params[:assembly].to_i)
     # Begin block
     @search = Biosql::Feature::Seqfeature.search do
       # Auth      
-      any_of do |any_s|
-        authorized_id_set.each do |id_range|
-          any_s.with :id, id_range
-        end
-      end
+      with :assembly_id, authorized_assembly_ids
       # Text Keywords
       if params[:keywords]
         keywords params[:keywords], :highlight => true
@@ -63,12 +60,8 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     end
     
     @type_search = Biosql::Feature::Seqfeature.search do
-      # Auth      
-      any_of do |any_s|
-        authorized_id_set.each do |id_range|
-          any_s.with :id, id_range
-        end
-      end
+      #Auth
+      with :assembly_id, authorized_assembly_ids
       # Text Keywords
       if params[:keywords]
         keywords params[:keywords], :highlight => true

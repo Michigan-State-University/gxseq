@@ -389,21 +389,18 @@ class Biosql::BioentriesController < ApplicationController
     order_d = (params[:d]=='down' ? 'desc' : 'asc')
     params[:keywords] = params[:query] if params[:query]
     # Find minimum set of id ranges accessible by current user
-    authorized_id_set = current_ability.authorized_bioentry_ids
     # Set to -1 if no items are found. This will force empty search results
-    authorized_id_set=[-1] if authorized_id_set.empty?
+    authorized_assembly_ids = current_ability.authorized_assembly_ids
+    authorized_assembly_ids=[-1] if authorized_assembly_ids.empty?
+    params[:assembly]=nil unless authorized_assembly_ids.include?(params[:assembly].to_i)
     # Begin block
     @search = Biosql::Bioentry.search do |s|
       # Text Keywords
       if params[:keywords]
         s.keywords params[:keywords], :fields => [:accession_text,:description_text,:sequence_type_text,:sequence_name_text,:species_name_text,:assembly_name_text], :highlight => true
       end
-      # Auth      
-      s.any_of do |any_s|
-        authorized_id_set.each do |id_range|
-          any_s.with :id, id_range
-        end
-      end
+      # Auth
+      s.with :assembly_id, authorized_assembly_ids
       # Filters
       s.with :assembly_id, params[:assembly] unless params[:assembly].blank?
       # NOTE: Hash out use case for biodatabase segmentation
