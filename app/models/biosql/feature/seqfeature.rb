@@ -213,7 +213,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   end
   # All attributes from the Genbank ontology
   def annotation_qualifiers
-    qualifiers.select{|q| q.term.ontology_id == Biosql::Term.ano_tag_ont_id}
+    qualifiers.select{|q| q.term && q.term.ontology_id == Biosql::Term.ano_tag_ont_id}
   end
   # All annotation attributes for display / search
   def search_qualifiers
@@ -271,7 +271,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   def na_sequence
     seq = ""
     locations.each do |l|
-      seq += bioentry.biosequence_without_seq.get_seq(l.start_pos-1, (l.end_pos-l.start_pos)+1)
+      seq += bioentry.biosequence_without_seq.get_seq(l.start_pos-1, (l.end_pos-l.start_pos)+1)||''
     end
     return (locations.first.strand.to_i == 1) ? seq : Bio::Sequence::NA.new(seq).complement!.to_s.upcase
   end

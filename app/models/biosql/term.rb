@@ -38,6 +38,7 @@ class Biosql::Term < ActiveRecord::Base
   has_many :seqfeature_paths, :class_name => "SeqfeaturePath"
   has_many :sample_traits, :class_name => "Trait"
   validates_presence_of :name
+  validates_uniqueness_of :name, :scope => :ontology_id
   ## CLASS METHODS
   # ontology terms
   def self.annotation_tags
@@ -75,11 +76,15 @@ class Biosql::Term < ActiveRecord::Base
   end
   # returns the default source term for use with seqfeature source_term
   def self.default_source_term
-    @default_src_tm ||= self.find_or_create_by_name_and_ontology_id("EMBL/GenBank/SwissProt",seq_src_ont_id)
+    @default_src_trm ||= self.find_or_create_by_name_and_ontology_id("EMBL/GenBank/SwissProt",seq_src_ont_id)
   end
   # returns the locus_tag term from the annotation ontology
   def self.locus_tag
      @locus_tag_trm ||= self.find_or_create_by_name_and_ontology_id('locus_tag', ano_tag_ont_id)
+  end
+  # return the db_xref term from th annotation ontology
+  def self.db_xref
+    @db_xref_trm ||= Biosql::Term.find_or_create_by_name_and_ontology_id("db_xref",ano_tag_ont_id)
   end
   
   def self.denormalize
@@ -98,6 +103,12 @@ class Biosql::Term < ActiveRecord::Base
       puts $!
       return false
     end
+  end
+  
+  # clear all cached attributes
+  def self.reset_cache
+    @seq_src_id = @seq_key_id = @ano_tag_ont_id = @sample_ont_id = nil
+    @anno_ont = @custom_ont = @default_src_trm = @locus_tag_trm = @db_xref_trm = nil
   end
 end
 

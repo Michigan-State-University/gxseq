@@ -8,7 +8,7 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     params[:page]||=1
     params[:c]||='assembly_id'
     order_d = (params[:d]=='down' ? 'desc' : 'asc')
-    params[:type_term_id] ||= Biosql::Term.seqfeature_tags.where{upper(name) == 'GENE'}.first.id
+    params[:type_term_id] ||= Biosql::Term.seqfeature_tags.where{upper(name) == 'GENE'}.first.try(:id)
     # Filter setup
     @assemblies = Assembly.accessible_by(current_ability).includes(:taxon => :scientific_name).order('taxon_name.name')
     # Verify Bioentry param
