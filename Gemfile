@@ -14,13 +14,12 @@ group :development do
   gem 'ruby-oci8'
   gem 'mysql2', '~> 0.2.0'
   gem 'railroady'
-  gem 'ruby-debug19'
   gem 'annotate', ">=2.5"
   gem 'better_errors'
   gem 'binding_of_caller'
   # Code analyzers and security
   gem 'reek'
-  # gem 'rails_best_practices'
+  gem 'rails_best_practices'
   gem 'flay'
   gem 'flog'
   gem 'cane'
@@ -41,6 +40,8 @@ group :test do
   gem 'capybara'
   gem 'aruba'
   gem 'selenium-webdriver'
+  gem 'launchy'
+  gem 'json_spec'
 end
 
 group :cucumber do

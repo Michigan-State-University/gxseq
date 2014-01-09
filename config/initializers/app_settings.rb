@@ -6,7 +6,7 @@ rescue => e
 end
 
 # Set default accession_link for bioentries
-# TODO: store settings in database, allow admin configuration
+# TODO: store accession link in database, allow admin configuration
 ACCESSION_LINK = "http://www.ncbi.nlm.nih.gov/sites/entrez?db=genome&cmd=search&term=" unless defined? ACCESSION_LINK
 
 Squeel.configure do |config|
