@@ -3,10 +3,8 @@
   <div class="border">
     <%= form_tag seqfeature_path(feature), :method => :get do %>
     <%= hidden_field_tag :fmt, "expression" %>
-    <% if defined? @fc_ids %>
-      <% @fc_ids.each do |fc_id| %>
-        <%= hidden_field_tag "fc_ids[]", fc_id %>
-      <% end %>
+    <% @fc_ids.each do |fc_id| %>
+      <%= hidden_field_tag "fc_ids[]", fc_id %>
     <% end %>
     <div style="text-align:center;width:100%"><b><%= feature.label %> Sample Expression</b> Series: 
     <%= select_tag :trait_type_id,

@@ -15,6 +15,7 @@
 class FeatureCount < ActiveRecord::Base
   belongs_to :seqfeature, :class_name => "Biosql::Feature::Seqfeature"
   belongs_to :sample
+  scope :with_trait, lambda {|term_id| includes(:sample => :traits).where{traits.term_id == my{term_id}}}
   # Convert an array of feature_counts into graphable data
   def self.create_base_data(feature_counts,hsh={})
     return [] if feature_counts.empty?
@@ -58,8 +59,11 @@ class FeatureCount < ActiveRecord::Base
     if(hsh[:group_trait]&&Biosql::Term.find_by_term_id(hsh[:group_trait]))
       all_series ={}
       maxCount = 0;
-      feature_counts.each do |fc|
-        if(this_trait = fc.sample.traits.with_term(hsh[:group_trait]).first)
+      feature_counts.with_trait(hsh[:group_trait])
+        .except(:order)
+        .order{[sample.traits.value.asc,sample.name.asc]}
+        .each do |fc|
+        if( this_trait = fc.sample.traits.first )
           all_series[this_trait.value] ||= {:id => this_trait.id,:series => this_trait.value,:values => []}
           all_series[this_trait.value][:values] << {:x => fc.sample.name, :y => fc.send(value_type.to_sym)}
           maxCount=all_series[this_trait.value][:values].length if all_series[this_trait.value][:values].length > maxCount

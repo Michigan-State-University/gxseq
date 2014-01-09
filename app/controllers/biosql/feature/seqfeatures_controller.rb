@@ -108,17 +108,7 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     when 'expression'
       assembly = @seqfeature.bioentry.assembly
       @trait_types = assembly.trait_types
-      if params[:trait_type_id]
-        if current_user
-          current_user.preferred_trait_group_id = params[:trait_type_id], assembly
-          current_user.save
-        end
-        @trait_type_id = params[:trait_type_id]
-      else
-        if current_user
-          @trait_type_id = current_user.preferred_trait_group_id(assembly)
-        end
-      end
+      check_and_set_trait_id_param(assembly)
       get_feature_counts
       #setup_graphics_data
     when 'coexpression'
@@ -279,9 +269,17 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
         .order("samples.name")
         if(params[:fc_ids])
           # store preference
+          if current_user
+            current_user.preferred_expression_fc_ids = params[:fc_ids].join(",")
+            current_user.save
+          end
           @fc_ids = params[:fc_ids]
-        elsif(false)
+        else
           # get preference
+          if current_user
+            @fc_ids = current_user.preferred_expression_fc_ids.try(:split, ",")
+          end
+          @fc_ids ||= @feature_counts.map{|fc| fc.id.to_s}
         end
     end
     
@@ -312,5 +310,19 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
       @depth = 3
       @canvas_height = ( @depth * (@model_height * 2))+10 # each model and label plus padding
       @graphic_data=@graphic_data.to_json
+    end
+    
+    def check_and_set_trait_id_param(assembly)
+      if params[:trait_type_id]
+        if current_user
+          current_user.preferred_trait_group_id = params[:trait_type_id], assembly
+          current_user.save
+        end
+        @trait_type_id = params[:trait_type_id]
+      else
+        if current_user
+          @trait_type_id = current_user.preferred_trait_group_id(assembly)
+        end
+      end
     end
 end
