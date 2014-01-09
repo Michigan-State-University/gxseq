@@ -3,32 +3,36 @@
 	<%= render :partial => "common/extjs_css_gray" %>
 <% end %>
 
-<div style="float:left;width:600px" id="graphics_container">
-  <%= render :partial => 'biosql/bioentries/form_select', :locals => {:reload_path => url_for(@variant), :bioentry => @bioentry} %>
-  View this in <%= link_to( "Sequence Viewer", bioentry_url( @bioentry, :tracks => @variant.tracks.map(&:id) ),:popup => true ) %>
-  <div class="table">
-    <table class="listing">
-      <thead>  
-        <th>Type</th>
-        <th>Pos</th>
-        <th>Ref</th>
-        <th>Alt</th>
-        <th>Qual</th>
-      </thead>
-      <% @variants.each do |variant| %>
-        <tr>
-          <td><%= variant[:type] %></td>
-          <td><%= link_to variant[:pos], bioentry_url(@bioentry, :pos => variant[:pos], :p => 5, :b => 1,:tracks => @variant.tracks.map(&:id)) %></td>
-          <td><%= variant[:ref] %></td>
-          <td><%= variant[:alt] %></td>
-          <td><%= variant[:qual] %></td>
-        </tr>
-      <% end %>
-    </table>
-    <div>
-      <div style='float:left'><%= will_paginate @variants %></div>
-      <div style="float:right"><%= (@variants.total_entries >= @limit ? '>=' : '') + pluralize(@variants.total_entries,"variant") %></div>
+<% unless @bioentry.nil? %>
+  <div style="float:left;width:600px" id="graphics_container">
+    <%= render :partial => 'biosql/bioentries/form_select', :locals => {:reload_path => url_for(@variant), :bioentry => @bioentry} %>
+    View this in <%= link_to( "Sequence Viewer", bioentry_url( @bioentry, :tracks => @variant.tracks.map(&:id) ),:popup => true ) %>
+    <div class="table">
+      <table class="listing">
+        <thead>  
+          <th>Type</th>
+          <th>Pos</th>
+          <th>Ref</th>
+          <th>Alt</th>
+          <th>Qual</th>
+        </thead>
+        <% @variants.each do |variant| %>
+          <tr>
+            <td><%= variant[:type] %></td>
+            <td><%= link_to variant[:pos], bioentry_url(@bioentry, :pos => variant[:pos], :p => 5, :b => 1,:tracks => @variant.tracks.map(&:id)) %></td>
+            <td><%= variant[:ref] %></td>
+            <td><%= variant[:alt] %></td>
+            <td><%= variant[:qual] %></td>
+          </tr>
+        <% end %>
+      </table>
+      <div>
+        <div style='float:left'><%= will_paginate @variants %></div>
+        <div style="float:right"><%= (@variants.total_entries >= @limit ? '>=' : '') + pluralize(@variants.total_entries,"variant") %></div>
+      </div>
     </div>
-  </div>
 
-</div>
+  </div>
+<% else %>
+  <span style="color:darkred">! No Bioentries found for assembly: <%= @variant.assembly.name_with_version %></span><br/>
+<% end %>

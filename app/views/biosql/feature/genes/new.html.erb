@@ -37,7 +37,7 @@
 <%# end %>
 
 
-  <% form_tag new_gene_path, :method => :get do |f| -%>
+  <%= form_tag new_gene_path, :method => :get do |f| -%>
     <%= select_tag :assembly_id,
       options_from_collection_for_select(@assemblies, :id, :name_with_version, @assembly.try(:id)),
       {:include_blank => "Select one...", :onchange => 'if (b=document.getElementById("bioentry_id")){b.selectedIndex = -1};this.form.submit()'}
