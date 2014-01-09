@@ -59,7 +59,6 @@ module ApplicationHelper
             else
               h = tickheight
             end
-            puts h;
             text += "context.fillRect(#{x},#{(height/2)-(h)},1,#{h*2});"
           }
           text
@@ -102,30 +101,27 @@ module ApplicationHelper
 
   def sliced_toggle(small_text,full_text,dom_id)
     full_text = small_text if full_text.nil?
-    [
-      (
-        content_tag(:div,
-          content_tag(:div, '[+]',
-            :style => 'float:left;cursor:pointer;color:#648FAB;',
-            :id => "toggle_#{dom_id}_open",
-            :onclick => "$('slice_#{dom_id}_full').toggle();
-              $('slice_#{dom_id}_short').toggle();
-              $('toggle_#{dom_id}_open').toggle();
-              $('toggle_#{dom_id}_close').toggle();")+'&nbsp;'.html_safe+small_text,
-          :style => "text-wrap:none;text-align:left;overflow:hidden;height:1.2em",
-          :id => "slice_#{dom_id}_short")
-      ),
-      content_tag(:div,
-        content_tag(:div,'[-]',
-          :id =>"toggle_#{dom_id}_close",
-          :style =>'float:left;cursor:pointer;display:none;color:#648FAB',
-          :onclick =>" $('slice_#{dom_id}_full').toggle();
+    text = <<-HTML
+      <div id="slice_#{dom_id}_short" style="text-wrap:none;text-align:left;overflow:hidden;height:1.2em">
+        <div id="toggle_#{dom_id}_open" style='float:left;cursor:pointer;color:#648FAB;' onclick="$('slice_#{dom_id}_full').toggle();
           $('slice_#{dom_id}_short').toggle();
           $('toggle_#{dom_id}_open').toggle();
-          $('toggle_#{dom_id}_close').toggle();")+'&nbsp;'.html_safe+full_text.try(:html_safe),
-        :id => "slice_#{dom_id}_full",
-        :style => "display:none;text-align:left")
-    ].join.html_safe
+          $('toggle_#{dom_id}_close').toggle();">
+          [+] &nbsp;
+        </div>
+          #{small_text}
+      </div>
+      <div id="slice_#{dom_id}_full" style="display:none;text-align:left;">
+        <div id="toggle_#{dom_id}_close" style='float:left;cursor:pointer;display:none;color:#648FAB;' onclick="$('slice_#{dom_id}_full').toggle();
+          $('slice_#{dom_id}_short').toggle();
+          $('toggle_#{dom_id}_open').toggle();
+          $('toggle_#{dom_id}_close').toggle();">
+          [-] &nbsp;
+        </div>
+          #{full_text}
+      </div>
+    HTML
+    return text.html_safe
   end
   
   def feature_format_link(feature,fmt,fmt_label,current_fmt)

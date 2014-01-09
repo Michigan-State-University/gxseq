@@ -40,7 +40,7 @@ class ReSeqsController < ApplicationController
 
   def show
     entry_id = params[:entry_id] || params[:bioentry_id]
-    @bioentry = Biosql::Bioentry.find(entry_id || @re_seq.assembly.bioentries.first.id)
+    @bioentry = Biosql::Bioentry.find(entry_id || @re_seq.assembly.bioentries.first.id) rescue nil
     respond_to do |format|
       format.html {}
       format.xml { render :layout => false }

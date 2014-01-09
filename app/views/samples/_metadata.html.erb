@@ -1,32 +1,28 @@
 <div style="clear:both;float:left">
   <p>
-		<b>Created by:</b> <%= sample.user.login unless sample.user.nil?%>
-		<%= sample.created_at.strftime("%m/%d/%Y") %>
-	</p>
-	
-	<% if sample.group %>
+    <b>Created by:</b> <%= sample.user.login unless sample.user.nil?%>
+    <%= sample.created_at.strftime("%m/%d/%Y") %>
+  </p>
+  <% if sample.group %>
     <p>
-  	  <b>Group:</b>
-  		<%= link_to sample.group.name, sample.group %>
-  	</p>
-	<% end %>
-	<br/>
-	<% sample.traits.each do |trait| %>
-	  <p>
-	   <b><%= trait.term.name %>:</b>
-	   <%= trait.value %>
-	  </p>
-	<% end %>
-	
-	<% unless sample.description.blank? %>
-	<p>
-		<b>Description:</b><br/>
-		<%= sample.description.gsub(/\n/, "<br/>").html_safe  %>
-	</p>
-	<% end %>
-
-
+      <b>Group:</b>
+      <%= link_to sample.group.name, sample.group %>
+    </p>
+  <% end %>
+  <br/>
+  
+  <% unless sample.description.blank? %>
+  <p>
+    <b>Description:</b><br/>
+    <%= sample.description.gsub(/\n/, "<br/>").html_safe  %>
+  </p>
+  <% end %>
+  <br/>
+  
+  <% sample.traits.each do |trait| %>
+    <p>
+     <b><%= trait.term.name %>:</b>
+     <%= trait.value %>
+    </p>
+  <% end %>
 </div>
-
-
-

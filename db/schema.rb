@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20131105141601) do
+ActiveRecord::Schema.define(:version => 20140109175158) do
 
   create_table "assemblies", :force => true do |t|
     t.integer  "taxon_id",   :precision => 38, :scale => 0
@@ -465,7 +465,7 @@ ActiveRecord::Schema.define(:version => 20131105141601) do
     t.datetime "updated_at"
   end
 
-  add_index "seqfeature", ["bioentry_id", "type_term_id", "source_term_id", "rank"], :name => "seqfeature_idx", :unique => true
+  add_index "seqfeature", ["bioentry_id", "type_term_id"], :name => "seqfeature_idx"
   add_index "seqfeature", ["display_name"], :name => "seqfeature_idx_1"
   add_index "seqfeature", ["type_term_id", "seqfeature_id"], :name => "idx$$_31e30002"
 

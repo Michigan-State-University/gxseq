@@ -136,15 +136,17 @@ class VariantsController < ApplicationController
   
   def get_variants
     page = params[:page] || 1
-    @bioentry = Biosql::Bioentry.find((params[:bioentry_id] || @variant.assembly.bioentries.first.id))
-    c_item = @variant.concordance_items.find_by_bioentry_id(@bioentry.id)
-    @sequence_name = c_item.reference_name
-    @variants = []
-    @limit = 100000
-    begin
-      @variants = @variant.get_data(@sequence_name,0,@bioentry.length,{:only_variants => true, :limit => @limit})
-    rescue => e
-      logger.info "\n\n#{$!}\n\n#{e.backtrace}"
+    @bioentry = Biosql::Bioentry.find((params[:bioentry_id] || @variant.assembly.bioentries.first.id)) rescue nil
+    if(@bioentry)
+      c_item = @variant.concordance_items.find_by_bioentry_id(@bioentry.id)
+      @sequence_name = c_item.reference_name
+      @variants = []
+      @limit = 100000
+      begin
+        @variants = @variant.get_data(@sequence_name,0,@bioentry.length,{:only_variants => true, :limit => @limit})
+      rescue => e
+        logger.info "\n\n#{$!}\n\n#{e.backtrace}"
+      end
     end
     @variants ||=[]
     @variants = @variants.sort{|a,b| b[:qual]<=>a[:qual]}.paginate(:page => page, :per_page => 50)

@@ -2,7 +2,6 @@
 <%= javascript_include_tag 'sstree' %>
 
 <% content_for :body_onload do -%>
-  <%= "showAllRows();" %>
   <%= "document.getElementById('sstree-sample').onselectstart = function() { return(false); };" %>
 <% end %>
 
@@ -50,7 +49,7 @@
       <% s.species_assemblies.accessible_by(current_ability).each_with_index do |t, t_idx| %>
       <% next if t.send(sample_type+'s').empty? %>
       <% id = "#{s_idx + 1}-#{t_idx + 1}" %>      
-        <tr id="<%= id %>" style="display:none" class="two">
+        <tr id="<%= id %>" class="two">
           <td>
             <div class="tier2">
               <a id="a_<%= id %>" class="arrow-open" name="<%= id %>" href="#<%= id %>" onclick="toggleRows(this);return false"></a>
@@ -65,7 +64,7 @@
         <% t.send(sample_type+'s').accessible_by(current_ability).each_with_index do |sample, sample_idx| %>
         <% next if params[:query] && !(sample.name=~/#{params[:query]}/) %>
         <% id = "#{s_idx + 1}-#{t_idx + 1}-#{sample_idx + 1}" %>
-          <tr id="<%= id %>" style="display:none" class="item">
+          <tr id="<%= id %>" class="item">
             <td>
               <div class="tier4">
                 <a name="<%= id %>" href="#<%= id %>" ></a>

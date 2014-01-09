@@ -5,7 +5,7 @@
 <% content_for :item_bar do %>
 <!-- Filter / Search items here -->
 	
-	<% form_tag seqfeatures_path(params), :method => :get do %>
+	<%= form_tag seqfeatures_path(params), :method => :get do %>
 
 	  <div style="float:right;margin-bottom:0.5em">
 	    Search:<br/>
@@ -77,7 +77,9 @@
           <% if can? :edit, feature %>
             <%= link_to( image_tag('comment_edit.png'), edit_seqfeature_path(feature.id), :class => 'popupbox', :'data-form' => "edit_seqfeature_#{feature.id}", :'data-post_to' => seqfeature_path(feature.id), :'data-update_id' => "#{feature.id}_definition", :'data-update_from' => request.fullpath+'&seqfeature_id='+feature.id.to_s) %>
           <% end %>
-          <%= link_to(image_tag(Array(hit.stored(:favorite_user_ids)).include?(current_user.id) ? 'star.png' : 'star_gray.png'), toggle_favorite_seqfeature_path(feature.id), {:class => 'favorite',:id => "favorite_#{feature.id}",:remote => true,:'data-loading' => "#{image_tag("loading.gif")}"}) %>
+          <% if current_user %>
+            <%= link_to(image_tag(Array(hit.stored(:favorite_user_ids)).include?(current_user.id) ? 'star.png' : 'star_gray.png'), toggle_favorite_seqfeature_path(feature.id), {:class => 'favorite',:id => "favorite_#{feature.id}",:remote => true,:'data-loading' => "#{image_tag("loading.gif")}"}) %>
+          <% end %>
         </td>
         <td><%= feature.display_name %></td>
         <td id='<%= feature.id %>_definition'><%= render :partial => 'hit_definition', :locals => {:hit => hit, :feature => feature, :blast_run_fields => @blast_run_fields} %></td>
@@ -88,7 +90,7 @@
         <td style="white-space:nowrap">
           <%= link_to 'Details', seqfeature_path(feature) %>
           |
-          <%= link_to 'View', bioentry_path(feature.bioentry_id,{:pos => feature.min_start}) %>
+          <%= link_to 'View', bioentry_path(feature.bioentry_id,{:pos => hit.stored(:start_pos)}) %>
         </td>
       </tr>
       <% end %>

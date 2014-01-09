@@ -72,6 +72,8 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   validates_presence_of :bioentry
   validates_associated :qualifiers
   validates_associated :locations
+  #TODO: deprecate and remove all rank columns
+  #validates_uniqueness_of :rank, :scope => [:bioentry_id, :type_term_id, :source_term_id]
   before_validation :initialize_associations
   # Update in memory assoc of delete. This is done for updates but not deletes TODO Investigate bug fixes in rails 3.1/3.2 and test inverse of
   def update_assoc_mem(q)
@@ -211,7 +213,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   end
   # All attributes from the Genbank ontology
   def annotation_qualifiers
-    qualifiers.select{|q| q.term.ontology_id == Biosql::Term.ano_tag_ont_id}
+    qualifiers.select{|q| q.term && q.term.ontology_id == Biosql::Term.ano_tag_ont_id}
   end
   # All annotation attributes for display / search
   def search_qualifiers
@@ -269,7 +271,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   def na_sequence
     seq = ""
     locations.each do |l|
-      seq += bioentry.biosequence_without_seq.get_seq(l.start_pos-1, (l.end_pos-l.start_pos)+1)
+      seq += bioentry.biosequence_without_seq.get_seq(l.start_pos-1, (l.end_pos-l.start_pos)+1)||''
     end
     return (locations.first.strand.to_i == 1) ? seq : Bio::Sequence::NA.new(seq).complement!.to_s.upcase
   end
@@ -329,11 +331,11 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
       seq_key_ont_id = Biosql::Term.seq_key_ont_id
       self.type_term_id = Biosql::Term.find_or_create_by_name_and_ontology_id(self.display_name,seq_key_ont_id).id
     end
-    if !self.rank || self.rank==0 && self.bioentry_id && self.type_term_id
-      self.rank = (self.bioentry.seqfeatures.where(:type_term_id => self.type_term_id).maximum(:rank)||0) + 1
-      # TODO: Create test for this reverse assoc scenario, does inverse_of fix it?
-      self.bioentry.seqfeatures.build(self)
-    end
+    # TODO: Deprecate and remove all rank columns
+    # if (!self.rank || rank==0) && self.bioentry_id && self.type_term_id
+    #   self.rank = (self.bioentry.seqfeatures.where(:type_term_id => self.type_term_id).maximum(:rank)||0) + 1
+    #   self.bioentry.seqfeatures.build(self)
+    # end
   end
 
   # TODO: Move track data to Decorator or Exhibit maybe?
@@ -553,8 +555,9 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   def self.base_search(ability,assembly_id,type_term_id,opts={})
     # Find minimum set of id ranges accessible by current user
     # Set to -1 if no items are found. This will force empty search results
-    authorized_id_set = ability.authorized_seqfeature_ids
-    authorized_id_set=[-1] if authorized_id_set.empty?
+    authorized_assembly_ids = ability.authorized_assembly_ids
+    authorized_assembly_ids=[-1] if authorized_assembly_ids.empty?
+    assembly_id = -1 unless authorized_assembly_ids.include?(assembly_id.to_i)
     # Optional arguments
     locus_tag = opts[:locus_tag]
     keywords = opts[:keywords]
@@ -567,15 +570,13 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     # Begin search block
     self.search do |s|
       # Auth
-      s.any_of do |any_s|
-        authorized_id_set.each do |id_range|
-          any_s.with :id, id_range
-        end
-      end
+      s.with :assembly_id, authorized_assembly_ids
       # limit to the current assembly
       s.with(:assembly_id, assembly_id.to_i)
       # limit to the supplied type
-      s.with(:type_term_id, type_term_id.to_i)
+      unless type_term_id.blank?
+        s.with(:type_term_id, type_term_id.to_i)
+      end
       # Search Filters - locus_tag is an example
       unless locus_tag.blank?
         s.with :locus_tag, locus_tag
@@ -642,8 +643,6 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   def correlated_search(ability,opts={})
     return nil if feature_counts.nil?
     total_feature_counts = feature_counts.accessible_by(ability).length
-    authorized_id_set = ability.authorized_seqfeature_ids
-    authorized_id_set=[-1] if authorized_id_set.empty?
     value_type=opts[:value_type]||'normalized_count'
     per_page=opts[:per_page]||50
     page=opts[:page]||1
@@ -827,7 +826,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     s.integer :type_term_id, :references => Biosql::Term
     s.integer :source_term_id, :references => Biosql::Term
     s.integer :strand, :stored => true
-    s.integer :assembly_id do
+    s.integer :assembly_id, :stored => true do
       bioentry.assembly_id
     end
     s.integer :start_pos, :stored => true do

@@ -27,7 +27,7 @@ class Biosql::Feature::GenesController < ApplicationController
       if(@gene.valid?)
         Biosql::Feature::Gene.transaction do
           @gene.save
-          redirect_to [:edit,@gene], :notice => "Gene Created Successfully"
+          redirect_to seqfeature_path(@gene), :notice => "Gene Created Successfully"
         end
       else
         # add gene model

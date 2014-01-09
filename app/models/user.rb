@@ -51,7 +51,7 @@ class User < ActiveRecord::Base
   preference :track_path, :string
   preference :track_layout, :string
   preference :trait_group_id, :integer
-  preference :fc_ids, :string
+  preference :expression_fc_ids, :string
   # name used for public display
   def display_name
     login

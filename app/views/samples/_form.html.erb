@@ -1,4 +1,4 @@
-<% form_for sample, :html => {:multipart => true} do |f| %>
+<%= form_for sample, :html => {:multipart => true} do |f| %>
   <% #TODO: convert sample form to semantic form %>
   <div class="form_item">
     <h3>Metadata</h3>
@@ -11,15 +11,15 @@
     Enter any descriptive information you would like to remember.<br/>
     <%= f.text_area :description, :rows => "7" %><br/>
     <br/>
-    <div style="clear:both;width:75%">
+    <div id="sample_traits" style="clear:both;">
       <span style="float:right;margin-right:1em"><%= link_to "Manage Selections", biosql_ontology_path(Biosql::Term.sample_ont_id), :target => "_blank" %></span>
       <span style="float:left;width:5em">Add Traits</span>
-      <%= link_to_add_fields image_tag("add.gif", :title => "Add new trait", :style => "float:left"),
+      <%= link_to_add_fields image_tag("add.gif", :alt => "Add Trait", :style => "float:left"),
         f, :traits, {:render => "below",:partial => "samples/trait_fields"}
       %>
       <br style="clear:both"/>
       <hr/>
-      <% f.fields_for :traits do |trait| %>
+      <%= f.fields_for :traits do |trait| %>
         <%= render :partial => "samples/trait_fields", :locals => {:f => trait} %>
       <% end %>
     </div>
@@ -57,7 +57,7 @@
         :assets,
         {:render => "below",:partial => "samples/asset_fields", :locals => {:asset_types => sample.asset_types} }
       %>
-      <% f.fields_for :assets do |asset| %>
+      <%= f.fields_for :assets do |asset| %>
         <%= 
           #begin
             # There are no sample specific asset fields
@@ -71,7 +71,7 @@
 
   <div style="clear:both">
     <br/><hr/><br/><br/>
-    <%= f.submit "Save Sample", :class => 'button' %>
+    <%= f.submit "#{sample.persisted? ? 'Update' : 'Create'} Sample", :class => 'button' %>
   </div>
     
 <% end %>

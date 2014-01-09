@@ -6,7 +6,7 @@
   <% if can? :update, @group %>
     <%= link_to "Update Group", edit_group_path(@group), :class => 'button' %>
   <% end %>
-  This group is managed by <%= @group.owner_id == current_user.id ? 'you' : @group.owner.email %>
+  This group is managed by <%= @group.owner_id == current_user.id ? 'you' : @group.owner.try(:email)||'nobody' %>
 <% end -%>
 
 <%= render :partial => "home/sidebar" %>

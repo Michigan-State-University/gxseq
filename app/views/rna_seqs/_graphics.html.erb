@@ -3,18 +3,22 @@
 	<%= render :partial => "common/extjs_css_gray" %>
 <% end %>
 
-<div id="graphics_container">
-  <%= render :partial => 'biosql/bioentries/form_select', :locals => {:reload_path => url_for(@rna_seq), :bioentry => @bioentry} %>
-  View this in the <%= link_to "Sequence Viewer", bioentry_path(@bioentry, :tracks => @rna_seq.tracks.map(&:id)) %>
-  <div id='sample_chart'>
-  	<%= swf_tag "mixed_plot.swf", 
-  		:id => "#{@rna_seq}_plot", 
-  		:size => "600x300", 
-  		:flashvars => {
-  			:lineseries => "Read Count",
-  			:entry_id => @bioentry.id,
-  			:id => @rna_seq.id, 
-  			:local_url => "#{root_path}rna_seqs/"
-  		} %>
+<% unless @bioentry.nil? %>
+  <div id="graphics_container">
+    <%= render :partial => 'biosql/bioentries/form_select', :locals => {:reload_path => url_for(@rna_seq), :bioentry => @bioentry} %>
+    View this in the <%= link_to "Sequence Viewer", bioentry_path(@bioentry, :tracks => @rna_seq.tracks.map(&:id)) %>
+    <div id='sample_chart'>
+    	<%= swf_tag "mixed_plot.swf", 
+    		:id => "#{@rna_seq}_plot", 
+    		:size => "600x300", 
+    		:flashvars => {
+    			:lineseries => "Read Count",
+    			:entry_id => @bioentry.id,
+    			:id => @rna_seq.id, 
+    			:local_url => "#{root_path}rna_seqs/"
+    		} %>
+    </div>
   </div>
-</div>
+<% else %>
+  <span style="color:darkred">! No Bioentries found for assembly: <%= @rna_seq.assembly.name_with_version %></span><br/>
+<% end %>

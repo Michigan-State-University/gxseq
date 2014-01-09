@@ -38,18 +38,13 @@ class BlastRun < ActiveRecord::Base
   def self.recent_limit
     @@recent_limit
   end
-  # returns the recent runs quota set in class
-  def self.recent_limit=(new_limit)
-    @@recent_limit=new_limit
-  end
   # runs a blast using the supplied options and sequence
   # returns Bio::Blast::Report
   def self.local_blast(opts={})
     blastpath = APP_CONFIG[:blast_path]+'/blastall'
     return false if (program=opts[:program]).blank?
     return false if (sequence=opts[:sequence]).blank?
-    path_to_database="#{RAILS_ROOT}/lib/data/blast_db/#{opts[:filepath]}"
-
+    path_to_database="#{::Rails.root.to_s}/lib/data/blast_db/#{opts[:filepath]}"
     # defaults
     matrix=opts[:matrix]||'BLOSUM62'
     evalue=opts[:evalue]||10
@@ -58,7 +53,6 @@ class BlastRun < ActiveRecord::Base
     blast_params="-M #{matrix} -e #{evalue} -v #{hits} -b #{hits} -m #{format}"
     if program == 'blastx'
       blast_params+=" -f 14 -F \"m S\""
-      #blast_params+=" -F \"m S\""
     end
     local_blast_factory = Bio::Blast.local(
       program,

@@ -8,7 +8,7 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     params[:page]||=1
     params[:c]||='assembly_id'
     order_d = (params[:d]=='down' ? 'desc' : 'asc')
-    params[:type_term_id] ||= Biosql::Term.seqfeature_tags.where{upper(name) == 'GENE'}.first.id
+    params[:type_term_id] ||= Biosql::Term.seqfeature_tags.where{upper(name) == 'GENE'}.first.try(:id)
     # Filter setup
     @assemblies = Assembly.accessible_by(current_ability).includes(:taxon => :scientific_name).order('taxon_name.name')
     # Verify Bioentry param
@@ -17,18 +17,15 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     end
     # Grab blast run ids for description
     @blast_run_fields = BlastRun.all.collect{|br| "blast_#{br.id}_text"}
-    
-    # Find minimum set of id ranges accessible by current user. Set to -1 if no items are found. This will force empty search results
-    authorized_id_set = current_ability.authorized_seqfeature_ids
-    authorized_id_set=[-1] if authorized_id_set.empty?
+    # Find minimum set of id ranges accessible by current user.
+    # Set to -1 if no items are found. This will force empty search results
+    authorized_assembly_ids = current_ability.authorized_assembly_ids
+    authorized_assembly_ids=[-1] if authorized_assembly_ids.empty?
+    params[:assembly]=nil unless authorized_assembly_ids.include?(params[:assembly].to_i)
     # Begin block
     @search = Biosql::Feature::Seqfeature.search do
       # Auth      
-      any_of do |any_s|
-        authorized_id_set.each do |id_range|
-          any_s.with :id, id_range
-        end
-      end
+      with :assembly_id, authorized_assembly_ids
       # Text Keywords
       if params[:keywords]
         keywords params[:keywords], :highlight => true
@@ -63,12 +60,8 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     end
     
     @type_search = Biosql::Feature::Seqfeature.search do
-      # Auth      
-      any_of do |any_s|
-        authorized_id_set.each do |id_range|
-          any_s.with :id, id_range
-        end
-      end
+      #Auth
+      with :assembly_id, authorized_assembly_ids
       # Text Keywords
       if params[:keywords]
         keywords params[:keywords], :highlight => true
@@ -115,17 +108,7 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     when 'expression'
       assembly = @seqfeature.bioentry.assembly
       @trait_types = assembly.trait_types
-      if params[:trait_type_id]
-        if current_user
-          current_user.preferred_trait_group_id = params[:trait_type_id], assembly
-          current_user.save
-        end
-        @trait_type_id = params[:trait_type_id]
-      else
-        if current_user
-          @trait_type_id = current_user.preferred_trait_group_id(assembly)
-        end
-      end
+      check_and_set_trait_id_param(assembly)
       get_feature_counts
       #setup_graphics_data
     when 'coexpression'
@@ -286,9 +269,17 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
         .order("samples.name")
         if(params[:fc_ids])
           # store preference
+          if current_user
+            current_user.preferred_expression_fc_ids = params[:fc_ids].join(",")
+            current_user.save
+          end
           @fc_ids = params[:fc_ids]
-        elsif(false)
+        else
           # get preference
+          if current_user
+            @fc_ids = current_user.preferred_expression_fc_ids.try(:split, ",")
+          end
+          @fc_ids ||= @feature_counts.map{|fc| fc.id.to_s}
         end
     end
     
@@ -319,5 +310,19 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
       @depth = 3
       @canvas_height = ( @depth * (@model_height * 2))+10 # each model and label plus padding
       @graphic_data=@graphic_data.to_json
+    end
+    
+    def check_and_set_trait_id_param(assembly)
+      if params[:trait_type_id]
+        if current_user
+          current_user.preferred_trait_group_id = params[:trait_type_id], assembly
+          current_user.save
+        end
+        @trait_type_id = params[:trait_type_id]
+      else
+        if current_user
+          @trait_type_id = current_user.preferred_trait_group_id(assembly)
+        end
+      end
     end
 end
