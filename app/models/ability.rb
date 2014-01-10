@@ -63,8 +63,8 @@ class Ability
       can :read, Biosql::Bioentry, :assembly => {:group => {:users => {:id => user.id}}}
       can :read, Biosql::Bioentry, :assembly => {:samples => {:group => {:id => user.group_ids}}}
       #Features
-      can [:read,:update, :toggle_favorite, :feature_counts, :coexpressed_counts], Biosql::Feature::Seqfeature, :bioentry => {:assembly => {:group => {:users => {:id => user.id}}}}
-      can [:read,:update, :toggle_favorite, :feature_counts, :coexpressed_counts], Biosql::Feature::Seqfeature, :bioentry => {:assembly => {:samples => {:group => {:id => user.group_ids}}}}
+      can [:read,:update, :toggle_favorite, :base_counts, :feature_counts, :coexpressed_counts], Biosql::Feature::Seqfeature, :bioentry => {:assembly => {:group => {:users => {:id => user.id}}}}
+      can [:read,:update, :toggle_favorite, :base_counts, :feature_counts, :coexpressed_counts], Biosql::Feature::Seqfeature, :bioentry => {:assembly => {:samples => {:group => {:id => user.group_ids}}}}
       can :create, Biosql::Feature::Seqfeature
       #GeneModels
       can [:read,:update], GeneModel, :bioentry => {:assembly => {:group => {:users => {:id => user.id}}}}
@@ -113,12 +113,11 @@ class Ability
       can :read, Assembly, :samples => {:group => {:id => user.group_ids}}
       can :read, Biosql::Bioentry, :assembly => {:group => {:users => {:id => user.id}}}
       can :read, Biosql::Bioentry, :assembly => {:samples => {:group => {:id => user.group_ids}}}
-      can [:read, :toggle_favorite], Biosql::Feature::Seqfeature, :bioentry => {:assembly => {:group => {:users => {:id => user.id}}}}
-      can [:read, :toggle_favorite], Biosql::Feature::Seqfeature, :bioentry => {:assembly => {:samples => {:group => {:id => user.group_ids}}}}
-      can [:read,], GeneModel, :bioentry => {:assembly => {:group => {:users => {:id => user.id}}}}
-      can [:read,], GeneModel, :bioentry => {:assembly => {:samples => {:group => {:id => user.group_ids}}}}
-      can :read, Sample, :group => {:users => {:id => user.id}}
-      can :track_data, Sample, :group => {:users => {:id => user.id}}
+      can [:read, :toggle_favorite, :base_counts, :feature_counts, :coexpressed_counts], Biosql::Feature::Seqfeature, :bioentry => {:assembly => {:group => {:users => {:id => user.id}}}}
+      can [:read, :toggle_favorite, :base_counts, :feature_counts, :coexpressed_counts], Biosql::Feature::Seqfeature, :bioentry => {:assembly => {:samples => {:group => {:id => user.group_ids}}}}
+      can [:read], GeneModel, :bioentry => {:assembly => {:group => {:users => {:id => user.id}}}}
+      can [:read], GeneModel, :bioentry => {:assembly => {:samples => {:group => {:id => user.group_ids}}}}
+      can [:read, :track_data], Sample, :group => {:users => {:id => user.id}}
       can :read, Track, :sample => {:group => {:id => user.group_ids}}
       can :read, Asset, :sample => {:group => {:users => {:id => user.id}}}
       can :read, FeatureCount, :sample => {:group => {:users => {:id => user.id}}}
@@ -135,8 +134,8 @@ class Ability
       can :read, Assembly, :samples => {:group_id => public_gid}
       can :read, Biosql::Bioentry, :assembly => {:group => {:name => 'public'}}
       can :read, Biosql::Bioentry, :assembly => {:samples => {:group => public_gid}}
-      can [:read, :feature_counts, :coexpressed_counts], Biosql::Feature::Seqfeature, :bioentry => {:assembly => {:group => {:name => 'public'}}}
-      can [:read, :feature_counts, :coexpressed_counts], Biosql::Feature::Seqfeature, :bioentry => {:assembly => {:samples => {:group_id => public_gid}}}
+      can [:read, :base_counts, :feature_counts, :coexpressed_counts], Biosql::Feature::Seqfeature, :bioentry => {:assembly => {:group => {:name => 'public'}}}
+      can [:read, :base_counts, :feature_counts, :coexpressed_counts], Biosql::Feature::Seqfeature, :bioentry => {:assembly => {:samples => {:group_id => public_gid}}}
       can :read, GeneModel, :bioentry => {:assembly => {:group => {:name => 'public'}}}
       can :read, GeneModel, :bioentry => {:assembly => {:samples => {:group_id => public_gid}}}
       can [:read,:track_data], Sample, :group => {:name => 'public'}
