@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140109175158) do
+ActiveRecord::Schema.define(:version => 20140110154423) do
 
   create_table "assemblies", :force => true do |t|
     t.integer  "taxon_id",   :precision => 38, :scale => 0
@@ -401,7 +401,7 @@ ActiveRecord::Schema.define(:version => 20140109175158) do
     t.string   "owner_type",                                :null => false
     t.integer  "group_id",   :precision => 38, :scale => 0
     t.string   "group_type"
-    t.string   "value"
+    t.text     "value"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
