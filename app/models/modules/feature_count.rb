@@ -53,16 +53,16 @@ class FeatureCount < ActiveRecord::Base
   end
   
   def self.create_sample_data(feature_counts,hsh={})
-    return [] if feature_counts.empty?
     value_type=hsh[:value_type]||'normalized_count'
     # make multiple series. One for each unique trait value
     if(hsh[:group_trait]&&Biosql::Term.find_by_term_id(hsh[:group_trait]))
       all_series ={}
       maxCount = 0;
+      logger.info "\n\nFOS\n\n\n\n"
       feature_counts.with_trait(hsh[:group_trait])
-        .except(:order)
-        .order{[sample.traits.value.asc,sample.name.asc]}
-        .each do |fc|
+      .except(:order)
+      .order{[sample.traits.value.asc,sample.name.asc]}
+      .each do |fc|
         if( this_trait = fc.sample.traits.first )
           all_series[this_trait.value] ||= {:id => this_trait.id,:series => this_trait.value,:values => []}
           all_series[this_trait.value][:values] << {:x => fc.sample.name, :y => fc.send(value_type.to_sym)}
