@@ -1,0 +1,115 @@
+<%= render :partial => "sidebar", :locals => {:active => "tutorial"} %>
+<% content_for :top_bar do %>	
+	<h1 class="pagetitle">Tutorials</h1>
+<% end %>
+
+<% video_text = "Watch Video" %>
+
+<!-- <p>
+  The information below will get you started on basic interaction with the site. For more details
+  check out the manual or look over the project homepage.
+</p> -->
+
+<h2 class="title">General Navigation</h2>
+<div class='clear'><div class='border'>
+  <p>
+    The Genome Suite uses a two column layout with navigation tabs on the top right.
+    These navigation tabs are the main entry point to data and the built in tools.
+    The small left column of each page displays links to sub categories for each tab, and the
+    large right column renders the main page. The following video will demonstrate navigation
+    of the main data types within the site.
+  </p>
+
+  <p>
+    This video is split into three chapters. The chapters will discuss:
+    <ul>
+      <li>Searching Sequence and Assemblies</li>
+      <li>Finding Features by name, type and assembly</li>
+      <li>Browsing Sample Data</li>
+    </ul>
+  </p>
+  
+  <%= link_to video_text, "videos/navigation.mov", :target => '_blank'  %>
+
+  <!-- <p>
+    Selecting the [Features] tab on the top right will display a listing of all the accessible
+    features in the site. This listing can be filtered by assembly, feature type, and keyword
+    matches to feature attributes. The table displays descriptive information about each feature
+    including Locus, Type, Position and attributes. Each row in the table is linked to the Genomic
+    Context and a detailed feature description page.
+  </p> -->
+
+</div></div>
+
+
+<h2 class="title">Expression</h2>
+<div class='clear'><div class='border'>
+  <p>
+    The quantitative expression analysis tool enables exploration and analysis of expression data
+    generated from RNA-Seq experiments. Count data from RNA-Seq samples can be assigned to genomic
+    features for presentation in this tool. The following video will demonstrate creating, filtering,
+    and analyzing quantitative expression tables.
+  </p>
+  <p>
+    This video is split into four chapters. The chapters will discuss:
+    <ul>
+      <li>Building expression tables</li>
+      <li>Expression search and filter options</li>
+      <li>Feature Expression profile</li>
+      <li>Feature Co-Expression</li>
+    </ul>
+  </p>
+  
+  <%= link_to video_text, "videos/expression.mov", :target => '_blank'  %>
+
+</div></div>
+
+
+<h2 class="title">Genomic Context</h2>
+<div class='clear'><div class='border'>
+  The genomic context tool allows multiple sample datasets to be compared with genomic sequence and
+  annotations. This interactive tool has many configuration options allowing for a customized view
+  of the different data types. The following video will demonstrate how to interact with and
+  configure the genomic context tool.
+  
+  <p>
+    This video is split into 5 chapters. The chapters will discuss:
+    <ul>
+      <li>Navigation and track management</li>
+      <li>Track folders and layouts</li>
+      <li>Read and Density Tracks</li>
+      <li>Gene Model and Feature Tracks</li>
+      <li>Genome Sequence and Variant Tracks</li>
+    </ul>
+  </p>
+  
+  <%= link_to video_text, "videos/genome_context.mov", :target => '_blank' %>
+
+  <!-- <p>
+    After loading a genome a few default tracks will be active. The rest of the tracks will be listed
+    under the inactive folder. Clicking and dragging a track into the 'active' are 'inactive' folder 
+    will activate or de-activate that track. Active tracks will automatically appear in the main
+    tracks window and begin loading data. You can also activate/inactivate a track by double-clicking
+    it.
+  </p> -->
+
+  <!-- <p>
+    Folders are managed in the Track Selection pane. There is a '+' icon at the top of the panel
+    that can be used to create a new folder. Tracks will remain in the folder you move them to.
+    If a folder has no tracks it will not be saved and will not appear on subsequent loads of the
+    genome. Folders are specific to each user and cannot be shared.
+    
+    There is a 'disk' icon at the top of the Track Selection panel that is used to save the current
+    layout. A dialog box will open asking you to type a name for the new layout.
+  </p> -->
+</div></div>
+
+<h2 class="title">Tools</h2>
+<div class='clear'><div class='border'>
+  
+  <p>
+    This video contains one chapter discussing the local blast tool and blast report details.
+  </p>
+  <%= link_to video_text, "videos/blast.mov", :target => '_blank' %>
+
+</div></div>

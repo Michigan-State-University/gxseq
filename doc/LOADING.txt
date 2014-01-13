@@ -23,8 +23,11 @@ Common Commands
 ----------------
 - Print bam Names in Dir
 
-	ls ./ | grep "bam" | awk '{gsub(".bam","");print $0}' | xargs
+	NAMES=$(find ./dir/ -name "*bam" | xargs)
 	
+- Bash substr: ${string:start:length}
+- Bash select directory level: SUBSTR=`echo $x |cut -d '/' -f 8`
+
 - Load Multiple Samples and Expression
 	
 	LIBS="one two three";  	//All sample names minus '.bam' '.csv'
@@ -43,7 +46,7 @@ Common Commands
 ----------------
 Before Loading Sequence
 ----------------
-Load the ncbi taxonomy tree if it has not beed done yet.
+Load the ncbi taxonomy tree if it has not been done yet.
 
 	thor taxonomy:load
 
@@ -112,7 +115,7 @@ Transcriptomes generally need more user input. Here are the command line in part
 - If your sequence is from a custom assembly or different database give it a custom source
 - Source names are displayed in the app and used to distinguish annotation sets
 
-	--source_name 'LabName'
+	--source-name 'LabName'
 
 - The verbose output might be too much information for a transcriptome.
 - You can supply show_percent to get a simple progress meter instead
@@ -186,7 +189,7 @@ To use thor you must supply a sample type, unique name, assembly_id and concorda
 	thor sample:create --data Bam:path/to/myfile.bam --name 'sample_1' --type RnaSeq --assembly_id 3 --concordance_set_id 5
 	
 You can also add a description or group name
-	-description 'tissue dpa' --group 'MyGroup'
+	--description 'tissue dpa' --group 'MyGroup'
 
 ----------------
 Loading Expression
@@ -196,7 +199,7 @@ with a locus_tag on the sample's bioentry. The loader expects 3 columns. Id, Cou
 
 Supply the command with the expression file and sample name or ID.
 	
-	thor expression:load sample_1.csv -e sample_1
+	thor expression:load sample_1.csv -e sample_1 --assembly_id 3
 
 If the ids in the file don't match locus tags in the database supply a concordance file
 	
