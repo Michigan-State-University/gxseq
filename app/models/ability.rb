@@ -133,7 +133,7 @@ class Ability
       can :read, Assembly, :group => {:name => 'public'}
       can :read, Assembly, :samples => {:group_id => public_gid}
       can :read, Biosql::Bioentry, :assembly => {:group => {:name => 'public'}}
-      can :read, Biosql::Bioentry, :assembly => {:samples => {:group => public_gid}}
+      can :read, Biosql::Bioentry, :assembly => {:samples => {:group_id => public_gid}}
       can [:read, :base_counts, :feature_counts, :coexpressed_counts], Biosql::Feature::Seqfeature, :bioentry => {:assembly => {:group => {:name => 'public'}}}
       can [:read, :base_counts, :feature_counts, :coexpressed_counts], Biosql::Feature::Seqfeature, :bioentry => {:assembly => {:samples => {:group_id => public_gid}}}
       can :read, GeneModel, :bioentry => {:assembly => {:group => {:name => 'public'}}}

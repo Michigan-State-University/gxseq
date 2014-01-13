@@ -39,6 +39,9 @@ class Assembly < ActiveRecord::Base
   accepts_nested_attributes_for :samples
   validates_associated :samples
   
+  # Defined in subclasses
+  def default_tracks
+  end
   # returns uniq list of terms for traits associated with samples
   def trait_types
     samples.map(&:trait_types).flatten.compact.uniq

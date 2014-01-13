@@ -109,18 +109,20 @@ class Biosql::BioentriesController < ApplicationController
     @gene_id = params[:gene_id]
     ## get layout id
     # selecting default layout resets preferred layout
-    if(params[:default])
-      current_user.preferred_track_layout=nil, assembly
-      current_user.save!
-      layout_id = nil
-    # passing layout_id sets preferred layout
-    elsif params[:layout_id]
-      layout_id = params[:layout_id]
-      current_user.preferred_track_layout=layout_id, assembly
-      current_user.save!
-    # lookup preferred layout if no explicit tracks set
-    else
-      layout_id = current_user.preferred_track_layout(assembly) unless params[:track]
+    if current_user
+      if(params[:default])
+        current_user.preferred_track_layout=nil, assembly
+        current_user.save!
+        layout_id = nil
+      # passing layout_id sets preferred layout
+      elsif params[:layout_id]
+        layout_id = params[:layout_id]
+        current_user.preferred_track_layout=layout_id, assembly
+        current_user.save!
+      # lookup preferred layout if no explicit tracks set
+      else
+        layout_id = current_user.preferred_track_layout(assembly) unless params[:track]
+      end
     end
     ## Setup the Active Tracks
     # if we have a layout_id find the layout and set the active tracks
@@ -137,7 +139,7 @@ class Biosql::BioentriesController < ApplicationController
       @active_tracks = Array(params[:tracks])
     # fallback on default tracks
     else
-      @active_tracks =[assembly.six_frame_track.try(:id),assembly.models_tracks.first.try(:id)]
+      @active_tracks = assembly.default_tracks
     end
     # Scope track access by ability
     # Active tracks will be ignored if not in this list
