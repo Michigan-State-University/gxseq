@@ -167,8 +167,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     return [self] if self.locus_tag.nil?
     return Biosql::Feature::Seqfeature.find_all_by_locus_tag(self.locus_tag.value)
   end
-  
-  ## Display name for this feature. May be overriden in sub-class for custom types
+  ## returns display name for this feature. May be overriden in sub-class for custom types
   def label
     if locus_tag
       locus_tag.value
@@ -176,20 +175,19 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
       'no locus'
     end
   end
-  # adds additional label information.
-  # for sub-class. I.E  label=5 label_type = chromosome
+  # returns additional label information.
+  # override in sub-class e.g. label=5 label_type = chromosome
   def label_type
     ''
   end
-  # TODO: Refactor / Audit display_name,display_type,label,name etc.. too many variations maybe move to draper gem
+  # returns name of feature type for display. Can be overriden e.g. "mRNA"
   def display_type
    self.type_term.name
   end
-
+  # returns display_type for use by versions changelog.
   def display_data
     "#{display_type}:"
   end
-
   # returns common description terms concatenated
   # gene function product gene_synonyms
   def description
