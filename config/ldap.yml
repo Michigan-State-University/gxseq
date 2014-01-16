@@ -1,7 +1,0 @@
-## Environments
-
-development:
-
-production:
-  host: localhost
-  port: 80

@@ -7,5 +7,6 @@ tmp/
 config/database.yml
 config/settings.yml
 config/sunspot.yml
+config/ldap.yml
 solr/data
 solr/pids
