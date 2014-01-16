@@ -171,21 +171,9 @@ class Biosql::Bioentry < ActiveRecord::Base
       source_features[0].label
     end
   end
-  # TODO: deprecate in favor of sequence_name
-  def short_name
-    sequence_name
-  end
-  # TODO: deprecate in favor of sequence_name
-  def generic_label
-    sequence_name
-  end
   # returns type from source feature for sequence label. i.e. Chr, organelle or blank string if unknown
   def sequence_type
     source_features.empty? ? '' : source_features[0].label_type
-  end
-  # TODO: deprecate in favor of sequence_type
-  def generic_label_type
-    sequence_type
   end
   # returns the species name. This is the scientific name of the species for associated taxon version
   def species_name
