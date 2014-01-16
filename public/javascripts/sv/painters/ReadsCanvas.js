@@ -186,7 +186,7 @@ Ext.define('Sv.painters.ReadsCanvas',{
         {
           mapAreas.push("<area shape='rect' coords='"+x+","+y+","+(x+w)+","+(y+h)+"' id=model_"+read.id+" data-id="+read.id+" href='#' alt='"+read.id+"' title='"+read.id+"'>");
         }
-        //Setup read style. TODO: allow user control of read colors
+        //Setup read style.
   			aw = 5
   			aw_offset = (read.level==0) ? 1 : 2
   			if(read.strand =='+')
@@ -206,7 +206,6 @@ Ext.define('Sv.painters.ReadsCanvas',{
         Ext.each(read.children, function(child)
         {
           if(child.length>2)
-          //TODO: in some places we have coupled the canvas to the viewport. This needs to be addressed
           var child_x = Math.ceil((child[1]) * self.viewport.pixels/self.viewport.bases)+x
           var child_w = Math.ceil((child[2]) * self.viewport.pixels/self.viewport.bases)
           self.paintBox(child[0],child_x,y,child_w,h)
