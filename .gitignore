@@ -1,3 +1,4 @@
+public/javascripts/sequence_viewer.js
 coverage
 .bundle
 db/*.sqlite3
@@ -10,3 +11,6 @@ config/sunspot.yml
 config/ldap.yml
 solr/data
 solr/pids
+lib/data/samples/*
+lib/data/sequence/*
+lib/data/blast_db/*
