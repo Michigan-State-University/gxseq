@@ -272,7 +272,7 @@ class Biosql::BioentriesController < ApplicationController
         },
         :entry => {
           :accession => bioentry.accession,
-          :accession_link => ACCESSION_LINK,
+          :accession_link => bioentry_path(bioentry,:fmt => 'genbank'),
           :size => (bioentry.length),
         }
       }

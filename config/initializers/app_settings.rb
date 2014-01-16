@@ -5,10 +5,6 @@ rescue => e
  puts "Error reading settings file.\nCheck config/settings.yml.sample for more information \n\t**#{e}\n\n"
 end
 
-# Set default accession_link for bioentries
-# TODO: store accession link in database, allow admin configuration
-ACCESSION_LINK = "http://www.ncbi.nlm.nih.gov/sites/entrez?db=genome&cmd=search&term=" unless defined? ACCESSION_LINK
-
 Squeel.configure do |config|
   # To load hash extensions (to allow for AND (&), OR (|), and NOT (-) against
   # hashes of conditions)
