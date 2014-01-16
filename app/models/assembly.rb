@@ -164,7 +164,6 @@ class Assembly < ActiveRecord::Base
     puts
   end
   # initializes tracks creating any that do not exist. Returns an array of new tracks
-  # TODO: Remove tracks completely. Just lookup the data during SV configuration
   def create_tracks
     result = []
     source_terms.each do |source_term|
@@ -263,7 +262,7 @@ class Assembly < ActiveRecord::Base
   end
   
   # removes all data skipping destroy callbacks for speed
-  # TODO: how to sync index with removed assembly?
+  # TODO: Need method to sync index with removed assembly?
   def delete_all_data
     PaperTrail.enabled = false
     begin
