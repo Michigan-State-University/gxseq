@@ -69,8 +69,7 @@ class Ability
       #GeneModels
       can [:read,:update], GeneModel, :bioentry => {:assembly => {:group => {:users => {:id => user.id}}}}
       can [:read,:update], GeneModel, :bioentry => {:assembly => {:samples => {:group => {:id => user.group_ids}}}}
-      #TODO: Update gene model create view before enabling
-      #can :create, GeneModel
+      can :create, GeneModel
       #Samples
       can :manage, Sample, :user_id => user.id
       can [:read,:track_data,:update], Sample, :group => {:users => {:id => user.id}}
