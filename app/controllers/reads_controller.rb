@@ -32,7 +32,7 @@ class ReadsController < ApplicationController
          }
       when 'abs_max'
         sample= Sample.find(param['sample'])
-        render :text => sample.max(sample.get_chrom(param['bioentry'])).to_s
+        render :text => sample.max(sample.sequence_name(param['bioentry'])).to_s
       when 'range'
         bioentry = Biosql::Bioentry.find(param['bioentry'])
         sample = Sample.find(param['sample'])

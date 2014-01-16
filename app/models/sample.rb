@@ -179,15 +179,6 @@ class Sample < ActiveRecord::Base
     else
       id = bioentry.to_i
     end
-    concordance_items.find_by_bioentry_id(id).reference_name
-  end
-  # return the chrom name for a bioentry ... duplication? TODO Fix duplication
-  def get_chrom(bioentry_id)
-    c_item = self.concordance_items.where(:bioentry_id=>bioentry_id).first
-    if(c_item)
-      c_item.reference_name
-    else
-      nil
-    end
+    concordance_items.find_by_bioentry_id(id).try(:reference_name)
   end
 end

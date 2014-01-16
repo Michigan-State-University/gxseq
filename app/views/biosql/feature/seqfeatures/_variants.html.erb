@@ -11,7 +11,7 @@
 <div id="variants_text" class="clear">
   <% @seqfeature.bioentry.assembly.variants.each do |variant| %>
     <% variant.samples.each do |sample| %>
-        <% unless variant.get_data(variant.get_chrom(@seqfeature.bioentry_id),@seqfeature.min_start,@seqfeature.max_end,{:only_variants => true, :limit => 1}).size > 0 %>
+        <% unless variant.get_data(variant.sequence_name(@seqfeature.bioentry_id),@seqfeature.min_start,@seqfeature.max_end,{:only_variants => true, :limit => 1}).size > 0 %>
           <div class  = "border">
             <h2 style="font-size:200%"><%= variant.name %></h2>
             No change
