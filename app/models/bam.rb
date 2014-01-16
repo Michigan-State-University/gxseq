@@ -21,7 +21,6 @@ class Bam < Asset
   
   # generates an index and updates state
   def load
-    # TODO: update to use a state machine or remove...
     update_attribute(:state, "loading")
     create_index
     remove_temp_files
@@ -285,11 +284,21 @@ class Bam < Asset
   end
   
   def create_big_wig(opts={})
-    return false unless bam = open_bam
     puts "----"
     puts "#{Time.now} Creating BigWig File"
-    # convert output to bed format
-    com = opts[:com] || '\' | awk \'{print $1, $2-1, $2, $4}'
+    # check data
+    unless APP_CONFIG[:bedtools_path]
+      puts "Aborting: No Bedtools Path specified"
+      return false
+    end
+    unless bam = open_bam
+      puts "Aborting: Bam could not be opened"
+      return false
+    end
+    if target_info.length == 0
+      puts "Aborting: No items found in index"
+      return false
+    end
     # clean any old tempfiles
     remove_temp_files
     # create new tempfiles
@@ -297,29 +306,16 @@ class Bam < Asset
     bed_sort = File.new(data.path+".bed_srt_tmp", "w")
     bw = File.new(data.path+".bw_tmp", "w")
     chr = File.new(data.path+".chrom.sizes","w")
-    
-    if target_info.length == 0
-      raise "File Error: No items found in index"
-    end
-      
+    # write chrom.sizes data
     target_info.each do |accession,hsh|
       next unless( hsh[:length] && hsh[:length]>0)
       length = hsh[:length]
-      unless(APP_CONFIG[:bedtools_path])
-        puts "--Working on #{accession} - Length: #{hsh[:length]}"
-        bam.mpileup_text({:r => "'#{accession}'"},bed.path,com)
-      end
-      # write chrom.sizes data
       chr.puts "#{accession} #{length}"
     end
-    
     chr.flush
-    
-    if(APP_CONFIG[:bedtools_path])
-      puts "--Running Bedtools genomeCoverageBed -split -bg"
-      #TODO: This APP_CONFIG call shouldn't be in the class. Use a class attribute instead
-      `#{APP_CONFIG[:bedtools_path]}/genomeCoverageBed -split -bg -ibam #{self.data.path} -g #{chr.path} > #{bed.path}`
-    end
+    # Create the bedGraph
+    puts "--Running Bedtools genomeCoverageBed -split -bg"
+    `#{APP_CONFIG[:bedtools_path]}/genomeCoverageBed -split -bg -ibam #{self.data.path} -g #{chr.path} > #{bed.path}`
     
     bed.flush
     bam.close
@@ -330,7 +326,8 @@ class Bam < Asset
     FileManager.bedgraph_to_bigwig(bed.path, bw.path, chr.path)
     puts "#{Time.now} Done"
     puts "----"
-    File.open(data.path+".bw_tmp", "r")
+    # return the new file 
+    return File.open(data.path+".bw_tmp", "r")
   end
   
   def remove_temp_files
