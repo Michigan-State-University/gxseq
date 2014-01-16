@@ -8,7 +8,6 @@ class RenameTaxonVersionToAssembly < ActiveRecord::Migration
     rename_column :blast_runs, :taxon_version_id, :assembly_id
     rename_column :experiments, :taxon_version_id, :assembly_id
     
-    # TODO: Test this, do we need to rename indexes after column rename?
     remove_index :sequence_files, :taxon_version_id
     add_index :sequence_files, :assembly_id
     
