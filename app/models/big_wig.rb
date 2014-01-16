@@ -67,10 +67,9 @@ class BigWig < Asset
   # :count => number of bins to return
   # :opts => options hash:
   # - :type => aggregation type for bins
-  def summary_data(start,stop,count,chrom,type="max",opts={})
-    # TODO: convert all 'type' references to opts[:type] for bigwig summary
+  def summary_data(start,stop,count,chrom,opts={})
     return [] unless bw = open_bw
-    opts[:type]||=type
+    opts[:type]||='max'
     bw.summary(chrom,start,stop,count,opts).tap{ bw.close }
   end
   # smooth this data returning a new file_handle. Calls the C bigWigSmooth utility
@@ -130,7 +129,7 @@ class BigWig < Asset
     while(pos<((bc / window)+1) )
       values=[]
       offset = (pos*window)
-      summary_data(offset,offset+window,window,chrom,'max').each do |v|
+      summary_data(offset,offset+window,window,chrom,{:type => 'max'}).each do |v|
         values <<( v.nil? ? 0 : v.to_f)
       end
       printf "\nWorking on #{offset},#{offset+window}\n"
@@ -194,7 +193,7 @@ class BigWig < Asset
     #begin summit calculations (tip of peak range)
     puts "locating peak summits #{Time.now} "
     peaks.each_with_index do |p, i| 
-      peak_maximum = summary_data(p[0],p[1],1,chrom,'max',{:type => 'max'}).first.to_f || 0
+      peak_maximum = summary_data(p[0],p[1],1,chrom,{:type => 'max'}).first.to_f || 0
       summit_positions = find_match_in_range(p[0],p[1],peak_maximum,chrom,opt[:error])
       if summit_positions.empty?
         puts "Warning couldn't identify summit in (#{p[0]},#{p[1]})"
@@ -217,7 +216,7 @@ class BigWig < Asset
       x1 = x2
       x2 = t
     end
-    summary_data(x1,x2,(x2-x1),chrom,'max',{:type => 'max'}).each_with_index do |val,i|
+    summary_data(x1,x2,(x2-x1),chrom,{:type => 'max'}).each_with_index do |val,i|
       if ( (match-error) <= val.to_f && val.to_f <= (match+error) )
         a << (i+x1)
       end
