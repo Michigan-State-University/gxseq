@@ -567,7 +567,6 @@ class Sequence < Thor
         org_taxon = tn.taxon
       else
         t = nil
-        # FIXME: Biosql doesn't like source_features method on brachy genome
         if(source = entry.features.select{|f| f.feature=='source'}.first)
           t = source.qualifiers
             .select{|q| q.qualifier=='db_xref' && q.value.match(/taxon/)}

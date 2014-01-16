@@ -289,7 +289,8 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
       @changelogs = Version.order('id desc').where(:parent_id => @seqfeature.id).where(:parent_type => @seqfeature.class.name)
       @changelogs = @changelogs.where{item_type != 'Biosql::Location'}.where{item_type != 'GeneModel'}
     end
-
+    
+    # TODO: refactor this method is nearly identical in genes_controller
     def setup_graphics_data
       @canvas_width = 2500
       @model_height = 15
