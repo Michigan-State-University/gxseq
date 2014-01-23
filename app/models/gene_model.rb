@@ -698,7 +698,7 @@ class GeneModel < ActiveRecord::Base
                 cds_gene_model_count+=1
                 # Setup the gene model
                 gene_model = base_gene_model
-                gene_model[:cds_id] = cds_id
+                gene_model[:cds_id] = cds.id
                 gene_model[:protein_id] = cds.protein_id.try(:value)
                 gene_model[:variants] = cds_list.length
                 gene_model[:rank] = idx
