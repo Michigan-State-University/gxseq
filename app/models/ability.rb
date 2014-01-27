@@ -139,7 +139,7 @@ class Ability
       can :read, GeneModel, :bioentry => {:assembly => {:samples => {:group_id => public_gid}}}
       can [:read,:track_data], Sample, :group => {:name => 'public'}
       can [:read,:track_data], Sample, :assembly => {:group_id => public_gid}
-      can :read, Track, :sample => {:group => {:name => 'public'}}
+      can :read, Track, :sample => {:group_id => public_gid}
       can :read, Track, :sample => {:assembly => {:group => {:name => 'public'}}}
       can :read, Asset, :sample => {:group => {:name => 'public'}}
       can :read, Asset, :sample => {:assembly => {:group => {:name => 'public'}}}
