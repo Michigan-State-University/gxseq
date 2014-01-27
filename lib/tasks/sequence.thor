@@ -577,13 +577,10 @@ class Sequence < Thor
       end
     end
 
-    # species not supplied
-    if species_taxon.nil?
-      species_taxon = strain_taxon.try(:species) || org_taxon.try(:species) || Biosql::Taxon.unknown
-    # species supplied - check strain
-    else
-      strain_taxon ||= (org_taxon || species_taxon)
-    end
+    # set species
+    species_taxon ||= strain_taxon.try(:species) || org_taxon.try(:species) || Biosql::Taxon.unknown
+    # set strain
+    strain_taxon ||= org_taxon || species_taxon
     # check for ancestry
     unless species_taxon.parent_taxon_id
       species_taxon.update_attribute(:parent_taxon_id,Biosql::Taxon.root.taxon_id)

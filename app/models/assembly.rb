@@ -269,10 +269,10 @@ class Assembly < ActiveRecord::Base
       # all or nothing
       Assembly.transaction do
         
-        b_ids = bioentries.select("bioentry_id")
+        b_ids = bioentries.select("bioentry_id").except(:order)
         # seqfeature assoc
         features = Biosql::Feature::Seqfeature.where{bioentry_id.in my{b_ids}}
-        fea_ids = features.select("seqfeature_id")
+        fea_ids = features.select("seqfeature_id").except(:order)
         Biosql::SeqfeatureQualifierValue.where{seqfeature_id.in my{fea_ids}}.delete_all
         Biosql::Location.where{seqfeature_id.in my{fea_ids}}.delete_all
         features.delete_all
@@ -285,11 +285,12 @@ class Assembly < ActiveRecord::Base
         GeneModel.where{bioentry_id.in my{b_ids}}.delete_all
         ConcordanceItem.where{bioentry_id.in my{b_ids}}.delete_all
         Peak.where{bioentry_id.in my{b_ids}}.delete_all
+        # TODO: test this delte on >1000 ids
         Biosql::Bioentry.where{bioentry_id.in my{b_ids.map(&:bioentry_id)}}.delete_all
         # assembly assoc
-        BlastRun.where{assembly_id = my{id}}.delete_all
-        Track.where{assembly_id = my{id}}.delete_all
-        ConcordanceSet.where{assembly_id = my{id}}.delete_all
+        BlastRun.where{assembly_id == my{id}}.delete_all
+        Track.where{assembly_id == my{id}}.delete_all
+        ConcordanceSet.where{assembly_id == my{id}}.delete_all
         # Use destroy on paperclip attachments
         samples.destroy_all
         gc_file.destroy
