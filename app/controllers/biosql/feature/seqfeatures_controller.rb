@@ -118,6 +118,8 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
       params[:blast_report_id]||=@blast_reports.first.id
       @blast_report = BlastIteration.find_by_id(params[:blast_report_id])
       @blast_run = @blast_report.try(:blast_run)
+    when 'variants'
+      @variant_window = params[:v_win].to_i
     end
     rescue => e
       server_error(e,"seqfeature show error")

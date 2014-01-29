@@ -11,7 +11,7 @@
     <tr><td>Note:</td><td><%=truncate(n.value,:length=>50)%></td></tr>
   <%end%>
   <% @gene.db_xrefs.each do |x|%>
-    <tr><td>db_xref:</td><td><%=x.value.html_safe%></td></tr>
+    <tr><td>db_xref:</td><td><%=x.to_s.html_safe%></td></tr>
   <%end%>
   <% @ontologies.each do |ont| %>
     <% next unless @gene.qualifiers.with_ontology(ont.id).length > 0%>
@@ -35,7 +35,7 @@
 	    <tr><td>Note:</td><td><%=truncate(n.value,:length=>50)%></td></tr>
 	  <%end%>
 	  <% @cds.db_xrefs.each do |x|%>
-      <tr><td>db_xref:</td><td><%=x.value.html_safe%></td></tr>
+      <tr><td>db_xref:</td><td><%=x.to_s.html_safe%></td></tr>
     <%end%>
     <% @ontologies.each do |ont| %>
       <% next unless @cds.qualifiers.with_ontology(ont.id).length > 0%>
@@ -60,7 +60,7 @@
       <tr><td>Note:</td><td><%=truncate(n.value,:length=>50)%></td></tr>
     <%end%>
     <% @mrna.db_xrefs.each do |x|%>
-      <tr><td>db_xref:</td><td><%=x.value.html_safe%></td></tr>
+      <tr><td>db_xref:</td><td><%=x.value(true).html_safe%></td></tr>
     <%end%>
     <% @ontologies.each do |ont| %>
       <% next unless @mrna.qualifiers.with_ontology(ont.id).length > 0%>
