@@ -1,5 +1,5 @@
 <h1 class="pagetitle"><%= @asset.type %> : <%= @asset.id %></h1>
-<%= render :partial => "experiments/sidebar" %>
+<%= render :partial => "samples/sidebar" %>
 <div style="float:right">
 <%= render :partial => "#{@asset.class.name.underscore}_card", :locals => {:asset => @asset} rescue
     render :partial => "card", :locals => {:asset => @asset}
@@ -28,7 +28,7 @@
   </p>
   <p>
     <b>Attached to:</b>
-    <%= link_to "#{@asset.experiment.name} : #{@asset.experiment.type}", @asset.experiment  if @asset.experiment %><br/>
+    <%= link_to "#{@asset.sample.name} : #{@asset.sample.type}", @asset.sample  if @asset.sample %><br/>
   </p>
 </div>
 <div style="clear:both;float:left">

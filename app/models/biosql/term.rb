@@ -36,6 +36,9 @@ class Biosql::Term < ActiveRecord::Base
   has_many :term_relationship_predicates, :class_name => "TermRelationship", :foreign_key =>"predicate_term_id"
   has_many :term_relationship_objects, :class_name => "TermRelationship", :foreign_key =>"object_term_id"
   has_many :seqfeature_paths, :class_name => "SeqfeaturePath"
+  has_many :sample_traits, :class_name => "Trait"
+  validates_presence_of :name
+  validates_uniqueness_of :name, :scope => :ontology_id
   ## CLASS METHODS
   # ontology terms
   def self.annotation_tags
@@ -47,6 +50,9 @@ class Biosql::Term < ActiveRecord::Base
   def self.seqfeature_tags
     self.where(:ontology_id => seq_key_ont_id)
   end
+  def self.sample_tags
+    self.where(:ontology_id => sample_ont_id)
+  end
   # Default ontology setup
   def self.seq_src_ont_id
     @seq_src_id ||= Biosql::Ontology.find_or_create_by_name("SeqFeature Sources").try(:id)
@@ -55,23 +61,30 @@ class Biosql::Term < ActiveRecord::Base
     @seq_key_id ||= Biosql::Ontology.find_or_create_by_name("SeqFeature Keys").try(:id)
   end
   def self.ano_tag_ont_id
-    @ano_tag_id ||= Biosql::Ontology.find_or_create_by_name("Annotation Tags").try(:id)
+    @ano_tag_ont_id ||= Biosql::Ontology.find_or_create_by_name("Annotation Tags").try(:id)
+  end
+  def self.sample_ont_id
+    @sample_ont_id ||= Biosql::Ontology.find_or_create_by_name("Sample Traits").try(:id)
   end
   # All but seqfeature source and seqfeature keys
   def self.annotation_ontologies
-    @anno_ont ||= Biosql::Ontology.where("ontology_id not in(#{seq_src_ont_id},#{seq_key_ont_id})").order("name desc")
+    @anno_ont ||= Biosql::Ontology.where("ontology_id not in(#{seq_src_ont_id},#{seq_key_ont_id},#{sample_ont_id})").order("name desc")
   end
   # All non standard ontologies
   def self.custom_ontologies
-    @custom_ont ||= Biosql::Ontology.where("ontology_id not in(#{seq_src_ont_id},#{seq_key_ont_id},#{ano_tag_ont_id})")
+    @custom_ont ||= Biosql::Ontology.where("ontology_id not in(#{seq_src_ont_id},#{seq_key_ont_id},#{ano_tag_ont_id},#{sample_ont_id})")
   end
   # returns the default source term for use with seqfeature source_term
   def self.default_source_term
-    @default_src_tm ||= self.find_or_create_by_name_and_ontology_id("EMBL/GenBank/SwissProt",seq_src_ont_id)
+    @default_src_trm ||= self.find_or_create_by_name_and_ontology_id("EMBL/GenBank/SwissProt",seq_src_ont_id)
   end
   # returns the locus_tag term from the annotation ontology
   def self.locus_tag
      @locus_tag_trm ||= self.find_or_create_by_name_and_ontology_id('locus_tag', ano_tag_ont_id)
+  end
+  # return the db_xref term from th annotation ontology
+  def self.db_xref
+    @db_xref_trm ||= Biosql::Term.find_or_create_by_name_and_ontology_id("db_xref",ano_tag_ont_id)
   end
   
   def self.denormalize
@@ -90,6 +103,12 @@ class Biosql::Term < ActiveRecord::Base
       puts $!
       return false
     end
+  end
+  
+  # clear all cached attributes
+  def self.reset_cache
+    @seq_src_id = @seq_key_id = @ano_tag_ont_id = @sample_ont_id = nil
+    @anno_ont = @custom_ont = @default_src_trm = @locus_tag_trm = @db_xref_trm = nil
   end
 end
 

@@ -1,15 +1,11 @@
 <% content_for :head do -%>
 	<%= stylesheet_link_tag 'formtastic', 'formtastic_overrides' %>
-  <%#= stylesheet_link_tag 'jquery-ui-1.9.2' %>
-  <%#= javascript_include_tag "jquery-latest.min.js" %>
-  <%#= javascript_include_tag "jquery-ui-1.9.2.js" %>
-  <%#= javascript_include_tag "autocomplete-rails.js" %>
-	<%= render :partial => "common/extjs_css" %>
-	<%= render :partial => "common/extjs" %>
+	<%= render :partial => "shared/extjs_css" %>
+	<%= render :partial => "shared/extjs" %>
 <% end -%>
 
 <% content_for :sidebar do %>
-	<%= render :partial => "sidebar", :locals => {:active => 'create'} %>
+	<%= render :partial => "biosql/feature/seqfeatures/sidebar", :locals => {:active => 'create'} %>
 <% end %>
 
 <% content_for :top_bar do%>
@@ -22,22 +18,7 @@
 
 <br/><br/>
 
-<%# TODO: Finish updates to gene model create form %>
-<%#= form_tag new_gene_path, :method => :get do %>
-  <%#= select_tag :assembly_id,
-    options_from_collection_for_select(@assemblies, :id, :name_with_version, params[:assembly_id]),
-    {:include_blank => "Select one...",:onchange => 'if (b=document.getElementById("bioentry_select")){b.selectedIndex = -1};this.form.submit()'}
-  %>
-  <!-- <%# if(@assembly) %>
-    <%#= select_tag :bioentry_id,
-      options_from_collection_for_select(@bioentries, :bioentry_id, :display_info, params[:bioentry_id]),
-      {:include_blank => "Select one...",:onchange => 'this.form.submit()',:id => 'bioentry_select'}
-    %>
-  <%# end%> -->
-<%# end %>
-
-
-  <% form_tag new_gene_path, :method => :get do |f| -%>
+  <%= form_tag new_gene_path, :method => :get do |f| -%>
     <%= select_tag :assembly_id,
       options_from_collection_for_select(@assemblies, :id, :name_with_version, @assembly.try(:id)),
       {:include_blank => "Select one...", :onchange => 'if (b=document.getElementById("bioentry_id")){b.selectedIndex = -1};this.form.submit()'}

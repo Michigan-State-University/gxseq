@@ -1,10 +1,14 @@
 class TrackLayoutsController < ApplicationController
 
-  def index    
-    @track_layouts = current_user.is_admin? ?
-      TrackLayout.where(:assembly_id  =>  params[:assembly_id]) :
-      TrackLayout.where(:user_id  => current_user.id, :assembly_id => params[:assembly_id])
-    render :json => @track_layouts.order("created_at DESC").to_json(:only => [:name,:id])
+  def index
+    if(current_user)
+      @track_layouts = current_user.is_admin? ?
+        TrackLayout.where(:assembly_id  =>  params[:assembly_id]) :
+        TrackLayout.where(:user_id  => current_user.id, :assembly_id => params[:assembly_id])
+      render :json => @track_layouts.order("created_at DESC").to_json(:only => [:name,:id])
+    else
+      render :json => []
+    end
   end
 
   def create

@@ -4,11 +4,11 @@ class VariantsController < ApplicationController
   before_filter :get_variants, :only => [:show]
   
   ##custom actions - rjs
-  def initialize_experiment
+  def initialize_sample
     @variant = Variant.find(params[:id])
-    @variant.initialize_experiment
+    @variant.initialize_sample
     render :update do |page|
-      page.replace_html 'initialize_experiment', "Job Started. Refresh to view updates in the console."
+      page.replace_html 'initialize_sample', "Job Started. Refresh to view updates in the console."
     end
   end
   
@@ -29,14 +29,14 @@ class VariantsController < ApplicationController
     begin
       if @variant.valid?
         @variant.save
-        flash[:notice]="Experiment created succesfully"
+        flash[:notice]="Sample created succesfully"
         redirect_to :action => :index
       else
         render :action => :new
       end
     rescue
       logger.info "\n\nRescued from Variant #{$!}\n\n"
-      flash[:error]="Could not create experiment"
+      flash[:error]="Could not create sample"
       redirect_to :action => :index
     end
   end
@@ -60,7 +60,7 @@ class VariantsController < ApplicationController
 
   def destroy
     @variant.destroy
-    flash[:warning]="Experiment #{@variant.name} has been removed"
+    flash[:warning]="Sample #{@variant.name} has been removed"
     redirect_to :action => :index
   end
   
@@ -72,8 +72,8 @@ class VariantsController < ApplicationController
       when 'syndicate'
         render :json => {:success => true}
       when 'range'   
-        variant = Variant.find(param['experiment'])
-        sample = param['sample']
+        variant = Variant.find(param['sample'])
+        genotype_sample = param['genotype_sample']
         left = param['left']
         right = param['right']
         bioentry = Biosql::Bioentry.find(param['bioentry'])
@@ -82,7 +82,7 @@ class VariantsController < ApplicationController
         bioentry_id = bioentry.id
         c_item = variant.concordance_items.find_by_bioentry_id(bioentry_id)
         data = {}
-        variant.get_data(c_item.reference_name, left, right, {:limit => limit, :sample => sample, :split_hets => true, :only_variants => only_variants_flag}).each do |v|  
+        variant.get_data(c_item.reference_name, left, right, {:limit => limit, :sample => genotype_sample, :split_hets => true, :only_variants => only_variants_flag}).each do |v|  
           data[v[:type]] ||=[]
           data[v[:type]] << [v[:allele],v[:id],v[:pos],v[:ref].length,v[:ref],v[:alt],v[:qual]]
         end
@@ -93,10 +93,10 @@ class VariantsController < ApplicationController
       when 'describe'
         begin
           @bioentry = Biosql::Bioentry.find(param['bioentry'])
-          @experiment = Experiment.find(param['experiment'])
-          c_item = @experiment.concordance_items.find_by_bioentry_id(@bioentry.id)
+          @sample = Sample.find(param['sample'])
+          c_item = @sample.concordance_items.find_by_bioentry_id(@bioentry.id)
           @position = param['pos']
-          @variants = @experiment.find_variants(c_item.reference_name,param['pos'].to_i)
+          @variants = @sample.find_variants(c_item.reference_name,param['pos'].to_i)
           render :partial => "item"
         rescue
           render :json => {
@@ -107,7 +107,7 @@ class VariantsController < ApplicationController
         end
       when 'select_region'
         begin
-          @variant = Track.find(param['id']).experiment
+          @variant = Track.find(param['id']).sample
           @left = param['left']
           @right = param['right']
           @bioentry = Biosql::Bioentry.find(param['bioentry'])
@@ -136,15 +136,17 @@ class VariantsController < ApplicationController
   
   def get_variants
     page = params[:page] || 1
-    @bioentry = Biosql::Bioentry.find((params[:bioentry_id] || @variant.assembly.bioentries.first.id))
-    c_item = @variant.concordance_items.find_by_bioentry_id(@bioentry.id)
-    @sequence_name = c_item.reference_name
-    @variants = []
-    @limit = 100000
-    begin
-      @variants = @variant.get_data(@sequence_name,0,@bioentry.length,{:only_variants => true, :limit => @limit})
-    rescue => e
-      logger.info "\n\n#{$!}\n\n#{e.backtrace}"
+    @bioentry = Biosql::Bioentry.find((params[:bioentry_id] || @variant.assembly.bioentries.first.id)) rescue nil
+    if(@bioentry)
+      c_item = @variant.concordance_items.find_by_bioentry_id(@bioentry.id)
+      @sequence_name = c_item.reference_name
+      @variants = []
+      @limit = 100000
+      begin
+        @variants = @variant.get_data(@sequence_name,0,@bioentry.length,{:only_variants => true, :limit => @limit})
+      rescue => e
+        logger.info "\n\n#{$!}\n\n#{e.backtrace}"
+      end
     end
     @variants ||=[]
     @variants = @variants.sort{|a,b| b[:qual]<=>a[:qual]}.paginate(:page => page, :per_page => 50)

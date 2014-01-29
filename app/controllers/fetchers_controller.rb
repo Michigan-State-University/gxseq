@@ -34,28 +34,28 @@ class FetchersController < ApplicationController
     when 'range'
       bioentry_id = param['bioentry']
       bioentry = Biosql::Bioentry.find(bioentry_id)
-      exp = Experiment.find(param['experiment'])
-      authorize! :track_data, exp
-      c_item = exp.concordance_items.with_bioentry(bioentry_id)[0]
+      sample = Sample.find(param['sample'])
+      authorize! :track_data, sample
+      c_item = sample.concordance_items.with_bioentry(bioentry_id)[0]
       density=param['density']||1000
-      data = exp.summary_data(param['left'],param['right'],density,c_item.reference_name)
+      data = sample.summary_data(param['left'],param['right'],density,c_item.reference_name)
       offset = (param['right']-param['left'])/density.to_f
       #{(stop-start)/bases
       data.fill{|i| [param['left']+(i*offset).to_i,data[i].round(2)]}
       #We Render the text directly for speed efficiency
       render :text =>"{\"success\":true,\"data\":#{data.inspect}}"
     when 'peak_genes'
-      @experiment = Experiment.find(param['experiment'])
-      authorize! :track_data, @experiment
+      @sample = Sample.find(param['sample'])
+      authorize! :track_data, @sample
       @bioentry_id = param['bioentry']
       bioentry = Biosql::Bioentry.find(@bioentry_id)
-      render :partial => 'peaks/gene_list.json' #exp.peaks.with_bioentry(param['bioentry']).order(:pos).to_json(:only => [:id,:pos, :val], :methods => :genes_link)
+      render :partial => 'peaks/gene_list.json' #sample.peaks.with_bioentry(param['bioentry']).order(:pos).to_json(:only => [:id,:pos, :val], :methods => :genes_link)
     when 'peak_locations'
-      exp = Experiment.find(param['experiment'])
-      authorize! :track_data, exp
+      sample = Sample.find(param['sample'])
+      authorize! :track_data, sample
       bioentry_id = param['bioentry']
       bioentry = Biosql::Bioentry.find(bioentry_id)
-      render :text => exp.peaks.with_bioentry(param['bioentry']).order(:pos).map{|p|{:pos => p.pos, :id => p.id}}.to_json
+      render :text => sample.peaks.with_bioentry(param['bioentry']).order(:pos).map{|p|{:pos => p.pos, :id => p.id}}.to_json
     end
    end
    

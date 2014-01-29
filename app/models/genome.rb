@@ -16,4 +16,8 @@ class Genome < Assembly
   def default_feature_definition
     'description'
   end
+  # default track setup for sequence view
+  def default_tracks
+    [six_frame_track.try(:id),models_tracks.first.try(:id)]
+  end
 end

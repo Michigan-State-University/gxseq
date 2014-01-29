@@ -1,8 +1,8 @@
 module ExpressionHelper
-  def stored_locus_link(hit,experiments)
+  def stored_locus_link(hit,samples)
     if (bioentry_id = Array(hit.stored(:bioentry_id)).first)
       link_to( Array(hit.stored(:locus_tag_text)).first, bioentry_path(bioentry_id,
-        :tracks => [ :models_track, :generic_feature_track, experiments.collect{|e| e.tracks.map(&:id)} ].flatten,
+        :tracks => [ :models_track, :generic_feature_track, samples.collect{|e| e.tracks.map(&:id)} ].flatten,
         :pos => Array(hit.stored(:start_pos)).first
         )
       )

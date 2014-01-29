@@ -11,7 +11,7 @@
 <% content_for :item_bar do -%>
 <% end -%>
 <p>
-	This tool allows you to explore expression data from RNA-Seq experiments. To get started select a Species and the experiment(s) you are interested in. More details can be found <%= link_to "here", details_tools_path %>.
+	This tool allows you to explore expression data from RNA-Seq samples. To get started select a Species and the sample(s) you are interested in. More details can be found <%= link_to "here", details_tools_path %>.
 </p>
 <% if @assemblies.empty? %>
   <p style='font-style:italic;color:darkred'>
@@ -43,18 +43,18 @@
 <hr/>
 <div id="form_field">
   <div id='viewer' style="<%= params[:fmt]&&params[:fmt]=='viewer' ? '' : 'display:none' %>" class='select_form'>
-	<% if @experiment_options %>
-		<%= render :partial => 'viewer_form', :locals => {:experiment_options => @experiment_options, :assembly => @assembly, :type_term_id => @type_term_id} %>
+	<% if @sample_options %>
+		<%= render :partial => 'viewer_form', :locals => {:sample_options => @sample_options, :assembly => @assembly, :type_term_id => @type_term_id} %>
 	<% end %>
 	</div>
 	<div id='advanced_viewer' style="<%= params[:fmt]=='advanced_viewer' ? '' : 'display:none' %>" class='select_form'>
-	  <% if @experiment_options %>
-	  <%= render :partial => 'advanced_viewer_form', :locals => {:experiment_options => @experiment_options, :assembly => @assembly, :type_term_id => @type_term_id} %>
+	  <% if @sample_options %>
+	  <%= render :partial => 'advanced_viewer_form', :locals => {:sample_options => @sample_options, :assembly => @assembly, :type_term_id => @type_term_id} %>
 	  <% end %>
 	</div>
 	<div id='parallel' style="<%= params[:fmt]&&params[:fmt]=='parallel' ? '' : 'display:none' %>" class='select_form'>
-	<% if @experiment_options %>
-		<%= render :partial => 'parallel_select_form', :locals => {:experiment_options => @experiment_options, :assembly => @assembly, :type_term_id => @type_term_id} %>
+	<% if @sample_options %>
+		<%= render :partial => 'parallel_select_form', :locals => {:sample_options => @sample_options, :assembly => @assembly, :type_term_id => @type_term_id} %>
 	<% end %>
 	</div>
 </div>

@@ -1,13 +1,5 @@
-
-<% content_for :head do %>
-	<%= render :partial => "common/extjs_css" %>
-	<%= render :partial => "common/svjs_css" %>
-	<%= render :partial => "common/extjs" %>
-	<%= render :partial => "common/svjs" %>
-<% end %>
-
 <%= content_for :sidebar do %>
-	<%= render :partial => "biosql/feature/genes/sidebar", :locals => {:active => 'features'} %>
+	<%= render :partial => "sidebar", :locals => {:active => 'features'} %>
 <% end %>
 
 <% if @seqfeature %>
@@ -15,23 +7,51 @@
 	<% content_for :top_bar do %>
 		<h1 class="pagetitle">
 			<%= "#{@seqfeature.display_type} : #{@seqfeature.label_type} #{@seqfeature.label} #{(@seqfeature.gene.nil? ? "" : " - "+@seqfeature.gene.value)}" %>
-			<div style="float:right;font-size:50%;padding-top:1em">
-				<%= @seqfeature.bioentry.display_info %>
+			<div style="float:right;font-size:50%;">
+				<%= @seqfeature.bioentry.display_info %><br/>
+				<div style="font-size:75%">
+				  <%= link_to "Open Sequence Viewer", bioentry_path(@seqfeature.bioentry_id,
+				    :pos => @seqfeature.min_start,
+				    :feature_id => @seqfeature.id),
+				    :target => "_blank"
+				  %> |
+				  <%= link_to "Sequence Details", bioentry_path(@seqfeature.bioentry_id,
+				    :fmt => 'genbank'),
+			    :target => "_blank"%>
+				</div>
 			</div>
 		</h1>
 	<% end %>
 
 	<% content_for :item_bar do -%>
 		<div style="float:left">
-			<%= link_to "New Feature", new_seqfeature_path, :class => "button" %>
-			<%= link_to "Open Sequence Viewer", bioentry_path(@seqfeature.bioentry_id, :pos => @seqfeature.min_start,:feature_id => @seqfeature.id), :class => 'button' %>
+			<%#= link_to "Open In Sequence Viewer", bioentry_path(@seqfeature.bioentry_id, :pos => @seqfeature.min_start,:feature_id => @seqfeature.id), :class => 'button' %>
 		</div>
 		<%= render :partial => 'format_links' %>
 	<% end -%>
-
+  
+  <% if @seqfeatures.size > 1 %>
+  	<% content_for :left_column do -%>
+  		<div class="hb-green">Notice</div>
+  		<div class="box-green">	
+  			<h2 style="color:darkred;">Locus Tag Is Not Unique!</h2>
+  			Alternate versions:
+  			<p style="margin:.5em">
+  				<% @seqfeatures.each do |feature| %>
+  					<%= link_to feature.bioentry.display_info, seqfeature_path(feature) %><br/><br/>
+  				<% end %>
+  			</p>
+  		</div>
+  	<% end -%>
+  <% end %>
+  
 	<!-- Format -->
 	<div id="<%= @format %>_format" style="clear:both;">
-		<%= render :partial => @format, :locals => {:feature => @seqfeature} %>
+	  <% if @format=='standard' && @seqfeature.class == Biosql::Feature::Gene %>
+		  <%= render :partial => "biosql/feature/genes/#{@format}", :locals => {:feature => @seqfeature} %>
+		<% else %>
+		  <%= render :partial => @format, :locals => {:feature => @seqfeature} %>
+		<% end %>
 	</div>
 
 <% else %>

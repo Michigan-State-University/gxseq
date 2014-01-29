@@ -1,23 +1,22 @@
 <% content_for :default_override do -%>
-<!-- SlickGrid -->
-<%= stylesheet_link_tag 'slickgrid/slick.grid.css' %>
-<%= stylesheet_link_tag 'slickgrid/jquery-ui-1.8.16.custom.css' %>
-<%= stylesheet_link_tag 'slickgrid/examples.css' %>
-<%= stylesheet_link_tag 'slickgrid/slick.pager.css' %>
-<%= javascript_include_tag 'jquery-latest.min.js' %>
-<%= javascript_include_tag 'slickgrid/jquery.event.drag-2.0.min.js' %>
-<%= javascript_include_tag 'slickgrid/slick.core.js' %>
-<%= javascript_include_tag 'slickgrid/slick.grid.js' %>
-<%= javascript_include_tag 'slickgrid/slick.pager.js' %>
-<%= javascript_include_tag 'slickgrid/slick.dataview.js' %>
-<!-- D3 and Parallel coords chart -->
-<%#= stylesheet_link_tag 'd3.parcoords.css' %>
-<%= javascript_include_tag 'd3.v3.min.js' %>
-<%= javascript_include_tag 'd3.linechart.js' %>
-<%= javascript_include_tag 'd3.slickline.js' %>
-<%= javascript_include_tag 'divgrid.js' %>
-<%#= javascript_include_tag 'line_chart_with_slick.js' %>
-<% end -%>
+  <!-- SlickGrid -->
+  <%= stylesheet_link_tag 'slickgrid/slick.grid.css' %>
+  <%= stylesheet_link_tag 'slickgrid/jquery-ui-1.8.16.custom.css' %>
+  <%= stylesheet_link_tag 'slickgrid/examples.css' %>
+  <%= stylesheet_link_tag 'slickgrid/slick.pager.css' %>
+  <%= javascript_include_tag 'jquery-latest.min.js' %>
+  <%= javascript_include_tag 'jquery_ujs.js' %>
+  <%= javascript_include_tag 'slickgrid/jquery.event.drag-2.0.min.js' %>
+  <%= javascript_include_tag 'slickgrid/slick.core.js' %>
+  <%= javascript_include_tag 'slickgrid/slick.grid.js' %>
+  <%= javascript_include_tag 'slickgrid/slick.pager.js' %>
+  <%= javascript_include_tag 'slickgrid/slick.dataview.js' %>
+  <!-- D3 Linechart -->
+  <%= javascript_include_tag 'd3.v3.min.js' %>
+  <%= javascript_include_tag 'd3.linechart.js' %>
+  <%= javascript_include_tag 'd3.slickline.js' %>
+  <%= javascript_include_tag 'divgrid.js' %>
+<% end %>
 
 <style>
 	/* tell the SVG path to be a thin blue line without any area fill */
@@ -65,7 +64,7 @@
     width: 100%;
   }
   #grid {
-    height: 300px;
+    height: 600px;
   }
   #pager {
     height: 20px;
@@ -83,12 +82,12 @@
   }
 </style>
 
-<div id="graph" class="slickline" style="height:300px;"></div>
+<div id="graph" class="slickline" style="height:500px;"></div>
 <div id="pager"></div>
 <div id="grid"></div>
 <script type='text/javascript'>
   var linkFormatter = function ( row, cell, value, columnDef, dataContext ) {
-          return '<a href="' + dataContext['id'] + '?fmt=expression">' + value + '</a>';
+          return '<a href="' + dataContext['id'] + '?fmt=coexpression">' + value + '</a>';
       };
   slick = d3.slickline({
     graph: '#graph',
@@ -128,7 +127,7 @@
       },
       {
         id: '5',
-        name: 'AVG RPKM',
+        name: 'AVG NORM',
         field: 'avg',
         sortable: true,
         selectable: false

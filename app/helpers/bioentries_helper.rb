@@ -15,14 +15,14 @@ module BioentriesHelper
       
       @layout.track_configurations.each do |config|
         text+="
-        {bioentry: '#{bioentry.id}',\n path: '#{current_user.preferred_track_path(config.track) || config.track.path}',\n#{config.track_config}},\n"
+        {bioentry: '#{bioentry.id}',\n path: '#{current_user.try(:preferred_track_path,track) || config.track.path}',\n#{config.track_config}},\n"
       end
     end
     
     #display all of the leftover tracks
     all_tracks.each do |track|
       text +="
-      {bioentry: '#{bioentry.id}',\npath:'#{current_user.preferred_track_path(track) || track.path}',\n#{track.config}},\n"
+      {bioentry: '#{bioentry.id}',\npath:'#{current_user.try(:preferred_track_path,track) || track.path}',\n#{track.config}},\n"
     end
     
     text += "],\n"
@@ -35,7 +35,7 @@ module BioentriesHelper
 		text += "gene_id : '#{@gene_id}',\n" if(@gene_id)
 		text += "feature_id : '#{@feature_id}',\n" if(@feature_id)
 		text += "layout_path : '#{track_layouts_path(:assembly_id => bioentry.assembly_id)}',"
-		text += "updateNodePath: '#{update_track_node_user_url(current_user.id)}',\n"
+		text += "updateNodePath: '#{update_track_node_user_url(current_user.try(:id))}',\n"
 		
 		#initial view
 		text += "location : {

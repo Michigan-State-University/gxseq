@@ -1,0 +1,4 @@
+<% if can? :update, sample %>
+  <%= link_to "Edit", send("edit_"+sample.class.name.underscore+"_path",sample), :class => "button" %>
+<% end %>
+<%= link_to "Back", send(sample.class.name.underscore+"s_path"), :class => "button" %>

@@ -1,0 +1,14 @@
+# == Schema Information
+#
+# Table name: components
+#
+#  created_at              :datetime
+#  sample_id           :integer
+#  id                      :integer          not null, primary key
+#  synthetic_sample_id :integer
+#  type                    :string(255)
+#  updated_at              :datetime
+#
+
+class AComponent < Component
+end

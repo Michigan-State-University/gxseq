@@ -109,18 +109,20 @@ class Biosql::BioentriesController < ApplicationController
     @gene_id = params[:gene_id]
     ## get layout id
     # selecting default layout resets preferred layout
-    if(params[:default])
-      current_user.preferred_track_layout=nil, assembly
-      current_user.save!
-      layout_id = nil
-    # passing layout_id sets preferred layout
-    elsif params[:layout_id]
-      layout_id = params[:layout_id]
-      current_user.preferred_track_layout=layout_id, assembly
-      current_user.save!
-    # lookup preferred layout if no explicit tracks set
-    else
-      layout_id = current_user.preferred_track_layout(assembly) unless params[:track]
+    if current_user
+      if(params[:default])
+        current_user.preferred_track_layout=nil, assembly
+        current_user.save!
+        layout_id = nil
+      # passing layout_id sets preferred layout
+      elsif params[:layout_id]
+        layout_id = params[:layout_id]
+        current_user.preferred_track_layout=layout_id, assembly
+        current_user.save!
+      # lookup preferred layout if no explicit tracks set
+      else
+        layout_id = current_user.preferred_track_layout(assembly) unless params[:track]
+      end
     end
     ## Setup the Active Tracks
     # if we have a layout_id find the layout and set the active tracks
@@ -137,15 +139,15 @@ class Biosql::BioentriesController < ApplicationController
       @active_tracks = Array(params[:tracks])
     # fallback on default tracks
     else
-      @active_tracks =[assembly.six_frame_track.try(:id),assembly.models_tracks.first.try(:id)]
+      @active_tracks = assembly.default_tracks
     end
     # Scope track access by ability
     # Active tracks will be ignored if not in this list
     @all_tracks = assembly.tracks.accessible_by(current_ability)
-    # We add the non-experiment tracks. There are not 'accessible_by' normal users in can can
+    # We add the non-sample tracks. There are not 'accessible_by' normal users in can can
     # Instead, they are always accessible if the bioentry is accessible
     @all_tracks += [assembly.six_frame_track,assembly.models_tracks,assembly.generic_feature_tracks].flatten.compact
-    # admin users will see non-experiment tracks twice if we don't uniq the list
+    # admin users will see non-sample tracks twice if we don't uniq the list
     @all_tracks.uniq!
     # Setup the view
     @view ={
@@ -270,7 +272,7 @@ class Biosql::BioentriesController < ApplicationController
         },
         :entry => {
           :accession => bioentry.accession,
-          :accession_link => ACCESSION_LINK,
+          :accession_link => bioentry_path(bioentry,:fmt => 'genbank'),
           :size => (bioentry.length),
         }
       }
@@ -389,21 +391,18 @@ class Biosql::BioentriesController < ApplicationController
     order_d = (params[:d]=='down' ? 'desc' : 'asc')
     params[:keywords] = params[:query] if params[:query]
     # Find minimum set of id ranges accessible by current user
-    authorized_id_set = current_ability.authorized_bioentry_ids
     # Set to -1 if no items are found. This will force empty search results
-    authorized_id_set=[-1] if authorized_id_set.empty?
+    authorized_assembly_ids = current_ability.authorized_assembly_ids
+    authorized_assembly_ids=[-1] if authorized_assembly_ids.empty?
+    params[:assembly]=nil unless authorized_assembly_ids.include?(params[:assembly].to_i)
     # Begin block
     @search = Biosql::Bioentry.search do |s|
       # Text Keywords
       if params[:keywords]
         s.keywords params[:keywords], :fields => [:accession_text,:description_text,:sequence_type_text,:sequence_name_text,:species_name_text,:assembly_name_text], :highlight => true
       end
-      # Auth      
-      s.any_of do |any_s|
-        authorized_id_set.each do |id_range|
-          any_s.with :id, id_range
-        end
-      end
+      # Auth
+      s.with :assembly_id, authorized_assembly_ids
       # Filters
       s.with :assembly_id, params[:assembly] unless params[:assembly].blank?
       # NOTE: Hash out use case for biodatabase segmentation

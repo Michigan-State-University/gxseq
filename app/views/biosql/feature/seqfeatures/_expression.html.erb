@@ -1,47 +1,34 @@
-<div class='table' width="100%" style='overflow-x:auto'>
-  <table class="listing">
-    <tr>
-      <th style="width:20px"></th>
-      <% @feature_counts.each do |m| %>
-        <th><%= link_to m.experiment.name, m.experiment %></th>
-      <% end %>
-    </tr>
-    <tr>
-      <td style="width:20px"><b>Unique Reads</b></td>
-      <% @feature_counts.each do |m| %>
-        <td><%= m.unique_count %></td>
-      <% end %>
-    </tr>
-    <tr>
-      <td style="width:20px"><b>Total Reads</b></td>
-      <% @feature_counts.each do |m| %>
-        <td><%= m.count %></td>
-      <% end %>
-    </tr>
-    <tr>
-      <td style="width:20px"><b>Normalized</b></td>
-      <% @feature_counts.each do |m| %>
-        <td><%= m.normalized_count.round(2) %></td>
-      <% end %>
-    </tr>
-  </table>
-</div>
-
-<div id='expression_profile' style="clear:both"></div>
-<% if @feature_counts.length > 1 %>
-  <%= render :partial => "shared/expression_profile", :locals => {
-    :feature_counts => @feature_counts,
-    :element_id => 'expression_profile',
-    :data => coexpressed_counts_seqfeature_path(feature,:format => :json)
-  } %>
-<% end %>
-<br/>
-
+<%= render :partial => "biosql/feature/seqfeatures/feature_count_table", :locals => {:link_fmt => 'expression', :feature => feature} %>
 <div class='clear'>
+  <div class="border">
+    <%= form_tag seqfeature_path(feature), :method => :get do %>
+    <%= hidden_field_tag :fmt, "expression" %>
+    <% @fc_ids.each do |fc_id| %>
+      <%= hidden_field_tag "fc_ids[]", fc_id %>
+    <% end %>
+    <div style="text-align:center;width:100%"><b><%= feature.label %> Sample Expression</b> Series: 
+    <%= select_tag :trait_type_id,
+      options_from_collection_for_select(@trait_types, :id, :name, @trait_type_id),
+      {:include_blank => "None", :onchange => "this.form.submit()"}
+    %>
+    </div>
+    <% end %>
+    
+    <br/>
+    <%= render :partial => "shared/expression_chart", :locals => {
+      :data => feature_counts_seqfeature_path(feature,
+        :format => :json,
+        :group_trait => @trait_type_id,
+        :fc_ids => @fc_ids )
+      } %>
+
+  </div>
+  
   <div class="border" style="overflow:hidden">
     <h2>Density of Aligned Reads</h2>
-    <%= render :partial => "graphic" %>
-    <%= render :partial => "shared/base_count_chart", :locals => {:data => feature_counts_seqfeature_path(feature,:format => :json)} %>
+    <%= render :partial => "shared/base_count_chart", :locals => {
+      :data => base_counts_seqfeature_path(feature,:format => :json, :fc_ids => @fc_ids),
+    } %>
   </div>
 </div>
 

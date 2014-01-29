@@ -19,15 +19,8 @@ class ConcordanceItem < ActiveRecord::Base
   scope :with_bioentry, lambda { |id|
         { :conditions => { :bioentry_id => id } }
       }
-  def bioentry_short_name
-    bioentry.short_name
-  end
-  
-  def bioentry_display_name
-    bioentry.display_name
-  end
   
   def name
-    'Experiment Sequence'
+    'Sample Sequence'
   end
 end

@@ -2,8 +2,8 @@
 
 <table>
 	<tr>
-		<td><b>Experiment:</b></td>
-		<td><b><%= @sequence_variant.experiment.name %></b></td>
+		<td><b>Sample:</b></td>
+		<td><b><%= @sequence_variant.sample.name %></b></td>
 	</tr>
 	<tr>
 		<td><b>Pos:</b></td>
@@ -46,13 +46,13 @@
 
 <% # matching variants %>
 <% html = "" %>
-<% @sequence_variant.experiment.find_matches(@sequence_variant.pos,@sequence_variant.pos+@sequence_variant.length-1,@bioentry.id).each do |variant| %>
+<% @sequence_variant.sample.find_matches(@sequence_variant.pos,@sequence_variant.pos+@sequence_variant.length-1,@bioentry.id).each do |variant| %>
 		<% html+= "<tr><td style='padding:4px;height:3em;width:40%;border-bottom:1px solid lightgrey;border-left:1px solid lightgrey'><b>#{variant.name}</b></td><td style='border-bottom:1px solid lightgrey'>#{truncate(variant.description,:length => 75)}</td></tr>"%>
 <% end %>
 <% unless html.empty? %>
 	<table cellspacing="0" style="background-color:whiteSmoke;width:100%">
 		<tr>
-			<td colspan=2 style="height:2em;background-color:#C7C7C7;text-align:center"><b>Matching Variant Experiments</b></td>
+			<td colspan=2 style="height:2em;background-color:#C7C7C7;text-align:center"><b>Matching Variant Samples</b></td>
 		</tr>
 		<%= html.html_safe %>
 	</table>

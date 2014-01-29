@@ -17,7 +17,7 @@
 		</td>
 		<td></td><td></td>
 	</tr>
-			<% species.species_assemblies.accessible_by(current_ability).each_with_index do |t_version, v_idx| %>
+			<% species.send(assembly_method).accessible_by(current_ability).each_with_index do |t_version, v_idx| %>
 				<% id = "#{species_idx + 1}-#{v_idx + 1}" %>
 				<tr id="<%= id %>" class="item">
 					<td colspan="2"style="text-align:center">

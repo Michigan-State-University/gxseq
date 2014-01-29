@@ -183,7 +183,7 @@ AnnoJ.Navigator = function()
             var accession = new Ext.Toolbar.TextItem()
             if(syndication.entry.accession && syndication.entry.accession_link)
             {
-              accession.setText("<a href='"+syndication.entry.accession_link+syndication.entry.accession+"' target='navigator_accession_link'>"+syndication.entry.accession+"</a>")
+              accession.setText("<a href='"+syndication.entry.accession_link+"' target='"+syndication.entry.accession+"'>"+syndication.entry.accession+"</a>")
             }else if(syndication.entry.accession){
               accession.setText(syndication.entry.accession)
             }

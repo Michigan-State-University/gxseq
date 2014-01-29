@@ -1,0 +1,39 @@
+<h1 class="pagetitle">Genomic Sample Types</h1>
+<%= render :partial => "sidebar", :locals => {:active => "all"}  %>
+
+<h3><%= image_tag('chip_seq.gif') %> <%= link_to "ChIP Seq", chip_seqs_path  %> <span style="font-size:75%;font-weight:normal"><%= ChipSeq.accessible_by(current_ability).count %></span></h3><hr><br/>
+<p>
+	ChIP-Seq combines chromatin immunoprecipitation (ChIP) with massively parallel DNA sequencing. The genome browser uses the tag densities from ChIP-Seq to render a histogram display. 
+	<%= link_to "(details)", details_chip_seqs_path, :style => "font-size:80%" %>
+</p>
+
+<h3><%= image_tag('chip_chip.gif') %> <%= link_to "ChIP Chip", chip_chips_path %> <span style="font-size:75%;font-weight:normal"><%= ChipChip.accessible_by(current_ability).count %></span></h3><hr><br/>
+<p>
+	ChIP-chip combines chromatin immunoprecipitation (ChIP) with with microarray technology (chip). The genome browser uses the tile data from ChIP-Seq to render a histogram display. 
+	<%= link_to "(details)", details_chip_chips_path, :style => "font-size:80%" %>
+</p>
+
+<h3><%= image_tag('geneseq.gif') %> <%= link_to "Re-Sequence", re_seqs_path %> <span style="font-size:75%;font-weight:normal"><%= ReSeq.accessible_by(current_ability).count %></span></h3><hr><br/>
+<p>
+	Re-Sequencing samples use genomic sequence data aligned to the reference sequence.
+	<%= link_to "(details)", details_re_seqs_path, :style => "font-size:80%" %>
+</p>
+
+<h3><%= image_tag('rnaseq.gif') %><%= link_to "RNA-Seq", rna_seqs_path %> <span style="font-size:75%;font-weight:normal"><%= RnaSeq.accessible_by(current_ability).count %></span></h3><hr><br/>
+<p>
+	RNA-Seq expects RNA sequencing data aligned to the reference sequence.
+	<%= link_to "(details)", details_rna_seqs_path, :style => "font-size:80%" %>
+</p>
+
+<!-- <h3><%#= image_tag('synthetic.gif') %><%#= link_to "Synthetic", synthetics_path %></h3><hr><br/>
+<p>
+  Synthetic samples are created by the system users. They represent composite samples using operands to generate averages and ratios. Synthetic samples can currently be created by compositing several ChipChip or ChipSeq samples together. Synthetic samples are rendered with a histogram display.  
+  <%#= link_to "(details)", details_synthetics_path, :style => "font-size:80%" %>
+</p> -->
+
+<h3><%= image_tag('variant.gif') %><%= link_to "Variants", variants_path %> <span style="font-size:75%;font-weight:normal"><%= Variant.accessible_by(current_ability).count %></span></h3><hr><br/>
+<p>
+	Variant samples rely on other sequencing techniques and computational analysis to identify variation within a genomic sequence. Variant samples are uploaded using datafiles containing the called variants (SNP, Insertion, Deletion...) Variants are rendered as colored features in the given positions.
+	<%= link_to "(details)", details_variants_path, :style => "font-size:80%" %>
+</p>
+

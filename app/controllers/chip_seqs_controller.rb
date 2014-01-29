@@ -2,10 +2,10 @@ class ChipSeqsController < ApplicationController
   load_and_authorize_resource
   
   ## custom actions - rjs 
-  def initialize_experiment
-    @chip_seq.initialize_experiment
+  def initialize_sample
+    @chip_seq.initialize_sample
     render :update do |page|
-      page.replace_html 'initialize_experiment', "Job Started. Refresh to view updates in the console."
+      page.replace_html 'initialize_sample', "Job Started. Refresh to view updates in the console."
     end
   end
   
@@ -34,21 +34,20 @@ class ChipSeqsController < ApplicationController
     begin
       if @chip_seq.valid?
         @chip_seq.save
-        flash[:notice]="Experiment created succesfully"
+        flash[:notice]="Sample created succesfully"
         redirect_to :action => :index
       else
         render :action => :new
       end
     rescue
       logger.info "\n\nRescued from Chip Seq\n#{$!}\n#{caller.join("\n")}\n\n"
-      flash[:error]="Could not create experiment"
+      flash[:error]="Could not create sample"
       redirect_to :action => :index
     end
   end
 
   def show
-    entry_id = params[:entry_id] || params[:bioentry_id]
-    @bioentry = Biosql::Bioentry.find(entry_id || @chip_seq.assembly.bioentries.first.id)
+    @bioentry = Biosql::Bioentry.find(params[:bioentry_id] || @chip_seq.assembly.bioentries.first.id) rescue nil
     respond_to do |format|
       format.html {}
       format.xml { render :layout => false }
@@ -71,7 +70,7 @@ class ChipSeqsController < ApplicationController
 
   def destroy
     @chip_seq.destroy
-    flash[:warning]="Experiment #{@chip_seq.name} has been removed"
+    flash[:warning]="Sample #{@chip_seq.name} has been removed"
     redirect_to :action => :index
   end 
 end

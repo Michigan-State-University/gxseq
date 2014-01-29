@@ -1,11 +1,11 @@
-<%= render :partial => "biosql/feature/genes/sidebar", :locals => {:active => 'features'} %>
+<%= render :partial => "sidebar", :locals => {:active => 'features'} %>
 <% content_for :top_bar do -%>
   <h1 class="pagetitle">Feature Listing</h1>
 <% end -%>
 <% content_for :item_bar do %>
 <!-- Filter / Search items here -->
 	
-	<% form_tag seqfeatures_path(params), :method => :get do %>
+	<%= form_tag seqfeatures_path(params), :method => :get do %>
 
 	  <div style="float:right;margin-bottom:0.5em">
 	    Search:<br/>
@@ -15,6 +15,12 @@
     <div style="float:right;margin-right:2em">
       Assembly:<br/>
       <%= select_tag 'assembly_id', options_for_select(@assemblies.collect{|s| [s.name_with_version,s.id]},params[:assembly_id]), {:include_blank => "No Filter"} %><br/>
+    </div>
+    
+    <div style="float:right;margin-right:2em">
+      Feature Type:<br/>
+      <%= select_tag 'type_term_id', options_for_select(@type_search.facet(:type_term_id).rows.collect{|s| ["#{s.instance.try(:name)} (#{s.count})",s.value]},params[:type_term_id]), {:include_blank => "No Filter"} %><br/>
+      <br/>
     </div>
     
 	  <%= render :partial => 'shared/item_bar_toggle' %>
@@ -33,12 +39,6 @@
   	  <div style="clear:both;float:right;margin-top:.5em;margin-right:2em">
         Strand:<br/>
         <%= select_tag 'strand', options_for_select(@search.facet(:strand).rows.collect{|s| ["#{s.value.to_i > 0 ? 'Forward (5\' -> 3\')' : 'Reverse (3\' -> 5\')'} (#{s.count})",s.value]},params[:strand]), {:include_blank => "No Filter"} %><br/>
-      </div>
-      
-      <div style="clear:both;float:right;margin-top:.5em;margin-right:2em">
-        Type:<br/>
-        <%= select_tag 'type_term_id', options_for_select(@search.facet(:type_term_id).rows.collect{|s| ["#{s.instance.try(:name)} (#{s.count})",s.value]},params[:type_term_id]), {:include_blank => "No Filter"} %><br/>
-        <br/>
       </div>
 
       <div style="clear:both;float:right; margin:2em">
@@ -77,7 +77,9 @@
           <% if can? :edit, feature %>
             <%= link_to( image_tag('comment_edit.png'), edit_seqfeature_path(feature.id), :class => 'popupbox', :'data-form' => "edit_seqfeature_#{feature.id}", :'data-post_to' => seqfeature_path(feature.id), :'data-update_id' => "#{feature.id}_definition", :'data-update_from' => request.fullpath+'&seqfeature_id='+feature.id.to_s) %>
           <% end %>
-          <%= link_to(image_tag(Array(hit.stored(:favorite_user_ids)).include?(current_user.id) ? 'star.png' : 'star_gray.png'), toggle_favorite_seqfeature_path(feature.id), {:class => 'favorite',:id => "favorite_#{feature.id}",:remote => true,:'data-loading' => "#{image_tag("loading.gif")}"}) %>
+          <% if current_user %>
+            <%= link_to(image_tag(Array(hit.stored(:favorite_user_ids)).include?(current_user.id) ? 'star.png' : 'star_gray.png'), toggle_favorite_seqfeature_path(feature.id), {:class => 'favorite',:id => "favorite_#{feature.id}",:remote => true,:'data-loading' => "#{image_tag("loading.gif")}"}) %>
+          <% end %>
         </td>
         <td><%= feature.display_name %></td>
         <td id='<%= feature.id %>_definition'><%= render :partial => 'hit_definition', :locals => {:hit => hit, :feature => feature, :blast_run_fields => @blast_run_fields} %></td>
@@ -88,7 +90,7 @@
         <td style="white-space:nowrap">
           <%= link_to 'Details', seqfeature_path(feature) %>
           |
-          <%= link_to 'View', bioentry_path(feature.bioentry_id,{:pos => feature.min_start}) %>
+          <%= link_to 'View', bioentry_path(feature.bioentry_id,{:pos => hit.stored(:start_pos)}) %>
         </td>
       </tr>
       <% end %>

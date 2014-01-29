@@ -14,13 +14,12 @@ group :development do
   gem 'ruby-oci8'
   gem 'mysql2', '~> 0.2.0'
   gem 'railroady'
-  gem 'ruby-debug19'
   gem 'annotate', ">=2.5"
   gem 'better_errors'
   gem 'binding_of_caller'
   # Code analyzers and security
   gem 'reek'
-  # gem 'rails_best_practices'
+  gem 'rails_best_practices'
   gem 'flay'
   gem 'flog'
   gem 'cane'
@@ -36,10 +35,13 @@ group :test do
   gem 'factory_girl'
   gem 'simplecov'
   gem 'rspec-rails'
+  gem 'rspec'
   gem 'shoulda'
   gem 'capybara'
   gem 'aruba'
-  gem 'selenium-webdriver'
+  gem 'selenium-webdriver','~> 2.38.0'
+  gem 'launchy'
+  gem 'json_spec'
 end
 
 group :cucumber do
@@ -75,12 +77,13 @@ end
 # gem 'sunspot', :path => '~/gems/sunspot/sunspot'
 # gem 'sunspot_rails', :path => '~/gems/sunspot/sunspot_rails'
 # gem 'sunspot_solr', :path => '~/gems/sunspot/sunspot_solr'
-# gem 'sunspot_rails'
-# gem 'sunspot_solr'
+#gem 'sunspot_rails'
+#gem 'sunspot_solr'
 gem 'progress_bar', '~> 1.0.0'
 gem 'cancan'
 gem 'rails3-jquery-autocomplete'
 gem 'acts-as-taggable-on', '~> 2.3.1'
+gem 'parallel'
 # Deploy with Capistrano
 # gem 'capistrano'
 

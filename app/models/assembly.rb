@@ -14,14 +14,14 @@
 
 class Assembly < ActiveRecord::Base
   has_many :bioentries, :class_name => "Biosql::Bioentry", :order => "name asc", :dependent => :destroy
-  has_many :experiments
-  #NOTE experiment STI - can this be dynamic?
-  has_many :chip_chips, :order => "experiments.name asc"
-  has_many :chip_seqs, :order => "experiments.name asc"
-  has_many :synthetics, :order => "experiments.name asc"
-  has_many :variants, :order => "experiments.name asc"
-  has_many :rna_seqs, :order => "experiments.name asc"
-  has_many :re_seqs, :order => "experiments.name asc"
+  has_many :samples
+  #NOTE sample STI - can this be dynamic?
+  has_many :chip_chips, :order => "samples.name asc"
+  has_many :chip_seqs, :order => "samples.name asc"
+  has_many :synthetics, :order => "samples.name asc"
+  has_many :variants, :order => "samples.name asc"
+  has_many :rna_seqs, :order => "samples.name asc"
+  has_many :re_seqs, :order => "samples.name asc"
   has_many :blast_runs, :dependent => :destroy
   has_many :blast_databases, :through => :blast_runs
   has_many :tracks
@@ -36,9 +36,16 @@ class Assembly < ActiveRecord::Base
   validates_presence_of :taxon
   validates_presence_of :version
   validates_uniqueness_of :version, :scope => :taxon_id
-  accepts_nested_attributes_for :experiments
-  validates_associated :experiments
+  accepts_nested_attributes_for :samples
+  validates_associated :samples
   
+  # Defined in subclasses
+  def default_tracks
+  end
+  # returns uniq list of terms for traits associated with samples
+  def trait_types
+    samples.map(&:trait_types).flatten.compact.uniq
+  end
   # returns true if any bioentry -> seqfeature has feature_counts
   def has_expression?
     !bioentries.joins{seqfeatures.feature_counts}.except(:order).first.nil?
@@ -157,7 +164,6 @@ class Assembly < ActiveRecord::Base
     puts
   end
   # initializes tracks creating any that do not exist. Returns an array of new tracks
-  # TODO: Remove tracks completely. Just lookup the data during SV configuration
   def create_tracks
     result = []
     source_terms.each do |source_term|
@@ -255,16 +261,43 @@ class Assembly < ActiveRecord::Base
     end
   end
   
-  # TODO: Add method to quickly remove data and reindex. Current callbacks with destroy take far too long
-  def remove_all_data
-    # TODO: Remove the seqfeatures
-    # remove the biosequence
-    b_ids = bioentries.map(&:bioentry_id)
-    b_ids.each_slice(999) do |batch|
-      batch.each do |ids|
-        Biosql::Biosequence.where{bioentry_id.in my{ids}}.delete_all
+  # removes all data skipping destroy callbacks for speed
+  # TODO: Need method to sync index with removed assembly?
+  def delete_all_data
+    PaperTrail.enabled = false
+    begin
+      # all or nothing
+      Assembly.transaction do
+        
+        b_ids = bioentries.select("bioentry_id").except(:order)
+        # seqfeature assoc
+        features = Biosql::Feature::Seqfeature.where{bioentry_id.in my{b_ids}}
+        fea_ids = features.select("seqfeature_id").except(:order)
+        Biosql::SeqfeatureQualifierValue.where{seqfeature_id.in my{fea_ids}}.delete_all
+        Biosql::Location.where{seqfeature_id.in my{fea_ids}}.delete_all
+        features.delete_all
+        # bioentry assoc
+        Biosql::Biosequence.where{bioentry_id.in my{b_ids}}.delete_all
+        Biosql::BioentryDbxref.where{bioentry_id.in my{b_ids}}.delete_all
+        Biosql::BioentryQualifierValue.where{bioentry_id.in my{b_ids}}.delete_all
+        Biosql::BioentryReference.where{bioentry_id.in my{b_ids}}.delete_all
+        Biosql::Comment.where{bioentry_id.in my{b_ids}}.delete_all
+        GeneModel.where{bioentry_id.in my{b_ids}}.delete_all
+        ConcordanceItem.where{bioentry_id.in my{b_ids}}.delete_all
+        Peak.where{bioentry_id.in my{b_ids}}.delete_all
+        # TODO: test this delte on >1000 ids
+        Biosql::Bioentry.where{bioentry_id.in my{b_ids.map(&:bioentry_id)}}.delete_all
+        # assembly assoc
+        BlastRun.where{assembly_id == my{id}}.delete_all
+        Track.where{assembly_id == my{id}}.delete_all
+        ConcordanceSet.where{assembly_id == my{id}}.delete_all
+        # Use destroy on paperclip attachments
+        samples.destroy_all
+        gc_file.destroy
       end
+    rescue => e
+      puts "Error: #{e}"
     end
-    # Remove the bioentries
+    PaperTrail.enabled = true
   end
 end

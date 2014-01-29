@@ -227,7 +227,7 @@ BaseCountChart = function(){
     
     x.domain([0, maxX]);
     // x-Axis
-    svg.append("g").attr("class", "x axis").attr('transform', 'translate(0, ' + height +')').call(xAxis);
+    svg.append("g").attr("class", "x axis").attr('transform', 'translate(0, ' + height +')').call(xAxis).attr("stroke-opacity",0);
     // y-Axis
     svg.append("g").attr("class", "y axis").attr('transform','translate('+paddingLeft+',0)').call(yAxis);
     

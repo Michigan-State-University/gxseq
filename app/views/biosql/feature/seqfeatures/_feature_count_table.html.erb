@@ -1,0 +1,48 @@
+<% content_for :head do -%>
+  <%= javascript_include_tag "jquery-latest.min" %>
+<% end -%>
+
+<%= form_tag seqfeature_path(feature), :method => "get" do %>
+  <%= hidden_field_tag :fmt, link_fmt %>
+  <div style="float:left">
+    <%= link_to 'Select All','#', :onclick => 'jQuery(".sample_check").attr("checked", true );' %>
+    |
+    <%= link_to 'Select None','#', :onclick => 'jQuery(".sample_check").attr("checked", false );' %>    
+  </div>
+  <div class='table' width="100%" style='overflow-x:auto'>
+    <table class="listing">
+      <tr>
+        <th style="width:20px"></th>
+        <% @feature_counts.each do |m| %>
+          <th><%= link_to m.sample.name, m.sample, :target => "_blank" %></th>
+        <% end %>
+      </tr>
+      <tr>
+        <th style="width:20px">
+          <%= submit_tag "Update" %>
+        </th>
+        <% @feature_counts.each do |m| %>
+          <th><%= check_box_tag "fc_ids[]", m.id.to_s, @fc_ids.include?(m.id.to_s), :class => 'sample_check' %></th>
+        <% end %>
+      </tr>
+      <tr>
+        <td style="width:20px"><b>Unique Reads</b></td>
+        <% @feature_counts.each do |m| %>
+          <td><%= m.unique_count %></td>
+        <% end %>
+      </tr>
+      <tr>
+        <td style="width:20px"><b>Total Reads</b></td>
+        <% @feature_counts.each do |m| %>
+          <td><%= m.count %></td>
+        <% end %>
+      </tr>
+      <tr>
+        <td style="width:20px"><b>Normalized</b></td>
+        <% @feature_counts.each do |m| %>
+          <td><%= m.normalized_count.round(2) %></td>
+        <% end %>
+      </tr>
+    </table>
+  </div>
+<% end -%>

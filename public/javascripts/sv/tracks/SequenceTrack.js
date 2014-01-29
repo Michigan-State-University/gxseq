@@ -484,7 +484,7 @@ Ext.define('Sv.tracks.SequenceTrack',{
                method: 'sequence',
                param: {
                  id: self.id,
-                 experiment: self.experiment,
+                 sample: self.sample,
                  left: me.startBase,
                  right: me.endBase,
                  bioentry: self.bioentry

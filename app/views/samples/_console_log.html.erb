@@ -1,0 +1,6 @@
+<%= link_to_function "Show Console Log", "Ext.get('sample_console_div').slideIn('t',{useDisplay:true});;$('show_sample_console_div').hide();$('hide_sample_console_div').show()", :id => "show_sample_console_div" %>
+<%= link_to_function "Hide", "Ext.get('sample_console_div').slideOut('t',{useDisplay:true});;$('show_sample_console_div').show();$('hide_sample_console_div').hide()", :id => "hide_sample_console_div", :style => "display:none" %>
+
+<div id="sample_console_div" style="display:none">
+  <%= sample.web_console.html_safe %>
+</div>

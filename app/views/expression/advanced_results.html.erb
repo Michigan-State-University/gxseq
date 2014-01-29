@@ -28,16 +28,16 @@
         <% @blast_runs.each do |blast_run| %>
           <th><%= sort_link blast_run.name, "blast_acc_#{blast_run.id}" %></th>
         <% end %>
-        <th width="5%" style="white-space:nowrap"><%=sort_link 'Set A', 'exp_a', :title => @a_experiments.map(&:name).to_sentence %></th>
-        <th width="5%" style="white-space:nowrap"><%=sort_link 'Set B', 'exp_b', :title => @b_experiments.map(&:name).to_sentence %></th>
+        <th width="5%" style="white-space:nowrap"><%=sort_link 'Set A', 'sample_a', :title => @a_samples.map(&:name).to_sentence %></th>
+        <th width="5%" style="white-space:nowrap"><%=sort_link 'Set B', 'sample_b', :title => @b_samples.map(&:name).to_sentence %></th>
         <th width="5%" style="white-space:nowrap"><%= sort_link "A / B", 'ratio' %></th>
         <th>Options</th>
       </thead>
       <% @search.each_hit_with_result do |hit,feature| %>
         <tr>
-          <%= render :partial => "id_def_and_blast", :locals => {:hit => hit, :feature => feature, :experiments => @a_experiments+@b_experiments, :blast_runs => @blast_runs} %>
-          <td><%= "%.0f" % (a_avg=@a_experiments.inject(0.0){|sum, exp| sum+=(hit.stored(params[:value_type],"exp_#{exp.id}")||0)}/@a_experiments.length) %></td>
-          <td><%= "%.0f" % (b_avg=@b_experiments.inject(0.0){|sum, exp| sum+=(hit.stored(params[:value_type],"exp_#{exp.id}")||0)}/@b_experiments.length) %></td>
+          <%= render :partial => "id_def_and_blast", :locals => {:hit => hit, :feature => feature, :samples => @a_samples+@b_samples, :blast_runs => @blast_runs} %>
+          <td><%= "%.0f" % (a_avg=@a_samples.inject(0.0){|sum, sample| sum+=(hit.stored(params[:value_type],"sample_#{sample.id}")||0)}/@a_samples.length) %></td>
+          <td><%= "%.0f" % (b_avg=@b_samples.inject(0.0){|sum, sample| sum+=(hit.stored(params[:value_type],"sample_#{sample.id}")||0)}/@b_samples.length) %></td>
           <td>
             <%= b_avg == 0 ? '&infin;'.html_safe : "%.2f" % (a_avg/b_avg) %>
           </td>
@@ -46,7 +46,7 @@
             |
             <%= link_to 'Graph', seqfeature_path(feature,:fmt => 'expression') %>
             |
-            <%= link_to 'Browser', bioentry_path(feature.bioentry_id,{:pos => Array(hit.stored(:start_pos)).first,:tracks => [ :models_track, :generic_feature_track, (@a_experiments+@b_experiments).collect{|e| e.tracks.first.id} ].flatten.uniq,}) %>
+            <%= link_to 'Browser', bioentry_path(feature.bioentry_id,{:pos => Array(hit.stored(:start_pos)).first,:tracks => [ :models_track, :generic_feature_track, (@a_samples+@b_samples).collect{|e| e.tracks.first.id} ].flatten.uniq,}) %>
           </td>
         </tr>
       <% end %>

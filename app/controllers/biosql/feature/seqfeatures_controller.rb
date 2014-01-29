@@ -8,6 +8,7 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     params[:page]||=1
     params[:c]||='assembly_id'
     order_d = (params[:d]=='down' ? 'desc' : 'asc')
+    params[:type_term_id] ||= Biosql::Term.seqfeature_tags.where{upper(name) == 'GENE'}.first.try(:id)
     # Filter setup
     @assemblies = Assembly.accessible_by(current_ability).includes(:taxon => :scientific_name).order('taxon_name.name')
     # Verify Bioentry param
@@ -16,18 +17,15 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     end
     # Grab blast run ids for description
     @blast_run_fields = BlastRun.all.collect{|br| "blast_#{br.id}_text"}
-    
-    # Find minimum set of id ranges accessible by current user. Set to -1 if no items are found. This will force empty search results
-    authorized_id_set = current_ability.authorized_seqfeature_ids
-    authorized_id_set=[-1] if authorized_id_set.empty?
+    # Find minimum set of id ranges accessible by current user.
+    # Set to -1 if no items are found. This will force empty search results
+    authorized_assembly_ids = current_ability.authorized_assembly_ids
+    authorized_assembly_ids=[-1] if authorized_assembly_ids.empty?
+    params[:assembly]=nil unless authorized_assembly_ids.include?(params[:assembly].to_i)
     # Begin block
     @search = Biosql::Feature::Seqfeature.search do
       # Auth      
-      any_of do |any_s|
-        authorized_id_set.each do |id_range|
-          any_s.with :id, id_range
-        end
-      end
+      with :assembly_id, authorized_assembly_ids
       # Text Keywords
       if params[:keywords]
         keywords params[:keywords], :highlight => true
@@ -58,9 +56,20 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
       if(params[:seqfeature_id])
         with :id, params[:seqfeature_id]
       end
-      # Facets (group counts)
-      facet(:type_term_id)
       facet(:strand)
+    end
+    
+    @type_search = Biosql::Feature::Seqfeature.search do
+      #Auth
+      with :assembly_id, authorized_assembly_ids
+      # Text Keywords
+      if params[:keywords]
+        keywords params[:keywords], :highlight => true
+      end
+      with :assembly_id, params[:assembly_id] unless params[:assembly_id].blank?
+      with :strand, params[:strand] unless params[:strand].blank?
+      with :bioentry_id, params[:bioentry_id] unless params[:bioentry_id].blank?
+      facet(:type_term_id)
     end
     
     # Check XHR
@@ -84,11 +93,9 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     authorize! :read, @seqfeature
     @format = params[:fmt] || 'standard'
     begin
-    # Gene features have special show pages
-    if @seqfeature.kind_of?(Biosql::Feature::Gene)
-      redirect_to gene_path(@seqfeature,:fmt => @format)
-    end
     case @format
+    when 'edit'
+      redirect_to :action => :edit
     when 'standard'
       setup_graphics_data
       @ontologies = Biosql::Term.annotation_ontologies
@@ -99,8 +106,13 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     when 'history'
       @changelogs = Version.order('id desc').where(:parent_id => @seqfeature.id).where(:parent_type => @seqfeature.class.name)
     when 'expression'
-      @feature_counts = get_feature_counts
-      setup_graphics_data
+      assembly = @seqfeature.bioentry.assembly
+      @trait_types = assembly.trait_types
+      check_and_set_trait_id_param(assembly)
+      get_feature_counts
+      #setup_graphics_data
+    when 'coexpression'
+      get_feature_counts
     when 'blast'
       @blast_reports = @seqfeature.blast_iterations
       params[:blast_report_id]||=@blast_reports.first.id
@@ -173,21 +185,29 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
   end
   
   # Custom Routes
-  respond_to :json, :only => [:feature_counts,:coexpressed_counts]
+  respond_to :json, :only => [:base_counts,:feature_counts,:coexpressed_counts]
   # returns formatted counts for all feature counts tied to seqfeature
   # [{:key => sample_name, :values => {:base => int, :count => float }}, ...]
+  def base_counts
+    get_feature_counts
+    @feature_counts = @feature_counts.where{feature_counts.id.in(my{@fc_ids})}
+    data = FeatureCount.create_base_data(@feature_counts, {:type => (params[:type]||'count')} )
+    respond_with data
+  end
   def feature_counts
-    @feature_counts = get_feature_counts
-    data = FeatureCount.create_graph_data(@feature_counts, {:type => (params[:type]||'count')} )
+    get_feature_counts
+    @feature_counts = @feature_counts.where{feature_counts.id.in(my{@fc_ids})}
+    data = FeatureCount.create_sample_data(@feature_counts, {:group_trait => params[:group_trait], :type => (params[:type]||'count')} )
     respond_with data
   end
   # returns formatted counts for all coexpressed features
   #[{:id,:name,:sample1,:sample2,...}]
   def coexpressed_counts
-    feature_counts = get_feature_counts
+    get_feature_counts
+    @feature_counts = @feature_counts.where{feature_counts.id.in(my{@fc_ids})}
     search = @seqfeature.correlated_search(current_ability,{:per_page => 500})
     if search
-      respond_with @seqfeature.corr_search_to_matrix(search,feature_counts)
+      respond_with @seqfeature.corr_search_to_matrix(search,@feature_counts)
     else
       respond_with []
     end
@@ -204,11 +224,26 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     end
     @seqfeature.index!
   end
-
+  # return html and js to render expression data
+  def expression_chart
+    authorize! :read, @seqfeature
+    render :partial => "shared/expression_chart",
+      :locals => {
+        :data => feature_counts_seqfeature_path(@seqfeature,:format => :json, :group_trait => params[:trait_type_id]),
+        :no_template => true
+      }
+  end
+     
   private
     def find_seqfeature
       feature_id = Biosql::Feature::Seqfeature.with_locus_tag(params[:id]).first.try(:id) || params[:id]
       @seqfeature = Biosql::Feature::Seqfeature.where{seqfeature_id == feature_id}.includes(:locations,:qualifiers,[:bioentry => [:assembly]]).first
+      # Lookup all features with the same type and locus tag for warning display
+      if(@seqfeature && @seqfeature.locus_tag)
+        @seqfeatures = @seqfeature.class.with_locus_tag( @seqfeature.locus_tag.value)
+      else
+        @seqfeatures = []
+      end
     end
     # TODO: refactor this method is duplicated from genes_controller
     def get_feature_data
@@ -228,10 +263,24 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     end
     
     def get_feature_counts
-      @seqfeature.feature_counts
+      @feature_counts = @seqfeature.feature_counts
         .accessible_by(current_ability)
-        .includes(:experiment)
-        .order("experiments.name")
+        .includes(:sample)
+        .order("samples.name")
+        if(params[:fc_ids])
+          # store preference
+          if current_user
+            current_user.preferred_expression_fc_ids = params[:fc_ids].join(",").tr("^0-9,",'')
+            current_user.save
+          end
+          @fc_ids = params[:fc_ids]
+        else
+          # get preference
+          if current_user
+            @fc_ids = current_user.preferred_expression_fc_ids.try(:split, ",")
+          end
+          @fc_ids ||= @feature_counts.map{|fc| fc.id.to_s}
+        end
     end
     
     def setup_xhr_form
@@ -240,20 +289,41 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
       @changelogs = Version.order('id desc').where(:parent_id => @seqfeature.id).where(:parent_type => @seqfeature.class.name)
       @changelogs = @changelogs.where{item_type != 'Biosql::Location'}.where{item_type != 'GeneModel'}
     end
-
+    
+    # TODO: refactor this method is nearly identical in genes_controller
     def setup_graphics_data
       @canvas_width = 2500
       @model_height = 15
       @edit_box_height = 320
       min_width = 800
+      limit = 500
       feature_size = @seqfeature.max_end - @seqfeature.min_start
       @pixels = [(min_width / (feature_size*1.1)).floor,1].max
       @bases = [((feature_size*1.1) / min_width).floor,1].max
+      @gui_zoom = (@pixels/@bases).floor+10
       @view_start = @seqfeature.min_start - (feature_size*0.05).floor
       @view_stop = (@seqfeature.min_start+(feature_size*1.05)).ceil
-      @graphic_data = Biosql::Feature::Seqfeature.get_track_data(@view_start,@view_stop,@seqfeature.bioentry_id,{:feature => @seqfeature})
+      if(@seqfeature.class == Biosql::Feature::Gene)
+        @graphic_data = GeneModel.get_canvas_data(@view_start,@view_stop,@seqfeature.bioentry.id,@gui_zoom,@seqfeature.strand,limit)
+      else
+        @graphic_data = Biosql::Feature::Seqfeature.get_track_data(@view_start,@view_stop,@seqfeature.bioentry_id,{:feature => @seqfeature})
+      end
       @depth = 3
       @canvas_height = ( @depth * (@model_height * 2))+10 # each model and label plus padding
       @graphic_data=@graphic_data.to_json
+    end
+    
+    def check_and_set_trait_id_param(assembly)
+      if params[:trait_type_id]
+        if current_user
+          current_user.preferred_trait_group_id = params[:trait_type_id], assembly
+          current_user.save
+        end
+        @trait_type_id = params[:trait_type_id]
+      else
+        if current_user
+          @trait_type_id = current_user.preferred_trait_group_id(assembly)
+        end
+      end
     end
 end

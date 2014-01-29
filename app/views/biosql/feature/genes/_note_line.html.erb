@@ -31,7 +31,7 @@
   				<%= f.text_area :value, :cols => 75, :rows => 8 %>
   				<br/>
   				<%= f.submit "Update", :class => "button", :style => "float:left" %>
-  	      <%= image_tag("delete.png", :style => "border:none;cursor:pointer;float:left;margin-left:1em", :onclick => "$('edit_note_#{note.text_id}').toggle();$('list_note_#{note.text_id}').toggle();")%>
+  	      <%= link_to("cancel", '#',:style => "float:left;margin-left:1em", :onclick => "$('edit_note_#{note.text_id}').toggle();$('list_note_#{note.text_id}').toggle();")%>
   			<% end %>
   		</div>
   	<% end %>

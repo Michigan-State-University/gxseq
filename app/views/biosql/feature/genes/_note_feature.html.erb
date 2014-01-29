@@ -12,7 +12,7 @@
 	<td>
 	  <% if can? :update, f %>
 		  <% new_note = f.qualifiers.build(:seqfeature => f, :rank => f.notes.size + 1, :term => Biosql::Term.find_by_name('note')) %>
-			<% form_for new_note do |form|%>
+			<%= form_for new_note do |form|%>
 				Create a new <%= f.display_name %> note
 				<%= image_tag("delete.png", :style => "border:none;cursor:pointer;float:right;margin-bottom:1em", :onclick => "$(new_#{f.id}_note).toggle();")%>
 				<%= form.submit "Add Note", :style => "float:right;margin-right:1em;margin-bottom:1em"%>
@@ -27,7 +27,7 @@
 	<td></td>
 </tr>
 <% notes.each do |note| %>
-	<%= render :partial => 'note_line', :locals => {:note => note} %>
+	<%= render :partial => 'biosql/feature/genes/note_line', :locals => {:note => note} %>
 <% end %>
 <% if notes.empty? %>
 	<tr><td></td><td><td></td></td><td></td></tr>

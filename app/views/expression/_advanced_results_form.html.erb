@@ -7,12 +7,12 @@
     <%= hidden_field_tag :type_term_id, params[:type_term_id] %>
     <%= hidden_field_tag :c, params[:c] if params[:c]%>
     <%= hidden_field_tag :d, params[:d] if params[:d]%>
-    <%= hidden_field_tag :min_exp_value, params[:min_exp_value] %>
-    <% @a_experiments.each do |e| %>
-      <%= hidden_field_tag 'a_experiments[]', e.id %>
+    <%= hidden_field_tag :min_sample_value, params[:min_sample_value] %>
+    <% @a_samples.each do |e| %>
+      <%= hidden_field_tag 'a_samples[]', e.id %>
     <% end %>
-    <% @b_experiments.each do |e| %>
-      <%= hidden_field_tag 'b_experiments[]', e.id %>
+    <% @b_samples.each do |e| %>
+      <%= hidden_field_tag 'b_samples[]', e.id %>
     <% end %>
   </div>
   <div style="float:right;margin-right:2em">

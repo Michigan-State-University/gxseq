@@ -1,4 +1,12 @@
+<% content_for :head do %>
+	<%= render :partial => "shared/extjs_css" %>
+	<%= render :partial => "shared/svjs_css" %>
+	<%= render :partial => "shared/extjs" %>
+	<%= render :partial => "shared/svjs" %>
+<% end %>
+
 <div class="clear">
+  <%= link_to ' View parent Gene ', seqfeature_path(feature.gene_model.gene) if (feature.respond_to?(:gene_model) && feature.gene_model) %><br/>
   <!-- Graphic Gene-->
 	<div class="border" style="overflow:hidden">
 	  <%= number_line(@view_start, @canvas_width, {:height => 40,:per_pixel => (@bases/@pixels.to_f)}) %>
@@ -8,17 +16,20 @@
 	
 	<!-- Attributes -->
 	<% @ontologies.each do |ont| %>
-  	<div class="border">
-      <h2> <%= ont.name %> </h2>
-      <table>
-    	  <% @seqfeature.qualifiers.with_ontology(ont.id).each do |qual| %>
-    	    <tr class=<%= cycle("odd","even") %>>
-            <td class="keyword"><%= qual.name  %></td>
-            <td><%= qual.value.html_safe %></td>
-          </tr>
-    	  <% end %>
-    	</table>
-	  </div>
+  	<% ont_features = @seqfeature.qualifiers.with_ontology(ont.id) %>
+  	<% if ont_features.first %>
+    	<div class="border">
+        <h2> <%= ont.name %> </h2>
+        <table>
+      	  <% ont_features.each do |qual| %>
+      	    <tr class=<%= cycle("odd","even") %>>
+              <td class="keyword"><%= qual.name  %></td>
+              <td style="overflow:hidden"><%= qual.to_s.html_safe %></td>
+            </tr>
+      	  <% end %>
+      	</table>
+  	  </div>
+  	<% end %>
 	<% end %>
   <!-- Location -->
   <div class="border">
@@ -48,19 +59,21 @@
         <% end %>
       </tr>
     </table>
-    <% if na_seq.length > 10000 %>
-      Too large for protein translation..
-    <% else %>
-      <% protein_seq = @seqfeature.protein_sequence%>
-      <h2>
-        Protein: <%= protein_seq ? protein_seq.size : 0 %>aa 
-        <%= render :partial => "blasts/link_with_sequence", :locals => {:sequence => protein_seq, :desc => "#{@seqfeature.label} Protein sequence"} %>
-      </h2>
-      <table>
-        <tr class='odd'>
-          <td style="font-family:'Courier';"><pre style="overflow-x:scroll"><%= formatted_sequence(@seqfeature.protein_sequence,{:rows => 10, :delimiter => "\n"}) %></pre></td>
-        </tr>
-      </table>
+    <% if @seqfeature.class==Biosql::Feature::Cds %>
+      <% if na_seq.length > 10000 %>
+        Too large for protein translation..
+      <% else %>
+        <% protein_seq = @seqfeature.protein_sequence%>
+        <h2>
+          Protein: <%= protein_seq ? protein_seq.size : 0 %>aa 
+          <%= render :partial => "blasts/link_with_sequence", :locals => {:sequence => protein_seq, :desc => "#{@seqfeature.label} Protein sequence"} %>
+        </h2>
+        <table>
+          <tr class='odd'>
+            <td style="font-family:'Courier';"><pre style="overflow-x:scroll"><%= formatted_sequence(@seqfeature.protein_sequence,{:rows => 10, :delimiter => "\n"}) %></pre></td>
+          </tr>
+        </table>
+      <% end %>
     <% end %>
   </div>
 </div>

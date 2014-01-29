@@ -1,0 +1,48 @@
+<% content_for :pagetitle do -%>
+  <%= sample.class.to_label %>: <%= sample.name %>
+<% end -%>
+<% content_for :head do %>
+	<%= render :partial => "shared/extjs" %>
+<% end %>
+
+<% content_for :top_bar do -%>
+	<h1 class="pagetitle"><%= sample.class.to_label %> Sample <%= sample.name %></h1>
+<% end -%>
+
+<%= render :partial => "samples/sidebar", :locals => {:sample => sample} %>
+
+<% content_for :item_bar do -%>
+  <% if can? :initialize_sample, sample %>
+    <%= link_to "Reload", {:action => 'initialize_sample', :id => sample.id}, {
+      :confirm => "Are you sure?\n\nThis will re-initialize the sample by removing and reloading any computed data", 
+      :remote => true,
+      :class => "button",
+      :style => "margin-bottom:1em" } %>
+  <% end %>
+  <%= render :partial => "actions" rescue nil %>
+  <div style="float:right">
+    <%= render :partial => 'samples/nav_links', :locals => {:sample => sample} %>
+  </div>
+  <div id="initialize_sample" style="clear:both"></div>
+	
+<% end -%>
+
+<div style="width:80%;float:left">
+  <div>
+    <h2 class="smalltitle" style="clear:both;font-size:120%;width:150px">Visuals</h2>
+    <%= render :partial => "graphics" %>
+  </div>
+
+  <div style="float:left;width:80%">
+    <h2 class="smalltitle" style="clear:both;font-size:120%">Info</h2>
+  	<%= render :partial => 'samples/metadata', :locals => {:sample => sample} %>
+  	<div style="clear:both;float:left">
+  	  <%= render :partial => "samples/console_log", :locals => {:sample => sample} %>
+  	</div>
+  </div>
+</div>
+
+<div style="width:20%;float:right">
+  <h2 class="smalltitle" style="clear:both;font-size:120%;">Assets</h2>
+	<%= render :partial => "samples/assets", :locals => {:sample => sample} %>
+</div>

@@ -38,10 +38,6 @@ class Biosql::SeqfeatureQualifierValue < ActiveRecord::Base
   def display_data
     value
   end
-
-  def self.db_xref_id
-    @db_xref_id ||= (Biosql::Term.find_or_create_by_name_and_ontology_id("db_xref",Biosql::Ontology.find_or_create_by_name("Annotation Tags").id).id)
-  end
   
   def self.set_locus_using_qual(qual_term,new_items_with_qual)
     locus_tag_term_id = Biosql::Term.locus_tag.id
@@ -57,10 +53,10 @@ class Biosql::SeqfeatureQualifierValue < ActiveRecord::Base
       progress_bar.increment!(features.length)
     end
   end
-  
+  # TODO: move dbxref links to xref_links table and create mgmt view
   def value(allow_interpolate=false)
     return super() unless allow_interpolate
-    if(term_id == self.class.db_xref_id)
+    if(term_id == Biosql::Term.db_xref.id)
       val = super()
       dbname,dbid=val.split(":")
       if(dbname && dbid)
@@ -78,9 +74,7 @@ class Biosql::SeqfeatureQualifierValue < ActiveRecord::Base
   def update_rank
     if !rank || rank==0
       if(self.seqfeature)
-        logger.info { "\n\nGetting :#{self.value}: rank\n\n" }
         self.rank = ((self.seqfeature.qualifiers.select{|q|q.term_id == self.term_id}.map(&:rank).compact.max)||0) + 1
-        logger.info { "\n\nSet :#{self.value}: Rank to: #{self.rank}\n\n" }
       end
     end
   end

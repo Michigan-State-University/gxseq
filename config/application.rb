@@ -16,12 +16,7 @@ module GenomeSuite
     #{config.root}/app/models/biosql
     #{config.root}/app/models/biosql/features
     config.autoload_paths += %W[
-      #{config.root}/app/models/experiments
-      #{config.root}/app/models/experiments/chip
-      #{config.root}/app/models/experiments/variants
-      #{config.root}/app/models/experiments/assets
-      #{config.root}/app/models/experiments/modules
-      #{config.root}/app/models/tracks
+      #{config.root}/app/models//modules
       #{config.root}/lib/modules
     ]
     # Exception Notifier Gem

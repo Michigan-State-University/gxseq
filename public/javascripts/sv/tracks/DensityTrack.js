@@ -249,7 +249,7 @@ Ext.define("Sv.tracks.DensityTrack",{
                          jrws : Ext.JSON.encode({
                              method : 'peak_genes',
                              param  : {
-                                 experiment : self.experiment,
+                                 sample : self.sample,
                                  bioentry : self.bioentry
                              }
                          }),
@@ -448,7 +448,7 @@ Ext.define("Sv.tracks.DensityTrack",{
               jrws : Ext.encode({
                   method : 'peak_locations',
                   param  : {
-                      experiment : self.experiment,
+                      sample : self.sample,
                       bioentry : self.bioentry
                   }
               })

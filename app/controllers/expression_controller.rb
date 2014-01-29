@@ -9,12 +9,12 @@ class ExpressionController < ApplicationController
   # display the matrix results
   def results
     begin
-    # Lookup the Experiments - Intersect with accessible experiments
-    @experiments = (params[:experiments]||[]).map{|e|Experiment.find(e)}.compact & @experiment_options
+    # Lookup the Samples - Intersect with accessible samples
+    @samples = (params[:samples]||[]).map{|e|Sample.find(e)}.compact & @sample_options
     respond_to do |format|
       # Base html query
       format.html{
-        @search = Biosql::Feature::Seqfeature.matrix_search(current_ability,@assembly.id,@type_term_id,@experiments,params) do |s|
+        @search = Biosql::Feature::Seqfeature.matrix_search(current_ability,@assembly.id,@type_term_id,@samples,params) do |s|
           s.paginate(:page => params[:page], :per_page => params[:per_page])
         end
         # Check for seqfeature update
@@ -22,7 +22,7 @@ class ExpressionController < ApplicationController
       }
       format.csv{
         # Use the initial query to get total pages
-        search = Biosql::Feature::Seqfeature.matrix_search(current_ability,@assembly.id,@type_term_id,@experiments,params) do |s|
+        search = Biosql::Feature::Seqfeature.matrix_search(current_ability,@assembly.id,@type_term_id,@samples,params) do |s|
           s.paginate(:page => 1, :per_page => 1000)
         end
         current_page = 1
@@ -31,16 +31,16 @@ class ExpressionController < ApplicationController
         # NOTE: change to streaming Enumerator for rails 3.2
         self.response_body = proc {|resp, out|
           # Add the header
-          out.write (['Locus','Definition']+@blast_runs.map(&:name)+@experiments.map(&:name)+['Sum']).to_csv
+          out.write (['Locus','Definition']+@blast_runs.map(&:name)+@samples.map(&:name)+['Sum']).to_csv
           # Write the first page
-          out.write Biosql::Feature::Seqfeature.matrix_search_to_csv(search,@experiments,@blast_runs,params)
+          out.write Biosql::Feature::Seqfeature.matrix_search_to_csv(search,@samples,@blast_runs,params)
           # Write any additional pages
           while(current_page < total_pages)
             current_page+=1
-            search = Biosql::Feature::Seqfeature.matrix_search(current_ability,@assembly.id,@type_term_id,@experiments,params) do |s|
+            search = Biosql::Feature::Seqfeature.matrix_search(current_ability,@assembly.id,@type_term_id,@samples,params) do |s|
               s.paginate(:page => current_page, :per_page => 1000)
             end
-            out.write Biosql::Feature::Seqfeature.matrix_search_to_csv(search,@experiments,@blast_runs,params)
+            out.write Biosql::Feature::Seqfeature.matrix_search_to_csv(search,@samples,@blast_runs,params)
           end
         }
       }
@@ -49,20 +49,20 @@ class ExpressionController < ApplicationController
       flash.now[:warning]='Whoops! Looks like this search isn\'t working. <br/> The administrator has been notified.'
       server_error(e,"Error performing search in tools/expression_results. \n\tPerhaps Sunspot is not started, or not the correct version? 'rake sunspot:solr:start'")
       @search = nil
-      @experiments||=[]
+      @samples||=[]
     end
   end
   
   # display the ratio results
   def advanced_results
     begin
-    # Lookup the Experiments and intersect with accessible experiments
-    @a_experiments = params[:a_experiments].map{|e|Experiment.find(e)}.compact &  @experiment_options
-    @b_experiments = params[:b_experiments].map{|e|Experiment.find(e)}.compact &  @experiment_options
+    # Lookup the Samples and intersect with accessible samples
+    @a_samples = params[:a_samples].map{|e|Sample.find(e)}.compact &  @sample_options
+    @b_samples = params[:b_samples].map{|e|Sample.find(e)}.compact &  @sample_options
     respond_to do |format|
       # Base html query
       format.html{
-        @search = Biosql::Feature::Seqfeature.ratio_search(current_ability,@assembly.id,@type_term_id,@a_experiments,@b_experiments,params) do |s|
+        @search = Biosql::Feature::Seqfeature.ratio_search(current_ability,@assembly.id,@type_term_id,@a_samples,@b_samples,params) do |s|
           s.paginate(:page => params[:page], :per_page => params[:per_page])
         end
         # Check for seqfeature update
@@ -71,7 +71,7 @@ class ExpressionController < ApplicationController
       # Streaming csv render
       format.csv{
         # Use the initial query to get total pages
-        search = Biosql::Feature::Seqfeature.ratio_search(current_ability,@assembly.id,@type_term_id,@a_experiments,@b_experiments,params) do |s|
+        search = Biosql::Feature::Seqfeature.ratio_search(current_ability,@assembly.id,@type_term_id,@a_samples,@b_samples,params) do |s|
           s.paginate(:page => 1, :per_page => 1000)
         end
         current_page = 1
@@ -82,14 +82,14 @@ class ExpressionController < ApplicationController
           # Add the header
           out.write (['Locus','Definition']+@blast_runs.map(&:name)+['Set A','Set B','A / B']).to_csv
           # Write the first page
-          out.write Biosql::Feature::Seqfeature.ratio_search_to_csv(search,@a_experiments,@b_experiments,@blast_runs,params)
+          out.write Biosql::Feature::Seqfeature.ratio_search_to_csv(search,@a_samples,@b_samples,@blast_runs,params)
           # Write any additional pages
           while(current_page < total_pages)
             current_page+=1
-            search = Biosql::Feature::Seqfeature.ratio_search(current_ability,@assembly.id,@type_term_id,@a_experiments,@b_experiments,params) do |s|
+            search = Biosql::Feature::Seqfeature.ratio_search(current_ability,@assembly.id,@type_term_id,@a_samples,@b_samples,params) do |s|
               s.paginate(:page => current_page, :per_page => 1000)
             end
-            out.write Biosql::Feature::Seqfeature.ratio_search_to_csv(search,@a_experiments,@b_experiments,@blast_runs,params)
+            out.write Biosql::Feature::Seqfeature.ratio_search_to_csv(search,@a_samples,@b_samples,@blast_runs,params)
           end
         }
       }
@@ -98,15 +98,15 @@ class ExpressionController < ApplicationController
       flash.now[:warning]='Whoops! Looks like this search isn\'t working. <br/> The administrator has been notified.'
       server_error(e,"Error performing search in tools/expression_results. \n\tPerhaps Sunspot is not started? 'rake sunspot:solr:start'")
       @search = nil
-      @a_experiments||=[]
-      @b_experiments||=[]
+      @a_samples||=[]
+      @b_samples||=[]
     end
   end
   
   def parallel_graph
-    # Lookup the Experiments - Intersect with accessible experiments
-    @experiments = params[:experiments].map{|e|Experiment.find(e)}.compact & @experiment_options
-    @search = Biosql::Feature::Seqfeature.matrix_search(current_ability,@assembly.id,@type_term_id,@experiments,params) do |s|
+    # Lookup the Samples - Intersect with accessible samples
+    @samples = params[:samples].map{|e|Sample.find(e)}.compact & @sample_options
+    @search = Biosql::Feature::Seqfeature.matrix_search(current_ability,@assembly.id,@type_term_id,@samples,params) do |s|
       s.paginate(:page => params[:page], :per_page => 100)
     end
   end
@@ -115,7 +115,7 @@ class ExpressionController < ApplicationController
   # Sets assembly and feature type options for viewer form
   def setup_form_data
     # lookup all accessible taxon versions
-    # Collect from accessible experiments to avoid displaying accessible sequence that has rna_seq but none accessible to the current user
+    # Collect from accessible samples to avoid displaying accessible sequence that has rna_seq but none accessible to the current user
     @assemblies = RnaSeq.accessible_by(current_ability).includes(:assembly => [:species => :scientific_name]).order("taxon_name.name ASC").map(&:assembly).uniq || []
     # set the current assembly
     @assembly = @assemblies.find{|t_version| t_version.try(:id)==params[:assembly_id].to_i} || @assemblies.first
@@ -126,7 +126,7 @@ class ExpressionController < ApplicationController
     # setup default type_term if not supplied in params
     @type_term_id ||=@feature_types.facet(:type_term_id).rows.first.try(:value) if @feature_types
   end
-  # Sets assembly, experiments and selection dropdowns for search results displays
+  # Sets assembly, samples and selection dropdowns for search results displays
   def setup_results_data
     # lookup taxon versionand redirect if none available
     @assembly = Assembly.accessible_by(current_ability).where(:id => params[:assembly_id]).first
@@ -144,8 +144,8 @@ class ExpressionController < ApplicationController
     begin
       # set the type_term_id
       @type_term_id = params[:type_term_id]
-      # get the experiments
-      @experiment_options = @assembly.rna_seqs.accessible_by(current_ability).order('experiments.name')
+      # get the samples
+      @sample_options = @assembly.rna_seqs.accessible_by(current_ability).order('samples.name')
       # find any blasts
       @blast_runs = @assembly.blast_runs
     rescue => e

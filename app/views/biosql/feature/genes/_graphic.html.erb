@@ -16,16 +16,16 @@
 		container.appendTo(ext);
 	
 		var canvas = new Sv.painters.ModelsCanvas({
-			strand : "<%= @gene.locations.first.strand == 1 ? '+' : '-' %>",
+			strand : "<%= feature.locations.first.strand == 1 ? '+' : '-' %>",
 			boxHeight : <%= @model_height %>,
 			selectable : false
 		});
 	
 		canvas.setContainer(container.dom);
-		canvas.setPixelBaseRatio(<%= @gui_zoom %>);
+		canvas.setPixelBaseRatio(<%= @bases/@pixels.to_f %>);
 		canvas.setCheckBoundaries(false);
 		
-		var subset = Ext.JSON.decode('<%= @gui_data.html_safe %>');
+		var subset = Ext.JSON.decode('<%= @graphic_data.html_safe %>');
 		canvas.setData(subset);
 		canvas.paint();
 	};

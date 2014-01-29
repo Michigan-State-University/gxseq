@@ -6,7 +6,7 @@
 <% end -%>
 
 <% content_for :item_bar do -%>
-  <%= link_to "Update Selection", expression_viewer_path(:experiments => @experiments,:assembly_id => params[:assembly_id]), :class => "button" %>
+  <%= link_to "Update Selection", expression_viewer_path(:samples => @samples,:assembly_id => params[:assembly_id]), :class => "button" %>
   <%= link_to "Download", url_for( params.merge(:format=>:csv)), :class => "button" %>
   <%= render :partial => 'results_form' %>
 <% end -%>
@@ -27,19 +27,19 @@
         <% @blast_runs.each do |blast_run| %>
           <th><%= sort_link blast_run.name, "blast_acc_#{blast_run.id}" %></th>
         <% end %>
-        <% @experiments.each do |exp| %>
-          <th width="5%" style="white-space:nowrap" ><%=sort_link exp.name,"exp_#{exp.id}" %></th>
+        <% @samples.each do |sample| %>
+          <th width="5%" style="white-space:nowrap" ><%=sort_link sample.name,"sample_#{sample.id}" %></th>
         <% end %>
         <th style="white-space:nowrap"><%= sort_link "Sum", 'sum' %></th>
         <th>Options</th>
       </thead>
       <% @search.each_hit_with_result do |hit,feature| %>
         <tr>
-          <%= render :partial => "id_def_and_blast", :locals => {:hit => hit, :feature => feature, :experiments => @experiments, :blast_runs => @blast_runs} %>
+          <%= render :partial => "id_def_and_blast", :locals => {:hit => hit, :feature => feature, :samples => @samples, :blast_runs => @blast_runs} %>
           <% sum = 0 %>
-          <% @experiments.each do |exp| %>
+          <% @samples.each do |sample| %>
             <td>
-              <%= val = (hit.stored(params[:value_type],"exp_#{exp.id}")||0).round %>
+              <%= val = (hit.stored(params[:value_type],"sample_#{sample.id}")||0).round %>
               <% sum += val %>
             </td>
           <% end %>
@@ -47,9 +47,9 @@
           <td style="white-space:nowrap">
             <%= link_to 'Details', seqfeature_path(feature) %>
             |
-            <%= link_to 'Graph', seqfeature_path(feature,:fmt => 'expression') %>
+            <%= link_to 'Graph', seqfeature_path(feature,:fmt => 'expression',:fc_ids => feature.feature_counts.select{|fc| @samples.map(&:id).include? fc.sample_id}) %>
             |
-            <%= link_to 'Browser', bioentry_path(feature.bioentry_id,{:pos => Array(hit.stored(:start_pos)).first,:tracks => [ :models_track, :generic_feature_track, @experiments.collect{|e| e.tracks.first.id} ].flatten,}) %>
+            <%= link_to 'Browser', bioentry_path(feature.bioentry_id,{:pos => Array(hit.stored(:start_pos)).first,:tracks => [ :models_track, :generic_feature_track, @samples.collect{|e| e.tracks.first.id} ].flatten,}) %>
           </td>
         </tr>
       <% end %>
