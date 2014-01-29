@@ -497,7 +497,6 @@ ActiveRecord::Schema.define(:version => 20140110154423) do
     t.datetime "updated_at"
   end
 
-  add_index "seqfeature_qualifier_value", ["UPPER(\"VALUE\")", "seqfeature_id"], :name => "sqv_index_val"
   add_index "seqfeature_qualifier_value", ["seqfeature_id", "term_id", "rank"], :name => "sqv_idx_2", :unique => true
   add_index "seqfeature_qualifier_value", ["seqfeature_id"], :name => "sqv_idx"
   add_index "seqfeature_qualifier_value", ["term_id"], :name => "sqv_idx_1"

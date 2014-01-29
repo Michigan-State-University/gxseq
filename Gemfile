@@ -39,7 +39,7 @@ group :test do
   gem 'shoulda'
   gem 'capybara'
   gem 'aruba'
-  gem 'selenium-webdriver'
+  gem 'selenium-webdriver','~> 2.38.0'
   gem 'launchy'
   gem 'json_spec'
 end
@@ -69,16 +69,16 @@ gem 'will_paginate', '~>3'
 gem 'bio-tabix', '1.0.1'
 gem 'bio-ucsc-util', '0.1.2'
 #gem 'bio-ucsc-util', :path => '~/gems/bio-ucsc-util'
-git 'git://github.com/throwern/sunspot.git' do
-  gem 'sunspot'
-  gem 'sunspot_rails'
-  gem 'sunspot_solr'
-end
+#git 'git://github.com/throwern/sunspot.git' do
+gem 'sunspot'
+#   gem 'sunspot_rails'
+#   gem 'sunspot_solr'
+# end
 # gem 'sunspot', :path => '~/gems/sunspot/sunspot'
 # gem 'sunspot_rails', :path => '~/gems/sunspot/sunspot_rails'
 # gem 'sunspot_solr', :path => '~/gems/sunspot/sunspot_solr'
-# gem 'sunspot_rails'
-# gem 'sunspot_solr'
+gem 'sunspot_rails'
+gem 'sunspot_solr'
 gem 'progress_bar', '~> 1.0.0'
 gem 'cancan'
 gem 'rails3-jquery-autocomplete'
