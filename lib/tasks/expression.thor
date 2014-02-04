@@ -58,7 +58,7 @@ class Expression < Thor
     end
     # verify type if provided
     if(options[:feature_type])
-      unless type_term = Biosql::Term.where{(upper(name)==my{options[:feature_type]}) & (ontology_id == Biosql::Term.seq_key_ont_id)}.first
+      unless type_term = Biosql::Term.where{(name==my{options[:feature_type]}) & (ontology_id == Biosql::Term.seq_key_ont_id)}.first
         puts "Could not find term: #{options[:feature_type]}"
         exit 0
       end
