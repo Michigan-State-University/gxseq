@@ -22,7 +22,7 @@
           <%= submit_tag "Update" %>
         </th>
         <% @feature_counts.each do |m| %>
-          <th><%= check_box_tag "fc_ids[]", m.id.to_s, @fc_ids.include?(m.id.to_s), :class => 'sample_check' %></th>
+          <th><%= check_box_tag "fc_ids[]", m.sample_id.to_s, @fc_ids.include?(m.sample_id.to_s), :class => 'sample_check' %></th>
         <% end %>
       </tr>
       <tr>

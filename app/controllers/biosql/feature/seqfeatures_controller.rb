@@ -192,13 +192,13 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
   # [{:key => sample_name, :values => {:base => int, :count => float }}, ...]
   def base_counts
     get_feature_counts
-    @feature_counts = @feature_counts.where{feature_counts.id.in(my{@fc_ids})}
+    @feature_counts = @feature_counts.where{feature_counts.sample_id.in(my{@fc_ids})}
     data = FeatureCount.create_base_data(@feature_counts, {:type => (params[:type]||'count')} )
     respond_with data
   end
   def feature_counts
     get_feature_counts
-    @feature_counts = @feature_counts.where{feature_counts.id.in(my{@fc_ids})}
+    @feature_counts = @feature_counts.where{feature_counts.sample_id.in(my{@fc_ids})}
     data = FeatureCount.create_sample_data(@feature_counts, {:group_trait => params[:group_trait], :type => (params[:type]||'count')} )
     respond_with data
   end
@@ -206,7 +206,7 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
   #[{:id,:name,:sample1,:sample2,...}]
   def coexpressed_counts
     get_feature_counts
-    @feature_counts = @feature_counts.where{feature_counts.id.in(my{@fc_ids})}
+    @feature_counts = @feature_counts.where{feature_counts.sample_id.in(my{@fc_ids})}
     search = @seqfeature.correlated_search(current_ability,{:per_page => 500})
     if search
       respond_with @seqfeature.corr_search_to_matrix(search,@feature_counts)
@@ -272,16 +272,17 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
         if(params[:fc_ids])
           # store preference
           if current_user
-            current_user.preferred_expression_fc_ids = params[:fc_ids].join(",").tr("^0-9,",'')
+            current_user.preferred_expression_fc_ids = params[:fc_ids].join(",").tr("^0-9,",''), @seqfeature.bioentry.assembly
             current_user.save
           end
           @fc_ids = params[:fc_ids]
         else
           # get preference
           if current_user
-            @fc_ids = current_user.preferred_expression_fc_ids.try(:split, ",")
+            @fc_ids = current_user.preferred_expression_fc_ids(@seqfeature.bioentry.assembly).try(:split, ",")
           end
-          @fc_ids ||= @feature_counts.map{|fc| fc.id.to_s}
+          logger.info "\n\n#{@fc_ids}\n\n"
+          @fc_ids ||= @feature_counts.map{|fc| fc.sample_id.to_s}
         end
     end
     
