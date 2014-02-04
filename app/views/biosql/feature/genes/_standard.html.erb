@@ -47,7 +47,7 @@
   		<tr class=<%= cycle("odd","even") %>>
   			<td class="keyword">External Reference(s)</td>
   			<td>
-  			  <%= feature.db_xrefs.map(&:value).join("<br/>").html_safe%>
+  			  <%= feature.db_xrefs.map(&:to_s).join("<br/>").html_safe%>
   			</td>
   		</tr>
   	<% end %>
@@ -115,7 +115,7 @@
   							<tr class=<%= cycle("odd","even") %>>
     							<td class="keyword">Transcript Reference(s)</td>
     							<td>
-    							  <%= gene_model.mrna.db_xrefs.map(&:value).join("<br/>").html_safe%>
+    							  <%= gene_model.mrna.db_xrefs.map(&:to_s).join("<br/>").html_safe%>
     							</td>
     						</tr>
     					<% end %>						
@@ -130,7 +130,7 @@
   							<td class="keyword">Transcript Sequence<br/>
   							  <%= render :partial => "blasts/link_with_sequence", :locals => {:sequence => na_seq, :desc => "#{gene_model.locus_tag} NA sequence"} %>
   							</td>
-  							<td style="font-family:'Courier';"><pre style="overflow-x:scroll"><%= formatted_sequence(na_seq,{:rows => 10, :delimiter => "\n"}) %></pre></td>
+  							<td style="font-family:'Courier';"><pre style="overflow-x:auto"><%= formatted_sequence(na_seq,{:rows => 10, :delimiter => "\n"}) %></pre></td>
   						</tr>
   					<% end %>
   					<% cds_seq = gene_model.cds_sequence %>
@@ -143,7 +143,7 @@
   							<td class="keyword">Coding Sequence<br/>
   							  <%= render :partial => "blasts/link_with_sequence", :locals => {:sequence => cds_seq, :desc => "#{gene_model.locus_tag} NA sequence"} %>
   							</td>
-  							<td style="font-family:'Courier';"><pre style="overflow-x:scroll"><%= formatted_sequence(cds_seq,{:rows => 10, :delimiter => "\n"}) %></pre></td>
+  							<td style="font-family:'Courier';"><pre style="overflow-x:auto"><%= formatted_sequence(cds_seq,{:rows => 10, :delimiter => "\n"}) %></pre></td>
   						</tr>
   					<% end %>
 						<% if gene_model.cds.protein_id %>
@@ -156,7 +156,7 @@
 							<tr class=<%= cycle("odd","even") %>>
   							<td class="keyword">Protein Reference(s)</td>
   							<td>
-  							  <%= gene_model.cds.db_xrefs.map(&:value).join("<br/>").html_safe%>
+  							  <%= gene_model.cds.db_xrefs.map(&:to_s).join("<br/>").html_safe%>
   							</td>
   						</tr>
   					<% end %>
@@ -170,7 +170,7 @@
 							<td class="keyword">Protein Sequence<br/>
 							  <%= render :partial => "blasts/link_with_sequence", :locals => {:sequence => p_seq, :desc => "#{gene_model.locus_tag} Protein sequence"} %>
 							</td>
-							<td style="font-family:'Courier';"><pre style="overflow-x:scroll"><%= formatted_sequence(p_seq,{:rows => 10, :delimiter => "\n"}) %></pre></td>
+							<td style="font-family:'Courier';"><pre style="overflow-x:auto"><%= formatted_sequence(p_seq,{:rows => 10, :delimiter => "\n"}) %></pre></td>
 						</tr>
 					</table>
 				</div>

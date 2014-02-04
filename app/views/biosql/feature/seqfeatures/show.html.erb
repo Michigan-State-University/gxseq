@@ -38,6 +38,7 @@
   			Alternate versions:
   			<p style="margin:.5em">
   				<% @seqfeatures.each do |feature| %>
+  				  <% next if feature == @seqfeature%>
   					<%= link_to feature.bioentry.display_info, seqfeature_path(feature) %><br/><br/>
   				<% end %>
   			</p>

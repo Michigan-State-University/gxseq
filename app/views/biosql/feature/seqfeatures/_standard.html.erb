@@ -24,7 +24,7 @@
       	  <% ont_features.each do |qual| %>
       	    <tr class=<%= cycle("odd","even") %>>
               <td class="keyword"><%= qual.name  %></td>
-              <td style="overflow:hidden"><%= qual.to_s.html_safe %></td>
+              <td style="overflow:auto"><%= qual.to_s.html_safe %></td>
             </tr>
       	  <% end %>
       	</table>
@@ -53,7 +53,7 @@
     </h2>
     <table>
       <tr class='odd'>
-        <td style="font-family:'Courier';"><pre style="overflow-x:scroll"><%= formatted_sequence(@seqfeature.na_sequence[0..10000],{:rows => 10, :delimiter => "\n"}) %></pre></td>
+        <td style="font-family:'Courier';"><pre style="overflow-x:auto"><%= formatted_sequence(@seqfeature.na_sequence[0..10000],{:rows => 10, :delimiter => "\n"}) %></pre></td>
         <% if na_seq.length > 10000 %>
           <%= number_with_delimiter(na_seq.length-10000) %>bp truncated...
         <% end %>
@@ -70,7 +70,7 @@
         </h2>
         <table>
           <tr class='odd'>
-            <td style="font-family:'Courier';"><pre style="overflow-x:scroll"><%= formatted_sequence(@seqfeature.protein_sequence,{:rows => 10, :delimiter => "\n"}) %></pre></td>
+            <td style="font-family:'Courier';"><pre style="overflow-x:auto"><%= formatted_sequence(@seqfeature.protein_sequence,{:rows => 10, :delimiter => "\n"}) %></pre></td>
           </tr>
         </table>
       <% end %>

@@ -104,6 +104,14 @@ class Biosql::Feature::Gene < Biosql::Feature::Seqfeature
     end
     return starts
   end
+  # returns protein sequence updated to reflect variation identified in sample
+  def variant_protein_sequence(sample_id,opts={})
+    if( representative_gene_model.try(:cds) )
+      return representative_gene_model.cds.variant_protein_sequence(sample_id,opts)
+    else
+      return nil
+    end
+  end
   #TODO: test this method against new inverse_of association setting
   def initialize_associations
     self.gene_models.each{|gm| gm.gene=self; gm.bioentry=self.bioentry}

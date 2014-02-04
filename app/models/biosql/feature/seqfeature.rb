@@ -316,12 +316,50 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     text ="".ljust(6)+type_term.name.ljust(15)
     text += genbank_location.break_and_wrap_text(58,"\n",22,false)
     qualifiers.each do |q|
-      text += ("/#{q.term.name}="+q.value(allow_interpolate)).break_and_wrap_text(58,"\n",22)
+      text += ("/#{q.term.name}="+q.value).break_and_wrap_text(58,"\n",22)
+      if(allow_interpolate&&q.term.name=='db_xref')
+        text.gsub!(q.value,q.value(true))
+      end
     end
     text+="\n"
     return text
   end
   
+  # returns the fasta formatted header for this sequence
+  def fasta_header(flanking,opts={})
+     ">#{name} #{bioentry.display_info} from #{min_start - flanking} to #{max_end + flanking}"
+  end
+  
+  # returns nucleic sequence updated to reflect variation identified in sample
+  def variant_na_sequence(sample_id,opts={})
+    return nil unless (v = Variant.find(sample_id))
+    window = (opts[:window] || 0).to_i
+    start = min_start-window
+    stop = max_end+window
+    seq = ""
+    # start window
+    if(window>0)
+      seq += v.get_sequence(min_start-window,min_start-1,bioentry.id,opts[:sample],opts)
+    end
+    locations.each do |l|
+      seq += v.get_sequence(l.start_pos,l.end_pos,bioentry.id,opts[:sample],opts)
+    end
+    # end window
+    if(window>0)
+      seq += v.get_sequence(max_end+1,max_end+window,bioentry.id,opts[:sample],opts)
+    end
+    #Not complemented to avoid seq coloring issues if opts[:html]
+    if(opts[:html])
+      return seq
+    else
+      return (locations.first.strand.to_i == 1) ? seq : Bio::Sequence::NA.new(seq).complement!.to_s.upcase
+    end
+  end
+  # returns protein sequence updated to reflect variation identified in sample
+  def variant_protein_sequence(sample_id,opts={})
+    #nil by default
+    return nil
+  end
   # set rank and type_term before validation
   # creates a term for display_name if one cannot be found
   def initialize_associations

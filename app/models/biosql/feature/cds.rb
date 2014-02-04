@@ -21,4 +21,8 @@ class Biosql::Feature::Cds < Biosql::Feature::Seqfeature
   def display_type
     'CDS'
   end
+  # returns protein sequence updated to reflect variation identified in sample
+  def variant_protein_sequence(sample_id,opts={})
+    return Bio::Sequence::NA.new(variant_na_sequence(sample_id,opts)).translate(1, bioentry.taxon.genetic_code || 1)
+  end
 end

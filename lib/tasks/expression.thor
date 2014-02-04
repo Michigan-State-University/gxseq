@@ -39,14 +39,26 @@ class Expression < Thor
       return
     end
     # Check Sample
-    sample = RnaSeq.find_by_name_and_assembly_id(options[:sample],options[:assembly_id]) || RnaSeq.find_by_id(options[:sample].to_i)
+    if(options[:sample])
+      sample = RnaSeq.find_by_name_and_assembly_id(options[:sample],options[:assembly_id]) || RnaSeq.find_by_id(options[:sample].to_i)
+    elsif(options[:sample_def])
+      samples = RnaSeq.where{assembly_id==my{options[:assembly_id]}}.where{description =~ my{"%#{options[:sample_def]}%"} }
+      if(samples.count>1)
+        puts "--sample_def was not unique: #{samples.count} samples matched"
+        exit 0
+      else
+        sample = samples.first
+      end
+    else
+      sample = nil
+    end
     unless sample
       puts "sample '#{options[:sample]}' not found"
       exit 0
     end
     # verify type if provided
     if(options[:feature_type])
-      unless type_term = Biosql::Term.where{(upper(name)==my{options[:feature_type].upcase}) & (ontology_id == Biosql::Term.seq_key_ont_id)}.first
+      unless type_term = Biosql::Term.where{(name==my{options[:feature_type]}) & (ontology_id == Biosql::Term.seq_key_ont_id)}.first
         puts "Could not find term: #{options[:feature_type]}"
         exit 0
       end
