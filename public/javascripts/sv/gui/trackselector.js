@@ -9,11 +9,13 @@ Ext.define('Sv.gui.TrackSelector',{
   rootVisible:    false,
   singleExpand:   false,
   hideCollapseTool: true,
+  //minWidth: 1000,
   lines: false,
   activeTracks:   [],
   rootVisible: false,
-  hideHeaders: true,
+  hideHeaders: false,
   columns: [{
+      text: '',
       dataIndex: 'text'
       ,editor: {
           allowBlank: false
@@ -26,7 +28,7 @@ Ext.define('Sv.gui.TrackSelector',{
   plugins:[{
     pluginId: 'edit-plug',
     ptype: 'treeediting',
-    clicksToEdit: 1,
+    clicksToEdit: 2,
     listeners:{
       beforeedit:{
         fn: function(obj){
@@ -75,7 +77,25 @@ Ext.define('Sv.gui.TrackSelector',{
       'closeTrack' : true,
       'moveTrack'  : true
     });
-
+    
+    // Add Track Browser
+    self.trackBrowser = Ext.create('Sv.gui.TrackBrowser',{
+      trackManager: self.trackManager
+    })
+    // Handle Track Browser events
+    self.trackBrowser.on('removeTrack',function(track){
+      self.inactive.appendChild(track.node);
+    })
+    self.trackBrowser.on('insertTrack',function(track,index){
+      self.active.insertChild(index,track.node);
+    })
+    self.trackBrowser.on('openTrack',function(track){
+      self.activate(track);
+    })
+    self.trackBrowser.on('closeTrack',function(track){
+      self.inactivate(track);
+    })
+    // Setup toolbar icons
     self.tools = [{
       id:'save',
       qtip: 'Save layout',
@@ -84,13 +104,20 @@ Ext.define('Sv.gui.TrackSelector',{
       }
     },
     {
-      id:'gear',
+      id:'plus',
       qtip: 'New folder',
       handler: function(){
         self.expand();
         node = self.createNewNode("New Folder");
         node = self.inactive.appendChild(node);
         self.plugins[0].startEdit(node, self.columns[0])
+      }
+    },
+    {
+      id:'search',
+      qtip: 'Track Browser',
+      handler: function(){    
+        self.trackBrowser.show();
       }
     }];
 
@@ -104,6 +131,7 @@ Ext.define('Sv.gui.TrackSelector',{
     //Item events				
     ////Right Click
     self.on('itemcontextmenu',function(thisView, record, htmlItem, index, event, opts){
+      event.stopEvent();
       if(record.isLeaf()){
         if(record.parentNode == self.active)
         record.track.contextMenu.ext.showAt([event.getPageX(), event.getPageY()]);
@@ -210,7 +238,21 @@ Ext.define('Sv.gui.TrackSelector',{
     var self = this;
     if (!track instanceof Sv.tracks.BaseTrack) return;
     var parent = self.importPath(track.path);
-
+    // Add Track to track browser
+    self.trackBrowser.inactiveStore.add({
+      id:   track.id,
+      name: track.name,
+      type: track.type,
+      sampleType: track.sample_type,
+      description: track.description,
+      details: track.details,
+      iconCls: track.iconCls,
+      path: track.path
+    })
+    
+    // handle external track close event
+    track.on('close', self.inactivate);
+    
     //Create the leaf node to represent the track
     var node = parent.appendChild(
       {
@@ -244,29 +286,32 @@ Ext.define('Sv.gui.TrackSelector',{
         }
       }
       track.node = node;
-      //TODO Tightly coupled...Move to App setup?
-      track.on('close', function(track,event){self.inactivate(track)});
-
+      
       //Attach a listener for the node move event
       node.on('move', function(node, oldParent, newParent, index, options)
       {   
         if (oldParent == self.active)
-        {
+        {          
           //Active to active (reorder)
           if (newParent == self.active)
           {
-            self.fireEvent('moveTrack', node.track, node.nextSibling ? node.nextSibling.track : null);
+            var siblingTrack = node.nextSibling ? node.nextSibling.track : null
+            self.fireEvent('moveTrack', node.track, siblingTrack);
+            self.trackBrowser.moveTrack(node.track, siblingTrack);
           }
           //Active to wrong inactive (remove)
           else if (node.originalParent && newParent != node.originalParent)
           {
             node.updateParent(node.parentNode);
             self.fireEvent('closeTrack', node.track);
+            self.trackBrowser.closeTrack(node.track);
           }
           //Active to right inactive (remove)
           else
           {
             self.fireEvent('closeTrack', node.track);
+            //Update Browser
+            self.trackBrowser.closeTrack(node.track);
           }
         }
         else
@@ -274,7 +319,9 @@ Ext.define('Sv.gui.TrackSelector',{
           //Inactive to active (insert)
           if (newParent == self.active)
           {
-            self.fireEvent('openTrack', node.track, node.nextSibling ? node.nextSibling.track : null);
+            var siblingTrack = node.nextSibling ? node.nextSibling.track : null
+            self.fireEvent('openTrack', node.track, siblingTrack);
+            self.trackBrowser.openTrack(node.track, siblingTrack);
           }
           //Inactive to wrong inactive parent
           else if (node.originalParent && newParent != node.originalParent)
@@ -343,7 +390,7 @@ Ext.define('Sv.gui.TrackSelector',{
       {
         child = self.createNewNode(dir)
         child = parent.appendChild(child);
-      }           
+      }
       parent = child;
     });
     return parent;

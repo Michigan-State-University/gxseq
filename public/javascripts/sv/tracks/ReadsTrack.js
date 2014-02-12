@@ -16,6 +16,7 @@ Ext.define("Sv.tracks.ReadsTrack",{
   readLimit : 1000,
   scale : 1,
   style : 'area',
+  method : 'range',
   initComponent : function(){
     this.callParent(arguments);
     var self = this;
@@ -236,6 +237,7 @@ Ext.define("Sv.tracks.ReadsTrack",{
     var toggleReadsBtn = Ext.create('Ext.button.Button',{
       iconCls: "sequence_track",
       tooltip: "Show Aligned Sequence",
+      pressed: self.method=='reads',
       listeners : {
         click : {
           fn : function(){
@@ -260,7 +262,7 @@ Ext.define("Sv.tracks.ReadsTrack",{
     var toggleHistBtn = Ext.create('Ext.button.Button',{
       iconCls: "silk_histogram",
       tooltip: "Show Read Depth",
-      pressed: true,
+      pressed: self.method=='range',
       listeners : {
         click : {
           fn : function(){
@@ -391,7 +393,9 @@ Ext.define("Sv.tracks.ReadsTrack",{
         boxHeightMin : self.boxHeightMin,
         boxBlingLimit : self.boxBlingLimit,
         pairedEnd : self.pairedEnd,
-        colorBases : self.colorBases
+        colorBases : self.colorBases,
+        forwardColor: self.forwardColor,
+      	reverseColor : self.reverseColor
       });
       
       canvasA.flipY();
@@ -452,16 +456,22 @@ Ext.define("Sv.tracks.ReadsTrack",{
     })();
     
     //Data handling and rendering object
-    var handler = Histogram;
-    this.handler = handler;
-    
+    // TODO: why have property and local object?
+    if(self.method=='reads'){
+      var handler = Reads;
+      this.handler = handler;
+    }else{
+      var handler = Histogram;
+      this.handler = handler;
+    }
+
     //Change the color(s) for this track
   	this.setColor = function(color,type){
-      self.hist_color = color;
+      
       switch (type){
-        case 'hist': Histogram.canvasA.setColor(color); break;
-        case 'forward': Reads.canvasA.setForwardColor(color); break;
-        case 'reverse': Reads.canvasA.setReverseColor(color); break;
+        case 'hist': Histogram.canvasA.setColor(color); self.hist_color = color; break;
+        case 'forward': Reads.canvasA.setForwardColor(color); self.forwardColor = color; break;
+        case 'reverse': Reads.canvasA.setReverseColor(color); self.reverseColor = color; break;
       }
       handler.canvasA.refresh();
   	};
@@ -607,5 +617,22 @@ Ext.define("Sv.tracks.ReadsTrack",{
   },
   requestFormat: function(){
     return this.handler.method;
+  },
+  getConfig: function(){
+    var track = this;
+    return {
+      id : track.id,
+      name : track.name,
+      data : track.data,
+      height : track.height,
+      scale : track.scale,
+      showControls : track.showControls,
+      single : track.single,
+      colorBases : track.colorBases,
+      hist_color : track.hist_color,
+      forwardColor: track.forwardColor,
+    	reverseColor : track.reverseColor,
+    	method  : track.requestFormat()
+    }
   }
 });

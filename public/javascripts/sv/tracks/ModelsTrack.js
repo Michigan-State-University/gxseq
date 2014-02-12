@@ -402,6 +402,17 @@ Ext.define('Sv.tracks.ModelsTrack',{
             box.echo("Error: failed to retrieve gene information:<br/>"+message);
          }
       });
+    },
+    getConfig: function(){
+      var track = this;
+      return {
+        id : track.id,
+        name : track.name,
+        data : track.data,
+        height : track.height,
+        scale : track.scale,
+        showControls : track.showControls,
+      }
     }
 });
 

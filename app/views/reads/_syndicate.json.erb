@@ -1,0 +1,20 @@
+<%=
+{ :success => true,
+  :data => {
+     :institution => {
+        :name => "GLBRC",
+        :url => "http:\/\/www.glbrc.org\/",
+        :logo => ""
+     },
+     :engineer => {
+        :name => "#{APP_CONFIG[:admin_email]}",
+        :email => "#{APP_CONFIG[:admin_eamil]}"
+     },
+     :service => {
+        :title => "Reads Track",
+        :description => ""
+     },
+     :text => "#{render :partial => "reads/syndicate"}"
+  }
+}.to_json.html_safe
+%>

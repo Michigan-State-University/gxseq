@@ -14,39 +14,41 @@
 
 class HistogramTrack < Track
   belongs_to :sample
-  
-  def config
-    " id    		: '#{self.id}',
-      sample: '#{sample.id}',
-      name  		: '#{name}',
-      single	  : #{sample.single},
-      type  		: 'DensityTrack',
-      data  		: '#{root_path}/fetchers/base_counts',
-      storeLocal: true,
-      iconCls : '#{iconCls}',
-      height 	: 100,
-      hasPeaks : #{has_peaks},
-      style: '#{style}'"
-  end
-  
-  def name
-    sample.name.gsub("\\","\\\\\\\\").gsub("'",%q(\\\'))
+  def get_config
+    base_config.merge(
+      {
+        :sample => sample.id,
+        :sample_type => sample.class.name,
+        :single => sample.single,
+        :storeLocal => true,
+        :hasPeaks => has_peaks,
+        :style => style
+      }
+    )
   end
   
   def iconCls
     self.sample.iconCls
   end
   
-  def custom_config
-    "sample: '#{sample.id}',\n"
+  def data_path
+    "#{root_path}/fetchers/base_counts"
   end
   
-  def type
-      "type  		: 'DensityTrack',\n"
-  end
-  
-  def path
+  def folder
     "#{sample.class.name}"
+  end
+  
+  def track_type
+    "DensityTrack"
+  end
+  
+  def detail_text
+    sample.traits.map{|t|"#{t.term.name}:#{trait.value}"}.join(" ")
+  end
+  
+  def description_text
+    sample.description
   end
   
   def has_peaks

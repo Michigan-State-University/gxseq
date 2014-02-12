@@ -7,29 +7,26 @@ class ReadsController < ApplicationController
       param = jrws['param']
       case jrws['method']
       when 'syndicate'
-        render :json  => {
-            :success => true,
-            :data => {
-               :institution => {
-                  :name => "GLBRC",
-                  :url => "http:\/\/www.glbrc.org\/",
-                  :logo => ""
-               },
-               :engineer => {
-                  :name => "Nick Thrower",
-                  :email => "throwern@msu.edu"
-               },
-               :service => {
-                  :title => "Reads",
-                  :species => "",
-                  :access => "",
-                  :version => "",
-                  :format => "",
-                  :server => "",
-                  :description => "Sequence Reads Track"
-               }
-            }
-         }
+        @sample= Sample.find(param['sample'])
+        render :partial => "reads/syndicate.json"
+        # render :json  => {
+        #     :success => true,
+        #     :data => {
+        #        :institution => {
+        #           :name => "GLBRC",
+        #           :url => "http:\/\/www.glbrc.org\/",
+        #           :logo => ""
+        #        },
+        #        :engineer => {
+        #           :name => "Nick Thrower",
+        #           :email => "throwern@msu.edu"
+        #        },
+        #        :service => {
+        #           :title => "Reads Track",
+        #           :description => ""
+        #        }
+        #     }
+        #  }
       when 'abs_max'
         sample= Sample.find(param['sample'])
         render :text => sample.max(sample.sequence_name(param['bioentry'])).to_s

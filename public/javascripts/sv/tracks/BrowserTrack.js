@@ -491,6 +491,7 @@ Ext.define('Sv.tracks.BrowserTrack', {
     getPolicy: function(view) {
         return null;
     },
+    getConfig: function(){},
     rescale: function(value) {},
     color_values: [
        "444444","EEEEEE","FFFF99","DDBB88","B15928","B86948","A6CEE3","1F78B4",

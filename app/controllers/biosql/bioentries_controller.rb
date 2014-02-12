@@ -129,13 +129,12 @@ class Biosql::BioentriesController < ApplicationController
     if(layout_id)
       begin
         @layout = TrackLayout.find(layout_id)
-        @active_track_string = @layout.active_tracks
+        @active_tracks = @layout.active_tracks.split(",").map{|i|i.gsub(/\D/,'')}.map(&:to_i)
       rescue
         @layout = nil
       end
     # otherwise check the parameters for track ids
     elsif(params[:tracks])
-      # use tracks param. no reason to sanitize because track_ids are only loaded if they exist
       @active_tracks = Array(params[:tracks])
     # fallback on default tracks
     else
@@ -237,7 +236,7 @@ class Biosql::BioentriesController < ApplicationController
         :institution => {
           :name => 'Great Lakes Bioenergy Research Center',
           :url => 'http://www.glbrc.org',
-          :logo => "http://glbrc.org/sites/all/themes/gbif/images/GLBRC_horz_cmyk_small.jpg"
+          :logo => ""
         },
         :engineer => {
           :name => 'Nicholas A. Thrower', 
@@ -294,7 +293,7 @@ class Biosql::BioentriesController < ApplicationController
             :institution => {
               :name => "GLBRC",
               :url => 'http://www.glbrc.org',
-              :logo => "http://glbrc.org/sites/all/themes/gbif/images/GLBRC_horz_cmyk_small.jpg"
+              :logo => ""
             },
             :engineer => {
               :name => "Nicholas A. Thrower",

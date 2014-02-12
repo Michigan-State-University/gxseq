@@ -21,6 +21,7 @@ Ext.define("Sv.tracks.BaseTrack",{
         //Add events
          self.addEvents({
              'generic'       : true,
+             'describe'      : true,
              'close'         : true,
              'error'         : true,
              'resize'        : true,
@@ -150,7 +151,17 @@ Ext.define("Sv.tracks.BaseTrack",{
                self.fireEvent('close', self);
              }
          });
-        
+        //Button to get syndication from the track
+        var infoButton = new Ext.Button(
+          {
+            iconCls : 'silk_information',
+            tooltip : 'Show Track Details',
+            permanent : true,
+            handler : function() {
+              var syndicationHTML = BaseJS.toHTML(self.Syndicator.getSyndication())
+              self.fireEvent('describe',syndicationHTML)
+            }
+          })
         // Commented out for now till other permission features
         // are all worked out
 
@@ -189,7 +200,7 @@ Ext.define("Sv.tracks.BaseTrack",{
          var spacer = new Ext.Toolbar.Spacer();
          spacer.permanent = true;
          
-         var items = [closeButton,addButton, title, filler, toggleButton, spacer];
+         var items = [closeButton,infoButton, title, filler, toggleButton, spacer];
          toolbar.add(items);          
                       
          //Change the title shown in the toolbar

@@ -14,32 +14,39 @@
 
 class VariantTrack < Track
   belongs_to :sample
-  def path
-    "Variants"
-  end
+  def get_config
+    base_config.merge(
+      {
+        :sample => sample.id,
+        :sample_type => sample.class.name,
+        :genotype_sample => genotype_sample,
+        :storeLocal => true
+      }
+    )
 
-  def config
-    " id    		: '#{self.id}',
-      sample: '#{sample.id}',
-      name  		: '#{name}',
-      genotype_sample    : '#{genotype_sample}',
-      type  		: 'VariantTrack',
-      data  		: '#{root_path}/variants/track_data',
-      storeLocal: true,
-      iconCls : '#{iconCls}',
-      height 	: 100"
   end
   
   def name
     "#{sample.name.gsub("\\","\\\\\\\\").gsub("'",%q(\\\'))}"+(genotype_sample ? "::#{(genotype_sample).gsub("\\","\\\\\\\\").gsub("'",%q(\\\'))}" : '')
   end
   
-  def custom_config
-    "sample: '#{sample.id}',
-     storeLocal: true,"
-  end
-  
   def iconCls
     "variant_track"
+  end
+  
+  def data_path
+    "#{root_path}/variants/track_data"
+  end
+  
+  def folder
+    "Variants"
+  end
+  
+  def detail_text
+    sample.traits.map{|t|"#{t.term.name}:#{trait.value}"}.join(" ")
+  end
+  
+  def description_text
+    sample.description
   end
 end
