@@ -209,9 +209,23 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     @feature_counts = @feature_counts.where{feature_counts.sample_id.in(my{@fc_ids})}
     search = @seqfeature.correlated_search(current_ability,{:per_page => 500})
     if search
-      respond_with @seqfeature.corr_search_to_matrix(search,@feature_counts)
+      results = @seqfeature.corr_search_to_matrix(search,@feature_counts)
     else
-      respond_with []
+      results = []
+    end
+    respond_to do |wants|
+      wants.json{
+        respond_with results
+      }
+      wants.csv{
+        text = CSV.generate do |csv|
+          csv << ["id", "locus", "description", "r", "r2", "sum", "avg normalized count"]
+          results.each do |r|
+            csv << [r[:id], r[:locus], r[:description], r[:r], r[:r2], r[:sum], r[:avg]]
+          end
+        end
+        send_data text, {:filename => @seqfeature.label+"_correlation.csv", :disposition => 'attachment', :type => :csv}
+      }
     end
   end
   # Add or Remove this seqfeature as a favorite for the given user, and reindex

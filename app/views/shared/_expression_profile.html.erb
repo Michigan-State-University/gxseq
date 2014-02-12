@@ -83,7 +83,9 @@
 </style>
 
 <div id="graph" class="slickline" style="height:500px;"></div>
-<div id="pager"></div>
+<div id="pager">
+  <%= link_to "Download Table", coexpressed_counts_seqfeature_path(feature,:format => :csv),{:style => 'float:right', :target => "_blank"} %>
+</div>
 <div id="grid"></div>
 <script type='text/javascript'>
   var linkFormatter = function ( row, cell, value, columnDef, dataContext ) {
@@ -134,5 +136,5 @@
       }
     ]
   });
-  slick.load(<%= "'#{data}'" %>)
+  slick.load(<%= "'#{coexpressed_counts_seqfeature_path(feature,:format => :json,:fc_ids => fc_ids)}'" %>)
 </script>
