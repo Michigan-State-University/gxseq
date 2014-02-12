@@ -5,7 +5,8 @@
   <%= render :partial => "shared/expression_profile", :locals => {
     :feature_counts => @feature_counts,
     :element_id => 'expression_profile',
-    :data => coexpressed_counts_seqfeature_path(feature,:format => :json,:fc_ids => @fc_ids)
+    :fc_ids => @fc_ids,
+    :feature => feature
   } %>
 <% end %>
 <br/>
