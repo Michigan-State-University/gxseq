@@ -40,7 +40,7 @@ class ReadsTrack < Track
   end
   
   def detail_text
-    sample.traits.map{|t|"#{t.term.name}:#{trait.value}"}.join(" ")
+    sample.traits.map{|t|"#{t.term.name}:#{t.value}"}.join(" ")
   end
   
   def description_text
