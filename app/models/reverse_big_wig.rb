@@ -1,0 +1,2 @@
+class ReverseBigWig < BigWig
+end

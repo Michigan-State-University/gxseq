@@ -43,7 +43,7 @@ class FetchersController < ApplicationController
       #{(stop-start)/bases
       data.fill{|i| [param['left']+(i*offset).to_i,data[i].round(2)]}
       #We Render the text directly for speed efficiency
-      render :text =>"{\"success\":true,\"data\":#{data.inspect}}"
+      render :text =>"{\"success\":true,\"data\":{\"above\":#{data.inspect}}}"
     when 'peak_genes'
       @sample = Sample.find(param['sample'])
       authorize! :track_data, @sample

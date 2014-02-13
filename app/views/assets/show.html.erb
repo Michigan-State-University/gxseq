@@ -4,7 +4,10 @@
 <%= render :partial => "#{@asset.class.name.underscore}_card", :locals => {:asset => @asset} rescue
     render :partial => "card", :locals => {:asset => @asset}
 %>
+<br/>
+<%= link_to "Download", download_asset_path(@asset), :class => 'button'%>
 </div>
+
 <div style="float:left">
   <p>
     <b>Original Filename:</b>

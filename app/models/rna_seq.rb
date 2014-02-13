@@ -28,6 +28,8 @@ class RnaSeq < Sample
   has_many :feature_counts, :foreign_key => "sample_id", :dependent => :delete_all
   has_one :bam, :foreign_key => "sample_id"
   has_one :big_wig, :foreign_key => "sample_id"
+  has_one :forward_big_wig, :foreign_key => "sample_id"
+  has_one :reverse_big_wig, :foreign_key => "sample_id"
   smoothable
   
   def asset_types
@@ -41,6 +43,14 @@ class RnaSeq < Sample
       if(bam && !big_wig)
         self.create_big_wig(:data => bam.create_big_wig)
         big_wig.load if big_wig
+      end
+      if(bam && !forward_big_wig)
+        self.create_forward_big_wig(:data => bam.create_big_wig(:strand => '+'))
+        forward_big_wig.load if forward_big_wig
+      end
+      if(bam && !reverse_big_wig)
+        self.create_reverse_big_wig(:data => bam.create_big_wig(:strand => '-'))
+        reverse_big_wig.load if reverse_big_wig
       end
       return true
     rescue => e
@@ -68,8 +78,14 @@ class RnaSeq < Sample
     bam.find_read(read_id, chrom, pos)
   end
   # returns histogram data see big_wig#summary_data for details
-  def summary_data(start,stop,num,chrom)
-    (self.big_wig ? big_wig.summary_data(start,stop,num,chrom).map(&:to_f) : [])
+  def summary_data(start,stop,num,chrom,opts={})
+    if opts[:strand]=='+'
+      return (forward_big_wig ? forward_big_wig.summary_data(start,stop,num,chrom).map(&:to_f) : [])
+    elsif opts[:strand]=='-'
+      return (reverse_big_wig ? reverse_big_wig.summary_data(start,stop,num,chrom).map(&:to_f) : [])
+    else
+      return (self.big_wig ? big_wig.summary_data(start,stop,num,chrom).map(&:to_f) : [])
+    end
   end
   # returns reads in chromosome range see bam#get_reads
   def get_reads(start, stop, chrom)
@@ -83,10 +99,10 @@ class RnaSeq < Sample
   # if a sequence_name is supplied it will return max for that sequence only
   def max(chrom='')
     begin
-      if big_wig
+      if single
         big_wig.max(chrom)
       else
-        1
+        [forward_big_wig.max(chrom),reverse_big_wig.max(chrom)].max
       end
     rescue
       1
@@ -102,8 +118,11 @@ class RnaSeq < Sample
     "rna_seq_track"
   end
 
+  # returns option for track config
+  # true for one single canvas, false for two pos/neg canvas
   def single
-    true
+    # Use pos/neg canvas for single stranded samples
+    show_negative =='true' ? false : true
   end
   
   def track_style

@@ -40,11 +40,19 @@ class ReadsController < ApplicationController
           return
         end
         density=param['density']||1000
-        data = sample.summary_data(param['left'],param['right'],density,c_item.reference_name)
         offset = (param['right']-param['left'])/density.to_f
-        #{(stop-start)/bases
-        data.fill{|i| [param['left']+(i*offset).to_i,data[i].to_i]}
-        render :text =>"{\"success\":true,\"data\":#{data.inspect}}"
+        if(sample.single)
+          data = sample.summary_data(param['left'],param['right'],density,c_item.reference_name)
+          #{(stop-start)/bases
+          data.fill{|i| [param['left']+(i*offset).to_i,data[i].to_i]}
+          render :text =>"{\"success\":true,\"data\":{\"above\":#{data.inspect}}}"
+        else
+          data = sample.summary_data(param['left'],param['right'],density,c_item.reference_name,{:strand => '+'})
+          data.fill{|i| [param['left']+(i*offset).to_i,data[i].to_i]}
+          data_below = sample.summary_data(param['left'],param['right'],density,c_item.reference_name,{:strand => '-'})
+          data_below.fill{|i| [param['left']+(i*offset).to_i,data_below[i].to_i]}
+          render :text =>"{\"success\":true,\"data\":{\"above\":#{data.inspect},\"below\":#{data_below.inspect}}}"
+        end
       when 'reads'
         bioentry = Biosql::Bioentry.find(param['bioentry'])
         sample = Sample.find(param['sample'])

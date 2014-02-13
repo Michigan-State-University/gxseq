@@ -3,11 +3,15 @@
 <% end -%>
 
 <% content_for :item_bar do -%>
+  <%= link_to "Cancel", @variant, :style => "float:left", :class => "button"%>
   <% if can? :delete, @variant %>
-    <% #TODO: Change remove buttons to red style %>
-    <%= link_to "Remove Variant", @variant, :method => 'delete', :class => "button", :confirm => "Remove sample: #{@variant.name}? \n This CANNOT be undone." %>
+    <%= render :partial => 'shared/item_bar_toggle' %>
+    <!-- Advanced Options -->
+    <div style="display:none;clear:both;float:left" id="advanced_search">
+      <br/>
+      <%= link_to "Remove Variant", @variant, :method => 'delete', :class => "redbutton", :confirm => "Remove sample: #{@variant.name}? \n This CANNOT be undone." %>
+    </div>
   <% end %>
-  <%= link_to "Cancel", variants_path, :style => "float:right", :class => "button" %>
 <% end -%>
 
 <%= render :partial => "samples/sidebar" %>

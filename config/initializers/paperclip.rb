@@ -1,4 +1,5 @@
 Paperclip.interpolates :filename_with_ext do |attachment, style|
+  #TODO: Test and remove this interpolation. No reason to rename the original file
   attachment.original_filename.gsub(/\.[^.]+$/, "."+attachment.instance.class.name.downcase)
 end
 
