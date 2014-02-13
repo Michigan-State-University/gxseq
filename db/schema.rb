@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140110154423) do
+ActiveRecord::Schema.define(:version => 20140211165540) do
 
   create_table "assemblies", :force => true do |t|
     t.integer  "taxon_id",   :precision => 38, :scale => 0
@@ -144,8 +144,7 @@ ActiveRecord::Schema.define(:version => 20140110154423) do
     t.integer  "group_id",          :precision => 38, :scale => 0
   end
 
-  create_table "blast_iterations", :id => false, :force => true do |t|
-    t.integer "id",                            :precision => 38, :scale => 0, :null => false
+  create_table "blast_iterations", :force => true do |t|
     t.integer "blast_run_id",                  :precision => 38, :scale => 0
     t.integer "seqfeature_id",                 :precision => 38, :scale => 0
     t.string  "query_id"
@@ -647,17 +646,9 @@ ActiveRecord::Schema.define(:version => 20140110154423) do
     t.integer  "track_layout_id", :precision => 38, :scale => 0
     t.integer  "track_id",        :precision => 38, :scale => 0
     t.integer  "user_id",         :precision => 38, :scale => 0
-    t.string   "name"
-    t.string   "data"
-    t.string   "edit"
-    t.string   "height"
-    t.string   "showControls"
-    t.string   "showAdd"
-    t.string   "single"
-    t.string   "color_above"
-    t.string   "color_below"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.text     "track_config"
   end
 
   create_table "track_layouts", :force => true do |t|

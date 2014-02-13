@@ -5,18 +5,57 @@
 .x-tree-node-expanded .x-tree-node-icon {
 	background-image: url('../images/folder-open.png');
 }
-
+.x-livesearch-match {
+  color:darkred;
+  background-color:yellow;
+}
 /* Track Icons */
-.sequence_track			{ background-image:url('../images/geneseq.gif')!important;}
-.gene_track				{ background-image:url('../images/gene.gif')!important;}
-.chip_chip_track		{ background-image:url('../images/chip_chip.gif')!important;}
-.chip_seq_track			{ background-image:url('../images/chip_seq.gif')!important;}
-.rna_seq_track		{ background-image:url('../images/rnaseq.gif')!important;}
-.variant_track		{ background-image:url('../images/variant.gif')!important;}
-.synthetic_track		{ background-image:url('../images/synthetic.png')!important;}
+.sequence_track			{ background-image:url('../images/geneseq.gif')!important;background-repeat:no-repeat;}
+.gene_track				{ background-image:url('../images/gene.gif')!important;background-repeat:no-repeat;}
+.chip_chip_track		{ background-image:url('../images/chip_chip.gif')!important;background-repeat:no-repeat;}
+.chip_seq_track			{ background-image:url('../images/chip_seq.gif')!important;background-repeat:no-repeat;}
+.rna_seq_track		{ background-image:url('../images/rnaseq.gif')!important;background-repeat:no-repeat;}
+.variant_track		{ background-image:url('../images/variant.gif')!important;background-repeat:no-repeat;}
+.synthetic_track		{ background-image:url('../images/synthetic.png')!important;background-repeat:no-repeat;}
 
 
 /* Silk Icons */
+.grey_icon_button {
+  margin-right: 10px;
+  background: #f5f5fe;
+	background: -webkit-gradient(
+			linear,
+			left top,
+			left bottom,
+			color-stop(0.2, #f5f5fe),
+			color-stop(0.8, #bfbfcf)
+		);
+	background:	-moz-linear-gradient(
+			center top,
+			#f5f5fe 20%,
+			#bfbfcf 80%
+		);
+	border: 1px solid #aaa;
+	border-radius: 4px;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+}
+.grey_icon_button:hover{
+    cursor:pointer;
+    background: #f8f8f8;
+    background: -webkit-gradient(
+			linear,
+			left top,
+			left bottom,
+			color-stop(0.2, #f8f8f8),
+			color-stop(0.8, #cfcfcf)
+		);
+	background:	-moz-linear-gradient(
+			center top,
+			#f8f8f8 20%,
+			#cfcfcf 80%
+		);
+}
 .silk_add				{ background-image:url('../images/add.gif')!important;}
 .silk_application_side_list	{ background-image:url('../images/application_side_list.png') !important; }
 .silk_application_side_tree	{ background-image:url('../images/application_side_tree.png') !important;}

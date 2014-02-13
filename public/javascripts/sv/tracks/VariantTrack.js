@@ -384,5 +384,16 @@ Ext.define('Sv.tracks.VariantTrack',{
           }
       });
   	};
+  },
+  getConfig: function(){
+    var track = this;
+    return {
+      id : track.id,
+      name : track.name,
+      data : track.data,
+      height : track.height,
+      scale : track.scale,
+      showControls : track.showControls,
+    }
   }
 });

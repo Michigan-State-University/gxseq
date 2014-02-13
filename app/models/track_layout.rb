@@ -19,6 +19,5 @@ class TrackLayout < ActiveRecord::Base
   belongs_to :assembly
   has_many :track_configurations, :dependent => :destroy
   validates_uniqueness_of :name, :scope => [:user_id, :assembly_id], :on => :create, :message => "is already in use"
-  # TODO: refactor this
 end
 

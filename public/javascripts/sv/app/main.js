@@ -133,17 +133,23 @@ var AnnoJ = (function()
       GUI.TrackSelector.manage(track);
       //Bind app wide events
       track.on('open',setupTrack);
-      track.on('close',closeTrack);
+      track.on('close',function(){
+        closeTrack(this);
+      });
       track.on('frameLoaded',handleFrame)
 		});
 		//Hook the info buttons of all of the tracks
-		// Ext.each(GUI.Tracks.tracks.tracks, function(track)
-		// {
-		// 	track.on('describe', function(syndication)
-		// 	{
-		// 		GUI.InfoBox.echo(BaseJS.toHTML(syndication));
-		// 	});
-		// });
+    Ext.each(GUI.Tracks.tracks.tracks, function(track)
+    {
+      track.on('describe', function(htmlText)
+      {
+        box = AnnoJ.getGUI().InfoBox;
+        box.setTitle(track.name)
+        box.show();
+        box.expand();
+        box.echo(htmlText);
+      });
+    });
 		//Activate the default tracks
 		Ext.each(config.active, function(id)
 		{
@@ -177,10 +183,7 @@ var AnnoJ = (function()
 		//Build the GUI components
 		//var Messenger = new AnnoJ.Messenger();
         
-    // Track Selector Tree
-    var TrackSelector = new Sv.gui.TrackSelector({
-     activeTracks : config.active
-    });
+
 
 		// var Bookmarker = new AnnoJ.Bookmarker({
 		// 	datasource : config.bookmarks || config.genome
@@ -213,6 +216,12 @@ var AnnoJ = (function()
 			activeTracks : config.active
 		});
 		
+		// Track Selector Tree
+    var TrackSelector = new Sv.gui.TrackSelector({
+     activeTracks : config.active,
+     trackManager : Tracks
+    });
+
 		Tracks.addDocked(NavBar.ext,0)
 		if (config.citation)
 		{
@@ -255,10 +264,6 @@ var AnnoJ = (function()
 			]
 		});
 		this.renderDiv = Ext.get(config.renderTo);
-		//disable the context menu
-		window.oncontextmenu = new Function("return false");
-		//disable selection to avoid highlighting the tracks/buttons
-		//document.getElementById('page-container').onselectstart = new Function("return false");
 		Viewport.setWidth(this.renderDiv.getWidth())
 		Ext.EventManager.addListener(window, 'resize', function(){
 		      GUI.Viewport.setWidth(self.renderDiv.getWidth())
@@ -267,8 +272,8 @@ var AnnoJ = (function()
     	});
 		//Hook GUI components together via events
 		NavBar.on('describe', function(syndication) {
-			//InfoBox.echo(BaseJS.toHTML(syndication));
-			//InfoBox.expand();
+			InfoBox.echo(BaseJS.toHTML(syndication));
+			InfoBox.expand();
 		});
 		NavBar.on('browse', setLocation);
 		

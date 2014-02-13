@@ -51,7 +51,8 @@ var BaseJS = (function()
 				jrws : Ext.encode({
 					method : 'syndicate',
 					param  : {
-            bioentry : params.bioentry
+            bioentry : params.bioentry,
+            sample : params.sample
 					}
 				})
 			},
@@ -74,12 +75,16 @@ var BaseJS = (function()
 		Ext.apply(s, syndication || {}, defaultSyndication);
 		
 		var html = "<div style='padding:2px;'>";
-		html += "<div><a href='"+s.institution.url+"'><img src='"+s.institution.logo+"' alt='Data provider institutional logo' /></a></div>";
+		if(s.institution.logo){
+		  html += "<div><a href='"+s.institution.url+"'><img src='"+s.institution.logo+"' alt='Data provider institutional logo' /></a></div>"
+	  }
 		html += "<div><b>Provider: </b><a href='"+s.institution.url+"'>"+s.institution.name+"</a></div>";
 		html += "<div><b>Contact: </b><a href='mailto:"+s.engineer.email+"'>"+s.engineer.name+"</a></div>";
 		html += "<hr />";
 		html += "<div><b>"+s.service.title+"</b></div>";
 		html += "<div>"+s.service.description+"</div>";
+		html += "<br/>";
+		html += s.text;
 		return html + "</div>";
 	};
 	
