@@ -960,7 +960,6 @@ AnnoJ.Tracks = function(userConfig)
     //Add a track to the active display, activating the track in the process
     function open(track, existing)
     {
-      
       if (!isManaged(track)) return;
       if (isActive(track)) return;
       active.push(track);
@@ -1079,20 +1078,8 @@ AnnoJ.Tracks = function(userConfig)
       
       Ext.each(tracks, function(track)
       {
-        if(track.id && track.name && track.data){
-          list.push({
-            id : track.id,
-            name : track.name,
-            data : track.data,
-            edit : track.edit,
-            height : track.height,
-            scale : track.scale,
-            showControls : track.showControls,
-            showAdd : track.showAdd,
-            single : track.single,
-            color_above : track.color_above,
-            color_below : track.color_below,
-          }); 
+        if(track.id && track.name && track.data && isActive(track)){
+          list.push(track.getConfig()); 
         }
       });
       return list;

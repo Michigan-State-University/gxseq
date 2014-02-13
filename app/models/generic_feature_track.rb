@@ -14,26 +14,36 @@
 
 class GenericFeatureTrack < Track
   belongs_to :source_term, :class_name => "Biosql::Term", :foreign_key => :source_term_id
-  def path
-    "Genome"
+  def get_config
+    base_config.merge(
+      {
+        :showControls => true
+      }
+    )
+
   end
   
   def name
     "#{source_term.name}: Features"
   end
   
-  def config
-    " id: '#{self.id}',
-      name: '#{name}',
-      showAdd: true,
-      type: '#{self.class.name}',
-      data: '#{root_path}/generic_feature/gene_models',
-      height: 150,
-      iconCls: '#{iconCls}',
-      showControls: true"
-  end
-  
   def iconCls
     "gene_track"
   end
+  
+  def data_path
+    "#{root_path}/generic_feature/gene_models"
+  end
+  
+  def folder
+    "Genome"
+  end
+
+  # TODO: What should we display here 
+  # def detail_text
+  # end
+  # 
+  # def description_text
+  # end
+  
 end

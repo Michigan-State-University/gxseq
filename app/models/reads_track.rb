@@ -15,36 +15,35 @@
 class ReadsTrack < Track
   belongs_to :sample
   
-  def config
-    " id    		: '#{self.id}',
-      sample: '#{sample.id}',
-      name  		: '#{name}',
-      single	  : #{sample.single},
-      type  		: 'ReadsTrack',
-      data  		: '#{root_path}/reads/track_data',
-      iconCls : '#{iconCls}',
-      storeLocal: true,
-      height 	: 100"
-  end
-  
-  def name
-    sample.name.gsub("\\","\\\\\\\\").gsub("'",%q(\\\'))
+  def get_config
+    base_config.merge(
+      {
+        :sample => sample.id,
+        :sample_type => sample.class.name,
+        :single => sample.single,
+        :storeLocal => true,
+      }
+    )
+
   end
   
   def iconCls
-    self.sample.iconCls
+    sample.iconCls
   end
   
-  def custom_config
-    "sample: '#{sample.id}',\n"
+  def data_path
+    "#{root_path}/reads/track_data"
   end
   
-  def type
-      "type  		: 'ReadsTrack',\n"
-  end
-  
-  def path
+  def folder
     "#{sample.class.name}"
   end
   
+  def detail_text
+    sample.traits.map{|t|"#{t.term.name}:#{trait.value}"}.join(" ")
+  end
+  
+  def description_text
+    sample.description
+  end
 end

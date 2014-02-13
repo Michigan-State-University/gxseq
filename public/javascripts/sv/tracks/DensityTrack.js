@@ -460,6 +460,21 @@ Ext.define("Sv.tracks.DensityTrack",{
           },      
       });
     }
+  },
+  getConfig: function(){
+    var track = this;
+    return {
+      id : track.id,
+      name : track.name,
+      data : track.data,
+      edit : track.edit,
+      height : track.height,
+      scale : track.scale,
+      showControls : track.showControls,
+      single : track.single,
+      color_above : track.color_above,
+      color_below : track.color_below,
+    }
   }
 });
 

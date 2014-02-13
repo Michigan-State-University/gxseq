@@ -1,61 +1,64 @@
 module BioentriesHelper
-  
-  ## Work in progress
-  ##TODO: Need to clean up the storage of this data
-  ##TODO: Need to trim down to basic init configuration only 
-  ##TODO: All other data should be requested by the js app
+  # returns javascript required to insert sequence viewer onto a page
   def build_genome_gui(bioentry,all_tracks,opts={})
-    text = "<script type='text/javascript'>\nAnnoJ.config = {\ntracks : ["
     view = opts[:view]||{:position => 1,:bases => 50,:pixels => 1}
     active_tracks = opts[:active]||[]
-    #saved custom configs
-    if(@layout)
-      #remove any tracks that have a custom config from the list
-      all_tracks -= @layout.track_configurations.collect{|tc|tc.track}
-      
-      @layout.track_configurations.each do |config|
-        text+="
-        {bioentry: '#{bioentry.id}',\n path: '#{current_user.try(:preferred_track_path,track) || config.track.path}',\n#{config.track_config}},\n"
-      end
-    end
     
-    #display all of the leftover tracks
+    # Build Track Configuration Array
+    track_configs = []
     all_tracks.each do |track|
-      text +="
-      {bioentry: '#{bioentry.id}',\npath:'#{current_user.try(:preferred_track_path,track) || track.path}',\n#{track.config}},\n"
+      track_config = track.get_config.merge({
+        :bioentry => bioentry.id,
+        :path => (current_user.try(:preferred_track_path,track) || track.folder)
+      })
+      if(@layout)
+        # Merge saved config data
+        layout_config = @layout.track_configurations.select{|tc| tc.track==track}.first.try(:track_config)
+        track_config.merge!(layout_config) if layout_config
+      end
+      track_configs<<track_config
     end
     
-    text += "],\n"
-    text += "renderTo : 'center-column',\n"
-    text += "active : #{@active_track_string||active_tracks.to_json},\n"
-    text += "genome :  '#{root_path}bioentries/metadata',\n"
-    text += "refresh_path : '#{bioentry_url(bioentry)}',"
-		text += "bioentry  :  '#{bioentry.id}',\n"
-		text += "assembly_id : '#{bioentry.assembly_id}',\n"
-		text += "gene_id : '#{@gene_id}',\n" if(@gene_id)
-		text += "feature_id : '#{@feature_id}',\n" if(@feature_id)
-		text += "layout_path : '#{track_layouts_path(:assembly_id => bioentry.assembly_id)}',"
-		text += "updateNodePath: '#{update_track_node_user_url(current_user.try(:id))}',\n"
-		
-		#initial view
-		text += "location : {
-      position : #{view[:position]},
-      bases    : #{view[:bases]},
-      pixels   : #{view[:pixels]}
-    },\n"
-    # Admin Contact
-    text += "admin : {
-      name  : 'Nick Thrower',
-      email : 'throwern@msu.edu',
-      notes : 'GLBRC IIT'
-    },\n"
-    # Auth data
-    text += "root_path : '#{root_path}',"
-    text += "auth_token : '#{form_authenticity_token}',"
-    text += "};\n"
-    # init on ready event
+    # Build the full configuration
+    gui_config = {
+      :tracks => track_configs,
+      # Setup
+      :renderTo => 'center-column',
+      :active => active_tracks,
+      :genome => "#{root_path}bioentries/metadata",
+      :refresh_path => bioentry_url(bioentry),
+      :bioentry => bioentry.id,
+      :assembly_id => bioentry.assembly_id,
+      :layout_path => track_layouts_path(:assembly_id => bioentry.assembly_id),
+      :updateNodePath => update_track_node_user_url(current_user.try(:id)),
+      # Auth data
+      :root_path => root_path,
+      :auth_token => form_authenticity_token,
+      # Initial view
+      :location => {
+        :position => view[:position],
+        :bases => view[:bases],
+        :pixels => view[:pixels]
+      },
+      # Admin Contact
+      :admin => {
+        :name => APP_CONFIG[:admin_email],
+        :email => APP_CONFIG[:admin_email],
+        :notes => APP_CONFIG[:site_name]
+      }
+    }
+    # optional configs
+    gui_config[:gene_id] = @gene_id if @gene_id
+    gui_config[:feature_id] = @feature_id if @feature_id
+    
+    # config text
+    text = "<script type='text/javascript'>\n"
+    text += "AnnoJ.config = #{gui_config.to_json};\n"
+    
+    # Run init on ready Ext event
     text += "Ext.onReady(function(){AnnoJ.init();});\n"
     text += "</script>"
+    
     return text.html_safe
   end
 end

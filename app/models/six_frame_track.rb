@@ -13,30 +13,39 @@
 #
 
 class SixFrameTrack < Track
-  def path
-    "Genome"
+  def get_config
+    base_config.merge(
+      {
+        :storeLocal => true,
+      }
+    )
+
   end
   
   def name
     "Genome Sequence"
   end
   
-  def config
-    "id    		: '#{self.id}',
-      name  		: '#{self.name}',
-      type  		: 'SequenceTrack',
-      data  		: '#{root_path}/bioentries/track_data',
-      iconCls : '#{iconCls}',
-      storeLocal: true,
-      height 	: 120"
-  end
-  
-  def type
-    "type : 'SequenceTrack',\n"
-  end
-  
   def iconCls
     "sequence_track"
   end
   
+  def data_path
+    "#{root_path}/bioentries/track_data"
+  end
+  
+  def folder
+    "Genome"
+  end
+  
+  def track_type
+    "SequenceTrack"
+  end
+  
+  # TODO: What should we display here 
+  # def detail_text
+  # end
+  # 
+  # def description_text
+  # end
 end
