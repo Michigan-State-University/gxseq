@@ -95,7 +95,9 @@ GenomeSuite::Application.routes.draw do
   match "reads/track_data"
   
   ##Samples
-  resources :assets, :only => [:show]
+  resources :assets, :only => [:show] do
+    get 'download', :on => :member
+  end
   resources :chip_chips do
     get 'details', :on => :collection
     get 'compute_peaks', :on => :member

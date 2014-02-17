@@ -1,4 +1,5 @@
-<!-- <h3>Options</h3>
-<%#= f.label "Is this strand specific sequence?" %>
-Yes <%#= f.radio_button :show_negative, "Yes"%>
-No <%#= f.radio_button :show_negative, "No", :checked => ((@rna_seq.show_negative != 'true') ? true : '')%><br/> -->
+<h3>Options</h3>
+<%= f.label "Is this strand specific sequence?" %>
+Yes <%= f.radio_button :show_negative, "true"%>
+No <%= f.radio_button :show_negative, "false", :checked => ((@rna_seq.show_negative != 'true') ? true : '')%>
+<br/>

@@ -186,7 +186,7 @@ Ext.define('Sv.painters.ReadsCanvas',{
         {
           mapAreas.push("<area shape='rect' coords='"+x+","+y+","+(x+w)+","+(y+h)+"' id=model_"+read.id+" data-id="+read.id+" href='#' alt='"+read.id+"' title='"+read.id+"'>");
         }
-        //Setup read style.
+        //Setup read style
   			aw = 5
   			aw_offset = (read.level==0) ? 1 : 2
   			if(read.strand =='+')

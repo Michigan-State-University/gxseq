@@ -273,7 +273,7 @@ class Bam < Asset
       seq_name = set_item[0][0]                                 # sam_data: read name
       start = set_item[0][3].to_i                               # sam_data: 1-based mapping position
       width = (set_item[2]-start)+1                             # inclusive width (calend - pos) + 1
-      strand = (set_item[0][1].to_i & 0x0010 > 0) ? '+' : '-'   # sam_data bit flag for strand -- 0x10 SEQ being reverse complemented
+      strand = (set_item[0][1].to_i & 0x0010 > 0) ? '-' : '+'   # sam_data bit flag for strand -- 0x10 SEQ being reverse complemented
       
       reads << "[\"#{seq_name}\",#{start},#{width},\"#{strand}\",\"#{seq}\",[#{gaps.join(',')}]],"
     end
@@ -284,6 +284,9 @@ class Bam < Asset
   end
   
   def create_big_wig(opts={})
+    strand = false
+    strand = '+' if opts[:strand]== '+'
+    strand = '-' if opts[:strand]== '-'
     puts "----"
     puts "#{Time.now} Creating BigWig File"
     # check data
@@ -314,8 +317,8 @@ class Bam < Asset
     end
     chr.flush
     # Create the bedGraph
-    puts "--Running Bedtools genomeCoverageBed -split -bg"
-    `#{APP_CONFIG[:bedtools_path]}/genomeCoverageBed -split -bg -ibam #{self.data.path} -g #{chr.path} > #{bed.path}`
+    puts "--Running Bedtools genomeCoverageBed -split -bg #{strand ? '-strand '+strand : nil}"
+    `#{APP_CONFIG[:bedtools_path]}/genomeCoverageBed -split -bg #{strand ? '-strand '+strand : nil} -ibam #{self.data.path} -g #{chr.path} > #{bed.path}`
     
     bed.flush
     bam.close

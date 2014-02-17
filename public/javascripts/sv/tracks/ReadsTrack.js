@@ -5,7 +5,8 @@ Ext.define("Sv.tracks.ReadsTrack",{
   extend : "Sv.tracks.BrowserTrack",
   clsAbove  : 'AJ_above',
   clsBelow  : 'AJ_below',
-  hist_color: 'A00608',
+  forwardColor: '1F78B4',
+  reverseColor: 'A00608',
   maxHeight : 5000,
   boxHeight : 12,
   boxHeightMax : 24,
@@ -14,6 +15,7 @@ Ext.define("Sv.tracks.ReadsTrack",{
   pairedEnd : false,
   readLength : 36,
   readLimit : 1000,
+  single: true,
   scale : 1,
   style : 'area',
   method : 'range',
@@ -31,28 +33,46 @@ Ext.define("Sv.tracks.ReadsTrack",{
     this.scaleSource = -4;
     
     //Initialize the DOM elements
+    //Initialize the DOM elements
     var containerA = new Ext.Element(document.createElement('DIV'));
+    var containerB = new Ext.Element(document.createElement('DIV'));
+
     containerA.addCls(self.clsAbove);
+    containerB.addCls(self.clsBelow);
+
+    //Force some styles
     containerA.setStyle('position', 'relative');
-    containerA.setStyle('height', '100%');
+    containerB.setStyle('position', 'relative');
     containerA.setStyle('width', '100%');
+    containerB.setStyle('width', '100%');
+  
+    if (self.single)
+    {
+      containerA.setStyle('height', '100%');
+      containerB.setStyle('height', '0%');  
+      //containerA.setStyle('borderBottom', 'dotted black 1px');
+      //containerB.setStyle('display', 'none');
+    }
+    else
+    {
+      containerA.setStyle('height', '50%');
+      containerB.setStyle('height', '50%');
+      containerA.setStyle('borderBottom', 'dotted black 1px');
+    }
     containerA.appendTo(self.Canvas.ext);
+    containerB.appendTo(self.Canvas.ext);
     
-    // //Lookup all max values and set any changes
-    // this.updateMaxValues=function(left,right){
-    //   // All Track or Global
-    //   //self.setAllTrackMax(AnnoJ.getGlobalMax());
-    //   // All View or Regional
-    //   self.setAllViewMax(AnnoJ.getLocalMax());
-    //   // This View
-    //   self.setViewMax(handler.dataA.getMaxY(left,right));
-    // }
     this.getViewMax = function(location){
-      var edges = self.DataManager.getEdges()
+      var edges = self.DataManager.getEdges();
       if(handler==Histogram){
-        var newMax = parseInt(handler.dataA.getMaxY(edges.g1,edges.g2))
-        self.setViewMax(newMax);
-        //console.log(self.name+": set viewmax:"+newMax);
+        var aMax = parseInt(handler.dataA.getMaxY(edges.g1,edges.g2));
+        if(self.single){
+          var newMax = aMax;
+        }else{
+          var bMax = parseInt(handler.dataB.getMaxY(edges.g1,edges.g2));
+          var newMax = Math.max(aMax,bMax);
+        }
+        self.setViewMax(aMax);
         return newMax;
       }else{
         return 0;
@@ -64,12 +84,6 @@ Ext.define("Sv.tracks.ReadsTrack",{
         var newScale = 1;
         switch(self.scaleSource)
         {
-        // case -1:
-        //   newScale = self.trackMax;
-        //   break;
-        // case -2:
-        //   newScale = self.allTrackMax;
-        //   break;
         case -3:
           newScale = self.viewMax;
           break;
@@ -82,26 +96,7 @@ Ext.define("Sv.tracks.ReadsTrack",{
         return newScale;
       }
     }
-    
-    // this.setTrackMax = function(newMax){
-    //   if(newMax!=self.trackMax){
-    //     self.trackMax = newMax;
-    //     self.fireEvent('trackMaxChanged',newMax);
-    //     self.scales.getById(1).set('name','This Track ('+newMax+')');
-    //     if(self.scaleSource==-1){
-    //       self.scaleSourceSelect.setValue(-1);
-    //     }
-    //   }
-    // }
-    // this.setAllTrackMax = function(newMax){
-    //   if(newMax!=self.allTrackMax){
-    //     self.allTrackMax = newMax;
-    //     self.scales.getById(2).set('name','All Tracks ('+newMax+')');
-    //     if(self.scaleSource==-2){
-    //       self.scaleSourceSelect.setValue(-2);
-    //     }
-    //   }
-    // }
+
     this.setViewMax = function(newMax){
       if(handler==Histogram){
         self.viewMax = newMax;
@@ -125,8 +120,6 @@ Ext.define("Sv.tracks.ReadsTrack",{
     this.scales = Ext.create('Ext.data.Store', {
         fields: ['id', 'name', 'val'],
         data : [
-            // {"id":1,"name":"This Track","val":-1},
-            // {"id":2,"name":"All Tracks","val":-2},
             {"id":3,"name":"This Track","val":-3},
             {"id":4,"name":"All Tracks","val":-4}
         ]
@@ -244,6 +237,7 @@ Ext.define("Sv.tracks.ReadsTrack",{
             if (!this.pressed){
               this.toggle();
               toggleHistBtn.toggle();
+              containerA.setStyle('height', '100%');
               handler = Reads;
               self.handler = Reads;
               readLimitSelect.show();
@@ -269,6 +263,9 @@ Ext.define("Sv.tracks.ReadsTrack",{
             if (!this.pressed){
               this.toggle();
               toggleReadsBtn.toggle();
+              if(!self.single){
+                containerA.setStyle('height', '50%');
+              }
               handler = Histogram;
               self.handler = Histogram;
               readLimitSelect.hide();
@@ -301,22 +298,34 @@ Ext.define("Sv.tracks.ReadsTrack",{
     var Histogram = (function()
     {
      var dataA = new HistogramData();
+     var dataB = new HistogramData();
      function parse(data)
      {      
        dataA.parse(data,true);
+       dataB.parse(data,false);
      };
     
      var canvasA = new Sv.painters.DensityCanvas();
+     var canvasB = new Sv.painters.DensityCanvas();
+     
      canvasA.setStyle(self.style);
-     canvasA.setColor(self.hist_color);
-     canvasA.setContainer(containerA.dom);    
-     canvasA.flipY();
+     canvasA.setColor(self.forwardColor);
+     canvasA.setContainer(containerA.dom);
+     
+     canvasB.setStyle(self.style);
+     canvasB.setColor(self.reverseColor);
+     canvasB.setContainer(containerB.dom);
+     canvasB.flipY();
      
      function paint(left, right, bases, pixels)
      {
-       var subsetA = dataA.subset2canvas(left, right, bases, pixels);
-       canvasA.setData(subsetA);
+       var subset = dataA.subset2canvas(left, right, bases, pixels);
+       var subsetB = dataB.subset2canvas(left, right, bases, pixels);
+
+       canvasA.setData(subset);
+       canvasB.setData(subsetB);
        canvasA.paint();
+       canvasB.paint();
      };
     
     function getScaler(){
@@ -330,42 +339,52 @@ Ext.define("Sv.tracks.ReadsTrack",{
       }
       self.scale = newVal;
       canvasA.setScaler(newVal);
+      canvasB.setScaler(newVal);
     };
     this.rescale = function(f)
     {
       setScaler(f);
       var f = getScaler();
       canvasA.refresh();
+      canvasB.refresh();
       self.setMultiplierText(f.toFixed(2));
     };
     
     this.clearCanvas = function()
     {
       canvasA.clear();
+      canvasB.clear();
     };
     this.refreshCanvas = function()
     {
       canvasA.refresh(true);
+      canvasB.refresh(true);
     };
     this.resizeCanvas = function()
     {
+      canvasA.refresh(true);
       canvasA.refresh(true);
     };
     this.clearData = function()
     {
       dataA.clear();
+      dataB.clear();
     };
     this.pruneData = function(a,b)
     {
       dataA.prune(a,b);
+      dataB.prune(a,b);
     };
     this.setAbsMax = function(m)
     {
       canvasA.setAbsMax(m);
+      canvasB.setAbsMax(m);
     };
      return {
        dataA : dataA,
+       dataB : dataB,
        canvasA : canvasA,
+       canvasB : canvasB,
        parse : parse,
        paint : paint,
        getScaler : getScaler,
@@ -469,11 +488,21 @@ Ext.define("Sv.tracks.ReadsTrack",{
   	this.setColor = function(color,type){
       
       switch (type){
-        case 'hist': Histogram.canvasA.setColor(color); self.hist_color = color; break;
-        case 'forward': Reads.canvasA.setForwardColor(color); self.forwardColor = color; break;
-        case 'reverse': Reads.canvasA.setReverseColor(color); self.reverseColor = color; break;
+        case 'forward': 
+          self.forwardColor = color;
+          Histogram.canvasA.setColor(color);
+          Reads.canvasA.setForwardColor(color);
+          break;
+        
+        case 'reverse':
+          self.reverseColor = color;
+          Histogram.canvasB.setColor(color);
+          Reads.canvasA.setReverseColor(color);
+          break;
       }
       handler.canvasA.refresh();
+      handler.canvasB.refresh();
+      
   	};
   	//Add the color menu
     var addColorMenu = function(menuText, type){
@@ -491,9 +520,8 @@ Ext.define("Sv.tracks.ReadsTrack",{
              }
          });
     };
-    addColorMenu("Histogram", 'hist');
-  	addColorMenu("Forward Reads", 'forward');
-		addColorMenu("Reverse Reads", 'reverse');
+  	addColorMenu("Color", 'forward');
+		addColorMenu("Reverse Color", 'reverse');
 		
     //Zoom policies (dictate which handler to use)
     var policies = [
@@ -629,7 +657,6 @@ Ext.define("Sv.tracks.ReadsTrack",{
       showControls : track.showControls,
       single : track.single,
       colorBases : track.colorBases,
-      hist_color : track.hist_color,
       forwardColor: track.forwardColor,
     	reverseColor : track.reverseColor,
     	method  : track.requestFormat()
