@@ -18,8 +18,26 @@ class UserController < ApplicationController
         params[:fmt]='samples'
       end
     end
-    @groups = Group.accessible_by(Ability.new(@user))
-    @samples = Sample.accessible_by(Ability.new(@user)).includes(:group,:assembly).order('groups.name,assemblies.id,samples.name')
+    case params[:fmt]
+    when 'samples'
+      @samples = Sample.accessible_by(Ability.new(@user))
+        .includes(:group,:assembly => [:species => [:scientific_name]])
+        .order('groups.name,assemblies.id,samples.name')
+        .paginate(:page => params[:page],:per_page => 100)
+      unless params[:keywords].blank?
+        txt = "%#{params[:keywords]}%"
+        @samples = @samples.where{(name =~ my{txt}) |
+          (description =~ my{txt}) |
+          (assembly.species.scientific_name.name =~ my{txt}) |
+          (assembly.version =~ my{txt})}
+      end
+      unless params[:sample_type].blank?
+        @samples = @samples.where{type=~my{params[:sample_type]}}
+      end
+    when 'groups'
+      @groups = Group.accessible_by(Ability.new(@user))
+    end
+    
   end
 
   # GET /users/1/edit
