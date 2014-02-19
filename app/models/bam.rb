@@ -273,8 +273,37 @@ class Bam < Asset
       seq_name = set_item[0][0]                                 # sam_data: read name
       start = set_item[0][3].to_i                               # sam_data: 1-based mapping position
       width = (set_item[2]-start)+1                             # inclusive width (calend - pos) + 1
-      strand = (set_item[0][1].to_i & 0x0010 > 0) ? '-' : '+'   # sam_data bit flag for strand -- 0x10 SEQ being reverse complemented
       
+      # Sam data FLAG field bits
+      # 0x0001  p the read is paired in sequencing
+      # 0x0002  P the read is mapped in a proper pair
+      # 0x0004  u the query sequence itself is unmapped
+      # 0x0008  U the mate is unmapped
+      # 0x0010  r strand of the query (1 for reverse)
+      # 0x0020  R strand of the mate
+      # 0x0040  1 the read is the first read in a pair
+      # 0x0080  2 the read is the second read in a pair
+      # 0x0100  s the alignment is not primary
+      # 0x0200  f the read fails platform/vendor quality checks
+      # 0x0400  d the read is either a PCR or an optical duplicate
+      
+      # Check bit flags for orientation
+      paired = (set_item[0][1].to_i & 0x1 > 0)
+      # mapped_pair = (set_item[0][1].to_i & 0x2 > 0)
+      seq_reversed = (set_item[0][1].to_i & 0x10 > 0)
+      mate_reversed = (set_item[0][1].to_i & 0x20 > 0)
+      first_read = (set_item[0][1].to_i & 0x40 > 0)
+      second_read = (set_item[0][1].to_i & 0x80 > 0)
+      # Get strand. The second read on paired sequence will be in reversed orientation
+      if(paired)
+        if(first_read)
+          strand = seq_reversed ? '-' : '+'
+        elsif(second_read)
+          strand = mate_reversed ? '2-' : '2+'
+        end
+      else
+        strand = seq_reversed ? '-' : '+'
+      end
       reads << "[\"#{seq_name}\",#{start},#{width},\"#{strand}\",\"#{seq}\",[#{gaps.join(',')}]],"
     end
 
@@ -305,6 +334,9 @@ class Bam < Asset
     # clean any old tempfiles
     remove_temp_files
     # create new tempfiles
+    bamt_path = data.path+".bamt_tmp"
+    bam1 = File.new(data.path+".bam1_tmp","w")
+    bam2 = File.new(data.path+".bam2_tmp","w")
     bed = File.new(data.path+".bed_tmp", "w")
     bed_sort = File.new(data.path+".bed_srt_tmp", "w")
     bw = File.new(data.path+".bw_tmp", "w")
@@ -317,9 +349,27 @@ class Bam < Asset
     end
     chr.flush
     # Create the bedGraph
-    puts "--Running Bedtools genomeCoverageBed -split -bg #{strand ? '-strand '+strand : nil}"
-    `#{APP_CONFIG[:bedtools_path]}/genomeCoverageBed -split -bg #{strand ? '-strand '+strand : nil} -ibam #{self.data.path} -g #{chr.path} > #{bed.path}`
-    
+    puts "--Running Bedtools genomeCoverageBed -split -bg;"
+    samtools = Bio::DB::Sam.binary_path
+    if(strand=='+')
+      puts "--- strand: '+'  samtools view -f 99"
+      `#{samtools} view -bf 99 #{self.data.path} > #{bam1.path}`
+      puts "--- strand: '+'  samtools view -f 147"
+      `#{samtools} view -bf 147 #{self.data.path} > #{bam2.path}`
+    elsif(strand=='-')
+      puts "--- strand: '-'  samtools view -f 83"
+      `#{samtools} view -bf 83 #{self.data.path} > #{bam1.path}`
+      puts "--- strand: '-'  samtools view -f 163"
+      `#{samtools} view -bf 163 #{self.data.path} > #{bam2.path}`
+    end
+    if(strand)
+      # merge strand specific bams
+      puts "--- Merging files"
+      `#{samtools} merge #{bamt_path} #{bam1.path} #{bam2.path}`
+      `#{APP_CONFIG[:bedtools_path]}/genomeCoverageBed -split -bg -ibam #{bamt_path} -g #{chr.path} > #{bed.path}`
+    else
+      `#{APP_CONFIG[:bedtools_path]}/genomeCoverageBed -split -bg -ibam #{self.data.path} -g #{chr.path} > #{bed.path}`
+    end
     bed.flush
     bam.close
     
@@ -336,7 +386,7 @@ class Bam < Asset
   def remove_temp_files
     d = Dir.new(File.dirname(data.path))
     d.each do |f|
-      File.delete(d.path+"/"+f) if( f.match(self.filename) && f.match(/\.bw_tmp$|\.bed_tmp$|\.bed_srt_tmp$|\.chrom\.sizes$/) )
+      File.delete(d.path+"/"+f) if( f.match(self.filename) && f.match(/\.bamt_tmp$|\.bam1_tmp$|\.bam2_tmp$|\.bw_tmp$|\.bed_tmp$|\.bed_srt_tmp$|\.chrom\.sizes$/) )
     end
   end
   

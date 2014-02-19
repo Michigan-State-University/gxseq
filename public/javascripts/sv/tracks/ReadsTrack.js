@@ -26,11 +26,10 @@ Ext.define("Sv.tracks.ReadsTrack",{
       'viewMaxChanged' : true,
       'trackMaxChanged': true
     });
-    this.trackMax=1;
-    this.allTrackMax=2;
-    this.viewMax = 3;
-    this.allViewMax=4;
-    this.scaleSource = -4;
+    this.viewMax=1;
+    this.allViewMax=2;
+    //Set Default to viewMax
+    this.scaleSource = -2;
     
     //Initialize the DOM elements
     //Initialize the DOM elements
@@ -72,22 +71,23 @@ Ext.define("Sv.tracks.ReadsTrack",{
           var bMax = parseInt(handler.dataB.getMaxY(edges.g1,edges.g2));
           var newMax = Math.max(aMax,bMax);
         }
-        self.setViewMax(aMax);
+        self.setViewMax(newMax);
         return newMax;
       }else{
         return 0;
       }
     }
     //get the max that we will use to draw
+    //scaleSource equals the value of textfield or a negative index into scales array
     this.getCurrentMax=function(left,right){
       if(handler==Histogram){
         var newScale = 1;
         switch(self.scaleSource)
         {
-        case -3:
+        case -1:
           newScale = self.viewMax;
           break;
-        case -4:
+        case -2:
           newScale = self.allViewMax;
           break;
         default:
@@ -100,8 +100,8 @@ Ext.define("Sv.tracks.ReadsTrack",{
     this.setViewMax = function(newMax){
       if(handler==Histogram){
         self.viewMax = newMax;
-        self.scales.getById(3).set('name','This Track ('+newMax+')');
-        if(self.scaleSource==-3){
+        self.scales.getById(1).set('name','This Track ('+newMax+')');
+        if(self.scaleSource==-1){
           self.scaleSourceSelect.setRawValue('This Track ('+newMax+')');
         }
       }
@@ -109,8 +109,8 @@ Ext.define("Sv.tracks.ReadsTrack",{
     this.setAllViewMax = function(newMax){
       if(handler==Histogram){
         self.allViewMax = newMax;
-        self.scales.getById(4).set('name','All Tracks ('+newMax+')');
-        if(self.scaleSource==-4){
+        self.scales.getById(2).set('name','All Tracks ('+newMax+')');
+        if(self.scaleSource==-2){
           self.scaleSourceSelect.setRawValue('All Tracks ('+newMax+')');
         }
       }
@@ -120,8 +120,8 @@ Ext.define("Sv.tracks.ReadsTrack",{
     this.scales = Ext.create('Ext.data.Store', {
         fields: ['id', 'name', 'val'],
         data : [
-            {"id":3,"name":"This Track","val":-3},
-            {"id":4,"name":"All Tracks","val":-4}
+            {"id":1,"name":"This Track","val":-1},
+            {"id":2,"name":"All Tracks","val":-2}
         ]
     });
     this.scaleSourceSelect = Ext.create('Ext.form.field.ComboBox', {
@@ -139,7 +139,6 @@ Ext.define("Sv.tracks.ReadsTrack",{
         'change': function( combo, newValue, oldValue, eOpts) {
           self.scaleSource = newValue;
           self.refresh();
-          // TODO: change 'selected' to none if numbers are manually entered
         }
         
       }
@@ -441,11 +440,11 @@ Ext.define("Sv.tracks.ReadsTrack",{
         return myScaler;
       }
       function setScaler(s){
-        myScaler = s
         canvasA.setScaler(s);
       }
       this.rescale = function(s)
       {
+        var newVal = (s*2) //0 .. 2
         setScaler(s);
         canvasA.refresh();
         self.setMultiplierText(s.toFixed(2));
@@ -501,7 +500,9 @@ Ext.define("Sv.tracks.ReadsTrack",{
           break;
       }
       handler.canvasA.refresh();
-      handler.canvasB.refresh();
+      if(handler.canvasB){
+       handler.canvasB.refresh(); 
+      }
       
   	};
   	//Add the color menu

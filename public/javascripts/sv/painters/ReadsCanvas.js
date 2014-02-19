@@ -4,23 +4,23 @@
 Ext.define('Sv.painters.ReadsCanvas',{
   extend: 'Sv.painters.BoxesCanvas',
   boxHeight : 12,
-	boxHeightMax : 24,
-	boxHeightMin : 1,
-	boxBlingLimit : 4,
-	boxSpace : 4,
-	pairedEnd : false,
-	ratio : 1,
-	frameBreaks : [],
-	viewport : {},
-	forwardColor:'#44D',
-	reverseColor : '44D',
-	colorBases : true,
-	drawFrames: false,
-	drawFrameBreaks: function(){
-	  var self = this;
-	  var brush = self.getBrush();
-	  var region = self.getRegion();
-	  var height = self.getHeight();
+  boxHeightMax : 24,
+  boxHeightMin : 1,
+  boxBlingLimit : 4,
+  boxSpace : 4,
+  pairedEnd : false,
+  ratio : 1,
+  frameBreaks : [],
+  viewport : {},
+  forwardColor:'#44D',
+  reverseColor : '44D',
+  colorBases : true,
+  drawFrames: false,
+  drawFrameBreaks: function(){
+    var self = this;
+    var brush = self.getBrush();
+    var region = self.getRegion();
+    var height = self.getHeight();
     brush.lineWidth = 1.0;
     Ext.each(self.frameBreaks, function(fb){
       x = Math.round((fb.x1-self.viewport.x1) * self.viewport.pixels / self.viewport.bases);
@@ -55,48 +55,48 @@ Ext.define('Sv.painters.ReadsCanvas',{
         brush.fillText(fb.msg,x2-5, 9)
       }
     });
-	},
-	setForwardColor: function(value){
-	  this.forwardColor = value
-	},
-	setReverseColor: function(value){
-	  this.reverseColor = value
-	},
+  },
+  setForwardColor: function(value){
+    this.forwardColor = value
+  },
+  setReverseColor: function(value){
+    this.reverseColor = value
+  },
   initComponent: function(){
     var self = this;
     var data;
     self.callParent(arguments);
     
     self.addEvents({
-			'itemSelected' : true
-		});
-		
-  	//Set the data for this histogram from an array of points
-  	this.setData = function(reads)
-  	{
-  		if (!(reads instanceof Array)) return;
+      'itemSelected' : true
+    });
+    
+    //Set the data for this histogram from an array of points
+    this.setData = function(reads)
+    {
+      if (!(reads instanceof Array)) return;
 
-  		Ext.each(reads, function(read)
-  		{
-  			self.groups.add(read.cls);
-  		});
-  		data = reads;
-  		//console.log("Canvas data set:"+self.id)
-  	};
+      Ext.each(reads, function(read)
+      {
+        self.groups.add(read.cls);
+      });
+      data = reads;
+      //console.log("Canvas data set:"+self.id)
+    };
 
-  	//Toggle the state of elements containing the specified class name
-  	this.toggleSpecial = function(targetCls, state)
-  	{
-  		var list = self.groups.getList();
+    //Toggle the state of elements containing the specified class name
+    this.toggleSpecial = function(targetCls, state)
+    {
+      var list = self.groups.getList();
 
-  		for (var cls in list)
-  		{
-  			if (cls.indexOf(targetCls) != -1)
-  			{
-  				self.groups.toggle(cls, state);
-  			}
-  		}
-  	};
+      for (var cls in list)
+      {
+        if (cls.indexOf(targetCls) != -1)
+        {
+          self.groups.toggle(cls, state);
+        }
+      }
+    };
     
     //Add a new frameBreak
     this.addBreak = function(x1,x2,msg)
@@ -120,36 +120,36 @@ Ext.define('Sv.painters.ReadsCanvas',{
       }
     };
     
-  	//Draw points using a specified rendering class
-  	this.paint = function()
-  	{
-  	  //console.log("painting from canvas:"+self.id)
-  		this.clear();
-  		var container = this.getContainer();
-  		var canvas = this.getCanvas();
-  		var region = this.getRegion();
-  		var width = this.getWidth();
-  		var height = this.getHeight();
-  		var brush = this.getBrush();
-  		var scaler = this.getScaler();
-  		var flippedX = this.isFlippedX();
-  		var flippedY = this.isFlippedY();
+    //Draw points using a specified rendering class
+    this.paint = function()
+    {
+      //console.log("painting from canvas:"+self.id)
+      this.clear();
+      var container = this.getContainer();
+      var canvas = this.getCanvas();
+      var region = this.getRegion();
+      var width = this.getWidth();
+      var height = this.getHeight();
+      var brush = this.getBrush();
+      var scaler = this.getScaler();
+      var flippedX = this.isFlippedX();
+      var flippedY = this.isFlippedY();
       
       if(!region) return;
       
-  		var x = 0;
-  		var y = 0;
-  		var w = 0;
-  		var e = 0;
-  		
-  		var h = Math.round(self.boxHeight * scaler);
+      var x = 0;
+      var y = 0;
+      var w = 0;
+      var e = 0;
       
-  		if (h < self.boxHeightMin) h = self.boxHeightMin;
-  		if (h > self.boxHeightMax) h = self.boxHeightMax;
-  		
-  		var maxLevel = Math.ceil(height/h);
-  		
-  		// Build Image Map for click event    
+      var h = Math.round(self.boxHeight * scaler);
+      
+      if (h < self.boxHeightMin) h = self.boxHeightMin;
+      if (h > self.boxHeightMax) h = self.boxHeightMax;
+      
+      var maxLevel = Math.ceil(height/h);
+      
+      // Build Image Map for click event    
       var readMap = document.createElement('MAP');
       readMap.setAttribute("id",""+container.id+"map");
       readMap.setAttribute("name",""+container.id+"map");
@@ -170,39 +170,60 @@ Ext.define('Sv.painters.ReadsCanvas',{
       container.appendChild(mapImage);
       
       //Loop over every read
-  		Ext.each(data, function(read)
-  		{
-  			if (read.level > maxLevel) return;
-  			w = read.w;
-  			//e = read.e;
-  			x = flippedX ? width - read.x - read.w : read.x;
-  			y = read.level * (h + ((scaler==0) ? 0 : self.boxSpace));
-  			y = flippedY ? y : height - 1 - y - h;
+      Ext.each(data, function(read)
+      {
+        if (read.level > maxLevel) return;
+        w = read.w;
+        //e = read.e;
+        x = flippedX ? width - read.x - read.w : read.x;
+        y = read.level * (h + (Math.min(self.boxSpace*scaler,self.boxSpace)));
+        y = flippedY ? y : height - 1 - y - h;
 
-  			if (x + w < region.x1 || x > region.x2) return;
-  			if (y + h < region.y1 || y > region.y2) return;
+        if (x + w < region.x1 || x > region.x2) return;
+        if (y + h < region.y1 || y > region.y2) return;
         
         if(w>3)
         {
           mapAreas.push("<area shape='rect' coords='"+x+","+y+","+(x+w)+","+(y+h)+"' id=model_"+read.id+" data-id="+read.id+" href='#' alt='"+read.id+"' title='"+read.id+"'>");
         }
         //Setup read style
-  			aw = 5
-  			aw_offset = (read.level==0) ? 1 : 2
-  			if(read.strand =='+')
-  			{
-  			  brush.fillStyle = self.forwardColor;
-    			brush.fillRect(x, y, w, h);
-    			//arrow point
-    			self.paintBox('forward_read',x+w-aw,y-1,aw,h+aw_offset);
-			  }
-			  else{
-			    brush.fillStyle = self.reverseColor;
-    			brush.fillRect(x, y, w, h);
-    			//arrow point
-    			self.paintBox('reverse_read',x,y-1,aw,h+aw_offset);
-			  }
-  			// Loop over each child provided by data source
+        aw = 5
+        aw_offset = (read.level==0) ? 1 : 2
+        switch(read.strand)
+        {
+          case '+':
+            brush.fillStyle = self.forwardColor;
+            brush.fillRect(x, y, w, h);
+            //arrow point
+            self.paintBox('forward_read',x+w-aw,y-1,aw,h+aw_offset);
+            break;
+          case '-':
+            brush.fillStyle = self.reverseColor;
+            brush.fillRect(x, y, w, h);
+            //arrow point
+            self.paintBox('reverse_read',x,y-1,aw,h+aw_offset);
+            break;
+          case '2+':
+            ctxglobalAlpha=brush.globalAlpha;
+            brush.globalAlpha=0.6;
+            brush.fillStyle = self.forwardColor;
+            brush.fillRect(x, y, w, h);
+            //arrow point
+            self.paintBox('reverse_read',x,y-1,aw,h+aw_offset);
+            brush.globalAlpha=ctxglobalAlpha;
+            break;
+          case '2-':
+            ctxglobalAlpha=brush.globalAlpha;
+            brush.globalAlpha=0.6;
+            brush.fillStyle = self.reverseColor;
+            brush.fill
+            brush.fillRect(x, y, w, h);
+            //arrow point
+            self.paintBox('forward_read',x+w-aw,y-1,aw,h+aw_offset);
+            brush.globalAlpha=ctxglobalAlpha;
+            break;
+        }
+        // Loop over each child provided by data source
         Ext.each(read.children, function(child)
         {
           if(child.length>2)
@@ -215,7 +236,7 @@ Ext.define('Sv.painters.ReadsCanvas',{
         {
          letterize(brush, read.sequence, x, y, w, h, container);
         }
-  		});
+      });
       
       if(self.drawFrames){
         self.drawFrameBreaks();
@@ -223,38 +244,38 @@ Ext.define('Sv.painters.ReadsCanvas',{
       
       //click handler
       function selectItem(event, srcEl, obj)
-  		{
-  			var el = Ext.get(srcEl);
-  			var pos = self.viewport.x1 + Math.round((self.viewport.bases / self.viewport.pixels) * (event.getX()-Ext.get(self.getContainer()).getX()))
-  			self.fireEvent('itemSelected', el.dom.getAttribute('data-id'),pos);
-  		};
-  		
+      {
+        var el = Ext.get(srcEl);
+        var pos = self.viewport.x1 + Math.round((self.viewport.bases / self.viewport.pixels) * (event.getX()-Ext.get(self.getContainer()).getX()))
+        self.fireEvent('itemSelected', el.dom.getAttribute('data-id'),pos);
+      };
+      
       //Append all the map areas we created
       readMap.innerHTML+=mapAreas.join("\n");
       //setup the click event
       for(i=0;i<readMap.children.length;i++){
         Ext.get(readMap.children[i]).addListener('mouseup', selectItem);
       }
-  	};
+    };
     
 
-		
-  	function letterize(brush, sequence, x, y, w, h, container)
-  	{
-  		var length = sequence.length;
-  		var letterW = Math.max(self.viewport.pixels/self.viewport.bases);
-  		
-  		var half = length/2;
-  		var readLength = half * letterW;
+    
+    function letterize(brush, sequence, x, y, w, h, container)
+    {
+      var length = sequence.length;
+      var letterW = Math.max(self.viewport.pixels/self.viewport.bases);
+      
+      var half = length/2;
+      var readLength = half * letterW;
 
-  		for (var i=0; i<length; i++)
-  		{
-  			var letter = sequence.charAt(i);
-  			
-			  var cls = 'base'
-			  var alwaysColor = false;
-			  if(self.colorBases){ 
-  				switch (letter){
+      for (var i=0; i<length; i++)
+      {
+        var letter = sequence.charAt(i);
+        
+        var cls = 'base'
+        var alwaysColor = false;
+        if(self.colorBases){ 
+          switch (letter){
             case '-': cls = '';break;
             case 'n': cls = 'base_spacer';break;
             case 'D': cls = 'base_deletion';alwaysColor=true;break;
@@ -267,20 +288,20 @@ Ext.define('Sv.painters.ReadsCanvas',{
             case 'C': cls = 'C'; break;
             case 'G': cls = 'G'; break;
             case 'N': cls = 'N'; break;
-    			}
-    		}
+          }
+        }
 
-  			var letterX = x + (i * letterW)
-  			if ((letterW >= 5 && h >= self.boxBlingLimit && letter != '-'))
-  			{
-  			  self.paintBox(cls, letterX, y, letterW, h);
-  			  brush.fillStyle = '#fff'
-      		brush.font = 'bold '+(letterW+1)+'px'+' courier new, monospace'
-  				brush.fillText(letter,letterX,y+h-1)
-  			}else if(alwaysColor){
-  			  self.paintBox(cls, letterX, y, letterW, h);
-  			}
-  		};
-  	};
+        var letterX = x + (i * letterW)
+        if ((letterW >= 5 && h >= self.boxBlingLimit && letter != '-'))
+        {
+          self.paintBox(cls, letterX, y, letterW, h);
+          brush.fillStyle = '#fff'
+          brush.font = 'bold '+(letterW+1)+'px'+' courier new, monospace'
+          brush.fillText(letter,letterX,y+h-1)
+        }else if(alwaysColor){
+          self.paintBox(cls, letterX, y, letterW, h);
+        }
+      };
+    };
   }
 });
