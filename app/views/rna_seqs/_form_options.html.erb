@@ -1,5 +1,15 @@
 <h3>Options</h3>
 <%= f.label "Is this strand specific sequence?" %>
-Yes <%= f.radio_button :show_negative, "true"%>
-No <%= f.radio_button :show_negative, "false", :checked => ((@rna_seq.show_negative != 'true') ? true : '')%>
+  Yes <%= f.radio_button :show_negative, "true",
+    :onclick => "$('show_negative_options').show()"%>
+  No <%= f.radio_button :show_negative, "false",
+    :onclick => "$('show_negative_options').hide()",
+    :checked => ((@rna_seq.show_negative != 'true') ? true : '')%>
 <br/>
+<br/>
+<div id='show_negative_options' style='display:<%= @rna_seq.show_negative == 'true' ? '' : 'none' %>'>
+  <%= f.label "Reverse the read strand? Illumina single strand protocol uses the anti-sense strand." %>
+  <br/>
+  Yes <%= f.radio_button :flip_strand, "true", :checked => @rna_seq.flip_strand != 'false' %>
+  No <%= f.radio_button :flip_strand, "false" %>
+</div>

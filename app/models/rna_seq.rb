@@ -79,6 +79,13 @@ class RnaSeq < Sample
   end
   # returns histogram data see big_wig#summary_data for details
   def summary_data(start,stop,num,chrom,opts={})
+    # switch signs if strand is flipped
+    if flip_strand=='true' && opts[:strand]=='+'
+      opts[:strand]='-'
+    elsif flip_strand=='true' && opts[:strand]=='-'
+      opts[:strand]='+'
+    end
+    # grab data from the requested bigWig
     if opts[:strand]=='+'
       return (forward_big_wig ? forward_big_wig.summary_data(start,stop,num,chrom).map(&:to_f) : [])
     elsif opts[:strand]=='-'
@@ -93,6 +100,9 @@ class RnaSeq < Sample
   end
   # returns processed reads as formatted text see bam#get_reads_text
   def get_reads_text(start, stop, chrom,opts)
+    if show_negative && flip_strand=='true'
+      opts[:flip_strand] = true
+    end
     bam.get_reads_text(start, stop, chrom,opts)
   end
   # returns the max value stored in the big_wig

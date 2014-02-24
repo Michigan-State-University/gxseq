@@ -150,6 +150,7 @@ class Bam < Asset
     
     read_limit = opts[:read_limit] || 10000
     include_seq = opts[:include_seq]
+    flip_strand = opts[:flip_strand] || false
     reads_forward = ""
     reads_reverse = ""
     reads = ""
@@ -297,12 +298,12 @@ class Bam < Asset
       # Get strand. The second read on paired sequence will be in reversed orientation
       if(paired)
         if(first_read)
-          strand = seq_reversed ? '-' : '+'
+          strand = (flip_strand ? !seq_reversed : seq_reversed) ? '-' : '+'
         elsif(second_read)
-          strand = mate_reversed ? '2-' : '2+'
+          strand = (mate_reversed ? !mate_reversed : mate_reversed) ? '2-' : '2+'
         end
       else
-        strand = seq_reversed ? '-' : '+'
+        strand = (flip_strand ? !seq_reversed : seq_reversed) ? '-' : '+'
       end
       reads << "[\"#{seq_name}\",#{start},#{width},\"#{strand}\",\"#{seq}\",[#{gaps.join(',')}]],"
     end
