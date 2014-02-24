@@ -39,7 +39,7 @@ class Sample < ActiveRecord::Base
   # validates_presence_of :assets
   validates_presence_of :user
   validates_presence_of :assembly
-  validates_presence_of :concordance_set
+  validates_presence_of :concordance_set, :if => "type!='Synthetic'"
   validates_presence_of :name
   validates_uniqueness_of :name, :scope => [:type,:assembly_id], :message => " has already been used"
   validates_length_of :name, :maximum => 35, :on => :create, :message => "must be less than 35 characters"
@@ -164,7 +164,11 @@ class Sample < ActiveRecord::Base
   def display_info
     "#{display_name} - #{assembly_name}"
   end
-
+  
+  def display_html
+    "<a href='#{Rails.application.routes.url_helpers.samples_path(self.id)}'>#{display_name}</a>"
+  end
+  
   def typed_display_name
     "#{self.class.name}: #{display_name}"
   end
@@ -172,6 +176,7 @@ class Sample < ActiveRecord::Base
   def typed_display_info
     "#{self.class.name}: #{display_info}"
   end
+  
   # return the sequence name for a bioentry or bioentry_id
   def sequence_name(bioentry)
     if bioentry.respond_to?(:id)

@@ -1,0 +1,57 @@
+<%= form_for @synthetic do |f| %>
+  <%= f.error_messages %>
+  <div class="form_item">
+    <h3>Metadata</h3>
+    Choose a unique name for your sample. Try to keep it concise.<br/>
+    <%= f.text_field :name, :size => 65%>
+    <br/><br/>
+    Which group will be able to view this data.<br/>
+    <%= f.collection_select :group_id, Group.accessible_by(current_ability), :id, :name %><br/>
+    <br/>
+    Enter any descriptive information you would like to remember.<br/>
+    <%= f.text_area :description, :rows => "7" %><br/>
+    <br/>
+    <div id="sample_traits" style="clear:both;">
+      <span style="float:right;margin-right:1em"><%= link_to "Manage Selections", biosql_ontology_path(Biosql::Term.sample_ont_id), :target => "_blank" %></span>
+      <span style="float:left;width:5em">Add Traits</span>
+      <%= link_to_add_fields image_tag("add.gif", :alt => "Add Trait", :style => "float:left"),
+      f, :traits, {:render => "below",:partial => "samples/trait_fields"}
+      %>
+      <br style="clear:both"/>
+      <hr/>
+      <%= f.fields_for :traits do |trait| %>
+        <%= render :partial => "samples/trait_fields", :locals => {:f => trait} %>
+      <% end %>
+    </div>
+    <br/>
+  </div>
+
+  <div class="form_item">
+    <h3>Sequence Data</h3>
+    <div style="float:left">
+      Assembly<br/>
+      <%= f.collection_select :assembly_id, @assemblies, :id, :name_with_version,
+      {:prompt => "Select an Assembly to Continue..."},
+      {
+        :'data-onchange' => sample_select_synthetics_url,
+        :'data-with' => :assembly_id,
+        :'data-element' => :sample_selection
+      }%>
+    </div>
+  </div>
+  
+  <div id='sample_selection' style="clear:both">
+    <% if @synthetic.assembly %>
+      <%= render :partial => "synthetics/sample_select", :locals => {
+        :samples => @synthetic.assembly.samples,
+        :synthetic => @synthetic
+      } %>
+    <% end %>
+  </div>
+  
+  <div style="clear:both">
+    <br/><hr/><br/><br/>
+    <%= f.submit "#{@synthetic.persisted? ? 'Update' : 'Create'} Sample", :class => 'button' %>
+  </div>
+    
+<% end %>

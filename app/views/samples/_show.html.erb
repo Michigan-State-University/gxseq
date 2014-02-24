@@ -19,7 +19,9 @@
       :class => "button",
       :style => "margin-bottom:1em" } %>
   <% end %>
-  <%= render :partial => "actions" rescue nil %>
+  <% if template_exists?('actions',sample.class.name.pluralize,true) %>
+    <%= render :partial => "actions" %>
+  <% end %>
   <div style="float:right">
     <%= render :partial => 'samples/nav_links', :locals => {:sample => sample} %>
   </div>
@@ -28,10 +30,12 @@
 <% end -%>
 
 <div style="width:80%;float:left">
+  <% if template_exists?('graphics',sample.class.name.pluralize,true) %>
   <div>
     <h2 class="smalltitle" style="clear:both;font-size:120%;width:150px">Visuals</h2>
     <%= render :partial => "graphics" %>
   </div>
+  <% end %>
 
   <div style="float:left;width:80%">
     <h2 class="smalltitle" style="clear:both;font-size:120%">Info</h2>
@@ -44,5 +48,9 @@
 
 <div style="width:20%;float:right">
   <h2 class="smalltitle" style="clear:both;font-size:120%;">Assets</h2>
-	<%= render :partial => "samples/assets", :locals => {:sample => sample} %>
+  <% if template_exists?('assets',sample.class.name.pluralize,true) %>
+    <%= render :partial => "assets", :locals => {:sample => sample} %>
+  <% else  %>
+	  <%= render :partial => "samples/assets", :locals => {:sample => sample} %>
+	<% end %>
 </div>

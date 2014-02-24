@@ -22,6 +22,7 @@ class ReadsTrack < Track
         :sample_type => sample.class.name,
         :single => sample.single,
         :storeLocal => true,
+        :style => style
       }
     )
 
@@ -45,5 +46,9 @@ class ReadsTrack < Track
   
   def description_text
     sample.description
+  end
+  
+  def style
+    sample.respond_to?('track_style') ? sample.track_style : 'area'
   end
 end

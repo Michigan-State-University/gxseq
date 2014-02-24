@@ -1,0 +1,19 @@
+<% content_for :top_bar do -%>
+  <h1 class="pagetitle">Edit Ratio Sample <%= @synthetic.name %></h1>
+<% end -%>
+
+<% content_for :item_bar do -%>
+  <%= link_to "Cancel", @synthetic, :style => "float:left", :class => "button"%>
+  <% if can? :delete, @synthetic %>
+    <%= render :partial => 'shared/item_bar_toggle' %>
+    <!-- Advanced Options -->
+    <div style="display:none;clear:both;float:left" id="advanced_search">
+      <br/>
+      <%= link_to "Remove Sample", @synthetic, :method => 'delete', :class => "redbutton", :confirm => "Remove sample: #{@synthetic.name}? \n This CANNOT be undone." %>
+    </div>
+  <% end %>
+<% end -%>
+
+<%= render :partial => "samples/sidebar" %>
+
+<%= render :partial => 'form', :locals => {:sample => @synthetic} %>

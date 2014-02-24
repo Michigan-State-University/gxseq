@@ -11,6 +11,7 @@
 #
 
 class Component < ActiveRecord::Base
-   validates_uniqueness_of :sample_id, :scope => [:synthetic_sample_id,:type]
+   validates_uniqueness_of :sample_id, :scope => [:synthetic_sample_id]
+   belongs_to :synthetic_sample, :class_name => "Sample", :foreign_key => :synthetic_sample_id
    belongs_to :sample
 end

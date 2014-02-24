@@ -29,10 +29,12 @@ class Synthetic < Sample
   has_many :components, :foreign_key => :synthetic_sample_id
   validates_presence_of :a_components
   validates_presence_of :b_components
-  after_save :set_abs_max
-  #has_peaks
-  # TODO: Test and activate synthetic samples
+  accepts_nested_attributes_for :a_components, :allow_destroy => true
+  accepts_nested_attributes_for :b_components, :allow_destroy => true
   
+  def self.to_label
+    "Ratio"
+  end
   ##Specialized methods
   def update_assets
     update_attribute(:state, "ready")
@@ -42,8 +44,24 @@ class Synthetic < Sample
     create_histogram_track(:assembly => assembly) unless histogram_track
   end
   
-  def display_name
-    "( #{a_op}(#{a_components.collect{|c| c.sample.display_name}.join(", ")}) #{mid_op} #{b_op}(#{b_components.collect{|c| c.sample.display_name}.join(",")}) )"
+  def display_html
+    a_text=b_text=''
+    if(a_components.count>1)
+      a_text="<b style='color:blue'>#{a_op}</b>(#{a_components.collect{|c| c.sample.display_html}.join(", ")})"
+    elsif(a_components.first)
+      a_text="(#{a_components.first.sample.display_html})"
+    end
+    if(b_components.count>1)
+      b_text="<b style='color:blue'>#{b_op}</b>(#{b_components.collect{|c| c.sample.display_html}.join(", ")})"
+    elsif(b_components.first)
+      b_text="(#{b_components.first.sample.display_html})"
+    end
+    doc="<div>
+      <div style='margin-left:1em'>#{a_text}</div>
+        <div style='margin-left:1em'><b style='color:blue'>#{mid_op}</b></div>
+      <div style='margin-left:1em'>#{b_text}</div>
+    </div>".html_safe
+    return doc
   end
   
   def summary_data(num=200)
@@ -74,9 +92,9 @@ class Synthetic < Sample
     return merge_results(mid_op,a_merged,b_merged)
   end
   
-  def base_counts
-    bioentry.biosequence_without_seq.length
-  end
+  # def base_counts
+  #   bioentry.biosequence_without_seq.length
+  # end
 
   ##Track Config
   def iconCls
@@ -88,13 +106,6 @@ class Synthetic < Sample
   end
   
   ##Class Specific
-  def max
-    summary_data(1)[0]
-  end
-  
-  def set_abs_max
-    
-  end
   
   def merge_results(op, a_results, b_results, has_pos = true)
     data = []

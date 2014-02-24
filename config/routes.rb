@@ -133,6 +133,7 @@ GenomeSuite::Application.routes.draw do
   end
   resources :synthetics do
     get 'details', :on => :collection
+    get 'sample_select', :on => :collection
     get 'compute_peaks', :on => :member
     member do
       get 'initialize_sample'
