@@ -1,3 +1,24 @@
+<div style="float:right;">
+  <%= form_tag user_path(@user), :method => :get do %>
+  <%= hidden_field_tag :fmt, 'samples' %>
+  <div style="float:right;margin-bottom:0.5em">
+    Search:<br/>
+    <%= submit_tag 'Go', :class => 'button', :id => 'go_submit', :style => 'float:right;margin-left:-1em' %>
+    <%= text_field_tag "keywords",params[:keywords], :style => 'float:right;margin-right:2em' %>
+  </div>
+  <div style="float:right;margin-right:2em">
+    Type:<br/>
+    <%= select_tag 'sample_type', options_for_select(["ChipChip","ChipSeq","ReSeq","RnaSeq","Variant"],params[:sample_type]), {:include_blank => "No Filter"} %><br/>
+  </div>
+  <% end %>
+</div>
+
+
+<div class="pagination" style="clear:both">
+  <span style="float:left"><%= will_paginate(@samples) %></span>
+  <span style="float:right;margin-right:2em"><%= number_with_delimiter(@samples.total_entries) %> Matching Results</span>
+</div>
+
 <div class="table">
   <% if @samples.empty? %>
     <br/>
@@ -25,9 +46,6 @@
               <%= link_to "View", sample %>
               <% if can? :update, sample %>
                 | <%= link_to "Edit", [:edit,sample] %>
-              <% end %>
-              <% if can? :destroy, sample %>
-                | <%= link_to "Remove", sample, :method => :delete, :confirm => "Permanently remove #{sample.name}?\nThis CANNOT be undone" %>
               <% end %>
             </td>
           </tr>

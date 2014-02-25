@@ -51,7 +51,7 @@ end
 gem 'acts_as_api', '~>0.3'
 gem 'xmlparser'
 gem 'bio', '~> 1.4.3'
-gem 'bio-samtools', '~>0.4', :git => 'git://github.com/throwern/bioruby-samtools.git'
+gem 'bio-samtools', '~>0.5', :git => 'git://github.com/throwern/bioruby-samtools.git'
 #gem 'bio-samtools', :path => '~/gems/bioruby-samtools'
 gem 'composite_primary_keys', '=3.1.10', :path => 'vendor/gems/composite_primary_keys-3.1.10'
 gem 'daemons', '1.1.4'

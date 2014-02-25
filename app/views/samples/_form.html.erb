@@ -3,7 +3,7 @@
   <div class="form_item">
     <h3>Metadata</h3>
     Choose a unique name for your sample. Try to keep it concise.<br/>
-    <%= f.text_field :name, :size => 25%>
+    <%= f.text_field :name, :size => 65%>
     <br/><br/>
     Which group will be able to view this data.<br/>
     <%= f.collection_select :group_id, Group.accessible_by(current_ability), :id, :name %><br/>

@@ -15,16 +15,21 @@ var HistogramData = function()
 	this.parse = function(data, above)
 	{
 		if (!data) return;
-		var cnt=1;
-		//series.parse(data);
-		var length = data.length;
-    for (var i = 0; i < length; i++) {
-      var x = (data[i][0]|0)
-      dataSet[x] = {x:x,y:parseFloat(data[i][1]),w:1}
-    };
-    for (prop in dataSet) {
-      if (prop > 0) cnt+=1;
-    }
+		if(above==true){
+		  if (!data.above) return;
+		  var length = data.above.length;
+      for (var i = 0; i < length; i++) {
+        var x = (data.above[i][0]|0)
+        dataSet[x] = {x:x,y:parseFloat(data.above[i][1]),w:1}
+      };
+		}else{
+		  if (!data.below) return;
+		  var length = data.below.length;
+      for (var i = 0; i < length; i++) {
+        var x = (data.below[i][0]|0)
+        dataSet[x] = {x:x,y:parseFloat(data.below[i][1]),w:1}
+      };
+		}
 	};
 		
 	this.subset2canvas = function(left, right, bases, pixels)
