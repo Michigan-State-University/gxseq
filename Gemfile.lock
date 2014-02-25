@@ -8,9 +8,9 @@ GIT
 
 GIT
   remote: git://github.com/throwern/bioruby-samtools.git
-  revision: 2ad16cd59dab5e2dc185d29f90c01c36b42bf584
+  revision: a1fe7183ce30016e03e9a1e5eafaafb72af0c01c
   specs:
-    bio-samtools (0.4.2)
+    bio-samtools (0.5.0)
       bio (>= 1.4.2)
       ffi
 
@@ -344,7 +344,7 @@ DEPENDENCIES
   better_errors
   binding_of_caller
   bio (~> 1.4.3)
-  bio-samtools (~> 0.4)!
+  bio-samtools (~> 0.5)!
   bio-tabix (= 1.0.1)
   bio-ucsc-util (= 0.1.2)
   brakeman
