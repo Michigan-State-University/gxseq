@@ -300,7 +300,7 @@ class Bam < Asset
         if(first_read)
           strand = (flip_strand ? !seq_reversed : seq_reversed) ? '-' : '+'
         elsif(second_read)
-          strand = (mate_reversed ? !mate_reversed : mate_reversed) ? '2-' : '2+'
+          strand = (flip_strand ? !mate_reversed : mate_reversed) ? '2-' : '2+'
         end
       else
         strand = (flip_strand ? !seq_reversed : seq_reversed) ? '-' : '+'
