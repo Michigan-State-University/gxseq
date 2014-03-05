@@ -509,14 +509,14 @@ class Sequence < Thor
   end
   # Compare the types we loaded to the Classes that exist in the app
   def check_feature_types(type_names)
+    # TODO: convert to file check/create for missing classes
     type_names.each do |name|
-      begin
-        Biosql::Feature.const_get(name)
-      rescue
-        puts " -- #{name} class not found"
-        filepath = File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../app/models/biosql/feature/#{name.underscore}.rb")
+      filepath = File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../app/models/biosql/feature/#{name.underscore}.rb")
+      unless File.exists? filepath
+        puts " -- #{name} file not found"
+        puts "Creating #{name.underscore}.rb : #{filepath}"
+        puts "If this is not your production server, you must copy the new file to production"
         klass_code = "class Biosql::Feature::#{name} < Biosql::Feature::Seqfeature\nend"
-        puts "Creating #{name.underscore}.rb : #{filepath}\n#{klass_code}"
         begin
           raise "File Exists!" if File.exist?(filepath)
           outfile = File.open(filepath,'w')

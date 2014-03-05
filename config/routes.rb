@@ -86,13 +86,58 @@ GenomeSuite::Application.routes.draw do
   ##Browser
   resources :track_layouts
   resources :tracks
-  match "fetchers/metadata"
-  match "fetchers/base_counts"
-  match "fetchers/gene_models"
-  match "fetchers/genome"  
+  namespace :track do
+    resources :gene_models, :only => [:show] do
+      collection do
+        get "syndicate"
+        get "range"
+        get "search"
+      end
+    end
+    resources :reads, :only => [:show] do
+      collection do
+        get "syndicate"
+        get "range"
+        get "reads"
+      end
+    end
+    resources :variants, :only => [:show] do
+      collection do
+        get "syndicate"
+        get "range"
+        get "match_tracks"
+      end
+    end
+    
+    resources :features, :only => [:show] do
+      collection do
+        get "syndicate"
+        get "range"
+        get "search"
+      end
+    end
+    
+    get "density/syndicate"
+    get "density/range"
+    get "density/peak_genes"
+    get "density/peak_locations"
+    
+    get "sequence/metadata"
+    get "sequence/syndicate"
+    get "sequence/range"
+    get "sequence/sequence"
+    
+    get "ratio/syndicate"
+    get "ratio/range"
+  end
+  
+  #match "fetchers/metadata"
+  #match "fetchers/base_counts"
+  #match "fetchers/gene_models"
+  #match "fetchers/genome"  
   match "generic_feature/gene_models"
-  match "protein_sequence/genome"
-  match "reads/track_data"
+  #match "protein_sequence/genome"
+  #match "reads/track_data"
   
   ##Samples
   resources :assets, :only => [:show] do

@@ -32,7 +32,7 @@ class HistogramTrack < Track
   end
   
   def data_path
-    "#{root_path}/fetchers/base_counts"
+    "#{root_path}/track/density/"
   end
   
   def folder

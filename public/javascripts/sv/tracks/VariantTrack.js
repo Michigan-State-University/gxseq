@@ -19,19 +19,14 @@ Ext.define('Sv.tracks.VariantTrack',{
       this.getSelectedData = function(){
           selectedDataBody.update("Loading..");
           BaseJS.request({
-              url     : self.data,
+              url     : self.data+'match_tracks',
               method  : 'GET',
               requestJSON : false,
               data : {
-                  jrws : Ext.encode({
-                      method  : 'select_region',
-                      param   : {
-                          id  : self.id,
-                          left: self.selectStart,
-                          right: self.selectEnd,
-                          bioentry: self.bioentry
-                      }
-                  })
+                left: self.selectStart,
+                right: self.selectEnd,
+                bioentry: self.bioentry,
+                sample: self.sample
               },
               success: function(response){
                selectedDataBody.update(response.data.text);
@@ -186,16 +181,11 @@ Ext.define('Sv.tracks.VariantTrack',{
       box.echo("<div class='waiting'>Loading...</div>");
       Ext.Ajax.request(
       {
-        url         : self.data,
+        url         : self.data+pos,
         method      : 'GET',
         params      :{
-          jrws : Ext.encode({
-              method  : 'describe', 
-              param   : {
-                pos : pos,
-                bioentry : self.bioentry,
-                sample : self.sample}
-              })
+          bioentry : self.bioentry,
+          sample : self.sample
         },
         success  : function(response){
             box.echo(response.responseText);
@@ -356,22 +346,17 @@ Ext.define('Sv.tracks.VariantTrack',{
     };
     this.requestFrame = function(pos,policy,successFunc,failureFunc){
   	  Ext.Ajax.request({
-          url: self.data,
+          url: self.data+'range',
           method: 'GET',
           params: {
-              jrws: Ext.encode({
-                  method: 'range',
-                  param: {
-                      id: self.id,
-                      sample: self.sample,
-                      left: pos.left,
-                      right: pos.right,
-                      bases: policy.bases,
-                      pixels: policy.pixels,
-                      bioentry: self.bioentry,
-                      genotype_sample : self.genotype_sample
-                  }
-              })
+            id: self.id,
+            sample: self.sample,
+            left: pos.left,
+            right: pos.right,
+            bases: policy.bases,
+            pixels: policy.pixels,
+            bioentry: self.bioentry,
+            genotype_sample : self.genotype_sample
           },
           success: function(response)
           {

@@ -23,7 +23,7 @@
 #
 
 class Synthetic < Sample
-  has_one :histogram_track, :foreign_key => "sample_id", :dependent => :destroy
+  has_one :ratio_track, :foreign_key => "sample_id", :dependent => :destroy
   has_many :a_components, :foreign_key => :synthetic_sample_id, :dependent => :destroy
   has_many :b_components, :foreign_key => :synthetic_sample_id, :dependent => :destroy
   has_many :components, :foreign_key => :synthetic_sample_id
@@ -41,88 +41,47 @@ class Synthetic < Sample
   end
   
   def create_tracks
-    create_histogram_track(:assembly => assembly) unless histogram_track
+    create_ratio_track(:assembly => assembly) unless ratio_track
+    #create_histogram_track(:assembly => assembly) unless histogram_track
   end
   
-  def display_html
-    a_text=b_text=''
-    if(a_components.count>1)
-      a_text="<b style='color:blue'>#{a_op}</b>(#{a_components.collect{|c| c.sample.display_html}.join(", ")})"
-    elsif(a_components.first)
-      a_text="(#{a_components.first.sample.display_html})"
-    end
-    if(b_components.count>1)
-      b_text="<b style='color:blue'>#{b_op}</b>(#{b_components.collect{|c| c.sample.display_html}.join(", ")})"
-    elsif(b_components.first)
-      b_text="(#{b_components.first.sample.display_html})"
-    end
-    doc="<div>
-      <div style='margin-left:1em'>#{a_text}</div>
-        <div style='margin-left:1em'><b style='color:blue'>#{mid_op}</b></div>
-      <div style='margin-left:1em'>#{b_text}</div>
-    </div>".html_safe
-    return doc
-  end
-  
-  def summary_data(num=200)
-    a_summaries = []
-    a_components.each do |a|
-      a_summaries << a.sample.summary_data(num)
-    end    
-    b_summaries = []
-    b_components.each do |b|
-      b_summaries << b.sample.summary_data(num)
-    end
-    a_merged = merge_multiple_results(a_op,a_summaries,false)
-    b_merged = merge_multiple_results(b_op,b_summaries,false)
-    return merge_results(mid_op,a_merged,b_merged,false)
-  end
-  
-  def results_query(start, stop, bases)
+  def summary_data(start, stop, num, chrom)
     a_results = []
     a_components.each do |a|
-      a_results << a.sample.results_query(start, stop, bases)
+      a_results << a.sample.summary_data(start, stop, num, chrom)
     end
     b_results = []
     b_components.each do |b|
-      b_results << b.sample.results_query(start, stop, bases)
+      b_results << b.sample.summary_data(start, stop, num, chrom)
     end
     a_merged = merge_multiple_results(a_op,a_results)
     b_merged = merge_multiple_results(b_op,b_results)
     return merge_results(mid_op,a_merged,b_merged)
   end
-  
-  # def base_counts
-  #   bioentry.biosequence_without_seq.length
-  # end
 
   ##Track Config
   def iconCls
     "synthetic_track"
   end
   
-  def single
-    "false"
-  end
-  
   ##Class Specific
   
-  def merge_results(op, a_results, b_results, has_pos = true)
+  def merge_results(op, a_results, b_results)
     data = []
     case op
     when "/"
       a_results.each_with_index do |a,idx|
-        data << (has_pos ? [a[0],(a[1]/b_results[idx][1])] : (a/b_results[idx]))
+        data << a/b_results[idx]
       end
     when "-"
       a_results.each_with_index do |a,idx|
-        data << (has_pos ? [a[0],(a[1]-b_results[idx][1])] : a-b_results[idx])
+        data << a-b_results[idx]
       end
     end
     return data
   end
 
-  def merge_multiple_results(op, results, has_pos = true)
+  def merge_multiple_results(op, results)
     data = []
     comp_count = results.size
     case op
@@ -130,29 +89,59 @@ class Synthetic < Sample
       results[0].each_with_index do |r, idx|
         avg=0.0
         comp_count.times do |i|
-          avg+= (has_pos ? results[i][idx][1].to_f : results[i][idx].to_f)
+          avg+= results[i][idx].to_f
         end
-        data<< (has_pos ? [r[idx][0],avg/comp_count] : avg/comp_count)
+        data<< avg/comp_count
       end
     when "sum"
       results[0].each_with_index do |r, idx|
         sum=0.0
         comp_count.times do |i|
-          sum+= (has_pos ? results[i][idx][1].to_f : results[i][idx].to_f)
+          sum+= results[i][idx].to_f
         end
-        data<< (has_pos ? [r[0],sum] : sum)
+        data<< sum
       end
     when "max"
       results[0].each_with_index do |r, idx|
         vals=[]
         comp_count.times do |i|
-          vals<< (has_pos ? results[i][idx][1].to_f : results[i][idx].to_f)
+          vals<< results[i][idx].to_f
         end
-        data<< (has_pos ? [r[idx][0],vals.max] : vals.max)
+        data<< vals.max
         end
       end
     return data
   end
-   
+  
+  # calculates and returns a MAD score for 1000 items
+  # converts to LOG(10) first
+  def median_absolute_deviation(concordance_item,count=1000)
+    length = concordance_item.bioentry.length
+    data = summary_data(1,length,[count,length].min,concordance_item.reference_name)
+    # fix infinity
+    absMax = data.map(&:abs).reject{|x|x==Float::INFINITY}.uniq
+    absMax = absMax.max
+    data.fill{|i| data[i]==Float::INFINITY ? 1 : data[i]}
+    # Get Median
+    median = DescriptiveStatistics::Stats.new(data).median
+    # Get absolute deviation
+    abs_dev = data.map{|d| (d-median).abs}
+    # get the absolute deviation median
+    abs_dev_median = DescriptiveStatistics::Stats.new(abs_dev).median
+    # multiply by constant factor == .75 quantile of assumed distribution
+    # .75 quantile of normal distribution == 1.4826
+    1.4826 * abs_dev_median
+  end
+  
+  def standard_deviation(concordance_item,count=1000)
+    length = concordance_item.bioentry.length
+    data = summary_data(1,length,count,concordance_item.reference_name)
+    # fix infinity
+    absMax = data.map(&:abs).reject{|x|x==Float::INFINITY}.uniq
+    absMax = absMax.max
+    data.fill{|i| data[i]==Float::INFINITY ? 1 : data[i]}
+    DescriptiveStatistics::Stats.new(data).standard_deviation
+  end
+  
 end
 

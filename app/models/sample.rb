@@ -60,8 +60,6 @@ class Sample < ActiveRecord::Base
   scope :order_by, lambda { |o|
         { :order => o }
       }
-  
-  
 ## Class Methods
   # returns label used by formtastic in views
   def self.to_label
@@ -163,10 +161,6 @@ class Sample < ActiveRecord::Base
   
   def display_info
     "#{display_name} - #{assembly_name}"
-  end
-  
-  def display_html
-    "<a href='#{Rails.application.routes.url_helpers.samples_path(self.id)}'>#{display_name}</a>"
   end
   
   def typed_display_name

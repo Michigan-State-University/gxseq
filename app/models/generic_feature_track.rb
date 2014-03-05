@@ -32,7 +32,7 @@ class GenericFeatureTrack < Track
   end
   
   def data_path
-    "#{root_path}/generic_feature/gene_models"
+    "#{root_path}/track/features/"
   end
   
   def folder

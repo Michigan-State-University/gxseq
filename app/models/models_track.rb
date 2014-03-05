@@ -35,7 +35,7 @@ class ModelsTrack < Track
   end
   
   def data_path
-    "#{root_path}/fetchers/gene_models"
+    "#{root_path}/track/gene_models/"
   end
   
   def folder

@@ -151,19 +151,13 @@ Ext.define("Sv.tracks.ReadsTrack",{
       box.echo("<div class='waiting'>Loading...</div>");
       box.setTitle("Read: "+id);
       Ext.Ajax.request({
-        url         : self.data,
+        url         : self.data+id,
         method      : 'GET',
         requestJSON : false,
         params : {
-          jrws : Ext.encode({
-            method  : 'describe',
-            param   : {
-              id : id,
-              bioentry : self.bioentry,
-              sample : self.sample,
-              pos : pos
-            }
-          })
+          bioentry : self.bioentry,
+          sample : self.sample,
+          pos : pos
         },
         success  : function(response){
           if (response.status == 200){
@@ -600,22 +594,17 @@ Ext.define("Sv.tracks.ReadsTrack",{
     };
     this.requestFrame = function(pos,policy,successFunc,failureFunc){
       Ext.Ajax.request({
-          url: self.data,
+          url: self.data+'/'+self.requestFormat(),
           method: 'GET',
           params: {
-              jrws: Ext.encode({
-                  method: self.requestFormat(),
-                  param: {
-                      id: self.id,
-                      sample: self.sample,
-                      left: pos.left,
-                      right: pos.right,
-                      bases: policy.bases,
-                      pixels: policy.pixels,
-                      bioentry: self.bioentry,
-                      read_limit : self.readLimit
-                  }
-              })
+            id: self.id,
+            sample: self.sample,
+            left: pos.left,
+            right: pos.right,
+            bases: policy.bases,
+            pixels: policy.pixels,
+            bioentry: self.bioentry,
+            read_limit : self.readLimit
           },
           success: function(response)
           {

@@ -33,7 +33,7 @@ class ReadsTrack < Track
   end
   
   def data_path
-    "#{root_path}/reads/track_data"
+    "#{root_path}/track/reads/"
   end
   
   def folder

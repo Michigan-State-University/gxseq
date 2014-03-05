@@ -1,13 +1,13 @@
 <p><b>Sequence</b></p>
 <div style="font-family:'Courier';background:#FEFEFE;padding:1em">
-><%= @variant.name %> from <%= @left %>  to <%= @right %><br/>
-<%= @variant.get_sequence(@left,@right,@bioentry.id).gsub("","&#8203").html_safe %>
+><%= @sample.name %> from <%= @left %>  to <%= @right %><br/>
+<%= @sample.get_sequence(@left,@right,@bioentry.id).gsub("","&#8203").html_safe %>
 </div>
 <br/>
 <br/>
 <% # matching variants %>
 <% html = "" %>
-<% @variant.find_matches(@left,@right-1,@bioentry.id).each do |variant| %>
+<% @sample.find_matches(@left,@right-1,@bioentry.id).each do |variant| %>
 		<% html+= "<tr><td style='padding:4px;height:3em;width:40%;border-bottom:1px solid lightgrey;border-left:1px solid lightgrey'><b>#{variant.name}</b></td><td style='border-bottom:1px solid lightgrey'>#{truncate(variant.description,:length => 75)}</td></tr>"%>
 <% end %>
 <% unless html.empty? %>

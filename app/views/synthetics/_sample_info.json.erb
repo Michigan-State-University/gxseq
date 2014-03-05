@@ -11,10 +11,10 @@
         :email => "#{APP_CONFIG[:admin_eamil]}"
      },
      :service => {
-        :title => "Reads Track",
+        :title => "#{track.class.name}",
         :description => ""
      },
-     :text => "#{render :partial => "reads/syndicate"}"
+     :text => "#{render :partial => "synthetics/sample_info"}"
   }
 }.to_json.html_safe
 %>

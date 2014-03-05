@@ -25,7 +25,7 @@ module BioentriesHelper
       # Setup
       :renderTo => 'center-column',
       :active => active_tracks,
-      :genome => "#{root_path}bioentries/metadata",
+      :genome => track_sequence_metadata_url,
       :refresh_path => bioentry_url(bioentry),
       :bioentry => bioentry.id,
       :assembly_id => bioentry.assembly_id,

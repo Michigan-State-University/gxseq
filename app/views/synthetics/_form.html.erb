@@ -44,7 +44,8 @@
     <% if @synthetic.assembly %>
       <%= render :partial => "synthetics/sample_select", :locals => {
         :samples => @synthetic.assembly.samples,
-        :synthetic => @synthetic
+        :synthetic => @synthetic,
+        :concordance_sets => @synthetic.assembly.concordance_sets
       } %>
     <% end %>
   </div>

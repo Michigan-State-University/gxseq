@@ -105,7 +105,7 @@ Ext.define('Sv.tracks.DataTrack', {
 
                 var options = Ext.applyIf(options || {},
                 {
-                    url: self.data,
+                    url: self.data+'syndicate',
                     sample: self.sample,
                     success: function() {},
                     failure: function() {}
