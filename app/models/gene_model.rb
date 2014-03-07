@@ -680,7 +680,7 @@ class GeneModel < ActiveRecord::Base
                 # Setup the new gene model
                 gene_model = base_gene_model
                 gene_model[:cds_id] = cds.try(:id)
-                gene_model[:protein_id] = cds.protein_id.try(:value)
+                gene_model[:protein_id] = cds.try(:protein_id).try(:value)
                 gene_model[:mrna_id] = mrna.id
                 gene_model[:transcript_id] = mrna.transcript_id.try(:value)
                 gene_model[:variants] = mrna_list.length
