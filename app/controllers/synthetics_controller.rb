@@ -17,12 +17,14 @@ class SyntheticsController < ApplicationController
   end
 
   def show
-    @synthetic = Synthetic.find(params[:id]) 
+    @synthetic = Synthetic.find(params[:id])
+    @bioentry = Biosql::Bioentry.find(params[:bioentry_id] || @synthetic.assembly.bioentries.first.id) rescue nil
   end
 
-  def new
-    @assemblies = Assembly.includes(:taxon => :scientific_name).order("taxon_name.name")
+  def new 
+    @assemblies = Assembly.includes(:taxon => :scientific_name).order("taxon_name.name").accessible_by(current_ability)
     @synthetic = Synthetic.new
+    authorize! :create, @synthetic
   end
 
   def create
@@ -37,7 +39,7 @@ class SyntheticsController < ApplicationController
         flash[:notice]="New Synthetic Sample Created Successfully"
         redirect_to @synthetic
       else
-        @assemblies = Assembly.includes(:species => :scientific_name).order("taxon_name.name")
+        @assemblies = Assembly.includes(:species => :scientific_name).order("taxon_name.name").accessible_by(current_ability)
         render :action => :new
       end
     end

@@ -152,6 +152,7 @@ Ext.define('Sv.painters.RatioCanvas',{
           for(x;x<dataLookup.length;x++){
             if(dataLookup[x]){break;}
           }
+          if(!dataLookup[x]){return;}
           //update div with data
           var val = dataLookup[x][0];
           var h = dataLookup[x][1];

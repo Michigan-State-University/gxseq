@@ -44,14 +44,14 @@ class Synthetic < Sample
     create_ratio_track(:assembly => assembly) unless ratio_track
   end
   
-  def summary_data(start, stop, num, chrom,opts={})
+  def summary_data(start, stop, num, chrom)
     a_results = []
     a_components.each do |a|
-      a_results << a.sample.summary_data(start, stop, num, chrom,opts)
+      a_results << a.sample.summary_data(start, stop, num, chrom)
     end
     b_results = []
     b_components.each do |b|
-      b_results << b.sample.summary_data(start, stop, num, chrom,opts)
+      b_results << b.sample.summary_data(start, stop, num, chrom)
     end
     a_merged = merge_multiple_results(a_op,a_results)
     b_merged = merge_multiple_results(b_op,b_results)
@@ -121,6 +121,7 @@ class Synthetic < Sample
   def median_absolute_deviation(concordance_item,count=2000)
     length = concordance_item.bioentry.length
     data = summary_data(1,length,[count,length].min,concordance_item.reference_name)
+    logger.info "\n\n#{data}\n\n"
     # Get Median
     median = DescriptiveStatistics::Stats.new(data).median
     # Get absolute deviation
