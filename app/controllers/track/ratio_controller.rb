@@ -11,16 +11,14 @@ class Track::RatioController < Track::BaseController
     density=(params[:density]||1000).to_i
     left=params[:left].to_i
     right=params[:right].to_i
-    data = @sample.summary_data(left,right,density,c_item.reference_name)
     offset = (right-left)/density.to_f
-    # fix infinity to max
-    absMax = data.map(&:abs).reject{|x|x==Float::INFINITY}.uniq
-    absMax = absMax.max
-    data.fill{|i| data[i]==Float::INFINITY ? 1 : data[i]}
-    # convert to LOG(10)
-    data.fill{|i| data[i]==0 ? 0 : Math.log(data[i])}
+    # get stats
+    mad = @sample.median_absolute_deviation(c_item)
+    median = @sample.median(c_item)
+    # get data
+    data = @sample.summary_data(left,right,density,c_item.reference_name)
     # fill with x range
-    data.fill{|i| [left+(i*offset).to_i,data[i].round(2)]}
-    render :text =>"{\"success\":true,\"data\":#{data.inspect}}"
+    data.fill{|i| [left+(i*offset).to_i,data[i]]}
+    render :text =>"{\"success\":true,\"data\":{\"ratio\":#{data.inspect},\"mad\":#{mad},\"median\":#{median}}}"
   end
 end

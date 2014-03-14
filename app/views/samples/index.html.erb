@@ -25,15 +25,14 @@
 	<%= link_to "(details)", details_rna_seqs_path, :style => "font-size:80%" %>
 </p>
 
-<!-- <h3><%#= image_tag('synthetic.gif') %><%#= link_to "Synthetic", synthetics_path %></h3><hr><br/>
-<p>
-  Synthetic samples are created by the system users. They represent composite samples using operands to generate averages and ratios. Synthetic samples can currently be created by compositing several ChipChip or ChipSeq samples together. Synthetic samples are rendered with a histogram display.  
-  <%#= link_to "(details)", details_synthetics_path, :style => "font-size:80%" %>
-</p> -->
-
 <h3><%= image_tag('variant.gif') %><%= link_to "Variants", variants_path %> <span style="font-size:75%;font-weight:normal"><%= Variant.accessible_by(current_ability).count %></span></h3><hr><br/>
 <p>
 	Variant samples rely on other sequencing techniques and computational analysis to identify variation within a genomic sequence. Variant samples are uploaded using datafiles containing the called variants (SNP, Insertion, Deletion...) Variants are rendered as colored features in the given positions.
 	<%= link_to "(details)", details_variants_path, :style => "font-size:80%" %>
 </p>
 
+<h3><%= image_tag('synthetic.gif') %><%= link_to "Ratio", synthetics_path %> <span style="font-size:75%;font-weight:normal"><%= Synthetic.accessible_by(current_ability).count %></span></h3><hr><br/>
+<p>
+  Ratio samples are created by the system users. They represent composite samples using operands to generate averages and ratios. Ratio samples are rendered with a colored line chart based on median absolute deviation.
+  <%= link_to "(details)", details_synthetics_path, :style => "font-size:80%" %>
+</p>

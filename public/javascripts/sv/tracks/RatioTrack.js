@@ -103,6 +103,8 @@ Ext.define("Sv.tracks.RatioTrack",{
       function paint(left, right, bases, pixels)
       {
         var subset = rData.subset2canvas(left, right, bases, pixels);
+        canvas.setMad(rData.getMad());
+        canvas.setMedian(rData.getMedian());
         canvas.setData(subset);
         canvas.paint();
       };

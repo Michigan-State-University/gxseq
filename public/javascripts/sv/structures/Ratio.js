@@ -1,9 +1,19 @@
 var RatioData = function()
 {
 	var dataSet = [];
+	var madScore = 1;
+	var median= 1;
 	this.clear = function()
 	{
 	  dataSet = [];
+	};
+	
+	this.getMad = function(){
+	  return madScore;
+	};
+	
+	this.getMedian = function(){
+	  return median;
 	};
 	
 	this.prune = function(x1,x2)
@@ -14,10 +24,13 @@ var RatioData = function()
 	this.parse = function(data)
 	{
 		if (!data) return;
-		var length = data.length;
+		var counts = data.ratio
+		var length = counts.length;
+		madScore = data.mad;
+		median = data.median;
     for (var i = 0; i < length; i++) {
-      var x = (data[i][0]|0);
-      var y = parseFloat(data[i][1]);
+      var x = (counts[i][0]|0);
+      var y = parseFloat(counts[i][1]);
       dataSet[x] = {x:x,y:y}
     };
 	};

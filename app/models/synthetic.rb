@@ -42,21 +42,25 @@ class Synthetic < Sample
   
   def create_tracks
     create_ratio_track(:assembly => assembly) unless ratio_track
-    #create_histogram_track(:assembly => assembly) unless histogram_track
   end
   
-  def summary_data(start, stop, num, chrom)
+  def summary_data(start, stop, num, chrom,opts={})
     a_results = []
     a_components.each do |a|
-      a_results << a.sample.summary_data(start, stop, num, chrom)
+      a_results << a.sample.summary_data(start, stop, num, chrom,opts)
     end
     b_results = []
     b_components.each do |b|
-      b_results << b.sample.summary_data(start, stop, num, chrom)
+      b_results << b.sample.summary_data(start, stop, num, chrom,opts)
     end
     a_merged = merge_multiple_results(a_op,a_results)
     b_merged = merge_multiple_results(b_op,b_results)
-    return merge_results(mid_op,a_merged,b_merged)
+    data = merge_results(mid_op,a_merged,b_merged)
+    # Fix Infinity
+    data.fill{|i| data[i]==Float::INFINITY ? 1 : data[i]}
+    # convert to LOG(10)
+    data.fill{|i| data[i].round(4)==0 ? 0 : Math.log(data[i].round(4))}
+    return data
   end
 
   ##Track Config
@@ -113,15 +117,10 @@ class Synthetic < Sample
     return data
   end
   
-  # calculates and returns a MAD score for 1000 items
-  # converts to LOG(10) first
-  def median_absolute_deviation(concordance_item,count=1000)
+  # calculates and returns a MAD score
+  def median_absolute_deviation(concordance_item,count=2000)
     length = concordance_item.bioentry.length
     data = summary_data(1,length,[count,length].min,concordance_item.reference_name)
-    # fix infinity
-    absMax = data.map(&:abs).reject{|x|x==Float::INFINITY}.uniq
-    absMax = absMax.max
-    data.fill{|i| data[i]==Float::INFINITY ? 1 : data[i]}
     # Get Median
     median = DescriptiveStatistics::Stats.new(data).median
     # Get absolute deviation
@@ -131,6 +130,14 @@ class Synthetic < Sample
     # multiply by constant factor == .75 quantile of assumed distribution
     # .75 quantile of normal distribution == 1.4826
     1.4826 * abs_dev_median
+  end
+  
+  # returns the median
+  def median(concordance_item,count=2000)
+    length = concordance_item.bioentry.length
+    data = summary_data(1,length,[count,length].min,concordance_item.reference_name)
+    # Get Median
+    median = DescriptiveStatistics::Stats.new(data).median
   end
   
   def standard_deviation(concordance_item,count=1000)
