@@ -14,12 +14,14 @@ class Expression < Thor
   # --concordance/-d => concordance file, supply tab separated id mapping file with 'locus_tag  file_id'
   # --test/-t => test only, run the loader and check ids but do not commit any inserts
   desc 'load FILE',"Load feature counts into the database"
-  method_options %w(sample -e) => :required, :existing => 'raise', 
+  method_options :existing => 'raise', 
     %w(id_column -i) => 1, %w(count_column -c) => 2, %w(unique_column -q) => 3, %w(normalized_column -n) => 4, %w(header -h) => false, 
     %w(test -t) => false, %w(skip_not_found -s) => false, %w(concordance -d) => nil, :no_index => false
   method_option :feature_type, :aliases => '-f', :required => true, :desc => 'Supply the feature type. "Mrna" for a transcriptome.'
   method_option :use_search_index, :aliases => '-u', :default => false
   method_option :assembly_id, :aliases => '-a', :type => :numeric, :required => true, :desc => 'Supply the ID for sequence taxonomy. Use thor taxonomy:list to lookup'
+  method_option :sample, :desc => 'Supply exact sample name for lookup'
+  method_option :sample_def, :desc => 'Supply text to find sample by description. Ignored if --sample/-e provided'
   def load(input_file)
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     require 'progress_bar'
@@ -53,7 +55,7 @@ class Expression < Thor
       sample = nil
     end
     unless sample
-      puts "sample '#{options[:sample]}' not found"
+      puts "sample '#{options[:sample]||options[:sample_def]}' not found"
       exit 0
     end
     # verify type if provided
