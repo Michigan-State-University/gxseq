@@ -111,8 +111,10 @@ class Expression < Thor
         puts "truncating existing feature counts for sample #{sample.name}"
         FeatureCount.where(:sample_id => sample.id).delete_all
       when 'raise'
-        puts "Sample already has #{counts} #{options[:feature]}s with expression. You need to supply an :existing option of 'truncate','append' or 'override' to continue"
+        puts "Sample already has #{counts} #{options[:feature_type]}s with expression. You need to supply an :existing option of 'truncate' or 'append' to continue"
         exit 0
+      when 'append'
+        #do nothing
       else
         puts "Invalid :existing option found"
         exit 0
