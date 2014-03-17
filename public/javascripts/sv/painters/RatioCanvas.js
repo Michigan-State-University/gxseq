@@ -50,16 +50,17 @@ Ext.define('Sv.painters.RatioCanvas',{
     		//Start Path
         var halfH= height/2
         pi2 = 2*Math.PI;
+        
         brush.beginPath();
-        brush.strokeStyle='grey'
-        linedash = brush.getLineDash();
-        brush.setLineDash([3,2]);
+        brush.strokeStyle='grey';
+        //linedash = brush.getLineDash();
+        //brush.setLineDash([3,2]);
         brush.moveTo(1,halfH)
         brush.lineTo(width-1,halfH)
         brush.stroke();
         
         //Draw y axis grid
-        brush.setLineDash([1,3]);
+        //brush.setLineDash([1,3]);
         var scaler = .75
         var fullHalf = absMax/scaler
         brush.beginPath();
@@ -75,53 +76,21 @@ Ext.define('Sv.painters.RatioCanvas',{
           brush.fillText(val,5,halfH-step+2)
         }
         brush.stroke();
-        
-        //draw breakpoints
-        brush.setLineDash([2,3]);
-        
-        //draw cutoff
-        var mad2 = halfH-Math.round( (((2*madScore)+median)/absMax) * halfH * scaler);
-        var mad = halfH-Math.round( ((madScore+median)/absMax) * halfH * scaler);
-        var nmad = halfH-Math.round( ((median-madScore)/absMax) * halfH * scaler);
-        var nmad2 = halfH-Math.round( ((median-(2*madScore))/absMax) * halfH * scaler);
-        
-        // brush.beginPath();
-        // brush.moveTo(1,mad2);
-        // brush.lineTo(width,mad2);
-        // brush.strokeStyle='#30CC24';
-        // brush.stroke();
-        // 
-        // brush.beginPath();
-        // brush.moveTo(1,mad);
-        // brush.lineTo(width,mad);
-        // brush.strokeStyle='#B2B246';
-        // brush.stroke();
-        // 
-        // brush.beginPath();
-        // brush.moveTo(1,nmad);
-        // brush.lineTo(width,nmad);
-        // brush.strokeStyle='#8A2BE2';
-        // brush.stroke();
-        // 
-        // brush.beginPath();
-        // brush.moveTo(1,nmad2);
-        // brush.lineTo(width,nmad2);
-        // brush.strokeStyle='red';
-        // brush.stroke();
-
-        brush.setLineDash(linedash);
+        //brush.setLineDash(linedash);
         brush.closePath();
         
         //Draw datapoint line
         brush.lineWidth=2;
         var prevColor = self.getColor(data[0].y)
-        var prevPoint = [0,halfH-Math.round((data[0].y/absMax) * halfH * scaler)]
+        var prevPoint = [1,halfH-Math.round((data[0].y/absMax) * halfH * scaler)]
         Ext.each(data, function(datum)
         {
           // Setup
           var thisColor = self.getColor(datum.y)
           var h = Math.round( (datum.y/absMax) * halfH * scaler);
           var x = datum.x;
+          //Bug Catch for safari coloring full background;
+          if(x==prevPoint[0]){x=prevPoint[0]+1}
           var thisPoint = [x,halfH-h]
           
           var gradient=brush.createLinearGradient(prevPoint[0],prevPoint[1],thisPoint[0],thisPoint[1]);
@@ -130,6 +99,7 @@ Ext.define('Sv.painters.RatioCanvas',{
           
           // render
           brush.beginPath();
+          
           brush.moveTo(prevPoint[0],prevPoint[1]);
           brush.lineTo(thisPoint[0],thisPoint[1]);
           brush.strokeStyle=gradient;

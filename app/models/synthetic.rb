@@ -121,7 +121,6 @@ class Synthetic < Sample
   def median_absolute_deviation(concordance_item,count=2000)
     length = concordance_item.bioentry.length
     data = summary_data(1,length,[count,length].min,concordance_item.reference_name)
-    logger.info "\n\n#{data}\n\n"
     # Get Median
     median = DescriptiveStatistics::Stats.new(data).median
     # Get absolute deviation
