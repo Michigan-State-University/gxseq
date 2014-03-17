@@ -103,7 +103,7 @@ class Expression < Thor
       items << dataset
     end
     # check existing counts
-    if (counts = sample.feature_counts.includes(:seqfeature).where{seqfeature.display_name==my{options[:feature]}}.count) == 0
+    if (counts = sample.feature_counts.includes(:seqfeature).where{seqfeature.type_term_id==my{type_term_id}}.count) == 0
       puts "Sample looks good"
     else
       case options[:existing]
