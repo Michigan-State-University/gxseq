@@ -37,11 +37,7 @@ for each third party package contained within the Genome Suite source code.
 Sencha Ext-JS
 -------------
 
-The ExtJS source is subject to the terms of the GPL v3.
-
-The Genome Suite code linking to ExtJS is covered under the MIT-License through the
-Exception for Applications granted by Sencha Inc. for end-user applications.
-http://www.sencha.com/legal/open-source-faq/open-source-license-exception-for-applications/
+ExtJS is licensed under the terms of the Open Source GPL 3.0 license.
 
 
 ------
