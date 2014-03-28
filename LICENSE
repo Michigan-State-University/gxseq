@@ -25,9 +25,6 @@ http://bundler.io/
 http://rubygems.org/
 
 See 'Gemfile' for a list of required rubygems.
-License files for these packages are available during installation. All gem package licensing has
-been found compatible with the Genome Suite MIT License.
-
 
 Additional third party source distributed with this application is documented below with a license
 for each third party package contained within the Genome Suite source code.
