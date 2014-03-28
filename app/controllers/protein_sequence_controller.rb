@@ -23,8 +23,8 @@ class ProteinSequenceController < ApplicationController
                     :logo => ""
                  },
                  :engineer => {
-                    :name => "Nick Thrower",
-                    :email => "throwern@msu.edu"
+                    :name => "#{APP_CONFIG[:admin_eamil]}",
+                    :email => "#{APP_CONFIG[:admin_eamil]}"
                  },
                  :service => {
                     :title => "Genome Sequence",

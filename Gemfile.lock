@@ -268,7 +268,7 @@ GEM
       ruby2ruby (~> 2.0.2)
       ruby_parser (~> 3.1.1)
       sexp_processor
-    rsolr (1.0.9)
+    rsolr (1.0.10)
       builder (>= 2.1.2)
     rspec (2.13.0)
     rspec-core (2.13.1)
@@ -314,14 +314,6 @@ GEM
       activerecord (~> 3.0)
       activesupport (~> 3.0)
       polyamorous (~> 0.5.0)
-    sunspot (2.1.0)
-      pr_geohash (~> 1.0)
-      rsolr (~> 1.0.7)
-    sunspot_rails (2.1.0)
-      nokogiri
-      rails (>= 3)
-      sunspot (= 2.1.0)
-    sunspot_solr (2.1.0)
     temple (0.6.5)
     terminal-table (1.4.5)
     thor (0.14.6)
@@ -392,9 +384,9 @@ DEPENDENCIES
   shoulda
   simplecov
   squeel (~> 0.9)
-  sunspot
-  sunspot_rails
-  sunspot_solr
+  sunspot!
+  sunspot_rails!
+  sunspot_solr!
   thor (~> 0.14.6)
   will_paginate (~> 3)
   xmlparser

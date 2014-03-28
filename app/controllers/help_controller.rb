@@ -3,7 +3,11 @@ class HelpController < ApplicationController
   def about
   end
   
-  def contact
+  def tutorial
+  end
+  
+  def manual
+    send_file "doc/GS_manual.pdf", :type => 'application/pdf'
   end
   
   def faq
