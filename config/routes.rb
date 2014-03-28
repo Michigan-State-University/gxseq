@@ -8,7 +8,7 @@ GenomeSuite::Application.routes.draw do
   match '/faq' => 'help#faq', :as  => :faq
   match '/about' => 'help#about', :as  => :about
   match '/help' => 'help#index', :as  => :help
-  match '/contact' => 'help#contact', :as  => :contact
+  match '/tutorial' => 'help#tutorial', :as  => :tutorial
   match 'sitemap' => 'help#sitemap', :as => :sitemap
   match 'intro' => 'help#index', :as => :intro
 
