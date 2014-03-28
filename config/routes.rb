@@ -11,7 +11,6 @@ GenomeSuite::Application.routes.draw do
   match '/tutorial' => 'help#tutorial', :as  => :tutorial
   match 'sitemap' => 'help#sitemap', :as => :sitemap
   match 'intro' => 'help#index', :as => :intro
-  match 'manual' => 'help#manual', :as => :manual
 
   ## biosql - both namespaced and simple urls direct to namespaced controllers
   ##
