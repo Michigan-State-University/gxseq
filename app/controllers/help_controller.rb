@@ -6,10 +6,6 @@ class HelpController < ApplicationController
   def tutorial
   end
   
-  def manual
-    send_file "doc/GS_manual.pdf", :type => 'application/pdf'
-  end
-  
   def faq
   end
   
