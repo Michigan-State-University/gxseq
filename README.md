@@ -19,9 +19,6 @@ The Genome Suite is a web based application written within the [Ruby on Rails](h
 * Admin role and management interface
 
 
-For more information please browse the [[Wiki documentation|Home]]
-
-
 ## License
 
 Copyright © 2014 Michigan State University Board of Trustees
