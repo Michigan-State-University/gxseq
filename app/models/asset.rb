@@ -19,7 +19,7 @@ class Asset < ActiveRecord::Base
   belongs_to :sample
   validates_presence_of :sample
   validates_presence_of :type
-  validates_inclusion_of :type, :in => %w(Bam Bcf BigWig Vcf Wig Tabix VcfTabix Txt), :on => :create, :message => "not available"
+  validates_inclusion_of :type, :in => %w(Bam Bcf BigWig ForwardBigWig ReverseBigWig Vcf Wig Tabix VcfTabix Txt), :on => :create, :message => "not available"
   
   has_attached_file :data, :path => ":rails_root/lib/data/samples/:sample_class/:sample_id/:id/:filename_with_ext" 
   validates_attachment_presence :data
