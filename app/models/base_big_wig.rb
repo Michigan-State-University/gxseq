@@ -14,7 +14,7 @@
 #  updated_at        :datetime
 #
 
-class BigWig < Asset
+class BaseBigWig < Asset
   def open_bw
     begin
       @err = nil

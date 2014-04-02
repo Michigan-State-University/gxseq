@@ -33,7 +33,7 @@ class RnaSeq < Sample
   smoothable
   
   def asset_types
-    {"Bam" => "Bam","BigWig" => "BigWig"}
+    {"Bam" => "Bam","BigWig" => "BigWig","Forward BigWig" => "ForwardBigWig","Reverse BigWig" => "ReverseBigWig"}
   end
   # overrides load to include big_wig generation
   def load_asset_data
