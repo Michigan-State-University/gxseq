@@ -1,0 +1,2 @@
+class BigWig < BaseBigWig
+end
