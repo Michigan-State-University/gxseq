@@ -127,7 +127,42 @@ class Sample < ActiveRecord::Base
     return chr
   end
 
-
+  # calculates and returns a MAD score
+  def median_absolute_deviation(concordance_item,count=2000)
+    length = concordance_item.bioentry.length
+    data = summary_data(1,length,[count,length].min,concordance_item.reference_name)
+    # Get Median
+    median = DescriptiveStatistics::Stats.new(data).median
+    # Get absolute deviation
+    abs_dev = data.map{|d| (d-median).abs}
+    # get the absolute deviation median
+    abs_dev_median = DescriptiveStatistics::Stats.new(abs_dev).median
+    # multiply by constant factor == .75 quantile of assumed distribution
+    # .75 quantile of normal distribution == 1.4826
+    1.4826 * abs_dev_median
+  end
+  
+  # returns the median
+  def median(concordance_item,count=2000)
+    length = concordance_item.bioentry.length
+    data = summary_data(1,length,[count,length].min,concordance_item.reference_name)
+    median = DescriptiveStatistics::Stats.new(data).median
+  end
+  
+  # returns the stddev
+  def stddev(concordance_item,count=2000)
+    length = concordance_item.bioentry.length
+    data = summary_data(1,length,[count,length].min,concordance_item.reference_name)
+    DescriptiveStatistics::Stats.new(data).standard_deviation
+  end
+  
+  # returns the mean
+  def mean(concordance_item,count=2000)
+    length = concordance_item.bioentry.length
+    data = summary_data(1,length,[count,length].min,concordance_item.reference_name)
+    DescriptiveStatistics::Stats.new(data).mean
+  end
+  
   # before validating set the reverse association for assets. Otherwise nested validation fails
   # TODO: test new rails 3 reverse association for nested attributes
   def initialize_assets
