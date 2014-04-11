@@ -7,16 +7,13 @@ class Track::RatioController < Track::BaseController
   end
   
   def range
-    #c_item = @sample.concordance_items.with_bioentry(@bioentry.id)[0]
     density=(params[:density]||1000).to_i
     left=params[:left].to_i
     right=params[:right].to_i
     offset = (right-left)/density.to_f
     # get stats
-    #mad = @sample.median_absolute_deviation(@bioentry)
-    #median = @sample.median(@bioentry)
-    mad = @sample.stddev(@bioentry)
-    median = @sample.mean(@bioentry)
+    mad = @sample.median_absolute_deviation(@bioentry)
+    median = @sample.median(@bioentry)
     # get data
     data = @sample.summary_data(left,right,density,@bioentry)
     # fill with x range

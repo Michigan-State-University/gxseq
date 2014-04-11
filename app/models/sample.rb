@@ -29,7 +29,7 @@ class Sample < ActiveRecord::Base
   belongs_to :assembly
   belongs_to :group
   belongs_to :concordance_set
-  has_many :bioentries, :through => :concordance_items
+  delegate :bioentries, :to => :assembly
   has_many :assets, :dependent => :destroy
   has_many :components
   has_many :tracks
@@ -74,7 +74,7 @@ class Sample < ActiveRecord::Base
     {'Text' => 'Text'}
   end
   # returns data for the given range and sequence name
-  def summary_data(start,stop,num,chrom)
+  def summary_data(start,stop,num,bioentry)
   end
   # Builds new tracks to represent asset data
   # TODO - update variants track so we can have 1 per sample and remove tracks entirely. Exp and Assembly instead of tracks
@@ -128,9 +128,9 @@ class Sample < ActiveRecord::Base
   end
 
   # calculates and returns a MAD score
-  def median_absolute_deviation(concordance_item,count=2000)
-    length = concordance_item.bioentry.length
-    data = summary_data(1,length,[count,length].min,concordance_item.reference_name)
+  def median_absolute_deviation(bioentry,count=2000)
+    length = bioentry.length
+    data = summary_data(1,length,[count,length].min,bioentry)
     # Get Median
     median = DescriptiveStatistics::Stats.new(data).median
     # Get absolute deviation
@@ -143,23 +143,23 @@ class Sample < ActiveRecord::Base
   end
   
   # returns the median
-  def median(concordance_item,count=2000)
-    length = concordance_item.bioentry.length
-    data = summary_data(1,length,[count,length].min,concordance_item.reference_name)
+  def median(bioentry,count=2000)
+    length = bioentry.length
+    data = summary_data(1,length,[count,length].min,bioentry)
     median = DescriptiveStatistics::Stats.new(data).median
   end
   
   # returns the stddev
-  def stddev(concordance_item,count=2000)
-    length = concordance_item.bioentry.length
-    data = summary_data(1,length,[count,length].min,concordance_item.reference_name)
+  def stddev(bioentry,count=2000)
+    length = bioentry.length
+    data = summary_data(1,length,[count,length].min,bioentry)
     DescriptiveStatistics::Stats.new(data).standard_deviation
   end
   
   # returns the mean
-  def mean(concordance_item,count=2000)
-    length = concordance_item.bioentry.length
-    data = summary_data(1,length,[count,length].min,concordance_item.reference_name)
+  def mean(bioentry,count=2000)
+    length = bioentry.length
+    data = summary_data(1,length,[count,length].min,bioentry)
     DescriptiveStatistics::Stats.new(data).mean
   end
   

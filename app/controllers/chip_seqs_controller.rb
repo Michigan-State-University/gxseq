@@ -47,7 +47,7 @@ class ChipSeqsController < ApplicationController
   end
 
   def show
-    @bioentry = Biosql::Bioentry.find(params[:bioentry_id] || @chip_seq.assembly.bioentries.first.id) rescue nil
+    @bioentry = Biosql::Bioentry.find(params[:bioentry_id] || @chip_seq.bioentries.first.id) rescue nil
     respond_to do |format|
       format.html {}
       format.xml { render :layout => false }

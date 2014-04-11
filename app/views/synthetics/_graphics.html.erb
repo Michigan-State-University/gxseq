@@ -39,17 +39,14 @@
     <%= render :partial => 'biosql/bioentries/form_select', :locals => {:reload_path => url_for(@synthetic), :bioentry => @bioentry} %>
     View this in the <%= link_to "Sequence Viewer", bioentry_path(@bioentry, :tracks => @synthetic.tracks.map(&:id)) %>
   <% else %>
-    <span style="color:darkred">! No Bioentries found for assembly: <%= @rna_seq.assembly.name_with_version %></span><br/>
+    <span style="color:darkred">! No Bioentries found for assembly: <%= @synthetic.assembly.name_with_version %></span><br/>
   <% end %>
 </p>
 <br/>
 
 <div id="graph" width="50%" style="height:300px;padding-top:1em"></div>
-<b>Median:</b><%= @synthetic.median(@bioentry) %><br/>
-<b>MAD:</b><%= @synthetic.median_absolute_deviation(@bioentry) %><br/>
-<br/>
-<b>Mean:</b><%= @synthetic.mean(@bioentry).round(4) %><br/>
-<b>STDDEV:</b><%= @synthetic.stddev(@bioentry).round(4) %><br/>
+<b>Median: </b><%= @synthetic.median(@bioentry).round(4) %><br/>
+<b>MAD: </b><%= @synthetic.median_absolute_deviation(@bioentry).round(4) %><br/>
 <br/>
 <p>
 	<b>Operations:</b><br/>
@@ -70,5 +67,5 @@
       .style("opacity",1)
     }
   });
-  chart.render( <%= @synthetic.json_summary( :bioentry => @bioentry, :density => params[:density].to_i ).html_safe %> )
+  chart.render( <%= @synthetic.json_summary( :bioentry => @bioentry, :density => (params[:density]||500).to_i ).html_safe %> )
 </script>

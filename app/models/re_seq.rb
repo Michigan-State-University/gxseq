@@ -50,8 +50,8 @@ class ReSeq < Sample
     create_reads_track(:assembly => assembly) unless reads_track
   end
   
-  def summary_data(start,stop,num,chrom)
-    (self.big_wig ? big_wig.summary_data(start,stop,num,chrom).map(&:to_f) : [])
+  def summary_data(start,stop,num,bioentry)
+    (self.big_wig ? big_wig.summary_data(start,stop,num,sequence_name(bioentry)).map(&:to_f) : [])
     
   end
   

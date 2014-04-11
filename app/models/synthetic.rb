@@ -47,18 +47,15 @@ class Synthetic < Sample
   def summary_data(start, stop, num, bioentry)
     a_results = []
     a_components.each do |a|
-      a_conc = a.sample.concordance_items.with_bioentry(bioentry)[0]
-      a_results << a.sample.summary_data(start, stop, num, a_conc.reference_name)
+      a_results << a.sample.summary_data(start, stop, num, bioentry)
     end
     b_results = []
     b_components.each do |b|
-      b_conc = b.sample.concordance_items.with_bioentry(bioentry)[0]
-      b_results << b.sample.summary_data(start, stop, num, b_conc.reference_name)
+      b_results << b.sample.summary_data(start, stop, num, bioentry)
     end
     a_merged = merge_multiple_results(a_op,a_results)
     b_merged = merge_multiple_results(b_op,b_results)
     data = merge_results(mid_op,a_merged,b_merged)
-
     return data
   end
 
@@ -73,7 +70,11 @@ class Synthetic < Sample
     case op
     when "/"
       a_results.each_with_index do |a,idx|
-          data << a/b_results[idx]
+        if a.round(10)==0.0 or b_results[idx].round(10)==0.0
+          data << 0
+        else
+          data << Math.log(a/b_results[idx]).round(4)
+        end
       end
     when "-"
       a_results.each_with_index do |a,idx|
@@ -115,50 +116,10 @@ class Synthetic < Sample
     return data
   end
   
-  # Override to use bioentry instead of concordance name
-  # calculates and returns a MAD score
-  def median_absolute_deviation(bioentry,count=2000)
-    length = bioentry.length
-    data = summary_data(1,length,[count,length].min,bioentry)
-    #logger.info "\n\ndata:#{data}\n\n"
-    # Get Median
-    median = DescriptiveStatistics::Stats.new(data).median
-    # Get absolute deviation
-    abs_dev = data.map{|d| (d-median).abs}
-    #logger.info "\n\nABSDEV:\n#{abs_dev.inspect}\n\n"
-    # get the absolute deviation median
-    abs_dev_median = DescriptiveStatistics::Stats.new(abs_dev).median
-    # multiply by constant factor == .75 quantile of assumed distribution
-    # .75 quantile of normal distribution == 1.4826
-    1.4826 * abs_dev_median
-  end
-  
-  # returns the median
-  def median(bioentry,count=2000)
-    length = bioentry.length
-    data = summary_data(1,length,[count,length].min,bioentry)
-    median = DescriptiveStatistics::Stats.new(data).median
-  end
-  
-  # returns the stddev
-  def stddev(bioentry,count=2000)
-    length = bioentry.length
-    data = summary_data(1,length,[count,length].min,bioentry)
-    DescriptiveStatistics::Stats.new(data).standard_deviation
-  end
-  
-  # returns the mean
-  def mean(bioentry,count=2000)
-    length = bioentry.length
-    data = summary_data(1,length,[count,length].min,bioentry)
-    DescriptiveStatistics::Stats.new(data).mean
-  end
-  
   def json_summary(opts={})
-    bioentry = opts[:bioentry]||bioentries.first
-    return unless bioentry
+    bioentry = opts[:bioentry]
+    return [].to_json unless bioentry
     count = opts[:density]||1000
-    #name = concordance_items.with_bioentry(bioentry.id)[0].try(:reference_name)
     gap = bioentry.length/count.to_f
     data = [{
       :id  => bioentry.id,

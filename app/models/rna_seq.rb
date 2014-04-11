@@ -78,7 +78,7 @@ class RnaSeq < Sample
     bam.find_read(read_id, chrom, pos)
   end
   # returns histogram data see big_wig#summary_data for details
-  def summary_data(start,stop,num,chrom,opts={})
+  def summary_data(start,stop,num,bioentry,opts={})
     # switch signs if strand is flipped
     if flip_strand=='true' && opts[:strand]=='+'
       opts[:strand]='-'
@@ -87,11 +87,11 @@ class RnaSeq < Sample
     end
     # grab data from the requested bigWig
     if opts[:strand]=='+'
-      return (forward_big_wig ? forward_big_wig.summary_data(start,stop,num,chrom).map(&:to_f) : [])
+      return (forward_big_wig ? forward_big_wig.summary_data(start,stop,num,sequence_name(bioentry)).map(&:to_f) : [])
     elsif opts[:strand]=='-'
-      return (reverse_big_wig ? reverse_big_wig.summary_data(start,stop,num,chrom).map(&:to_f) : [])
+      return (reverse_big_wig ? reverse_big_wig.summary_data(start,stop,num,sequence_name(bioentry)).map(&:to_f) : [])
     else
-      return (self.big_wig ? big_wig.summary_data(start,stop,num,chrom).map(&:to_f) : [])
+      return (self.big_wig ? big_wig.summary_data(start,stop,num,sequence_name(bioentry)).map(&:to_f) : [])
     end
   end
   # returns reads in chromosome range see bam#get_reads

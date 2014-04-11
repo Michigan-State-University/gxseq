@@ -82,7 +82,7 @@ d3.linechart = function(config){
   //display the data
   var display = function(error, rawData) {
     var g, index, maxX, requests;
-    data = rawData
+    data = rawData;
     var highlight_id = rawData.highlight
     // Get the maximum of the nested values
     maxY = d3.max(data.map(function(item) {

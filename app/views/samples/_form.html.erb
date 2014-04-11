@@ -2,11 +2,24 @@
   <% #TODO: convert sample form to semantic form %>
   <div class="form_item">
     <h3>Metadata</h3>
-    Choose a unique name for your sample. Try to keep it concise.<br/>
-    <%= f.text_field :name, :size => 65%>
-    <br/><br/>
-    Which group will be able to view this data.<br/>
-    <%= f.collection_select :group_id, Group.accessible_by(current_ability), :id, :name %><br/>
+    <% if current_user.is_admin? && ! sample.new_record? %>
+      <b>Owner:</b><%= f.collection_select :user_id, User.all, :id, :login %>
+      <br/><br/>
+    <% elsif ! sample.new_record? %>
+      <b>Owner:</b> <%= sample.user.login %>
+    <% end %>
+    <% if current_user==sample.user || sample.new_record? %>
+      Choose a unique name for your sample. Try to keep it concise.<br/>
+      <%= f.text_field :name, :size => 65%>
+      <br/><br/>
+      Which group will be able to view this data.<br/>
+      <%= f.collection_select :group_id, Group.accessible_by(current_ability), :id, :name %><br/>
+    <% else %>
+      <b>Name:</b> <%= sample.name %>
+      <br/><br/>
+      <b>Group:</b> <%= sample.group.try(:name) %>
+      <br/>
+    <% end %>
     <br/>
     Enter any descriptive information you would like to remember.<br/>
     <%= f.text_area :description, :rows => "7" %><br/>
@@ -52,20 +65,21 @@
 
   <div class="form_item">
       <h3 style="float:left;width:8em">Asset File(s)</h3>
-      <%= link_to_add_fields image_tag("add.gif", :title => "Add another File", :style => "float:left"),
-        f, 
-        :assets,
-        {:render => "below",:partial => "samples/asset_fields", :locals => {:asset_types => sample.asset_types} }
-      %>
-      <%= f.fields_for :assets do |asset| %>
-        <%= 
-          #begin
-            # There are no sample specific asset fields
-            #render :partial => "asset_fields", :locals => {:f => asset}
-          #rescue 
-            render :partial => "samples/asset_fields", :locals => {:asset_types => sample.asset_types,:f => asset}
-          #end
+      <% if current_user==sample.user || sample.new_record? %>
+        <%= link_to_add_fields image_tag("add.gif", :title => "Add another File", :style => "float:left"),
+          f, 
+          :assets,
+          {:render => "below",:partial => "samples/asset_fields", :locals => {:asset_types => sample.asset_types} }
         %>
+        <%= f.fields_for :assets do |asset| %>
+          <%= render :partial => "samples/asset_fields", :locals => {:asset_types => sample.asset_types,:f => asset} %>
+        <% end %>
+      <% else %>
+      <br style='clear:both'/>
+        <% sample.assets.order(:type).each do |asset| %>
+          <b><%= asset.type %>:</b> <%= link_to asset.filename,asset_path(asset) %>
+          <br/>
+        <% end %>
       <% end %>
   </div>
 

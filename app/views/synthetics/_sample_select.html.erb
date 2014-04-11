@@ -1,13 +1,3 @@
-
-<div class="form_item">
-  <div style="float:left">
-    Concordance Set<br/>
-    <%= render :partial => "assemblies/concordance_set_selection", 
-      :locals => {:sample_type => synthetic.class.name.underscore,:concordance_sets => concordance_sets} 
-      %>
-  </div>
-</div>
-
 <div style="clear:both;float:left;margin:2em">
   <p>
     <b>Select one or more samples to combine.</b>
@@ -29,8 +19,8 @@
 </div>
 
 <div style="float:left;margin:2em">
-  <%#= label :synthetic, :mid_op, "Operation" %><br/>
-  <%#= select :synthetic, :mid_op, {"Ratio" => "/", "Difference" => "-"} %>
+  <%= label :synthetic, :mid_op, "Operation" %><br/>
+  <%= select :synthetic, :mid_op, {"Ratio" => "/", "Difference" => "-"} %>
   <%= hidden_field :synthetic, :mid_op, :value => '/' %>
 </div>
 
