@@ -22,10 +22,15 @@ class ReadsTrack < Track
         :sample_type => sample.class.name,
         :single => sample.single,
         :storeLocal => true,
+        :hasPeaks => has_peaks,
         :style => style
       }
     )
 
+  end
+  
+  def has_peaks
+    "#{sample.respond_to?('peaks') ? (sample.peaks.size > 0) : false}"
   end
   
   def iconCls

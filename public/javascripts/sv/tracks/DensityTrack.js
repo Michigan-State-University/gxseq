@@ -193,6 +193,7 @@ Ext.define("Sv.tracks.DensityTrack",{
         self.Toolbar.insert(4,self.scaleSourceSelect);
         self.Toolbar.insert(4,Ext.create('Ext.toolbar.Separator'));
         
+        //TODO - duplicate code, needs refactor
         //Peak navigation
       	if(self.hasPeaks){
              self.peak_prev = new Ext.Button({

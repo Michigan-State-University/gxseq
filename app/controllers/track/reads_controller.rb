@@ -43,4 +43,12 @@ class Track::ReadsController < Track::BaseController
     reads_text = @sample.get_reads_text(left,right,@bioentry,{:include_seq => true, :read_limit => params[:read_limit]})
     render :text => "{\"success\":true,\"data\":{#{"\"notice\": \"#{reads_text[2]} of #{reads_text[1]} reads\","}\"reads\":["+reads_text[0]+"]}}"
   end
+  
+  def peak_genes
+    render :partial => 'peaks/gene_list.json'
+  end
+  
+  def peak_locations
+    render :text => @sample.peaks.with_bioentry(@bioentry.id).order(:pos).map{|p|{:pos => p.pos, :id => p.id}}.to_json
+  end
 end

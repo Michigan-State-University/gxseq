@@ -11,7 +11,7 @@ class ChipSeqsController < ApplicationController
   
   def compute_peaks
     render :update do |page|
-      peak_count = @chip_seq.compute_peaks
+      peak_count = @chip_seq.compute_peaks(:remove => true)
       page.replace_html 'remote_peak_action', "Found #{peak_count} peaks\nRefresh to view them."
     end
   end

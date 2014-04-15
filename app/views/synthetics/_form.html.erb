@@ -5,7 +5,7 @@
     <% if current_user.is_admin? && ! sample.new_record? %>
       <b>Owner:</b><%= f.collection_select :user_id, User.all, :id, :login %>
       <br/><br/>
-    <% elsif ! sample.new_record %>
+    <% elsif ! sample.new_record? %>
       <b>Owner:</b> <%= sample.user.login %>
     <% end %>
     <% if current_user==sample.user || sample.new_record? %>

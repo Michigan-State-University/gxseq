@@ -99,6 +99,8 @@ GenomeSuite::Application.routes.draw do
         get "syndicate"
         get "range"
         get "reads"
+        get "peak_genes"
+        get "peak_locations"
       end
     end
     resources :variants, :only => [:show] do

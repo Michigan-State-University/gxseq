@@ -19,6 +19,7 @@ Ext.define("Sv.tracks.ReadsTrack",{
   scale : 1,
   style : 'area',
   method : 'range',
+  hasPeaks: false,
   initComponent : function(){
     this.callParent(arguments);
     var self = this;
@@ -26,6 +27,7 @@ Ext.define("Sv.tracks.ReadsTrack",{
       'viewMaxChanged' : true,
       'trackMaxChanged': true
     });
+    this.peaks=[];
     this.viewMax=1;
     this.allViewMax=2;
     //Set Default to viewMax
@@ -286,6 +288,124 @@ Ext.define("Sv.tracks.ReadsTrack",{
     self.Toolbar.insert(4,readLimitSelect);
     self.Toolbar.insert(4,colorBasesCheck);
     
+    //TODO - peaks are duplicated code, needs refactor
+    //Peak navigation
+  	if(self.hasPeaks==true){
+         self.peak_prev = new Ext.Button({
+             iconCls: 'silk_blue_rewind',
+             tooltip: 'Show previous peak',
+             hidden: !self.Toolbar.isVisible(),
+             handler : function(){
+                 self.cur_peak -=1;
+                 var loc = AnnoJ.getLocation();
+                 loc.position = self.peaks[self.cur_peak].pos;
+                 AnnoJ.setLocation(loc);
+                 self.fireEvent('browse', loc);
+             }
+         });
+         self.peak_next = new Ext.Button ({
+             iconCls: 'silk_blue_forward',
+             tooltip: 'Show next peak',
+             hidden: !self.Toolbar.isVisible(),
+             handler : function(){
+                 var loc = AnnoJ.getLocation();              
+                 if(loc.position == self.peaks[self.cur_peak].pos)
+                 {
+                     self.cur_peak+=1;
+                 }
+                 loc.position = self.peaks[self.cur_peak].pos;
+                 AnnoJ.setLocation(loc);
+                 self.fireEvent('browse', loc);
+             }
+         });
+
+         self.toggle_table = new Ext.Button ({
+             iconCls: 'silk_table',
+             tooltip: 'Show peak list',
+             hidden: !self.Toolbar.isVisible(),
+             handler: function(){
+                 ps = Ext.data.StoreManager.lookup('peakStore'+self.id);
+                 self.win.show();
+                 if(ps.getCount()>0) return;
+                 ps.load();
+             }
+         });
+
+         peakStore = new Ext.data.Store({
+             // store configs
+             model: 'DataPeak',
+             proxy : {
+                type: 'ajax',
+                url: self.data+'peak_genes',
+                reader : {
+                    type : 'json',
+                    id : 'id'
+                },
+                extraParams:{
+                  sample : self.sample,
+                  bioentry : self.bioentry
+                },
+             },
+             storeId: 'peakStore'+self.id,
+             //autoLoad: true,                         
+             idProperty: 'id',                             
+         });
+
+         self.table = new Ext.grid.GridPanel({
+             title: 'Peak locations',
+             iconCls: 'silk_table',
+             store: peakStore,
+             //frame: true,                          
+             columns: [                                  
+                 {header: 'Position', width: 100, dataIndex: 'pos'},
+                 {header: 'Value', width: 100, dataIndex: 'val'},
+                 {header: 'Nearest Gene(s)', width: 175, dataIndex: 'link'}
+             ]
+         });
+
+         self.table.on('itemdblclick',function(view, record, htmlItem, index, eventObj, eOpts) {
+             var data = record.get('pos');
+             var loc = AnnoJ.getLocation();  
+             loc.position = data;
+             AnnoJ.setLocation(loc);
+             self.fireEvent('browse', loc);
+         })
+
+         self.win = new Ext.Window({
+             x: 150,
+             y: 150,
+             width: 380,
+             height: 450,
+             layout:'fit',
+             border:false,
+             closable:true,
+             closeAction:"hide",
+             items:[
+                 self.table
+             ]
+         });
+         
+         self.cur_peak = 0;
+         self.Toolbar.insert(4,self.toggle_table); 
+         self.Toolbar.insert(4,self.peak_next);
+         self.Toolbar.insert(4,self.peak_prev);
+
+         //set the leftmost peak according to given position. If one is not found set it to the last.
+         self.set_cur_peak = function(pos){
+             self.cur_peak = 0
+             Ext.each(self.peaks, function(item){
+                 if(item.pos >= pos){
+                     return false;
+                 }
+                 self.cur_peak +=1
+             });
+             //Update buttons
+             self.peak_prev.enable();
+             self.peak_next.enable();
+             if (self.cur_peak == 0) {self.peak_prev.disable();}
+             if (self.cur_peak > self.peaks.length-1){self.peak_next.disable();}
+         };
+  	}
     
     //Histogram mode
     var Histogram = (function()
@@ -567,6 +687,8 @@ Ext.define("Sv.tracks.ReadsTrack",{
     };
     this.paintCanvas = function(l,r,b,p)
     {
+      //update peak position
+      if(self.set_cur_peak){this.set_cur_peak(AnnoJ.getLocation().position);}
       //Before Painting we always set the canvas absMax
       //ignored by reads
       handler.setAbsMax(self.getCurrentMax());
@@ -619,12 +741,28 @@ Ext.define("Sv.tracks.ReadsTrack",{
     };
     
   },
-  // extend open function
+	// extend open function
   open: function(){
+    var self = this;
     this.callParent();
-    this.scaleSourceSelect.setValue(this.scaleSource);
+    if(self.hasPeaks==true){
+      //Send request for Peak data
+      Ext.Ajax.request(
+      {       
+          url : self.data+'peak_locations',
+          method : 'GET',
+          params : {
+            sample : self.sample,
+            bioentry : self.bioentry
+          },
+          success  : function(response)
+          {
+              self.peaks = Ext.JSON.decode(response.responseText);
+              self.set_cur_peak(AnnoJ.getLocation().position)
+          },      
+      });
+    }
   },
-
   localStoreId: function(){
     var self = this;
     if(self.handler.method == 'reads'){
