@@ -39,6 +39,18 @@ class Assembly < ActiveRecord::Base
   accepts_nested_attributes_for :samples
   validates_associated :samples
   
+  acts_as_api
+  
+  api_accessible :listing do |t|
+    t.add :id
+    t.add :type
+    t.add :species_id
+    t.add 'species.scientific_name.name', :as => :species
+    t.add :taxon_id
+    t.add 'taxon.scientific_name.name', :as => :taxon
+    t.add :version
+  end
+  
   # Defined in subclasses
   def default_tracks
   end
