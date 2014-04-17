@@ -53,7 +53,7 @@ class Variant < Sample
   # NOTE: May want to have one variant and one reads_track for Re-Seq samples. Maybe have Sample create multiple configs..
   def create_tracks
     self.samples.each do |samp|
-      VariantTrack.find_or_create_by_assembly_id_and_sample_id_and_sample(assembly_id,self.id,samp)
+      VariantTrack.find_or_create_by_assembly_id_and_sample_id_and_genotype_sample(assembly_id,self.id,samp)
     end
   end
   # returns the samples from tabix_vcf or bcf or an empty array
