@@ -6,14 +6,12 @@ gem 'rails', '3.0.9'
 group :production do
   gem 'activerecord-oracle_enhanced-adapter'
   gem 'ruby-oci8'
-  gem 'newrelic_rpm'
 end
 # Development testing and update gems
 group :development do
   gem 'activerecord-oracle_enhanced-adapter'
   gem 'ruby-oci8'
   gem 'mysql2', '~> 0.2.0'
-  gem 'railroady'
   gem 'annotate', ">=2.5"
   gem 'better_errors'
   gem 'binding_of_caller'

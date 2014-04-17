@@ -12,10 +12,10 @@ Full Text Searching
 ----------------
 Apache Solr: http://lucene.apache.org/solr/ is the backend for text searching in the application. It is a Java application that must be running separately on the server.
 
-This application was developed using Solr 3.6.2 and Solr 3.2 or greater is required for all functionality to work. The sunspot_solr gem is installed for simple solr deployment. If you are going to use this Solr instance, it must be upgraded or, the search functions will fail. https://github.com/sunspot/sunspot/wiki/Upgrading-sunspot_solr-Solr-Instance
+This application was developed using Solr 3.6.2 and Solr 3.2 or greater is required for all functionality to work.
 
-Text search is performed with the dismax parser. Solr configuration is present in /solr/conf/
-schema.xml(l. 65-75)
+Text search is performed with the dismax parser. Solr configuration is present in:
+/solr/conf/schema.xml(l. 65-75)
 -Case insensitive indexing
 -Synonyms are stored in synonyms.txt
 -Tokens are min 1 max 15, from the front

@@ -3,7 +3,7 @@ class HelpController < ApplicationController
   def about
   end
   
-  def contact
+  def tutorial
   end
   
   def faq

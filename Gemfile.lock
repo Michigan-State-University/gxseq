@@ -200,7 +200,6 @@ GEM
     multi_json (1.7.7)
     mysql2 (0.2.18)
     net-ldap (0.2.2)
-    newrelic_rpm (3.6.3.111)
     nokogiri (1.6.0)
       mini_portile (~> 0.5.0)
     options (2.3.0)
@@ -233,7 +232,6 @@ GEM
       rack (>= 1.0.0)
     rack-test (0.5.7)
       rack (>= 1.0)
-    railroady (1.1.0)
     rails (3.0.9)
       actionmailer (= 3.0.9)
       actionpack (= 3.0.9)
@@ -270,7 +268,7 @@ GEM
       ruby2ruby (~> 2.0.2)
       ruby_parser (~> 3.1.1)
       sexp_processor
-    rsolr (1.0.9)
+    rsolr (1.0.10)
       builder (>= 2.1.2)
     rspec (2.13.0)
     rspec-core (2.13.1)
@@ -370,12 +368,10 @@ DEPENDENCIES
   json_spec
   launchy
   mysql2 (~> 0.2.0)
-  newrelic_rpm
   paper_trail (~> 2)
   paperclip (~> 3.0)
   parallel
   progress_bar (~> 1.0.0)
-  railroady
   rails (= 3.0.9)
   rails3-jquery-autocomplete
   rails_best_practices

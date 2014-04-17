@@ -1,8 +1,5 @@
 class CreateBiosqlDb < ActiveRecord::Migration 
   # --  This migration helps create a biosql-schema identical to the schema available in biosql-mysql-1.0.1.sql
-  # --
-  # --  Copyright 2009-2015 Great Lakes Bioenery Research Center
-  # --  Copyright 2009-2015 Nick Thrower
   # -- 
   # --  BioSQL is free software: you can redistribute it and/or modify it
   # --  under the terms of the GNU Lesser General Public License as

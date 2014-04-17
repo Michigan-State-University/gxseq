@@ -376,11 +376,15 @@ class Bam < Asset
     
     # puts "--Sorting output"
     #`sort -k1,1 -k2,2n '#{bed.path}' > '#{bed_sort.path}'`
-    puts "--Converting"
-    FileManager.bedgraph_to_bigwig(bed.path, bw.path, chr.path)
-    puts "#{Time.now} Done"
-    puts "----"
-    # return the new file 
+    unless File.zero? bed.path
+      puts "--Converting"
+      FileManager.bedgraph_to_bigwig(bed.path, bw.path, chr.path)
+      puts "#{Time.now} Done"
+      puts "----"
+      # return the new file 
+    else
+      puts "Error: Empty bed file"
+    end
     return File.open(data.path+".bw_tmp", "r")
   end
   
