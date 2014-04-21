@@ -23,7 +23,7 @@ class Bcf < Asset
   end
   
   def open_bcf
-    return Bio::DB::SAM::Bcf.new(data.path)
+    return Bio::DB::SAM::Bcf.new(data_path)
   end
   
   def create_index

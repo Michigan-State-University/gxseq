@@ -160,7 +160,7 @@ class Assembly < ActiveRecord::Base
         self.gc_file = GcFile.new(:data => big_wig_file)
         self.save!
         # Write out the BigWig data
-        FileManager.wig_to_bigwig(wig_file.path, self.gc_file.data.path, chrom_file.path)
+        FileManager.wig_to_bigwig(wig_file.path, self.gc_file.data_path, chrom_file.path)
       # Close the files
       ensure
         wig_file.close
