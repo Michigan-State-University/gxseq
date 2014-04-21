@@ -3,14 +3,18 @@ class ApplicationController < ActionController::Base
   #before_filter :authenticate_user!
   #around_filter :setup_delayed_job_whodunnit
   rescue_from CanCan::AccessDenied do |exception|
-    flash[:error] = "Access Denied"
-    if(current_user)
-      # Already logged in get sent to the users home page
-      redirect_to current_user
+    if request.format.json? 
+      render json: {:error => "Access Denied"}, :status => :error
     else
-      # Store the attempted url in the session so we can return after login
-      session["user_return_to"] = request.fullpath
-      redirect_to new_user_session_path
+      flash[:error] = "Access Denied"
+      if(current_user)
+        # Already logged in get sent to the users home page
+        redirect_to current_user
+      else
+        # Store the attempted url in the session so we can return after login
+        session["user_return_to"] = request.fullpath
+        redirect_to new_user_session_path
+      end      
     end
   end
   

@@ -20,16 +20,16 @@ class Vcf < Asset
   end
   
   def create_bcf
-    File.open(Bio::DB::SAM::Bcf.vcf_to_bcf(data.path),"r")
+    File.open(Bio::DB::SAM::Bcf.vcf_to_bcf(data_path),"r")
   end
   
   def create_tabix_vcf
-    Bio::Tabix::TFile.compress(data.path,data.path+".bgzf")
-    File.open(data.path+".bgzf","r")
+    Bio::Tabix::TFile.compress(data_path,data_path+".bgzf")
+    File.open(data_path+".bgzf","r")
   end
   
   def remove_temp_files
-    d = Dir.new(File.dirname(data.path))
+    d = Dir.new(File.dirname(data_path))
     d.each do |f|
       File.delete(d.path+"/"+f) if( f.match(self.filename) && f.match(/\.bcf$|\.bgzf$/) )
     end

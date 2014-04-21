@@ -32,6 +32,7 @@ ActiveRecord::Schema.define(:version => 20140421145415) do
     t.datetime "data_updated_at"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "local_path"
   end
 
   create_table "biodatabase", :primary_key => "biodatabase_id", :force => true do |t|
@@ -327,28 +328,6 @@ ActiveRecord::Schema.define(:version => 20140421145415) do
 
   add_index "hits", ["blast_iteration_id"], :name => "i_hits_blast_iteration_id"
 
-  create_table "hsps", :force => true do |t|
-    t.integer "hit_id",       :precision => 38, :scale => 0
-    t.decimal "bit_score",    :precision => 9,  :scale => 4
-    t.integer "score",        :precision => 38, :scale => 0
-    t.integer "query_from",   :precision => 38, :scale => 0
-    t.integer "query_to",     :precision => 38, :scale => 0
-    t.integer "hit_from",     :precision => 38, :scale => 0
-    t.integer "hit_to",       :precision => 38, :scale => 0
-    t.integer "query_frame",  :precision => 38, :scale => 0
-    t.integer "hit_frame",    :precision => 38, :scale => 0
-    t.integer "identity",     :precision => 38, :scale => 0
-    t.integer "positive",     :precision => 38, :scale => 0
-    t.integer "gaps",         :precision => 38, :scale => 0
-    t.integer "align_length", :precision => 38, :scale => 0
-    t.string  "evalue"
-    t.text    "query_seq"
-    t.text    "hit_seq"
-    t.text    "midline"
-  end
-
-  add_index "hsps", ["hit_id"], :name => "index_hsps_on_hit_id"
-
   create_table "location", :primary_key => "location_id", :force => true do |t|
     t.integer  "seqfeature_id", :limit => 10, :precision => 10, :scale => 0,                :null => false
     t.integer  "dbxref_id",     :limit => 10, :precision => 10, :scale => 0
@@ -444,7 +423,6 @@ ActiveRecord::Schema.define(:version => 20140421145415) do
     t.string   "a_op"
     t.string   "b_op"
     t.string   "mid_op"
-    t.string   "sequence_name"
     t.string   "state"
     t.string   "show_negative"
     t.datetime "created_at"

@@ -4,7 +4,7 @@ class AssetsController < ApplicationController
   end
   def download
     begin
-      send_file @asset.data.path
+      send_file @asset.data_path
     rescue => e
       flash[:error]="Error sending file"
       server_error e, "error"

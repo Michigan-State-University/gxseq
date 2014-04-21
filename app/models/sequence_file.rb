@@ -29,6 +29,10 @@ class SequenceFile < ActiveRecord::Base
   
   def filename
     #return the interpolated filename
-    File.basename(data.path)
+    File.basename(data_path)
+  end
+  
+  def data_path
+    data.path
   end
 end
