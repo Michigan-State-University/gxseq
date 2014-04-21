@@ -31,34 +31,16 @@ class SamplesController < ApplicationController
           if @sample.save
             format.json { render json: @sample, :status => :created, location: @sample }
           else
-            format.json { render json: @sample.errors, :status => :invalid }
+            format.json { render json: @sample.errors, :status => :unprocessable_entity }
           end
         end
       rescue => e
         server_error(e,"Sample Create Error; #{$!}")
-        render json: {:error => "#{$!}"}, :status => :error
+        render json: {:message => "#{$!}"}, :status => :internal_server_error
       end
     else
-      render json: {:error => "Invalid Request Format"}, :status => :error
+      render json: {:message => "Invalid Request Format"}, :status => :bad_request
     end
   end
   
 end
-# 
-# {
-#   'sample' : {
-#     'type': 'RnaSeq',
-#     'assembly_id': 10320,
-#     'group_id': 10100,
-#     'name': 'Sample123',
-#     'description': 'blahblahblah',
-#     'traits_attributes': [
-#       {'key': 'Trait1', 'value': 'asdf'},
-#       {'key': 'Trait2', 'value': 'asdf'},
-#     ],
-#     'assets_attributes': [
-#       {'type': 'Bam', 'local_path': '/path/to/data'},
-#       {'type': 'BigWig', 'local_path': '/path/to/data'}
-#     ]
-#   }
-# }
