@@ -1,4 +1,4 @@
-class RatioTrack < Track
+class ComboTrack < Track
   belongs_to :sample
   def get_config
     base_config.merge(
@@ -15,15 +15,15 @@ class RatioTrack < Track
   end
   
   def data_path
-    "#{root_path}/track/ratio/"
+    "#{root_path}/track/combo/"
   end
   
   def folder
-    "Ratio"
+    "Combo"
   end
   
   def track_type
-    "RatioTrack"
+    "ComboTrack"
   end
   
   def detail_text

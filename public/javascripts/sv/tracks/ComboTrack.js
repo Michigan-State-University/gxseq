@@ -1,4 +1,4 @@
-Ext.define("Sv.tracks.RatioTrack",{
+Ext.define("Sv.tracks.ComboTrack",{
   extend:"Sv.tracks.BrowserTrack",
   single   : false,
   clsAbove : 'AJ_above',
@@ -88,10 +88,10 @@ Ext.define("Sv.tracks.RatioTrack",{
     self.Toolbar.insert(4,self.scaleSourceSelect);
     
     //Histogram mode
-    var Ratio = (function()
+    var Combo = (function()
     {
-      var rData = new RatioData();
-      var canvas = new Sv.painters.RatioCanvas();
+      var rData = new ComboData();
+      var canvas = new Sv.painters.ComboCanvas();
 
       function parse(data)
       {
@@ -122,7 +122,7 @@ Ext.define("Sv.tracks.RatioTrack",{
     })();
 
     //Data handling and rendering object
-    var handler = Ratio;
+    var handler = Combo;
 
     //Zoom policies (dictate which handler to use)
     var policies = [

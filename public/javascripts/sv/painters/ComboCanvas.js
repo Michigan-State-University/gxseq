@@ -1,7 +1,7 @@
 /*
  * Class for a histogram plot
  */
-Ext.define('Sv.painters.RatioCanvas',{
+Ext.define('Sv.painters.ComboCanvas',{
     extend : 'Sv.painters.DataCanvas',
     color : 'black',
     setStyle : function(newStyle){

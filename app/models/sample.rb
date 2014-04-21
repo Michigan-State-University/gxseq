@@ -39,7 +39,7 @@ class Sample < ActiveRecord::Base
   # validates_presence_of :assets
   validates_presence_of :user
   validates_presence_of :assembly
-  validates_presence_of :concordance_set, :if => "type!='Synthetic'"
+  validates_presence_of :concordance_set, :if => "type!='Combo'"
   validates_presence_of :name
   validates_uniqueness_of :name, :scope => [:type,:assembly_id], :message => " has already been used"
   validates_length_of :name, :maximum => 35, :on => :create, :message => "must be less than 35 characters"

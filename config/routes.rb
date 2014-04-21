@@ -129,8 +129,8 @@ GenomeSuite::Application.routes.draw do
     get "sequence/range"
     get "sequence/sequence"
     
-    get "ratio/syndicate"
-    get "ratio/range"
+    get "combo/syndicate"
+    get "combo/range"
   end
   
   #match "fetchers/metadata"
@@ -178,7 +178,7 @@ GenomeSuite::Application.routes.draw do
       get 'graphics'
     end
   end
-  resources :synthetics do
+  resources :combos do
     get 'details', :on => :collection
     get 'sample_select', :on => :collection
     get 'compute_peaks', :on => :member

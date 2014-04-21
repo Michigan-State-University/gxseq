@@ -36,21 +36,21 @@
 </style>
 <p>
   <% unless @bioentry.nil? %>
-    <%= render :partial => 'biosql/bioentries/form_select', :locals => {:reload_path => url_for(@synthetic), :bioentry => @bioentry} %>
-    View this in the <%= link_to "Sequence Viewer", bioentry_path(@bioentry, :tracks => @synthetic.tracks.map(&:id)) %>
+    <%= render :partial => 'biosql/bioentries/form_select', :locals => {:reload_path => url_for(@combo), :bioentry => @bioentry} %>
+    View this in the <%= link_to "Sequence Viewer", bioentry_path(@bioentry, :tracks => @combo.tracks.map(&:id)) %>
   <% else %>
-    <span style="color:darkred">! No Bioentries found for assembly: <%= @synthetic.assembly.name_with_version %></span><br/>
+    <span style="color:darkred">! No Bioentries found for assembly: <%= @combo.assembly.name_with_version %></span><br/>
   <% end %>
 </p>
 <br/>
 
 <div id="graph" width="50%" style="height:300px;padding-top:1em"></div>
-<b>Median: </b><%= @synthetic.median(@bioentry).round(4) %><br/>
-<b>MAD: </b><%= @synthetic.median_absolute_deviation(@bioentry).round(4) %><br/>
+<b>Median: </b><%= @combo.median(@bioentry).round(4) %><br/>
+<b>MAD: </b><%= @combo.median_absolute_deviation(@bioentry).round(4) %><br/>
 <br/>
 <p>
 	<b>Operations:</b><br/>
-	<%= nested_links(@synthetic) %>
+	<%= nested_links(@combo) %>
 </p>
 
 <script type='text/javascript'>
@@ -67,5 +67,5 @@
       .style("opacity",1)
     }
   });
-  chart.render( <%= @synthetic.json_summary( :bioentry => @bioentry, :density => (params[:density]||500).to_i ).html_safe %> )
+  chart.render( <%= @combo.json_summary( :bioentry => @bioentry, :density => (params[:density]||500).to_i ).html_safe %> )
 </script>

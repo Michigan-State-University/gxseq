@@ -1,4 +1,4 @@
-<%= form_for @synthetic do |f| %>
+<%= form_for @combo do |f| %>
   <%= f.error_messages %>
   <div class="form_item">
     <h3>Metadata</h3>
@@ -47,7 +47,7 @@
       <%= f.collection_select :assembly_id, @assemblies, :id, :name_with_version,
       {:prompt => "Select an Assembly to Continue..."},
       {
-        :'data-onchange' => sample_select_synthetics_url,
+        :'data-onchange' => sample_select_combos_url,
         :'data-with' => :assembly_id,
         :'data-element' => :sample_selection
       }%>
@@ -55,18 +55,18 @@
   </div>
   
   <div id='sample_selection' style="clear:both">
-    <% if @synthetic.assembly %>
-      <%= render :partial => "synthetics/sample_select", :locals => {
-        :samples => @synthetic.assembly.samples,
-        :synthetic => @synthetic,
-        :concordance_sets => @synthetic.assembly.concordance_sets
+    <% if @combo.assembly %>
+      <%= render :partial => "combos/sample_select", :locals => {
+        :samples => @combo.assembly.samples,
+        :combo => @combo,
+        :concordance_sets => @combo.assembly.concordance_sets
       } %>
     <% end %>
   </div>
   
   <div style="clear:both">
     <br/><hr/><br/><br/>
-    <%= f.submit "#{@synthetic.persisted? ? 'Update' : 'Create'} Sample", :class => 'button' %>
+    <%= f.submit "#{@combo.persisted? ? 'Update' : 'Create'} Sample", :class => 'button' %>
   </div>
     
 <% end %>

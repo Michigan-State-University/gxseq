@@ -1,9 +1,9 @@
-class Track::RatioController < Track::BaseController
+class Track::ComboController < Track::BaseController
   before_filter :authorize_sample
   before_filter :authorize_bioentry, :except => :syndicate
   
   def syndicate
-    render :partial => "synthetics/sample_info.json", :locals => {:track => @sample.ratio_track}
+    render :partial => "combos/sample_info.json", :locals => {:track => @sample.combo_track}
   end
   
   def range
@@ -18,6 +18,6 @@ class Track::RatioController < Track::BaseController
     data = @sample.summary_data(left,right,density,@bioentry)
     # fill with x range
     data.fill{|i| [left+(i*offset).to_i,data[i]]}
-    render :text =>"{\"success\":true,\"data\":{\"ratio\":#{data.inspect},\"mad\":#{mad},\"median\":#{median}}}"
+    render :text =>"{\"success\":true,\"data\":{\"values\":#{data.inspect},\"mad\":#{mad},\"median\":#{median}}}"
   end
 end

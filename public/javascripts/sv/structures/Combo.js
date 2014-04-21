@@ -1,4 +1,4 @@
-var RatioData = function()
+var ComboData = function()
 {
 	var dataSet = [];
 	var madScore = 1;
@@ -24,7 +24,7 @@ var RatioData = function()
 	this.parse = function(data)
 	{
 		if (!data) return;
-		var counts = data.ratio
+		var counts = data.values
 		var length = counts.length;
 		madScore = data.mad;
 		median = data.median;

@@ -22,18 +22,18 @@
 #  user_id            :integer
 #
 
-class Synthetic < Sample
-  has_one :ratio_track, :foreign_key => "sample_id", :dependent => :destroy
-  has_many :a_components, :foreign_key => :synthetic_sample_id, :dependent => :destroy
-  has_many :b_components, :foreign_key => :synthetic_sample_id, :dependent => :destroy
-  has_many :components, :foreign_key => :synthetic_sample_id
+class Combo < Sample
+  has_one :combo_track, :foreign_key => "sample_id", :dependent => :destroy
+  has_many :a_components, :foreign_key => :combo_sample_id, :dependent => :destroy
+  has_many :b_components, :foreign_key => :combo_sample_id, :dependent => :destroy
+  has_many :components, :foreign_key => :combo_sample_id
   validates_presence_of :a_components
   validates_presence_of :b_components
   accepts_nested_attributes_for :a_components, :allow_destroy => true
   accepts_nested_attributes_for :b_components, :allow_destroy => true
   
   def self.to_label
-    "Ratio"
+    "Combo"
   end
   ##Specialized methods
   def update_assets
@@ -41,7 +41,7 @@ class Synthetic < Sample
   end
   
   def create_tracks
-    create_ratio_track(:assembly => assembly) unless ratio_track
+    create_combo_track(:assembly => assembly) unless combo_track
   end
   
   def summary_data(start, stop, num, bioentry)
@@ -61,7 +61,7 @@ class Synthetic < Sample
 
   ##Track Config
   def iconCls
-    "synthetic_track"
+    "combo_track"
   end
   
   ##Class Specific

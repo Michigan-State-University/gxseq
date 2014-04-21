@@ -73,7 +73,7 @@ class Ability
       #Samples
       can :manage, Sample, :user_id => user.id
       can [:read,:track_data,:update], Sample, :group => {:users => {:id => user.id}}
-      can :create, Synthetic
+      can :create, Combo
       #Traits
       can :read, Biosql::Ontology
       can [:read,:create], Biosql::Term

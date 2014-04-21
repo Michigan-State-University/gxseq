@@ -1,7 +1,7 @@
-module SyntheticsHelper
+module CombosHelper
   def nested_links(sample)
     a_text=b_text=''
-    if(sample.class == Synthetic)
+    if(sample.class == Combo)
       a_components = sample.a_components
       b_components = sample.b_components
       if(a_components.count>1)
