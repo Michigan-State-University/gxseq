@@ -35,7 +35,7 @@ class VariantTrack < Track
   end
   
   def data_path
-    "#{root_path}/variants/track_data"
+    "#{root_path}/track/variants/"
   end
   
   def folder

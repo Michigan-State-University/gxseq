@@ -14,11 +14,11 @@
 
 class Assembly < ActiveRecord::Base
   has_many :bioentries, :class_name => "Biosql::Bioentry", :order => "name asc", :dependent => :destroy
-  has_many :samples
+  has_many :samples, :order => "samples.type asc, samples.name asc"
   #NOTE sample STI - can this be dynamic?
   has_many :chip_chips, :order => "samples.name asc"
   has_many :chip_seqs, :order => "samples.name asc"
-  has_many :synthetics, :order => "samples.name asc"
+  has_many :combos, :order => "samples.name asc"
   has_many :variants, :order => "samples.name asc"
   has_many :rna_seqs, :order => "samples.name asc"
   has_many :re_seqs, :order => "samples.name asc"

@@ -495,7 +495,7 @@ class GeneModel < ActiveRecord::Base
       GeneModel.transaction do
         # new gene features
         Biosql::Feature::Gene.find_in_batches(:batch_size=>250, :include => [[:qualifiers => :term],:locations], :conditions => "NOT EXISTS (select id from gene_models where gene_id=seqfeature_id)") do |new_genes|        
-          new_gene_locus = new_genes.delete_if{|g|g.locus_tag.nil?}.map{|g|g.locus_tag.value}.join("', '")
+          new_gene_locus = new_genes.select{|g|g.locus_tag}.map{|g|g.locus_tag.value}.join("', '")
           # cds lookup
           cds_by_locus = {}
           cds_ids = GeneModel.connection.select_all("Select seqfeature.seqfeature_id from seqfeature
@@ -536,6 +536,7 @@ class GeneModel < ActiveRecord::Base
           new_genes.each do |gene|          
             new_gene_count+=1         
             rank = 0          
+            next if gene.locus_tag.nil?
             next if(gene.locations.empty?) # we can't use a gene if it doesn't even have locations!
             # CDS feature data - loop through each cds
             if(cds_features = cds_by_locus[gene.locus_tag.value])

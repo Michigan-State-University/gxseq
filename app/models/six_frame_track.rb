@@ -31,7 +31,7 @@ class SixFrameTrack < Track
   end
   
   def data_path
-    "#{root_path}/bioentries/track_data"
+    "#{root_path}/track/sequence/"
   end
   
   def folder

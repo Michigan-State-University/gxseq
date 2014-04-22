@@ -30,8 +30,8 @@ var AnnoJ = (function()
 	var self = this;
 	self.localHistMax = 1;
 	self.globalHistMax = 1;
-	self.localMaxes = [1];
-	self.globalMaxes = [1];
+	self.localMaxes = {};
+	//self.globalMaxes = [1];
 	
 	function init()
 	{	
@@ -357,21 +357,22 @@ var AnnoJ = (function()
 	};
 	function setLocation(location) {
 		result = GUI.NavBar.setLocation(location);
-		// Before Rendering make track specific requests
+		//clear max storage
+		self.localMaxes={};
 		//Lookup all local maximums
-		self.localMaxes=[];
 	  Ext.each(GUI.Tracks.tracks.active,function(track){
 	    if(track.getViewMax){
-	      self.localMaxes.push(track.getViewMax(location));
+	      var tType = track.sample_type||track.type
+	      self.localMaxes[tType]=self.localMaxes[tType]||[1]
+	      self.localMaxes[tType].push(track.getViewMax(location));
 	    }
 	  });
-	  //console.log(localMaxes);
-	  //Compute and set local Histogram Maximum
-	  self.localHistMax = Math.max.apply(null,localMaxes);
+	  //Apply max to tracks
     Ext.each(GUI.Tracks.tracks.active,function(track){
 	    if(track.setAllViewMax){
-	      //console.log("Track:"+track.name+" Setting allview max to: "+self.localHistMax);
-        track.setAllViewMax(self.localHistMax);
+	      var tType = track.sample_type||track.type
+	      var tTypeMax = Math.max.apply(null,localMaxes[tType]);
+        track.setAllViewMax(tTypeMax);
       }
     });
 	  // Update the track manager location

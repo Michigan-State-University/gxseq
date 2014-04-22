@@ -27,7 +27,7 @@ class FeatureCount < ActiveRecord::Base
     bioentry_id = feature_counts.first.seqfeature.bioentry_id
     data_count = [graph_length,max_data].min
     feature_counts.each do |fc|
-      bc = fc.sample.summary_data(fc.seqfeature.min_start,fc.seqfeature.max_end,data_count,fc.sample.sequence_name(bioentry_id))
+      bc = fc.sample.summary_data(fc.seqfeature.min_start,fc.seqfeature.max_end,data_count,bioentry_id)
       if bc.length == 0
         next
       end

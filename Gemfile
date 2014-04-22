@@ -82,6 +82,7 @@ gem 'cancan'
 gem 'rails3-jquery-autocomplete'
 gem 'acts-as-taggable-on', '~> 2.3.1'
 gem 'parallel'
+gem 'descriptive-statistics'
 # Deploy with Capistrano
 # gem 'capistrano'
 

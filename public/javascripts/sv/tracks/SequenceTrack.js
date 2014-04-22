@@ -477,19 +477,14 @@ Ext.define('Sv.tracks.SequenceTrack',{
       loadData : function(successFunc){
         var me = this;
         Ext.Ajax.request({
-           url: self.data,
+           url: self.data+'sequence',
            method: 'GET',
            params: {
-             jrws: Ext.encode({
-               method: 'sequence',
-               param: {
-                 id: self.id,
-                 sample: self.sample,
-                 left: me.startBase,
-                 right: me.endBase,
-                 bioentry: self.bioentry
-               }
-             })
+             id: self.id,
+             sample: self.sample,
+             left: me.startBase,
+             right: me.endBase,
+             bioentry: self.bioentry
            },
            success: function(response)
            { 

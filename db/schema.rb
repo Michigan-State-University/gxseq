@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140211165540) do
+ActiveRecord::Schema.define(:version => 20140421145415) do
 
   create_table "assemblies", :force => true do |t|
     t.integer  "taxon_id",   :precision => 38, :scale => 0
@@ -187,8 +187,8 @@ ActiveRecord::Schema.define(:version => 20140211165540) do
 
   create_table "components", :force => true do |t|
     t.string   "type"
-    t.integer  "sample_id",               :precision => 38, :scale => 0
-    t.integer  "synthetic_experiment_id", :precision => 38, :scale => 0
+    t.integer  "sample_id",       :precision => 38, :scale => 0
+    t.integer  "combo_sample_id", :precision => 38, :scale => 0
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -452,6 +452,8 @@ ActiveRecord::Schema.define(:version => 20140211165540) do
     t.integer  "group_id",                           :precision => 38, :scale => 0
     t.integer  "concordance_set_id",                 :precision => 38, :scale => 0
     t.integer  "total_count",                        :precision => 38, :scale => 0
+    t.string   "stranded"
+    t.string   "flip_strand"
   end
 
   create_table "seqfeature", :primary_key => "seqfeature_id", :force => true do |t|
@@ -496,6 +498,7 @@ ActiveRecord::Schema.define(:version => 20140211165540) do
     t.datetime "updated_at"
   end
 
+  add_index "seqfeature_qualifier_value", ["UPPER(\"VALUE\")", "seqfeature_id"], :name => "sqv_index_val"
   add_index "seqfeature_qualifier_value", ["seqfeature_id", "term_id", "rank"], :name => "sqv_idx_2", :unique => true
   add_index "seqfeature_qualifier_value", ["seqfeature_id"], :name => "sqv_idx"
   add_index "seqfeature_qualifier_value", ["term_id"], :name => "sqv_idx_1"

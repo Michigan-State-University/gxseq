@@ -1,4 +1,4 @@
-<%= @sample.peaks.with_bioentry(@bioentry_id).order(:pos).map{ |peak| 
+<%= @sample.peaks.with_bioentry(@bioentry.id).order(:pos).map{ |peak| 
 	{
 		:id => peak.id,
 		:pos => peak.pos,

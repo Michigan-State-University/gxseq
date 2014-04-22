@@ -407,21 +407,28 @@ Ext.define('Sv.tracks.BrowserTrack', {
     requestFrame : function(pos,policy,successFunc,failureFunc){
       var me = this;
       Ext.Ajax.request({
-          url: me.data,
+          url: me.data+'/'+me.requestFormat(),
           method: 'GET',
           params: {
-              jrws: Ext.encode({
-                  method: me.requestFormat(),
-                  param: {
-                      id: me.id,
-                      sample: me.sample,
-                      left: pos.left,
-                      right: pos.right,
-                      bases: policy.bases,
-                      pixels: policy.pixels,
-                      bioentry: me.bioentry
-                  }
-              })
+            id: me.id,
+            sample: me.sample,
+            left: pos.left,
+            right: pos.right,
+            bases: policy.bases,
+            pixels: policy.pixels,
+            bioentry: me.bioentry,
+            jrws: Ext.encode({
+                method: me.requestFormat(),
+                param: {
+                    id: me.id,
+                    sample: me.sample,
+                    left: pos.left,
+                    right: pos.right,
+                    bases: policy.bases,
+                    pixels: policy.pixels,
+                    bioentry: me.bioentry
+                }
+            })
           },
           success: function(response)
           {

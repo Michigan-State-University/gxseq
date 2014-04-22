@@ -73,6 +73,7 @@ class Ability
       #Samples
       can :manage, Sample, :user_id => user.id
       can [:read,:track_data,:update], Sample, :group => {:users => {:id => user.id}}
+      can :create, Combo
       #Traits
       can :read, Biosql::Ontology
       can [:read,:create], Biosql::Term
@@ -87,7 +88,7 @@ class Ability
       can :read, FeatureCount, :sample => {:user_id => user.id}
       #Blast Database
       can :read, BlastDatabase, :group => {:users => {:id => user.id}}
-      
+
       # TODO: coordinate user_id,owner_id,owns? methods for consistency (Sample,Group,What Else?)
       # Need explicit create to allow new samples
       #

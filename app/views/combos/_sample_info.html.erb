@@ -1,0 +1,8 @@
+<b><%= @sample.class.name %></b>: <%= link_to @sample.name, @sample,{:target => "_blank"} %>
+<br/><br/>
+<%= render :partial => "samples/metadata", :locals => {:sample => @sample} %>
+
+<p>
+	<b>Operations:</b><br/>
+	<%= nested_links(@sample) %>
+</p>

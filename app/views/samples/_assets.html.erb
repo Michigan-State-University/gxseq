@@ -9,19 +9,18 @@
 <% if sample.respond_to? :peaks %>
 <div class="asset_orange">
   <div style="font-size:133%;padding-bottom:1em"><b>Total Peaks</b>: <%= sample.peaks.count %></div>
-    <div style="padding-left:1em">
-      <% if max_peak = sample.peaks.order("val desc").first %>
-      
-      <b>Maximum:</b> <%= number_to_human(max_peak.val) %><br/>
-      <b>Location:</b> <%= link_to(
-        number_to_human(max_peak.pos), 
-        bioentry_path(
-          max_peak.bioentry, 
-          :tracks => [sample.tracks.first.id], 
-          :pos => max_peak.pos
-        ) ) %><br/>
-      <% end %>
-    </div>
+  <div style="padding-left:1em">
+    <% if max_peak = sample.peaks.order("val desc").first %>
+    
+    <b>Maximum:</b> <%= number_to_human(max_peak.val) %><br/>
+    <b>Location:</b> <%= link_to(
+      number_to_human(max_peak.pos), 
+      bioentry_path(
+        max_peak.bioentry, 
+        :tracks => [sample.tracks.first.id], 
+        :pos => max_peak.pos
+      ) ) %><br/>
+    <% end %>
   </div>
 </div>
 <% end %>

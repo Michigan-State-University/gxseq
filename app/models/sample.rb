@@ -29,7 +29,7 @@ class Sample < ActiveRecord::Base
   belongs_to :assembly
   belongs_to :group
   belongs_to :concordance_set
-  has_many :bioentries, :through => :concordance_items
+  delegate :bioentries, :to => :assembly
   has_many :assets, :dependent => :destroy
   has_many :components
   has_many :tracks
@@ -39,7 +39,7 @@ class Sample < ActiveRecord::Base
   # validates_presence_of :assets
   validates_presence_of :user
   validates_presence_of :assembly
-  validates_presence_of :concordance_set
+  validates_presence_of :concordance_set, :if => "type!='Combo'"
   validates_presence_of :name
   validates_uniqueness_of :name, :scope => [:type,:assembly_id], :message => " has already been used"
   validates_length_of :name, :maximum => 35, :on => :create, :message => "must be less than 35 characters"
@@ -60,8 +60,6 @@ class Sample < ActiveRecord::Base
   scope :order_by, lambda { |o|
         { :order => o }
       }
-  
-  
 ## Class Methods
   # returns label used by formtastic in views
   def self.to_label
@@ -76,7 +74,7 @@ class Sample < ActiveRecord::Base
     {'Text' => 'Text'}
   end
   # returns data for the given range and sequence name
-  def summary_data(start,stop,num,chrom)
+  def summary_data(start,stop,num,bioentry)
   end
   # Builds new tracks to represent asset data
   # TODO - update variants track so we can have 1 per sample and remove tracks entirely. Exp and Assembly instead of tracks
@@ -129,7 +127,42 @@ class Sample < ActiveRecord::Base
     return chr
   end
 
-
+  # calculates and returns a MAD score
+  def median_absolute_deviation(bioentry,count=2000)
+    length = bioentry.length
+    data = summary_data(1,length,[count,length].min,bioentry)
+    # Get Median
+    median = DescriptiveStatistics::Stats.new(data).median
+    # Get absolute deviation
+    abs_dev = data.map{|d| (d-median).abs}
+    # get the absolute deviation median
+    abs_dev_median = DescriptiveStatistics::Stats.new(abs_dev).median
+    # multiply by constant factor == .75 quantile of assumed distribution
+    # .75 quantile of normal distribution == 1.4826
+    1.4826 * abs_dev_median
+  end
+  
+  # returns the median
+  def median(bioentry,count=2000)
+    length = bioentry.length
+    data = summary_data(1,length,[count,length].min,bioentry)
+    median = DescriptiveStatistics::Stats.new(data).median
+  end
+  
+  # returns the stddev
+  def stddev(bioentry,count=2000)
+    length = bioentry.length
+    data = summary_data(1,length,[count,length].min,bioentry)
+    DescriptiveStatistics::Stats.new(data).standard_deviation
+  end
+  
+  # returns the mean
+  def mean(bioentry,count=2000)
+    length = bioentry.length
+    data = summary_data(1,length,[count,length].min,bioentry)
+    DescriptiveStatistics::Stats.new(data).mean
+  end
+  
   # before validating set the reverse association for assets. Otherwise nested validation fails
   # TODO: test new rails 3 reverse association for nested attributes
   def initialize_assets
@@ -164,7 +197,7 @@ class Sample < ActiveRecord::Base
   def display_info
     "#{display_name} - #{assembly_name}"
   end
-
+  
   def typed_display_name
     "#{self.class.name}: #{display_name}"
   end
@@ -172,6 +205,7 @@ class Sample < ActiveRecord::Base
   def typed_display_info
     "#{self.class.name}: #{display_info}"
   end
+  
   # return the sequence name for a bioentry or bioentry_id
   def sequence_name(bioentry)
     if bioentry.respond_to?(:id)

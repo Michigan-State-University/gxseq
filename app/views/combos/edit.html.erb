@@ -1,0 +1,19 @@
+<% content_for :top_bar do -%>
+  <h1 class="pagetitle">Edit Combo Sample <%= @combo.name %></h1>
+<% end -%>
+
+<% content_for :item_bar do -%>
+  <%= link_to "Cancel", @combo, :style => "float:left", :class => "button"%>
+  <% if can? :delete, @combo %>
+    <%= render :partial => 'shared/item_bar_toggle' %>
+    <!-- Advanced Options -->
+    <div style="display:none;clear:both;float:left" id="advanced_search">
+      <br/>
+      <%= link_to "Remove Sample", @combo, :method => 'delete', :class => "redbutton", :confirm => "Remove sample: #{@combo.name}? \n This CANNOT be undone." %>
+    </div>
+  <% end %>
+<% end -%>
+
+<%= render :partial => "samples/sidebar" %>
+
+<%= render :partial => 'form', :locals => {:sample => @combo} %>

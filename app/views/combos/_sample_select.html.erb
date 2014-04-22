@@ -1,0 +1,44 @@
+<div style="clear:both;float:left;margin:2em">
+  <p>
+    <b>Select one or more samples to combine.</b>
+  </p>
+  <%= label :combo, :a_components %><br/>
+  <%= select_tag 'a_samples', options_from_collection_for_select(samples, 
+    :id, 
+    :typed_display_name, 
+    :selected => combo.a_components.collect(&:sample_id)), 
+    :multiple => true, 
+    :size => 15 %>
+  
+  <p>
+    <br/>
+    <b>How should Set A be merged?</b>
+    <%= select :combo, :a_op, {"Mean" => "avg","Sum" => "sum","Max" => "max"} %>
+  </p>
+  
+</div>
+
+<div style="float:left;margin:2em">
+  <%= label :combo, :mid_op, "Operation" %><br/>
+  <%= select :combo, :mid_op, {"Ratio" => "/", "Difference" => "-"} %>
+</div>
+
+<div style="float:left;margin:2em">
+  <p>
+    <b>Select the Set B sample(s)</b>
+  </p>
+  <%= label :combo, :b_components %><br/>
+  <%= select_tag 'b_samples', options_from_collection_for_select(samples, 
+    :id, 
+    :typed_display_name, 
+    :selected => combo.b_components.collect(&:sample_id)), 
+    :multiple => true, 
+    :size => 15 %>
+    
+    <p>
+      <br/>
+      <b>How should Set B get merged?</b>
+      <%= select :combo, :b_op, {"Mean" => "avg","Sum" => "sum","Max" => "max"} %>
+    </p>
+  
+</div>
