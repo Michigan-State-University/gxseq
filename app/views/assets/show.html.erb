@@ -33,6 +33,11 @@
     <b>Attached to:</b>
     <%= link_to "#{@asset.sample.name} : #{@asset.sample.type}", @asset.sample  if @asset.sample %><br/>
   </p>
+  <hr/>
+  <p>
+    <b>Local Path:</b>
+    <%= @asset.local_path %>
+  </p>
 </div>
 <div style="clear:both;float:left">
 <%= render :partial => "#{@asset.class.name.underscore}_info", :locals => {:asset => @asset} rescue
