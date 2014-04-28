@@ -173,6 +173,10 @@ class GeneModel < ActiveRecord::Base
     hsh
   end
   
+  def related_versions
+    (self.versions+mrna.related_versions+cds.related_versions).flatten.compact.sort{|a,b|b.created_at<=>a.created_at}
+  end
+  
   def function
     a = [gene.try(:function_assoc).try(:value),mrna.try(:function_assoc).try(:value)].compact
     a.empty? ? nil : a.join(';')
