@@ -18,7 +18,7 @@ class Wig < Asset
   # convert wig to big_wig and save as a new asset
   def create_big_wig(chrom_file_path)
     begin
-      FileManager.wig_to_bigwig(self.data.path, temp_big_wig_path, chrom_file_path)
+      FileManager.wig_to_bigwig(self.data_path, temp_big_wig_path, chrom_file_path)
       File.open(temp_big_wig_path,'r')
     rescue
       logger.error("#{Time.now} \n #{$!}")
@@ -32,14 +32,14 @@ class Wig < Asset
   end
   
   def remove_temp_files
-    d = Dir.new(File.dirname(data.path))
+    d = Dir.new(File.dirname(data_path))
     d.each do |f|
       File.delete(d.path+"/"+f) if( f.match(self.filename) && f.match(/\.bw_tmp$|\.chrom\.sizes$/) )
     end
   end
   
   def temp_big_wig_path
-    self.data.path+"\.bw_tmp"
+    self.data_path+"\.bw_tmp"
   end
   
 end

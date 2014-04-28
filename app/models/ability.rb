@@ -37,6 +37,10 @@ class Ability
     user ||= User.new
     # store the user id or nil for cache lookup
     @stored_user_id = user.id || 'guest'
+    # api role enables api post requests
+    if user.has_role?('api')
+      can :api_create, Sample
+    end
     # admin can view and edit everything
     if user.is_admin?
       can :manage, :all

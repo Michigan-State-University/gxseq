@@ -39,6 +39,18 @@ class Assembly < ActiveRecord::Base
   accepts_nested_attributes_for :samples
   validates_associated :samples
   
+  acts_as_api
+  
+  api_accessible :listing do |t|
+    t.add :id
+    t.add :type
+    t.add :species_id
+    t.add 'species.scientific_name.name', :as => :species
+    t.add :taxon_id
+    t.add 'taxon.scientific_name.name', :as => :taxon
+    t.add :version
+  end
+  
   # Defined in subclasses
   def default_tracks
   end
@@ -148,7 +160,7 @@ class Assembly < ActiveRecord::Base
         self.gc_file = GcFile.new(:data => big_wig_file)
         self.save!
         # Write out the BigWig data
-        FileManager.wig_to_bigwig(wig_file.path, self.gc_file.data.path, chrom_file.path)
+        FileManager.wig_to_bigwig(wig_file.path, self.gc_file.data_path, chrom_file.path)
       # Close the files
       ensure
         wig_file.close

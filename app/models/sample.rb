@@ -35,16 +35,16 @@ class Sample < ActiveRecord::Base
   has_many :tracks
   has_many :traits
   has_many :trait_types, :through => :traits, :source => :term, :uniq => true
-  # We don't force an assets presence. It might be added later or an expression only rna_seq
-  # validates_presence_of :assets
+
   validates_presence_of :user
   validates_presence_of :assembly
   validates_presence_of :concordance_set, :if => "type!='Combo'"
   validates_presence_of :name
+  validates_presence_of :type, :message => "not available"
   validates_uniqueness_of :name, :scope => [:type,:assembly_id], :message => " has already been used"
   validates_length_of :name, :maximum => 35, :on => :create, :message => "must be less than 35 characters"
   validates_length_of :description, :maximum => 500, :on => :create, :message => "must be less than 500 characters"
-
+  
   accepts_nested_attributes_for :assets, :allow_destroy => true
   accepts_nested_attributes_for :traits, :allow_destroy => true
   
@@ -57,9 +57,6 @@ class Sample < ActiveRecord::Base
   has_paper_trail :ignore => [:state]
   has_console_log
   
-  scope :order_by, lambda { |o|
-        { :order => o }
-      }
 ## Class Methods
   # returns label used by formtastic in views
   def self.to_label
@@ -68,10 +65,10 @@ class Sample < ActiveRecord::Base
 
 ## Generalized methods (should be specialized in subclass)
   # Defines assets that will be available in the Sample dropdown.
-  # Types must also be whitelisted in - Asset::validates_inclusion_of :type
+  # Types must also be whitelisted in - Asset::new_with_cast
   # - hash: {key => value} == {DisplayName => ClassName}
   def asset_types
-    {'Text' => 'Text'}
+    {'Text' => 'Txt'}
   end
   # returns data for the given range and sequence name
   def summary_data(start,stop,num,bioentry)
@@ -102,6 +99,25 @@ class Sample < ActiveRecord::Base
   end
   
 ## Instance Methods
+
+  # allow assignment to STI type from form
+  def attributes_protected_by_default
+    super - [self.class.inheritance_column]
+  end
+
+  # convert class type to STI column (form selected) type #http://coderrr.wordpress.com/2008/04/22/building-the-right-class-with-sti-in-rails/#comment-1826
+  # allows the immediate calling of class specific validation/post-processing
+  class << self
+    def new_with_cast(*a, &b)
+      if (h = a.first).is_a? Hash and (type = h[:type] || h['type']) and ['ChipChip', 'ChipSeq', 'ReSeq', 'RnaSeq', 'Variant'].include?(type)
+        klass = type.constantize
+        return klass.new_without_cast(*a, &b)
+      end
+      new_without_cast(*a, &b)
+    end
+    alias_method_chain :new, :cast
+  end
+  
   # Association for concordance_items. nested association had odd behavior with concordance_set_id
   def concordance_items
     ConcordanceItem.where(:concordance_set_id => self.concordance_set_id)

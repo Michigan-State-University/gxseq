@@ -104,7 +104,8 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
       @features = @seqfeature.find_related_by_locus_tag
       @ontologies = [Biosql::Ontology.find(Biosql::Term.ano_tag_ont_id)]
     when 'history'
-      @changelogs = Version.order('id desc').where(:parent_id => @seqfeature.id).where(:parent_type => @seqfeature.class.name)
+      #@changelogs = Version.order('id desc').where{(parent_id == my{@seqfeature.id} and parent_type == my{@seqfeature.class.name}) or (item_id == my{@seqfeature.id} and item_type == my{@seqfeature.class.name})}
+      @changelogs = @seqfeature.related_versions
     when 'expression'
       assembly = @seqfeature.bioentry.assembly
       @trait_types = assembly.trait_types

@@ -145,6 +145,10 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   
   ## INSTANCE METHODS
   
+  def related_versions
+    (self.versions + locations.map(&:versions) + qualifiers.map(&:versions)).flatten.compact.sort{|a,b|b.created_at<=>a.created_at}
+  end
+  
   # index methods, should overriden to include associated items
   def indexed_description
     description.presence

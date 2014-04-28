@@ -1,7 +1,18 @@
 <div class="nested-fields" style="clear:both">
   <div style="float:left">
   	<%= f.label :data, "File"%><br/>
-    <%= f.object.new_record? ? (f.file_field :data) : f.object.filename %><br/>
+    <% if current_user && current_user.is_admin? %>
+      Upload: <%= f.file_field :data %>
+      <br/>Local Path:
+      <%= f.text_field :local_path %>
+    <% else %>
+      <% if f.object.new_record? %>
+        <%= f.file_field :data %>
+      <% else %>
+        <%= f.object.local_path.blank? ? f.object.filename : f.object.data_path %>
+      <% end %>
+    <% end %>
+    <br/>
   </div>
   <div style="padding-left:1em;float:right">
   	<%= link_to_remove_fields image_tag("delete.png",:alt => "Remove asset"), f %>
