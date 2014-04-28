@@ -449,16 +449,10 @@ ActiveRecord::Schema.define(:version => 20140421145415) do
     t.string   "show_negative"
     t.datetime "created_at"
     t.datetime "updated_at"
-<<<<<<< HEAD
     t.integer  "group_id",                           :precision => 38, :scale => 0
     t.integer  "concordance_set_id",                 :precision => 38, :scale => 0
     t.integer  "total_count",                        :precision => 38, :scale => 0
     t.string   "stranded"
-=======
-    t.integer  "group_id"
-    t.integer  "concordance_set_id"
-    t.integer  "total_count"
->>>>>>> Add related versions to history, Set Eastern Time
     t.string   "flip_strand"
   end
 
@@ -504,6 +498,7 @@ ActiveRecord::Schema.define(:version => 20140421145415) do
     t.datetime "updated_at"
   end
 
+  add_index "seqfeature_qualifier_value", ["UPPER(\"VALUE\")", "seqfeature_id"], :name => "sqv_index_val"
   add_index "seqfeature_qualifier_value", ["seqfeature_id", "term_id", "rank"], :name => "sqv_idx_2", :unique => true
   add_index "seqfeature_qualifier_value", ["seqfeature_id"], :name => "sqv_idx"
   add_index "seqfeature_qualifier_value", ["term_id"], :name => "sqv_idx_1"
