@@ -2,6 +2,10 @@ Given(/^there is an assembly$/) do
   assembly = FactoryGirl.create(:assembly)
 end
 
+Given(/^there are (\d+) "(.*?)" assemblies$/) do |count,type|
+  FactoryGirl.create_list(:assembly, count.to_i, :type => type)
+end
+
 Given(/^the assembly has "(.*?)" feature$/) do |count|
   assembly = Assembly.first
   assembly.should_not == nil
@@ -25,4 +29,12 @@ Given(/^the public assembly has (\d+) sequence entries/) do |count|
   assembly = Assembly.scoped.includes(:group).where{group.name=='public'}.first
   assembly.should_not == nil
   FactoryGirl.create_list(:bioentry,count.to_i,:assembly => assembly)
+end
+
+When(/^I visit the genome listing$/) do
+ visit(genomes_path)
+end
+
+When(/^I visit the transcriptome listing$/) do
+ visit(transcriptomes_path)
 end

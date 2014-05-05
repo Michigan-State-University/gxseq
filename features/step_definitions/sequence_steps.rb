@@ -38,3 +38,18 @@ Given(/^I have "(.*?)" access to the assembly$/) do |role|
   fill_in "user_password", :with => user.password
   click_button "Sign in"
 end
+
+Given(/^I have "(.*?)" access to all assemblies$/) do |role|
+  assemblies = Assembly.all
+  assemblies.should_not == []
+  user = FactoryGirl.create(:user)
+  role = Role.find_or_create_by_name(role)
+  user.roles << role
+  assemblies.each do |assembly|
+    user.groups << assembly.group
+  end
+  visit '/users/sign_in'
+  fill_in "user_login", :with => user.login
+  fill_in "user_password", :with => user.password
+  click_button "Sign in"
+end
