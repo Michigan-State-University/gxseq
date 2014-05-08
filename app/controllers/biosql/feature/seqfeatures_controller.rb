@@ -96,7 +96,6 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     when 'edit'
       redirect_to :action => :edit
     when 'standard'
-      setup_graphics_data
       @ontologies = Biosql::Term.annotation_ontologies
     when 'genbank'
       #NOTE:  Find related features (by locus tag until we have a parent<->child relationship)
@@ -110,7 +109,6 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
       @trait_types = assembly.trait_types
       check_and_set_trait_id_param(assembly)
       get_feature_counts
-      #setup_graphics_data
     when 'coexpression'
       get_feature_counts
     when 'blast'
@@ -261,13 +259,11 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
         @seqfeatures = []
       end
     end
-    # TODO: refactor this method is duplicated from genes_controller
     def get_feature_data
       @format='edit'
       begin
         #get gene and attributes
         @seqfeature = Biosql::Feature::Seqfeature.find(params[:id], :include => [:locations,[:qualifiers => :term],[:bioentry => [:assembly]]])
-        setup_graphics_data
         @locus = @seqfeature.locus_tag.value.upcase
         @bioentry = @seqfeature.bioentry
         @annotation_terms = Biosql::Term.annotation_tags.order(:name).reject{|t|t.name=='locus_tag'}
@@ -305,29 +301,6 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
       @blast_reports = @seqfeature.blast_iterations
       @changelogs = Version.order('id desc').where(:parent_id => @seqfeature.id).where(:parent_type => @seqfeature.class.name)
       @changelogs = @changelogs.where{item_type != 'Biosql::Location'}.where{item_type != 'GeneModel'}
-    end
-    
-    # TODO: refactor this method is nearly identical in genes_controller
-    def setup_graphics_data
-      @canvas_width = 2500
-      @model_height = 15
-      @edit_box_height = 320
-      min_width = 800
-      limit = 500
-      feature_size = @seqfeature.max_end - @seqfeature.min_start
-      @pixels = [(min_width / (feature_size*1.1)).floor,1].max
-      @bases = [((feature_size*1.1) / min_width).floor,1].max
-      @gui_zoom = (@pixels/@bases).floor+10
-      @view_start = @seqfeature.min_start - (feature_size*0.05).floor
-      @view_stop = (@seqfeature.min_start+(feature_size*1.05)).ceil
-      if(@seqfeature.class == Biosql::Feature::Gene)
-        @graphic_data = GeneModel.get_canvas_data(@view_start,@view_stop,@seqfeature.bioentry.id,@gui_zoom,@seqfeature.strand,limit)
-      else
-        @graphic_data = Biosql::Feature::Seqfeature.get_track_data(@view_start,@view_stop,@seqfeature.bioentry_id,{:feature => @seqfeature})
-      end
-      @depth = 3
-      @canvas_height = ( @depth * (@model_height * 2))+10 # each model and label plus padding
-      @graphic_data=@graphic_data.to_json
     end
     
     def check_and_set_trait_id_param(assembly)

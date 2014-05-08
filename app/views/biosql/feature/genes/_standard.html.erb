@@ -1,9 +1,3 @@
-<% content_for :head do %>
-	<%= render :partial => "shared/extjs_css" %>
-	<%= render :partial => "shared/svjs_css" %>
-	<%= render :partial => "shared/extjs" %>
-	<%= render :partial => "shared/svjs" %>
-<% end %>
 <div class="clear">
 	<!-- Gene Details -->
 	<div class="border">
@@ -62,7 +56,20 @@
 	
 	<!-- Graphic Gene-->
 	<div class="border" style="overflow:hidden">
-		<%= render :partial => 'biosql/feature/genes/graphic', :locals => {:feature => feature} %>
+	  <% offset = ((feature.max_end - feature.min_start)/2).ceil %>
+		<%= render :partial => 'biosql/feature/genes/graphic',
+		:locals => {
+		  :feature => feature,
+		  min: feature.min_start-offset,
+		  max: feature.max_end+offset,
+		  :datapath => range_track_gene_models_path(
+		    {
+		      bioentry: feature.bioentry_id,
+		      left: feature.min_start-offset,
+		      right: feature.max_end+offset
+		    }
+		  )
+		} %>
 	</div>
 	<!-- Gene Models -->
 	<% if feature.gene_models.size > 1 %>

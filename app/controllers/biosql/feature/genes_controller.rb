@@ -114,9 +114,6 @@ class Biosql::Feature::GenesController < ApplicationController
           ]
         ]
       )
-      unless @gene.locations.empty?
-        setup_graphics_data
-      end
       @locus = @gene.locus_tag.value.upcase
       @bioentry = @gene.bioentry
       @annotation_terms = Biosql::Term.annotation_tags.order(:name).reject{|t|t.name=='locus_tag'}
@@ -127,22 +124,4 @@ class Biosql::Feature::GenesController < ApplicationController
       logger.error "\n\n#{$!}\n\n#{e.backtrace.join("\n")}\n\n"
     end
   end
-  
-  def setup_graphics_data
-    @canvas_width = 3000
-    @model_height = 15
-    @edit_box_height = 320
-    limit = 1000
-    min_width = 800
-    gene_size = @gene.max_end - @gene.min_start
-    @pixels = [(min_width / (gene_size*1.1)).floor,1].max
-    @bases = [((gene_size*1.1) / min_width).floor,1].max
-    @gui_zoom = (gene_size/700).floor + 2    
-    @view_start = @gene.min_start - (50*@gui_zoom)
-    @graphic_data = GeneModel.get_canvas_data(@view_start,@view_start+(@canvas_width*@gui_zoom),@gene.bioentry.id,@gui_zoom,@gene.strand,limit)
-    @depth =  (@graphic_data.collect{|g|g[:variants]}.max||0) + 1
-    @canvas_height = ( @depth * (@model_height * 2))+10 # each model and label plus padding
-    @graphic_data=@graphic_data.to_json
-  end
-  
 end

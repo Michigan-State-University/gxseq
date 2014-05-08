@@ -26,6 +26,23 @@
   
   <div class="border" style="overflow:hidden">
     <h2>Density of Aligned Reads</h2>
+      <!-- Graphic Gene-->
+  		<%= render :partial => 'biosql/feature/genes/graphic',
+  		:locals => {
+  		  :feature => feature,
+  		  min: feature.min_start,
+  		  max: feature.max_end,
+  		  lmargin: 50,
+  		  rmargin: 10,
+  		  :datapath => range_track_gene_models_path(
+  		    {
+  		      bioentry: feature.bioentry_id,
+  		      left: feature.min_start,
+  		      right: feature.max_end
+  		    }
+  		  )
+  		} %>
+
     <%= render :partial => "shared/base_count_chart", :locals => {
       :data => base_counts_seqfeature_path(feature,:format => :json, :fc_ids => @fc_ids),
     } %>
