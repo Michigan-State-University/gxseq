@@ -1,6 +1,6 @@
 xml.instruct! :xml, :version  => "1.0", :encoding  => "UTF-8"
 xml.chart do
-  bc = bioentry.length
+  bc = @bioentry.length
   num=[400,bc].min
   @rna_seq.summary_data(0,bc,num,@bioentry).each_with_index do |n,idx|
     xml.linedata(:x => (idx*(bc/num)).ceil, :y => n.floor)

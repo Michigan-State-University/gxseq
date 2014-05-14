@@ -40,7 +40,7 @@ class Track::ReadsController < Track::BaseController
     end
     right=params[:right].to_i
     left=params[:left].to_i
-    reads_text = @sample.get_reads_text(left,right,@bioentry,{:include_seq => true, :read_limit => params[:read_limit]})
+    reads_text = @sample.get_reads_text(left,right,@sample.sequence_name(@bioentry),{:include_seq => true, :read_limit => params[:read_limit]})
     render :text => "{\"success\":true,\"data\":{#{"\"notice\": \"#{reads_text[2]} of #{reads_text[1]} reads\","}\"reads\":["+reads_text[0]+"]}}"
   end
   
