@@ -25,3 +25,19 @@ end
 Then(/^I should be able to group by sample traits (".+")$/) do |traits|
   page.should have_select 'trait_type_id', :options => traits.scan(/"([^"]+?)"/).flatten
 end
+
+When(/^I visit the expression tool$/) do
+  visit expression_viewer_path
+end
+
+Given(/^the assembly\s?(\d+|) has (\d+) expression samples?$/) do |selector,count|
+  assembly = Assembly.all[selector.to_i-1]
+  assembly.should_not == nil
+  FactoryGirl.create_list(:expression_sample, count.to_i, :assembly => assembly)
+end
+
+Given(/^the assembly\s?(\d+|) has (\d+) expression samples? with values:$/) do |selector,count,table|
+  assembly = Assembly.all[(selector||1).to_i-1]
+  assembly.should_not == nil
+  FactoryGirl.create(:expression_sample, :assembly => assembly, :count_array => table.hashes)
+end

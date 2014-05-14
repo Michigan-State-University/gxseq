@@ -6,11 +6,18 @@ Given(/^there are (\d+) "(.*?)" assemblies$/) do |count,type|
   FactoryGirl.create_list(:assembly, count.to_i, :type => type)
 end
 
-Given(/^the assembly has "(.*?)" feature$/) do |count|
+Given(/^the assembly has "(.*?)" features?$/) do |count|
   assembly = Assembly.first
   assembly.should_not == nil
   bioentry = FactoryGirl.create(:bioentry,:assembly => assembly)
   FactoryGirl.create_list(:seqfeature,count.to_i,:bioentry => bioentry)
+end
+
+Given(/^the assembly has (\d+) genes?$/) do |count|
+  assembly = Assembly.first
+  assembly.should_not == nil
+  bioentry = FactoryGirl.create(:bioentry,:assembly => assembly)
+  FactoryGirl.create_list(:gene_feature,count.to_i,:bioentry => bioentry)
 end
 
 Given(/^the assembly has (\d+) sequence entries/) do |count|
@@ -38,3 +45,5 @@ end
 When(/^I visit the transcriptome listing$/) do
  visit(transcriptomes_path)
 end
+
+

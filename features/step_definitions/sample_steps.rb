@@ -21,6 +21,21 @@ Given(/^I have "(.*?)" access to the sample$/) do |role_name|
   click_button "Sign in"
 end
 
+Given(/^I have "(.*?)" access to all samples$/) do |role_name|
+  samples = Sample.all
+  samples.should_not == []
+  user = FactoryGirl.create(:user)
+  role = Role.find_or_create_by_name(role_name)
+  user.roles << role
+  samples.each do |sample|
+    user.groups << sample.group
+  end
+  visit '/users/sign_in'
+  fill_in "user_login", :with => user.login
+  fill_in "user_password", :with => user.password
+  click_button "Sign in"
+end
+
 When(/^I view the sample update page$/) do
   sample = Sample.first
   visit(polymorphic_url([:edit,sample], :routing_type => :path))

@@ -29,12 +29,28 @@ FactoryGirl.define do
     concordance_set
     user
     group {assembly.group}
+    factory :expression_sample do
+      ignore do
+        count_array []
+      end
+      after(:create) do |sample, evaluator|
+        sample.assembly.gene_features.each_with_index do |feature,idx|
+          count_hsh = evaluator.count_array[idx]||{}
+          FactoryGirl.create(:feature_count, {:sample => sample,:seqfeature => feature}.merge(count_hsh))
+          feature.save!
+        end
+        # force commit
+        Sunspot.commit_if_dirty
+      end
+    end
   end
   factory :feature_count do
     sequence(:id)
-    count 1
-    normalized_count 1
-    unique_count 1
+    count 100
+    normalized_count 50.5
+    unique_count 90
+    sample
+    seqfeature
   end
   factory :trait do
     sequence(:id)
@@ -110,14 +126,18 @@ FactoryGirl.define do
     factory :public_feature do
       association :bioentry, :factory => :public_bioentry
     end
-    factory :mrna_feature do
-      display_name 'Mrna'
-      type_term { Biosql::Term.find_by_name_and_ontology_id('mrna',Biosql::Term.seq_key_ont_id) || create(:mrna_term) }
-    end
-    factory :cds_feature do
-      type_term { Biosql::Term.find_by_name_and_ontology_id('cds',Biosql::Term.seq_key_ont_id) || create(:cds_term) }
-      display_name 'Cds'
-    end
+  end
+  factory :mrna_feature, :parent => :seqfeature, :class => "Biosql::Feature::Mrna" do
+    display_name 'Mrna'
+    type_term { Biosql::Term.find_by_name_and_ontology_id('mrna',Biosql::Term.seq_key_ont_id) || create(:mrna_term) }
+  end
+  factory :cds_feature, :parent => :seqfeature, :class => "Biosql::Feature::Cds" do
+    type_term { Biosql::Term.find_by_name_and_ontology_id('cds',Biosql::Term.seq_key_ont_id) || create(:cds_term) }
+    display_name 'Cds'
+  end
+  factory :gene_feature, :parent => :seqfeature, :class => "Biosql::Feature::Gene" do
+    display_name "Gene"
+    type_term { Biosql::Term.find_by_name_and_ontology_id('gene',Biosql::Term.seq_key_ont_id) || create(:gene_term) }
   end
   # attributes
   factory :qualifier, :class => "Biosql::SeqfeatureQualifierValue" do
@@ -125,7 +145,7 @@ FactoryGirl.define do
     rank 1
     term
     factory :locus_qual do
-      value 'AT3G54320'
+      sequence(:value){|i| "AT3G54320#{i}"}
       term { Biosql::Term.find_by_name_and_ontology_id('locus_tag',Biosql::Term.ano_tag_ont_id) || create(:locus_term) }
     end
     factory :gene_qual do
