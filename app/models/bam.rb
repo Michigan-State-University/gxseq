@@ -23,14 +23,18 @@ class Bam < Asset
   def load
     update_attribute(:state, "loading")
     create_index
-    remove_temp_files
+    if local_path.blank?
+      remove_temp_files
+    end
     update_attribute(:state, "complete")
   end
   
   # removes any generated data and updates state
   def unload
-    remove_temp_files
-    destroy_index
+    if local_path.blank?
+      remove_temp_files
+      destroy_index
+    end
     update_attribute(:state, "pending")
   end
   
