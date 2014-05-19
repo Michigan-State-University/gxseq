@@ -276,11 +276,11 @@ d3.gene_models_chart = function(config){
   var getImage = function(type){
     switch(type){
       case "gene":
-        return "/images/models/bar.gif";
+        return geneImg;
       case "mRNA":
-        return "/images/models/red.gif";
+        return mrnaImg;
       case "CDS":
-        return "/images/models/green.gif" 
+        return cdsImg; 
     }
   }
   var toggleStacking = function(){
