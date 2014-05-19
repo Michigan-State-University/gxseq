@@ -35,7 +35,7 @@ class Asset < ActiveRecord::Base
   end
   
   def creator
-    who_id = versions.last.whodunnit
+    who_id = versions.last.try(:whodunnit)
     who_id ? User.find_by_id(who_id) : nil
   end
     
