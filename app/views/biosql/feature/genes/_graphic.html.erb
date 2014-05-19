@@ -30,7 +30,10 @@
     max: <%= max %>,
     lMargin: <%= defined?(lmargin) ? lmargin : 0%>,
     rMargin: <%= defined?(rmargin) ? rmargin : 0%>,
-    featureIds: '<%= feature.gene_models.map(&:id).to_json %>'
+    featureIds: '<%= feature.gene_models.map(&:id).to_json %>',
+    geneImg: '<%= image_path "models/bar.gif" %>',
+    cdsImg: '<%= image_path "models/green.gif" %>',
+    mrnaImg: '<%= image_path "models/red.gif" %>'
   });
   gene_chart.load('<%= datapath %>')
 
