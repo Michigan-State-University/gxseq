@@ -1,4 +1,4 @@
-class SeqfeatureQualifierValuesController < ApplicationController
+class Biosql::SeqfeatureQualifierValuesController < ApplicationController
   # POST /seqfeature_qualifier_values
   def create
     @seqfeature_qualifier_value = Biosql::SeqfeatureQualifierValue.new(params[:biosql_seqfeature_qualifier_value])
