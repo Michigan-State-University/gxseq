@@ -6,50 +6,11 @@ When /^I visit the sequence list$/ do
   visit(bioentries_path)
 end
 
-Given /^there is a Transcriptome with id (\d+) and the following sequence:$/ do |id, table|
-  entries = table.hashes
-  assembly = FactoryGirl.create(:transcriptome, :id => id)
-  entries.each do |entry|
-    bioentry = FactoryGirl.create(:bioentry,
-      :assembly => assembly,
-      :name =>  entry[:name],
-      :accession => entry[:locus],
-      :seq_setup => { :length => entry[:length], :seq => entry[:seq] }
-    )
-    FactoryGirl.create(:mrna_feature,
-      :bioentry => bioentry,
-      loc_setup: [ [1, entry[:length]] ],
-      qualifier_setup: [ [:locus_qual, entry[:locus]] ]
-    )
-  end
-  Biosql::Feature::Seqfeature.reindex
-  Ability.reset_cache
+Then(/^I should see the sequence viewer$/) do
+  page.should have_content("Configuration")
+  page.should have_content("Genome Sequence")
+  page.should have_content("Dragmode: browse")
+  page.should have_content("Position:")
 end
 
-Given(/^I have "(.*?)" access to the assembly$/) do |role|
-  assembly = Assembly.first
-  assembly.should_not == nil
-  user = FactoryGirl.create(:user)
-  role = Role.find_or_create_by_name(role)
-  user.roles << role
-  user.groups << assembly.group
-  visit '/users/sign_in'
-  fill_in "user_login", :with => user.login
-  fill_in "user_password", :with => user.password
-  click_button "Sign in"
-end
 
-Given(/^I have "(.*?)" access to all assemblies$/) do |role|
-  assemblies = Assembly.all
-  assemblies.should_not == []
-  user = FactoryGirl.create(:user)
-  role = Role.find_or_create_by_name(role)
-  user.roles << role
-  assemblies.each do |assembly|
-    user.groups << assembly.group
-  end
-  visit '/users/sign_in'
-  fill_in "user_login", :with => user.login
-  fill_in "user_password", :with => user.password
-  click_button "Sign in"
-end

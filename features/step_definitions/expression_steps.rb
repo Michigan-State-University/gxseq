@@ -30,14 +30,30 @@ When(/^I visit the expression tool$/) do
   visit expression_viewer_path
 end
 
-Given(/^the assembly\s?(\d+|) has (\d+) expression samples?$/) do |selector,count|
-  assembly = Assembly.all[selector.to_i-1]
+Given(/^the assembly has (\d+) expression samples?$/) do |count|
+  assembly = Assembly.first
   assembly.should_not == nil
   FactoryGirl.create_list(:expression_sample, count.to_i, :assembly => assembly)
 end
 
-Given(/^the assembly\s?(\d+|) has (\d+) expression samples? with values:$/) do |selector,count,table|
-  assembly = Assembly.all[(selector||1).to_i-1]
+Given(/^the assembly has (\d+) expression samples? with values:$/) do |count,table|
+  assembly = Assembly.first
   assembly.should_not == nil
-  FactoryGirl.create(:expression_sample, :assembly => assembly, :count_array => table.hashes)
+  samples = FactoryGirl.create_list(:expression_sample, count.to_i, :assembly => assembly, :count_array => table.hashes)  
+end
+
+Given(/^the assembly "(.*?)" version "(.*?)" has (\d+) expression samples?$/) do |name, version, count|
+  assembly = Assembly.includes(:taxon => :scientific_name)
+    .where{taxon.scientific_name.name==name}
+    .where{version==version}.first
+  assembly.should_not == nil
+  FactoryGirl.create_list(:expression_sample, count.to_i, :assembly => assembly)
+end
+
+Then(/^I should( not)? see a coexpression link$/) do |negate|
+  if(negate)
+    find('#format_links').should_not have_content('Co-Expression')
+  else
+    find('#format_links').should have_content('Co-Expression')
+  end
 end

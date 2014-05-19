@@ -26,7 +26,7 @@ FactoryGirl.define do
     type "RnaSeq"
     description "Test sample"
     assembly
-    concordance_set
+    concordance_set{assembly.concordance_sets.first}
     user
     group {assembly.group}
     factory :expression_sample do
@@ -81,7 +81,7 @@ FactoryGirl.define do
   end
   # Blast
   factory :blast_database do
-    sequence(:id)
+    sequence(:id){|n|1+n}
     sequence(:name){|n| "blast#{n}" }
     filepath 'test.fa'
     link_ref '/seqfeatures/'
@@ -89,8 +89,40 @@ FactoryGirl.define do
     description 'Testing database'
   end
   factory :blast_run do
+    sequence(:id){|n|1+n}
     blast_database
+    assembly
   end
+  factory :blast_iteration do
+    sequence(:id)
+    blast_run
+    seqfeature
+    ignore do
+      hit_setup ["Default Blast Definition"]
+    end
+    after(:create) do |iteration, evaluator|
+      evaluator.hit_setup.each do |defn|
+        iteration.hits<<create(:hit, :blast_iteration => iteration, :definition => defn)
+      end
+    end
+  end
+  factory :hit do
+    sequence(:id)
+    blast_iteration
+    accession "DefaultAcc"
+    definition "Default Blast Definition"
+    after(:create) do |hit,eval|
+      hit.hsps << create(:hsp,:hit => hit)
+    end
+  end
+  factory :hsp do
+    sequence(:id)
+    hit
+    bit_score 100
+    score 50
+    evalue "1e-10"
+  end
+  ##Deprecated
   factory :blast_report do
     sequence(:id)
     blast_run
@@ -156,6 +188,14 @@ FactoryGirl.define do
       value 'supporting evidence for this feature'
       term { Biosql::Term.find_by_name_and_ontology_id('note',Biosql::Term.ano_tag_ont_id) || create(:note_term) }
     end
+    factory :product_qual do
+      value 'product stuff'
+      term { Biosql::Term.find_by_name_and_ontology_id('product',Biosql::Term.ano_tag_ont_id) || create(:product_term) }
+    end
+    factory :function_qual do
+      value 'Annotated function'
+      term { Biosql::Term.find_by_name_and_ontology_id('function',Biosql::Term.ano_tag_ont_id) || create(:function_term) }
+    end
   end
   factory :location, :class => "Biosql::Location" do
     start_pos 1
@@ -208,7 +248,7 @@ FactoryGirl.define do
     end
   end
   factory :taxon_name, :class => "Biosql::TaxonName"do
-    sequence(:name){|i|"Arabidopsis thale cress #{i}"}
+    sequence(:name){|i|"Arabidopsis thale cress"}
     name_class "scientific name"
   end
   factory :assembly do
@@ -230,6 +270,8 @@ FactoryGirl.define do
     end
     # add features after create to index assembly/bioentry
     after(:create) do |assembly, evaluator|
+      assembly.create_tracks
+      assembly.concordance_sets << create(:concordance_set,:assembly => assembly,:item_setup => [])
       evaluator.feature_setup.each do |setup|
         seq = assembly.bioentries[setup[0]-1]
         setup[1].to_i.times do |idx|
@@ -250,7 +292,6 @@ FactoryGirl.define do
       # pre-created in hooks.rb
       group {Group.find_by_name('public')}
     end
-    
   end
   
   
@@ -264,6 +305,14 @@ FactoryGirl.define do
     end
     # term singleton classes
     # must use with find_by_name
+    factory :function_term do
+      ontology_id {Biosql::Term.ano_tag_ont_id}
+      name 'function'
+    end
+    factory :product_term do
+      ontology_id {Biosql::Term.ano_tag_ont_id}
+      name 'product'
+    end
     factory :locus_term do
       ontology_id {Biosql::Term.ano_tag_ont_id}
       name 'locus_tag'

@@ -2,6 +2,24 @@ When /^I visit the create gene page$/ do
   visit(new_gene_path)
 end
 
+When(/^I visit the gene details page$/) do
+  gene = Biosql::Feature::Gene.first
+  gene.should_not==nil
+  visit(seqfeature_path(gene))
+end
+
+Given(/^I visit the gene coexpression page$/) do
+  gene = Biosql::Feature::Gene.first
+  gene.should_not==nil
+  visit(seqfeature_path(gene, :fmt => 'coexpression'))
+end
+
+Given(/^I visit the gene coexpression page for "(.*?)"$/) do |locus|
+  gene = Biosql::Feature::Gene.with_locus_tag(locus).first
+  gene.should_not==nil
+  visit(seqfeature_path(gene, :fmt => 'coexpression'))
+end
+
 # default walk through the create form
 # assumes the first assembly and bioentry are selected
 # seems very brittle and too large for one step

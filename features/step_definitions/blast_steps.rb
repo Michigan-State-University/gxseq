@@ -16,8 +16,14 @@ Given(/^Seqfeature "(.*?)" has a blast result with definition "(.*?)"$/) do |loc
   features = Biosql::Feature::Seqfeature.find_all_by_locus_tag(locus)
   features.length.should == 1
   feature = features.first
-  FactoryGirl.create(:blast_report,:hit_def => definition, :seqfeature => feature)
-  Biosql::Feature::Seqfeature.reindex
+  # This is ugly but it avoids reloading Seqfeature class (sunspot index attributes statically defined for each BlastRun)
+  bd = BlastDatabase.find_by_name("SeedBlastDb")
+  puts "Seed Blast Database not found. See database_cleaner after block" unless bd
+  bd.should_not == nil
+  blast_run = bd.blast_runs.first
+  blast_run.update_attribute(:assembly, feature.bioentry.assembly)
+  iteration = FactoryGirl.create(:blast_iteration, :blast_run => blast_run, :seqfeature => feature, :hit_setup => [definition])
+  feature.index!
 end
 
 Given(/^the test blast database exists$/) do
@@ -25,7 +31,7 @@ Given(/^the test blast database exists$/) do
 end
 
 Given(/^I have access to the test blast db$/) do
-  blast_db = BlastDatabase.first
+  blast_db = BlastDatabase.last
   user = FactoryGirl.create(:user)
   user.groups << blast_db.group
   visit '/users/sign_in'

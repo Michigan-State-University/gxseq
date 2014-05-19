@@ -1,7 +1,7 @@
 class Biosql::Feature::SeqfeaturesController < ApplicationController
   before_filter :find_seqfeature, :except => [:index, :new, :create]
   before_filter :get_feature_data, :only => [:edit,:update]
-  authorize_resource :class => "Biosql::Feature::Seqfeature"
+  #authorize_resource :class => "Biosql::Feature::Seqfeature"
   # GET /seqfeatures
   def index
     # Defaults
