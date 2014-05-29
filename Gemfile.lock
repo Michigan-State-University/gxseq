@@ -14,18 +14,6 @@ GIT
       bio (>= 1.4.2)
       ffi
 
-GIT
-  remote: git://github.com/throwern/sunspot.git
-  revision: 7d57ff2b8446b2fee77d856e68633e49b3d22b4d
-  specs:
-    sunspot (2.0.0.pre.120925)
-      pr_geohash (~> 1.0)
-      rsolr (~> 1.0.7)
-    sunspot_rails (2.0.0.pre.120925)
-      nokogiri
-      sunspot (= 2.0.0.pre.120925)
-    sunspot_solr (2.0.0.pre.120925)
-
 PATH
   remote: vendor/gems/composite_primary_keys-3.1.10
   specs:
@@ -315,6 +303,14 @@ GEM
       activerecord (~> 3.0)
       activesupport (~> 3.0)
       polyamorous (~> 0.5.0)
+    sunspot (2.1.1)
+      pr_geohash (~> 1.0)
+      rsolr (~> 1.0.7)
+    sunspot_rails (2.1.1)
+      nokogiri
+      rails (>= 3)
+      sunspot (= 2.1.1)
+    sunspot_solr (2.1.1)
     temple (0.6.5)
     terminal-table (1.4.5)
     thor (0.14.6)
@@ -386,9 +382,9 @@ DEPENDENCIES
   shoulda
   simplecov
   squeel (~> 0.9)
-  sunspot!
-  sunspot_rails!
-  sunspot_solr!
+  sunspot (~> 2.1.1)
+  sunspot_rails (~> 2.1.1)
+  sunspot_solr (~> 2.1.1)
   thor (~> 0.14.6)
   will_paginate (~> 3)
   xmlparser

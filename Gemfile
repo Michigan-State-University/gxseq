@@ -67,11 +67,14 @@ gem 'will_paginate', '~>3'
 gem 'bio-tabix', '1.0.1'
 gem 'bio-ucsc-util', '0.1.2'
 #gem 'bio-ucsc-util', :path => '~/gems/bio-ucsc-util'
-git 'git://github.com/throwern/sunspot.git' do
-  gem 'sunspot'
-  gem 'sunspot_rails'
-  gem 'sunspot_solr'
-end
+# git 'git://github.com/throwern/sunspot.git' do
+#   gem 'sunspot'
+#   gem 'sunspot_rails'
+#   gem 'sunspot_solr'
+# end
+gem 'sunspot', '~> 2.1.1'
+gem 'sunspot_rails', '~> 2.1.1'
+gem 'sunspot_solr', '~> 2.1.1'
 # gem 'sunspot', :path => '~/gems/sunspot/sunspot'
 # gem 'sunspot_rails', :path => '~/gems/sunspot/sunspot_rails'
 # gem 'sunspot_solr', :path => '~/gems/sunspot/sunspot_solr'
