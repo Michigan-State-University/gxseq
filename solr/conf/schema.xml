@@ -60,20 +60,22 @@
     <fieldType name="rand" class="solr.RandomSortField" omitNorms="true"/>
     <!-- *** This fieldType is used by Sunspot! *** -->
     <fieldType name="text" class="solr.TextField" omitNorms="false">
-		  <analyzer type="query">
-		    <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-		    <!-- <filter class="solr.StandardFilterFactory"/> -->
-		    <filter class="solr.LowerCaseFilterFactory"/>
-		    <!-- <filter class="solr.PorterStemFilterFactory"/> -->
-		  </analyzer>
-		  <analyzer type="index">
-		    <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-		    <!-- <filter class="solr.StandardFilterFactory"/> -->
-		    <filter class="solr.LowerCaseFilterFactory"/>
-		    <!-- <filter class="solr.PorterStemFilterFactory"/> -->
-			  <!-- <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true" /> -->
-			  <!-- <filter class="solr.NGramFilterFactory" minGramSize="3" maxGramSize="15"/> -->
-		  </analyzer>
+      <analyzer type="query">
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <!-- <filter class="solr.StandardFilterFactory"/> -->
+        <filter class="solr.LowerCaseFilterFactory"/>
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^\p{Punct}*(.+?)\p{Punct}*$" replacement="$1"/>
+        <!-- <filter class="solr.PorterStemFilterFactory"/> -->
+      </analyzer>
+      <analyzer type="index">
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <!-- <filter class="solr.StandardFilterFactory"/> -->
+        <filter class="solr.LowerCaseFilterFactory"/>
+        <filter class="solr.PatternReplaceFilterFactory" pattern="^\p{Punct}*(.+?)\p{Punct}*$" replacement="$1"/>
+        <!-- <filter class="solr.PorterStemFilterFactory"/> -->
+        <!-- <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true" /> -->
+        <!-- <filter class="solr.NGramFilterFactory" minGramSize="3" maxGramSize="15"/> -->
+      </analyzer>
     </fieldType>
     <!-- *** This fieldType is used by Sunspot! *** -->
     <fieldType name="boolean" class="solr.BoolField" omitNorms="true"/>
