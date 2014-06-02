@@ -76,10 +76,10 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     # if there is a result, only render the first
     if params[:seqfeature_id] and request.xhr?
       if @search.total == 0
-        render :text => 'not found..'
+        render :text => '*Does not match search'
       else
         @search.each_hit_with_result do |hit,feature|
-          render :partial => 'hit_definition', :locals => {:hit => hit, :feature => feature}
+          render :partial => 'hit_definition', :locals => {:hit => hit, :feature => feature, :blast_run_fields => @blast_run_fields}
           break
         end
       end
@@ -299,8 +299,8 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     def setup_xhr_form
       @skip_locations=@extjs=true
       @blast_reports = @seqfeature.blast_iterations
-      @changelogs = Version.order('id desc').where(:parent_id => @seqfeature.id).where(:parent_type => @seqfeature.class.name)
-      @changelogs = @changelogs.where{item_type != 'Biosql::Location'}.where{item_type != 'GeneModel'}
+      @changelogs = @seqfeature.related_versions
+      @changelogs = @changelogs.where{item_type != 'Biosql::Location'}
     end
     
     def check_and_set_trait_id_param(assembly)
