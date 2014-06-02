@@ -1,0 +1,30 @@
+<%= render :partial => "admin/sidebar" %>
+<h1 class="pagetitle">Listing Tooltips</h1>
+
+<table class="listing">
+  <tr>
+    <th>Title</th>
+    <th>Locale</th>
+    <th>Markup</th>
+    <th>Preview</th>
+    <th></th>
+  </tr>
+
+<% @tooltips.each do |tooltip| %>
+  <tr>
+    <td><%= tooltip.title %></td>
+    <td><%= tooltip.locale %></td>
+    <td><%= tooltip.markup %></td>
+    <td><%= truncate(tooltip.content,:length => 100) %></td>
+    <td>
+      <%= link_to 'Show', [:admin,tooltip] %> |
+      <%= link_to 'Edit', edit_admin_tooltip_path(tooltip) %> |
+      <%= link_to 'Destroy', [:admin,tooltip], :confirm => 'Are you sure?', :method => :delete %>
+    </td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Tooltip', new_admin_tooltip_path, :class => 'button' %>

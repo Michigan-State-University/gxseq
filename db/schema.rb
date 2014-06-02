@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140421145415) do
+ActiveRecord::Schema.define(:version => 20140529194227) do
 
   create_table "assemblies", :force => true do |t|
     t.integer  "taxon_id",   :precision => 38, :scale => 0
@@ -328,28 +328,6 @@ ActiveRecord::Schema.define(:version => 20140421145415) do
 
   add_index "hits", ["blast_iteration_id"], :name => "i_hits_blast_iteration_id"
 
-  create_table "hsps", :force => true do |t|
-    t.integer "hit_id",       :precision => 38, :scale => 0
-    t.decimal "bit_score",    :precision => 9,  :scale => 4
-    t.integer "score",        :precision => 38, :scale => 0
-    t.integer "query_from",   :precision => 38, :scale => 0
-    t.integer "query_to",     :precision => 38, :scale => 0
-    t.integer "hit_from",     :precision => 38, :scale => 0
-    t.integer "hit_to",       :precision => 38, :scale => 0
-    t.integer "query_frame",  :precision => 38, :scale => 0
-    t.integer "hit_frame",    :precision => 38, :scale => 0
-    t.integer "identity",     :precision => 38, :scale => 0
-    t.integer "positive",     :precision => 38, :scale => 0
-    t.integer "gaps",         :precision => 38, :scale => 0
-    t.integer "align_length", :precision => 38, :scale => 0
-    t.string  "evalue"
-    t.text    "query_seq"
-    t.text    "hit_seq"
-    t.text    "midline"
-  end
-
-  add_index "hsps", ["hit_id"], :name => "index_hsps_on_hit_id"
-
   create_table "location", :primary_key => "location_id", :force => true do |t|
     t.integer  "seqfeature_id", :limit => 10, :precision => 10, :scale => 0,                :null => false
     t.integer  "dbxref_id",     :limit => 10, :precision => 10, :scale => 0
@@ -452,7 +430,6 @@ ActiveRecord::Schema.define(:version => 20140421145415) do
     t.integer  "group_id",                           :precision => 38, :scale => 0
     t.integer  "concordance_set_id",                 :precision => 38, :scale => 0
     t.integer  "total_count",                        :precision => 38, :scale => 0
-    t.string   "stranded"
     t.string   "flip_strand"
   end
 
@@ -641,6 +618,15 @@ ActiveRecord::Schema.define(:version => 20140421145415) do
   create_table "term_synonym", :id => false, :force => true do |t|
     t.string   "ora_synonym",                                              :null => false
     t.integer  "term_id",     :limit => 10, :precision => 10, :scale => 0, :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "tooltips", :force => true do |t|
+    t.string   "title"
+    t.text     "content"
+    t.string   "markup",     :default => "markdown"
+    t.string   "locale"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

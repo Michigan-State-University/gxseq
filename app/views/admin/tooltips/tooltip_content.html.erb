@@ -1,0 +1,9 @@
+<h2>Tooltip Help</h2>
+<p id="notice"><%= notice %></p>
+
+<% unless @tooltip.blank? %>
+<%= raw(@tooltip.content_to_html) %>
+<% end %>
+
+<p><br/><%= link_to "Go Back", request.referer %></p>
+

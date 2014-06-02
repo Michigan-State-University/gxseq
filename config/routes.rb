@@ -11,7 +11,7 @@ GenomeSuite::Application.routes.draw do
   match '/tutorial' => 'help#tutorial', :as  => :tutorial
   match 'sitemap' => 'help#sitemap', :as => :sitemap
   match 'intro' => 'help#index', :as => :intro
-
+ 
   ## biosql - both namespaced and simple urls direct to namespaced controllers
   ##
   # biosql namespaced helper, simple url
@@ -252,6 +252,9 @@ GenomeSuite::Application.routes.draw do
     scope :module => 'biosql', :as => 'biosql' do
       resources :ontologies
       resources :terms
+    end
+    resources :tooltips do
+      get 'tooltip_content', :on => :collection
     end
   end
   
