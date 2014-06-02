@@ -13,7 +13,14 @@
 }
 
 .simple-tooltip-close {
-	text-align: right;
+	float: right;
+}
+.simple-tooltip-close span{
+  width: 1em;
+  height: 1em;
+  margin: 0.5em;
+  cursor: pointer;
+  background-image:url('../images/simple_tooltip_close_icon.png');
 }
 
 #simple-tooltip {

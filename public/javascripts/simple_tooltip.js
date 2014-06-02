@@ -1,7 +1,6 @@
 // jQuery code for the simple_tooltip gem
 jQuery(document).ready(function() {
 
-	var close_icon_file = "/images/simple_tooltip_close_icon.png";
 	var url = null;
 			
 	jQuery('.simple-tooltip-help-icon').mouseenter(function(e) {
@@ -44,8 +43,8 @@ jQuery(document).ready(function() {
 			jQuery.get(url, function(data) {
 
 				// setup a close button within the tooltip at top right
-				var close_div = "<div id=\"simple-tooltip-close\" class=\"simple-tooltip-close\">" +
-								"<img src=\"" + close_icon_file + "\" alt=\"Close tooltip\"/></div>";
+				var close_div = "<div id=\"simple-tooltip-close\" class=\"simple-tooltip-close\"><span class=\"simple-tooltip-close\"></span></div>";
+
 
 				jQuery("body").append("<div id='simple-tooltip'>" + close_div + data + "</div>");
 				
