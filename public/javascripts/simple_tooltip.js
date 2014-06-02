@@ -16,7 +16,7 @@ jQuery(document).ready(function() {
 			this.title = null;
     	
 			// get the content for this tooltip by ajax and create the popup 
-			url = "/admin/tooltips/tooltip_content?js=true&title=" + this.name + "&locale=" + get_locale(this.className);
+			url = this.href+'&js=true';
 			jQuery.get(url, function(data) {
 
 				jQuery("body").append("<div id='simple-tooltip'>" + data + "</div>");
@@ -40,7 +40,7 @@ jQuery(document).ready(function() {
 		// setup tooltip on click
 		if(jQuery(this).hasClass('simple-tooltip-clickable')) {
 		
-			url = "/admin/tooltips/tooltip_content?js=true&title=" + this.name + "&locale=" + get_locale(this.className);
+			url = this.href+'&js=true';
 			jQuery.get(url, function(data) {
 
 				// setup a close button within the tooltip at top right
