@@ -75,7 +75,7 @@ class VariantsController < ApplicationController
       @variants = []
       @limit = 100000
       begin
-        @variants = @variant.get_data(@sequence_name,0,@bioentry.length,{:only_variants => true, :limit => @limit})
+        @variants = @variant.get_data(@sequence_name,0,@bioentry.length,{:only_variants => true, :no_allele => true,:limit => @limit})
       rescue => e
         logger.info "\n\n#{$!}\n\n#{e.backtrace}"
       end

@@ -4,9 +4,9 @@ d3.linechart = function(config){
   data = null;
   containerId = config.graph;
   tooltipName = config.tooltip;
-  domainType = config.domaintype||'ordinal';
-  mouseoverFunc = config.mouseover;
-  mouseclickFunc = config.mouseclick;
+  var domainType = config.domaintype||'ordinal';
+  var mouseoverFunc = config.mouseover;
+  var mouseclickFunc = config.mouseclick;
   // Setup global values
   var selection = d3.select(containerId);
   var m = config.margins || [0, 60, 100, 80]; // margins
@@ -99,7 +99,7 @@ d3.linechart = function(config){
     // Get all of the categories from the first entry
     categories = data[0].values.map(function(v){return v.x})
     // Setup Scale and domain
-    if(domainType = 'linear'){
+    if(domainType == 'linear'){
       maxX = d3.max(categories)
       x = d3.scale.linear()
         .domain([0,maxX])

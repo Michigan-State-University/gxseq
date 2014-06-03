@@ -54,6 +54,7 @@ class TabixVcf < Tabix
     
     sample = opts[:sample]    
     only_variants = opts[:only_variants]
+    no_allele = opts[:no_allele]||false
     
     # find sample index
     if(sample && !sample.blank?)
@@ -95,7 +96,7 @@ class TabixVcf < Tabix
           end
         end
         
-        if sample
+        if sample && !no_allele
           # get gt
           gt = data[9+sample_idx].split(":")[0]
           # create second allele

@@ -116,18 +116,5 @@ class Combo < Sample
     return data
   end
   
-  def json_summary(opts={})
-    bioentry = opts[:bioentry]
-    return [].to_json unless bioentry
-    count = opts[:density]||1000
-    gap = bioentry.length/count.to_f
-    data = [{
-      :id  => bioentry.id,
-      :name => bioentry.accession,
-      :values => summary_data(0,bioentry.length,count,bioentry).collect.with_index{|d,i|
-        { :x => (i*gap).to_i, :y => d }
-      }
-    }].to_json
-  end
 end
 

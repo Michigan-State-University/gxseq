@@ -1,26 +1,6 @@
-<% content_for :head do %>
-	<%= render :partial => "shared/extjs" %>
-	<%= render :partial => "shared/extjs_css_gray" %>
-<% end %>
-
-<% unless @bioentry.nil? %>
-  <div id="graphics_container">
-    <%= render :partial => 'biosql/bioentries/form_select', :locals => {:reload_path => url_for(@chip_seq), :bioentry => @bioentry} %>
-    View this in <%= link_to "Sequence Viewer", bioentry_path(@bioentry, :tracks => @chip_seq.tracks.map(&:id)) %>
-    <div id='sample_chart'>
-    	<%= swf_tag "mixed_plot.swf", 
-    		:id => "#{@chip_seq}_plot", 
-    		:size => "600x300", 
-    		:flashvars => {
-    			:checklabel => "Show Peaks", 
-    			:pointseries => "Peaks", 
-    			:lineseries => "Tag Count",
-    			:entry_id => @bioentry.id,
-    			:id => @chip_seq.id, 
-    			:local_url => "#{root_path}chip_seqs/"
-    		} %>
-    </div>
-  </div>
-<% else %>
-  <span style="color:darkred">! No Bioentries found for assembly: <%= @chip_seq.assembly.name_with_version %></span><br/>
-<% end %>
+<%= render :partial => "samples/seq_density", :locals => {
+    :sample => @chip_seq,
+    :bioentry => @bioentry,
+    :data => @chip_seq.density_chart_summary( :bioentry => @bioentry, :density => (params[:density]||500).to_i )
+  }
+%>

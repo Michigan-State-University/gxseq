@@ -231,4 +231,18 @@ class Sample < ActiveRecord::Base
     end
     concordance_items.find_by_bioentry_id(id).try(:reference_name)
   end
+  
+  def density_chart_summary(opts={})
+    bioentry = opts[:bioentry]
+    return [] unless bioentry
+    count = opts[:density]||1000
+    gap = bioentry.length/count.to_f
+    data = [{
+      :id  => bioentry.id,
+      :name => bioentry.accession,
+      :values => summary_data(0,bioentry.length,count,bioentry).collect.with_index{|d,i|
+        { :x => (i*gap).to_i, :y => d.round(4) }
+      }
+    }]
+  end
 end
