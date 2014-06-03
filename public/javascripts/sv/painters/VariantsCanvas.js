@@ -101,7 +101,7 @@ Ext.define('Sv.painters.VariantsCanvas',{
 		      self.paintBox(variant.cls, x, y, w, h);		      
 		      
 					  
-          if(w > 4)
+          if(w > 2)
           {
 				    if(variant.cls == 'insertion')
             {
@@ -133,7 +133,7 @@ Ext.define('Sv.painters.VariantsCanvas',{
                 letterize(brush, variant.seq, x, y, w, h, container,variant.cls);
               }              
             }
-            if((w>=5 && variant.cls != 'match') || w > 10)
+            if((w>=3 && variant.cls != 'match') || w > 10)
   					{
               newDivs.push("<div id=seq_variant_"+variant.id+" data-pos="+variant.pos+" style='width: "+w+"px; height: "+h+"px; left: "+x+"px; top: "+y+"px; cursor: pointer; position: absolute;'></div>");
             }
@@ -160,37 +160,14 @@ Ext.define('Sv.painters.VariantsCanvas',{
 		            for (var i=0; i<length; i++)
 		            {
 		                var letter = sequence.charAt(i);
-                    
-                    // if(cls=='match')
-                    // {
-                    //   switch(letter)
-                    //   {
-                    //     case 'A': letter = 'p_A';break;
-                    //                        case 'T': letter = 'p_T';break;
-                    //                        case 'C': letter = 'p_C';break;
-                    //                        case 'G': letter = 'p_G';break;
-                    //                        default : letter = 'p_N';
-                    //   }
-                    // }else{
-  		                switch (letter)
-  		                {
-  		                    case 'A': letter = 'A_trans';break;
-  		                    case 'T': letter = 'T_trans';break;
-  		                    case 'C': letter = 'C_trans';break;
-  		                    case 'G': letter = 'G_trans';break;
-  		                    case 'N': letter = 'N_trans';break;
-  		                    case 'a': letter = 'A_trans'; break;
-  		                    case 't': letter = 'T_trans'; break;
-  		                    case 'c': letter = 'C_trans'; break;
-  		                    case 'g': letter = 'G_trans'; break;
-  		                    default : letter = 'N_trans';
-  		                }
-		                //}
-		                //clean += letter;
 
 		                var letterX = x + (i * letterW) + (i >= half ? w-2*readLength : 0);
 
-		                self.paintBox(letter, letterX, y, letterW, h);
+		                brush.fillStyle = '#fff';
+		                var oldfont = brush.font;
+                    brush.font = 'bold '+(letterW+1)+'px'+' courier new, monospace';
+                    brush.fillText(letter,letterX,y+h-1);
+                    brush.font = oldfont;
 
 		            };
 		        }
