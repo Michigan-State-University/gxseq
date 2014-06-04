@@ -305,7 +305,7 @@ class Assembly < ActiveRecord::Base
         ConcordanceSet.where{assembly_id == my{id}}.delete_all
         # Use destroy on paperclip attachments
         samples.destroy_all
-        gc_file.destroy
+        gc_file.destroy if gc_file
       end
     rescue => e
       puts "Error: #{e}"
