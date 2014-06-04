@@ -46,7 +46,7 @@
 <br/>
 
 <% if data==[] || data[0][:values]==[] %>
-  <span style="color:darkred">No data available for: <%= bioentry.display_name %></span><br/>
+  <span style="color:darkred">No data available for: <%= bioentry.try(:display_name) || 'No Bioentry Assigned' %></span><br/>
   <span style="color:darkred">Contact the site administrator</span><br/><br/>
 <% else %>
   <div id="graph" style="width:90%;height:300px;padding-top:1em"></div>

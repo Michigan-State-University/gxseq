@@ -215,12 +215,15 @@ FactoryGirl.define do
     version 1
     ignore do
       seq_setup Hash.new(:length => 100)
+      skip_seq false
     end
     factory :public_bioentry do
       association :assembly, :factory => :public_assembly
     end
     after(:create) do |entry, evaluator|
-      FactoryGirl.create(:biosequence, {:bioentry => entry}.merge(evaluator.seq_setup))
+      unless evaluator.skip_seq
+        FactoryGirl.create(:biosequence, {:bioentry => entry}.merge(evaluator.seq_setup))
+      end
     end
   end
   factory :biosequence, :class => "Biosql::Biosequence" do

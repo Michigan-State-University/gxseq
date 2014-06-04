@@ -297,8 +297,11 @@ class Assembly < ActiveRecord::Base
         GeneModel.where{bioentry_id.in my{b_ids}}.delete_all
         ConcordanceItem.where{bioentry_id.in my{b_ids}}.delete_all
         Peak.where{bioentry_id.in my{b_ids}}.delete_all
-        # TODO: test this delte on >1000 ids
-        Biosql::Bioentry.where{bioentry_id.in my{b_ids.map(&:bioentry_id)}}.delete_all
+        # remove the bioentries
+        b_id_arr = b_ids.map(&:bioentry_id)
+        b_id_arr.each_slice(999) do |b_id_set|
+          Biosql::Bioentry.where{bioentry_id.in my{b_id_set}}.delete_all
+        end
         # assembly assoc
         BlastRun.where{assembly_id == my{id}}.delete_all
         Track.where{assembly_id == my{id}}.delete_all

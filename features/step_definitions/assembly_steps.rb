@@ -48,6 +48,13 @@ Given(/^the assembly has (\d+) sequence entries/) do |count|
   FactoryGirl.create_list(:bioentry,count.to_i,:assembly => assembly)
 end
 
+Given(/^the assembly has (\d+) simple sequence entries/) do |count|
+  # add bioentry because assembly needs at least one sequence
+  assembly = Assembly.first
+  assembly.should_not == nil
+  FactoryGirl.create_list(:bioentry,count.to_i,:assembly => assembly,:skip_seq => true)
+end
+
 Given(/^there is a public assembly$/) do
   assembly = FactoryGirl.create(:public_assembly)
 end
@@ -114,6 +121,18 @@ end
 
 When(/^I visit the transcriptome listing$/) do
  visit(transcriptomes_path)
+end
+
+Given(/^I delete all data from the assembly$/) do
+  assembly = Assembly.first
+  assembly.should_not == nil
+  assembly.delete_all_data
+end
+
+Then(/^the assembly should have (\d+) sequence entries$/) do |arg1|
+  assembly = Assembly.first
+  assembly.should_not == nil
+  assembly.bioentries.count.should == 0
 end
 
 
