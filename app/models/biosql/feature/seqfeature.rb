@@ -126,6 +126,15 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   def self.find_all_with_locus_tags(locus)
     self.joins(:qualifiers=>:term).where{qualifiers.term.name=='locus_tag'}.where{upper(qualifiers.value).in(locus.map(&:upcase))}
   end
+  # return all seqfeatures matching a list of qualifier values for the given key (limit list size to <= 999 if using oracle adapter)
+  def self.find_all_with_qualifier_values(key,values,opts={})
+    use_case = opts[:case_sensitive]||false
+    if(use_case)
+      self.joins(:qualifiers=>:term).where{qualifiers.term.name==key}.where{qualifiers.value.in(values)}
+    else
+      self.joins(:qualifiers=>:term).where{qualifiers.term.name==key}.where{upper(qualifiers.value).in(values.map(&:upcase))}
+    end
+  end
   # return a list of seqfeatures overlapping a particular region on a bioentry
   # Optional types[] array will limit results to the supplied types
   def self.find_all_by_location(start=1, stop=2,bioentry_id=nil,types=[])

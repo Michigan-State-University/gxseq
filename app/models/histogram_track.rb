@@ -52,7 +52,7 @@ class HistogramTrack < Track
   end
   
   def has_peaks
-    "#{sample.respond_to?('peaks') ? (sample.peaks.size > 0) : false}"
+    sample.respond_to?('peaks') ? (sample.peaks.size > 0) : false
   end
   
   def style

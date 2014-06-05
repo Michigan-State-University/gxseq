@@ -20,6 +20,7 @@ class Expression < Thor
   method_option :feature_type, :aliases => '-f', :required => true, :desc => 'Supply the feature type. "Mrna" for a transcriptome.'
   method_option :use_search_index, :aliases => '-u', :default => false
   method_option :assembly_id, :aliases => '-a', :type => :numeric, :required => true, :desc => 'Supply the ID for sequence taxonomy. Use thor taxonomy:list to lookup'
+  method_option :key_term, :aliases => '-k', :default => 'locus_tag', :desc => 'Supply the key term used to find features'
   method_option :sample, :desc => 'Supply exact sample name for lookup'
   method_option :sample_def, :desc => 'Supply text to find sample by description. Ignored if --sample/-e provided'
   def load(input_file)
@@ -157,14 +158,14 @@ class Expression < Thor
           seqfeature_ids = search.hits.collect{|hit| hit.stored(:id)}
           feature_ids = search.hits.collect{|hit| hit.stored(:locus_tag)}
         else
-          features = Biosql::Feature::Seqfeature.find_all_with_locus_tags(batch_ids)
+          features = Biosql::Feature::Seqfeature.find_all_with_qualifier_values(options[:key_term],batch_ids,{:case_sensitive => true})
             .includes(:bioentry,:qualifiers => [:term])
             .where{bioentry.assembly_id == my{sample.assembly_id}}
             .where{seqfeature.type_term_id == my{type_term_id}}
           # Add Id's to the running total array
           seqfeature_ids.concat(features.map(&:seqfeature_id))
           # Collect the locus tags for this batch
-          feature_ids = features.collect{|f|f.locus_tag.value}
+          feature_ids = features.collect{|f|f.qualifiers.select{|q|q.term.name==options[:key_term]}.first.value}
         end
         # check for missing locus
         if feature_ids.size != batch_ids.size
