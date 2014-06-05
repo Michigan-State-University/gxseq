@@ -32,7 +32,7 @@
       <% types.each do |type| %>
         <p>
           <b>
-          <%= link_to type.display_name+': '+number_with_delimiter(sample.feature_counts.joins(:seqfeature).where{seqfeature.display_name == 'Gene'}.count),
+          <%= link_to type.display_name+': '+number_with_delimiter(sample.feature_counts.joins(:seqfeature).where{seqfeature.type_term_id == type.type_term_id}.count),
             expression_results_path(
               :assembly_id => sample.assembly_id,
               :type_term_id => type.type_term_id,
