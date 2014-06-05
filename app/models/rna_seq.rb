@@ -63,13 +63,15 @@ class RnaSeq < Sample
   # creates ReadsTracks if a bam is present otherwise HistogramTracks are created
   def create_tracks
     if(bam)
-      unless reads_track
-        create_reads_track(:assembly => assembly)
-        # replace the histogram track as soon as we have a bam
-        histogram_track.destroy if histogram_track
-      end
-    else
+      create_reads_track(:assembly => assembly) unless reads_track
+      # replace the histogram track as soon as we have a bam
+      histogram_track.destroy if histogram_track
+    elsif(big_wig)
       create_histogram_track(:assembly => assembly) unless histogram_track
+    else
+      #remove any existing tracks
+      histogram_track.destroy if histogram_track
+      reads_track.destroy if reads_track
     end
   end
   
