@@ -47,14 +47,10 @@ var BaseJS = (function()
 		request(
 		{
 			url : params.url || '',
-			data : {
-				jrws : Ext.encode({
-					method : 'syndicate',
-					param  : {
-            bioentry : params.bioentry,
-            sample : params.sample
-					}
-				})
+			data : 
+			{
+			  bioentry : params.bioentry,
+  			sample : params.sample
 			},
 			requestJSON : false,
 			receiveJSON : true,

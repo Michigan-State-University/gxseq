@@ -1,13 +1,11 @@
 xml.instruct! :xml, :version  => "1.0", :encoding  => "UTF-8"
 xml.chart do
-  c_item = @chip_chip.concordance_items.where(:bioentry_id => @bioentry.id).first
-  bioentry = c_item.bioentry
-  bc = bioentry.length
+  bc = @bioentry.length
   num=400
-  @chip_chip.summary_data(0,bioentry.length,num,c_item.reference_name).each_with_index do |n,idx|
+  @chip_chip.summary_data(0,bc,num,@bioentry).each_with_index do |n,idx|
     xml.linedata(:x => (idx*(bc/num)).ceil, :y => n)
   end
-  @chip_chip.peaks.with_bioentry(bioentry.id).each do |p|
+  @chip_chip.peaks.with_bioentry(@bioentry.id).each do |p|
     xml.pointdata(:x => p.pos, :y => p.val)
   end
 end

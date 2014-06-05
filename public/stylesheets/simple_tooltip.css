@@ -1,0 +1,54 @@
+
+.simple-tooltip-help-icon {
+	text-decoration: none;
+}
+
+.simple-tooltip-help-icon>img {
+	vertical-align: middle;
+	border: none;
+}
+
+.simple-tooltip-help-icon:hover {
+	background: none;
+}
+
+.simple-tooltip-close {
+	float: right;
+}
+.simple-tooltip-close span{
+  width: 1em;
+  height: 1em;
+  margin: 0.5em;
+  cursor: pointer;
+  background-image:url('../images/simple_tooltip_close_icon.png');
+}
+
+#simple-tooltip {
+	position:   absolute;
+	border:     1px solid #333;
+	background: #ffffd8;
+	padding:    1em;
+	color:      #000;
+	display:    none;
+	text-align: left;
+}
+
+#simple-tooltip p{
+  margin: .15em 0 .15em 0;
+}
+
+#simple-tooltip li{
+  margin-left: 2.5em;
+  list-style-type: disc;
+}
+
+#simple-tooltip h1{
+  margin-top: 1em;
+}
+
+#simple-tooltip h2{
+  margin-top: .5em;
+  font-size: 90%;
+}
+
+

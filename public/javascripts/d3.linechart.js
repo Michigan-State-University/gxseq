@@ -1,11 +1,12 @@
 d3.linechart = function(config){
   var chart = {};
-  var area, areas,brushable, color, containerId, data, height, line, showLegend,start, svg, tooltipName, width, x, xAxis, y, yAxis, maxY;
+  var area, areas,brushable, color, containerId, data, div, height, line, showLegend,start, svg, tooltipName, width, x, xAxis, y, yAxis, minY, maxY;
   data = null;
   containerId = config.graph;
   tooltipName = config.tooltip;
-  mouseoverFunc = config.mouseover;
-  mouseclickFunc = config.mouseclick;
+  var domainType = config.domaintype||'ordinal';
+  var mouseoverFunc = config.mouseover;
+  var mouseclickFunc = config.mouseclick;
   // Setup global values
   var selection = d3.select(containerId);
   var m = config.margins || [0, 60, 100, 80]; // margins
@@ -14,14 +15,14 @@ d3.linechart = function(config){
   var lineColor = "#069";
   var negColor = "#909"
   var highlightColor = "#f70";
-  
+
   function mouseclick(data,idx) {
     var item = d3.select(this);
     if(mouseclickFunc){mouseclickFunc.call(item.datum());}
   }
   function mouseover(data,idx) {
     var item = d3.select(this);
-    if(mouseoverFunc){mouseoverFunc.call(idx);}
+    if(mouseoverFunc){mouseoverFunc.call(this,item,idx,div,x,y);return;}
     chart.highlight( item.data()[0].id );
     div.text(item.data()[0][tooltipName])
     .style("left", (d3.event.pageX - 80) + "px")
@@ -35,7 +36,7 @@ d3.linechart = function(config){
     .style("opacity",0)
   }
   function brush(){
-    y.domain(brushable.empty() ? [0,maxY] : brushable.extent());
+    y.domain(brushable.empty() ? [minY,maxY] : brushable.extent());
     svg.select(".y.axis").attr("display",'').call(yAxis);
     svg.selectAll(".series").select("path.line").attr("d", function(d) { return line(d.values)})
   }
@@ -48,7 +49,7 @@ d3.linechart = function(config){
       .style("stroke",function(d){return d.r<0 ? negColor: lineColor})
       //.style("stroke-width",function(d){return d.id==highlight_id ? 3: 1})
       //.style("stroke",lineColor)
-      .style("opacity",0.3)
+      .style("opacity",0.4)
       .style("stroke-width",2)
       .attr("id",function(d){return "i"+d.id})
       .attr("d", function(d) { return line(d.values)})
@@ -65,7 +66,7 @@ d3.linechart = function(config){
     display(null,data);
   }
   // Add the tooltip
-  var div = selection.append("div")
+  div = selection.append("div")
     .attr("class", "tooltip")
     .style("opacity", 1e-6);
   // Highlight series with given id
@@ -76,12 +77,12 @@ d3.linechart = function(config){
   // Un-highlight series with given id
   chart.unhighlight=function(itemId){
     //var item = d3.select('#i'+itemId).style("stroke", function(d){return d.r<0 ? negColor: lineColor}).style('opacity', 0.5).style('stroke-width',2);
-    d3.selectAll("path.line").style("stroke", function(d){return d.r<0 ? negColor: lineColor}).style('opacity', 0.5).style('stroke-width',2);
+    d3.selectAll("path.line").style("stroke", function(d){return d.r<0 ? negColor: lineColor}).style('opacity', 0.4).style('stroke-width',2);
   };
   //display the data
   var display = function(error, rawData) {
     var g, index, maxX, requests;
-    data = rawData
+    data = rawData;
     var highlight_id = rawData.highlight
     // Get the maximum of the nested values
     maxY = d3.max(data.map(function(item) {
@@ -89,17 +90,30 @@ d3.linechart = function(config){
           return d.y;
         }))
       }))
+    minY = d3.min(data.map(function(item) {
+        return d3.min(item.values.map(function(d) {
+          return d.y;
+        }))
+      }))
+    if(minY > 0){minY=0}
     // Get all of the categories from the first entry
     categories = data[0].values.map(function(v){return v.x})
     // Setup Scale and domain
-    x = d3.scale.ordinal()
-      .domain(categories)
-      .rangePoints([0, width]);
+    if(domainType == 'linear'){
+      maxX = d3.max(categories)
+      x = d3.scale.linear()
+        .domain([0,maxX])
+        .range([0, width]);
+    }else{
+      x = d3.scale.ordinal()
+        .domain(categories)
+        .rangePoints([0, width]);
+    }
     y = d3.scale.linear()
-      .domain([0, maxY])
+      .domain([minY, maxY])
       .range([height,0]);
     brushY = d3.scale.linear()
-      .domain([0, maxY])
+      .domain([minY, maxY])
       .range([height,0]);
     // Generate the curves
     line = d3.svg.line()

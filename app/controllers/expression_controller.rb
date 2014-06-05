@@ -193,7 +193,7 @@ class ExpressionController < ApplicationController
   def check_xhr
     if params[:seqfeature_id] and request.xhr?
       if @search.total == 0
-        render :text => 'not found..'
+        render :text => '*Does not match search'
       else
         @search.each_hit_with_result do |hit,feature|
           render :partial => 'hit_definition', :locals => {:hit => hit, :feature => feature, :definition_type => params[:definition_type], :multi_definition_type => params[:multi_definition_type]}

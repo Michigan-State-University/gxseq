@@ -14,11 +14,11 @@
 
 class Assembly < ActiveRecord::Base
   has_many :bioentries, :class_name => "Biosql::Bioentry", :order => "name asc", :dependent => :destroy
-  has_many :samples
+  has_many :samples, :order => "samples.type asc, samples.name asc"
   #NOTE sample STI - can this be dynamic?
   has_many :chip_chips, :order => "samples.name asc"
   has_many :chip_seqs, :order => "samples.name asc"
-  has_many :synthetics, :order => "samples.name asc"
+  has_many :combos, :order => "samples.name asc"
   has_many :variants, :order => "samples.name asc"
   has_many :rna_seqs, :order => "samples.name asc"
   has_many :re_seqs, :order => "samples.name asc"
@@ -38,6 +38,18 @@ class Assembly < ActiveRecord::Base
   validates_uniqueness_of :version, :scope => :taxon_id
   accepts_nested_attributes_for :samples
   validates_associated :samples
+  
+  acts_as_api
+  
+  api_accessible :listing do |t|
+    t.add :id
+    t.add :type
+    t.add :species_id
+    t.add 'species.scientific_name.name', :as => :species
+    t.add :taxon_id
+    t.add 'taxon.scientific_name.name', :as => :taxon
+    t.add :version
+  end
   
   # Defined in subclasses
   def default_tracks
@@ -148,7 +160,7 @@ class Assembly < ActiveRecord::Base
         self.gc_file = GcFile.new(:data => big_wig_file)
         self.save!
         # Write out the BigWig data
-        FileManager.wig_to_bigwig(wig_file.path, self.gc_file.data.path, chrom_file.path)
+        FileManager.wig_to_bigwig(wig_file.path, self.gc_file.data_path, chrom_file.path)
       # Close the files
       ensure
         wig_file.close
@@ -285,15 +297,18 @@ class Assembly < ActiveRecord::Base
         GeneModel.where{bioentry_id.in my{b_ids}}.delete_all
         ConcordanceItem.where{bioentry_id.in my{b_ids}}.delete_all
         Peak.where{bioentry_id.in my{b_ids}}.delete_all
-        # TODO: test this delte on >1000 ids
-        Biosql::Bioentry.where{bioentry_id.in my{b_ids.map(&:bioentry_id)}}.delete_all
+        # remove the bioentries
+        b_id_arr = b_ids.map(&:bioentry_id)
+        b_id_arr.each_slice(999) do |b_id_set|
+          Biosql::Bioentry.where{bioentry_id.in my{b_id_set}}.delete_all
+        end
         # assembly assoc
         BlastRun.where{assembly_id == my{id}}.delete_all
         Track.where{assembly_id == my{id}}.delete_all
         ConcordanceSet.where{assembly_id == my{id}}.delete_all
         # Use destroy on paperclip attachments
         samples.destroy_all
-        gc_file.destroy
+        gc_file.destroy if gc_file
       end
     rescue => e
       puts "Error: #{e}"

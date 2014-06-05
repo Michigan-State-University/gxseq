@@ -259,21 +259,23 @@ class Sequence < Thor
                   # create dbxref
                   new_dbxref_id = nil
                   unless(reference.pubmed.nil? || reference.pubmed.empty?)
-                    new_dbxref = Biosql::Dbxref.create(
-                    :dbname => "PUBMED",
-                    :accession => reference.pubmed,
-                    :version => 0  # NOTE: Not sure when to update reference version?
+                    new_dbxref = Biosql::Dbxref.find_or_create_by_dbname_and_accession_and_version(
+                    "PUBMED",
+                    reference.pubmed,
+                    0  # NOTE: Not sure when to update reference version?
                     )
                     new_dbxref_id = new_dbxref.id
                   end
-                  # create reference
-                  new_reference = Biosql::Reference.create(
-                  :dbxref_id => new_dbxref_id,
-                  :location => ref_location,
-                  :title => reference.title,
-                  :authors => ref_authors,
-                  :crc => ref_crc
-                  )
+                  # find or create reference
+                  unless (new_reference = Biosql::Reference.find_by_dbxref_id(new_dbxref_id))
+                    new_reference = Biosql::Reference.create(
+                    :dbxref_id => new_dbxref_id,
+                    :location => ref_location,
+                    :title => reference.title,
+                    :authors => ref_authors,
+                    :crc => ref_crc
+                    )
+                  end
                 end
                 entry_reference_count +=1
                 # link reference to bioentry
@@ -509,14 +511,14 @@ class Sequence < Thor
   end
   # Compare the types we loaded to the Classes that exist in the app
   def check_feature_types(type_names)
+    # TODO: convert to file check/create for missing classes
     type_names.each do |name|
-      begin
-        Biosql::Feature.const_get(name)
-      rescue
-        puts " -- #{name} class not found"
-        filepath = File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../app/models/biosql/feature/#{name.underscore}.rb")
+      filepath = File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../app/models/biosql/feature/#{name.underscore}.rb")
+      unless File.exists? filepath
+        puts " -- #{name} file not found"
+        puts "Creating #{name.underscore}.rb : #{filepath}"
+        puts "If this is not your production server, you must copy the new file to production"
         klass_code = "class Biosql::Feature::#{name} < Biosql::Feature::Seqfeature\nend"
-        puts "Creating #{name.underscore}.rb : #{filepath}\n#{klass_code}"
         begin
           raise "File Exists!" if File.exist?(filepath)
           outfile = File.open(filepath,'w')

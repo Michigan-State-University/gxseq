@@ -193,6 +193,7 @@ Ext.define("Sv.tracks.DensityTrack",{
         self.Toolbar.insert(4,self.scaleSourceSelect);
         self.Toolbar.insert(4,Ext.create('Ext.toolbar.Separator'));
         
+        //TODO - duplicate code, needs refactor
         //Peak navigation
       	if(self.hasPeaks){
              self.peak_prev = new Ext.Button({
@@ -240,20 +241,15 @@ Ext.define("Sv.tracks.DensityTrack",{
                  model: 'DataPeak',
                  proxy : {
                     type: 'ajax',
-                    url: self.data,
+                    url: self.data+'peak_genes',
                     reader : {
                         type : 'json',
                         id : 'id'
                     },
                     extraParams:{
-                         jrws : Ext.JSON.encode({
-                             method : 'peak_genes',
-                             param  : {
-                                 sample : self.sample,
-                                 bioentry : self.bioentry
-                             }
-                         }),
-                     },
+                      sample : self.sample,
+                      bioentry : self.bioentry
+                    },
                  },
                  storeId: 'peakStore'+self.id,
                  //autoLoad: true,                         
@@ -442,16 +438,11 @@ Ext.define("Sv.tracks.DensityTrack",{
       //Send request for Peak data
       Ext.Ajax.request(
       {       
-          url : self.data,
+          url : self.data+'peak_locations',
           method : 'GET',
           params : {
-              jrws : Ext.encode({
-                  method : 'peak_locations',
-                  param  : {
-                      sample : self.sample,
-                      bioentry : self.bioentry
-                  }
-              })
+            sample : self.sample,
+            bioentry : self.bioentry
           },
           success  : function(response)
           {

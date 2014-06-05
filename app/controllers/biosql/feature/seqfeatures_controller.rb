@@ -1,14 +1,13 @@
 class Biosql::Feature::SeqfeaturesController < ApplicationController
   before_filter :find_seqfeature, :except => [:index, :new, :create]
   before_filter :get_feature_data, :only => [:edit,:update]
-  authorize_resource :class => "Biosql::Feature::Seqfeature"
+  #authorize_resource :class => "Biosql::Feature::Seqfeature"
   # GET /seqfeatures
   def index
     # Defaults
     params[:page]||=1
     params[:c]||='assembly_id'
     order_d = (params[:d]=='down' ? 'desc' : 'asc')
-    params[:type_term_id] ||= Biosql::Term.seqfeature_tags.where{upper(name) == 'GENE'}.first.try(:id)
     # Filter setup
     @assemblies = Assembly.accessible_by(current_ability).includes(:taxon => :scientific_name).order('taxon_name.name')
     # Verify Bioentry param
@@ -77,10 +76,10 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     # if there is a result, only render the first
     if params[:seqfeature_id] and request.xhr?
       if @search.total == 0
-        render :text => 'not found..'
+        render :text => '*Does not match search'
       else
         @search.each_hit_with_result do |hit,feature|
-          render :partial => 'hit_definition', :locals => {:hit => hit, :feature => feature}
+          render :partial => 'hit_definition', :locals => {:hit => hit, :feature => feature, :blast_run_fields => @blast_run_fields}
           break
         end
       end
@@ -97,20 +96,19 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     when 'edit'
       redirect_to :action => :edit
     when 'standard'
-      setup_graphics_data
       @ontologies = Biosql::Term.annotation_ontologies
     when 'genbank'
       #NOTE:  Find related features (by locus tag until we have a parent<->child relationship)
       @features = @seqfeature.find_related_by_locus_tag
       @ontologies = [Biosql::Ontology.find(Biosql::Term.ano_tag_ont_id)]
     when 'history'
-      @changelogs = Version.order('id desc').where(:parent_id => @seqfeature.id).where(:parent_type => @seqfeature.class.name)
+      #@changelogs = Version.order('id desc').where{(parent_id == my{@seqfeature.id} and parent_type == my{@seqfeature.class.name}) or (item_id == my{@seqfeature.id} and item_type == my{@seqfeature.class.name})}
+      @changelogs = @seqfeature.related_versions
     when 'expression'
       assembly = @seqfeature.bioentry.assembly
       @trait_types = assembly.trait_types
       check_and_set_trait_id_param(assembly)
       get_feature_counts
-      #setup_graphics_data
     when 'coexpression'
       get_feature_counts
     when 'blast'
@@ -261,13 +259,11 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
         @seqfeatures = []
       end
     end
-    # TODO: refactor this method is duplicated from genes_controller
     def get_feature_data
       @format='edit'
       begin
         #get gene and attributes
         @seqfeature = Biosql::Feature::Seqfeature.find(params[:id], :include => [:locations,[:qualifiers => :term],[:bioentry => [:assembly]]])
-        setup_graphics_data
         @locus = @seqfeature.locus_tag.value.upcase
         @bioentry = @seqfeature.bioentry
         @annotation_terms = Biosql::Term.annotation_tags.order(:name).reject{|t|t.name=='locus_tag'}
@@ -303,31 +299,8 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     def setup_xhr_form
       @skip_locations=@extjs=true
       @blast_reports = @seqfeature.blast_iterations
-      @changelogs = Version.order('id desc').where(:parent_id => @seqfeature.id).where(:parent_type => @seqfeature.class.name)
-      @changelogs = @changelogs.where{item_type != 'Biosql::Location'}.where{item_type != 'GeneModel'}
-    end
-    
-    # TODO: refactor this method is nearly identical in genes_controller
-    def setup_graphics_data
-      @canvas_width = 2500
-      @model_height = 15
-      @edit_box_height = 320
-      min_width = 800
-      limit = 500
-      feature_size = @seqfeature.max_end - @seqfeature.min_start
-      @pixels = [(min_width / (feature_size*1.1)).floor,1].max
-      @bases = [((feature_size*1.1) / min_width).floor,1].max
-      @gui_zoom = (@pixels/@bases).floor+10
-      @view_start = @seqfeature.min_start - (feature_size*0.05).floor
-      @view_stop = (@seqfeature.min_start+(feature_size*1.05)).ceil
-      if(@seqfeature.class == Biosql::Feature::Gene)
-        @graphic_data = GeneModel.get_canvas_data(@view_start,@view_stop,@seqfeature.bioentry.id,@gui_zoom,@seqfeature.strand,limit)
-      else
-        @graphic_data = Biosql::Feature::Seqfeature.get_track_data(@view_start,@view_stop,@seqfeature.bioentry_id,{:feature => @seqfeature})
-      end
-      @depth = 3
-      @canvas_height = ( @depth * (@model_height * 2))+10 # each model and label plus padding
-      @graphic_data=@graphic_data.to_json
+      @changelogs = @seqfeature.related_versions
+      @changelogs = @changelogs.where{item_type != 'Biosql::Location'}
     end
     
     def check_and_set_trait_id_param(assembly)

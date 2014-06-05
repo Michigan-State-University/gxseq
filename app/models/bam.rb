@@ -23,14 +23,18 @@ class Bam < Asset
   def load
     update_attribute(:state, "loading")
     create_index
-    remove_temp_files
+    if local_path.blank?
+      remove_temp_files
+    end
     update_attribute(:state, "complete")
   end
   
   # removes any generated data and updates state
   def unload
-    remove_temp_files
-    destroy_index
+    if local_path.blank?
+      remove_temp_files
+      destroy_index
+    end
     update_attribute(:state, "pending")
   end
   
@@ -38,7 +42,7 @@ class Bam < Asset
   
   def open_bam
     begin
-      return Bio::DB::Sam.new(:bam=>data.path,:fasta => "").tap{|b|b.open}
+      return Bio::DB::Sam.new(:bam=>data_path,:fasta => "").tap{|b|b.open}
     rescue => e
       puts "Error Opening Bam file: #{e}"
       return false
@@ -335,13 +339,13 @@ class Bam < Asset
     # clean any old tempfiles
     remove_temp_files
     # create new tempfiles
-    bamt_path = data.path+".bamt_tmp"
-    bam1 = File.new(data.path+".bam1_tmp","w")
-    bam2 = File.new(data.path+".bam2_tmp","w")
-    bed = File.new(data.path+".bed_tmp", "w")
-    bed_sort = File.new(data.path+".bed_srt_tmp", "w")
-    bw = File.new(data.path+".bw_tmp", "w")
-    chr = File.new(data.path+".chrom.sizes","w")
+    bamt_path = data_path+".bamt_tmp"
+    bam1 = File.new(data_path+".bam1_tmp","w")
+    bam2 = File.new(data_path+".bam2_tmp","w")
+    bed = File.new(data_path+".bed_tmp", "w")
+    bed_sort = File.new(data_path+".bed_srt_tmp", "w")
+    bw = File.new(data_path+".bw_tmp", "w")
+    chr = File.new(data_path+".chrom.sizes","w")
     # write chrom.sizes data
     target_info.each do |accession,hsh|
       next unless( hsh[:length] && hsh[:length]>0)
@@ -354,14 +358,14 @@ class Bam < Asset
     samtools = Bio::DB::Sam.binary_path
     if(strand=='+')
       puts "--- strand: '+'  samtools view -f 99"
-      `#{samtools} view -bf 99 #{self.data.path} > #{bam1.path}`
+      `#{samtools} view -bf 99 #{self.data_path} > #{bam1.path}`
       puts "--- strand: '+'  samtools view -f 147"
-      `#{samtools} view -bf 147 #{self.data.path} > #{bam2.path}`
+      `#{samtools} view -bf 147 #{self.data_path} > #{bam2.path}`
     elsif(strand=='-')
       puts "--- strand: '-'  samtools view -f 83"
-      `#{samtools} view -bf 83 #{self.data.path} > #{bam1.path}`
+      `#{samtools} view -bf 83 #{self.data_path} > #{bam1.path}`
       puts "--- strand: '-'  samtools view -f 163"
-      `#{samtools} view -bf 163 #{self.data.path} > #{bam2.path}`
+      `#{samtools} view -bf 163 #{self.data_path} > #{bam2.path}`
     end
     if(strand)
       # merge strand specific bams
@@ -369,7 +373,7 @@ class Bam < Asset
       `#{samtools} merge #{bamt_path} #{bam1.path} #{bam2.path}`
       `#{APP_CONFIG[:bedtools_path]}/genomeCoverageBed -split -bg -ibam #{bamt_path} -g #{chr.path} > #{bed.path}`
     else
-      `#{APP_CONFIG[:bedtools_path]}/genomeCoverageBed -split -bg -ibam #{self.data.path} -g #{chr.path} > #{bed.path}`
+      `#{APP_CONFIG[:bedtools_path]}/genomeCoverageBed -split -bg -ibam #{self.data_path} -g #{chr.path} > #{bed.path}`
     end
     bed.flush
     bam.close
@@ -385,11 +389,11 @@ class Bam < Asset
     else
       puts "Error: Empty bed file"
     end
-    return File.open(data.path+".bw_tmp", "r")
+    return File.open(data_path+".bw_tmp", "r")
   end
   
   def remove_temp_files
-    d = Dir.new(File.dirname(data.path))
+    d = Dir.new(File.dirname(data_path))
     d.each do |f|
       File.delete(d.path+"/"+f) if( f.match(self.filename) && f.match(/\.bamt_tmp$|\.bam1_tmp$|\.bam2_tmp$|\.bw_tmp$|\.bed_tmp$|\.bed_srt_tmp$|\.chrom\.sizes$/) )
     end
@@ -403,7 +407,7 @@ class Bam < Asset
   end
   
   def index_file
-    d = Dir.new(File.dirname(data.path))
+    d = Dir.new(File.dirname(data_path))
     d.each do |f|
       if( f.match(self.filename) && f.match('bai') )
         return File.open(d.path+"/"+f)
@@ -413,7 +417,7 @@ class Bam < Asset
   end
   
   def destroy_index
-    d = Dir.new(File.dirname(data.path))
+    d = Dir.new(File.dirname(data_path))
     d.each do |f|
       File.delete(d.path+"/"+f) if( f.match(self.filename) && f.match(/\.bai$/) )
     end

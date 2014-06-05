@@ -51,7 +51,6 @@ class RnaSeqsController < ApplicationController
   end
 
   def update
-    @rna_seq.user = current_user
     @assemblies = Assembly.includes(:taxon => :scientific_name).order('taxon_name.name asc')
     if @rna_seq.update_attributes(params[:rna_seq])        
       flash[:notice] = 'mRNA-Seq was successfully updated.'

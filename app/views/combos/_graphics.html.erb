@@ -1,0 +1,14 @@
+<%= render :partial => "samples/seq_density", :locals => {
+    :sample => @combo,
+    :bioentry => @bioentry,
+    :data => @combo.density_chart_summary( :bioentry => @bioentry, :density => (params[:density]||500).to_i ).html_safe
+  }
+%>
+
+<b>Median: </b><%= @combo.median(@bioentry).round(4) %><br/>
+<b>MAD: </b><%= @combo.median_absolute_deviation(@bioentry).round(4) %><br/>
+<br/>
+<p>
+	<b>Operations:</b><br/>
+	<%= nested_links(@combo) %>
+</p>

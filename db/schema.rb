@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140211165540) do
+ActiveRecord::Schema.define(:version => 20140529194227) do
 
   create_table "assemblies", :force => true do |t|
     t.integer  "taxon_id",   :precision => 38, :scale => 0
@@ -32,6 +32,7 @@ ActiveRecord::Schema.define(:version => 20140211165540) do
     t.datetime "data_updated_at"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "local_path"
   end
 
   create_table "biodatabase", :primary_key => "biodatabase_id", :force => true do |t|
@@ -187,8 +188,8 @@ ActiveRecord::Schema.define(:version => 20140211165540) do
 
   create_table "components", :force => true do |t|
     t.string   "type"
-    t.integer  "sample_id",               :precision => 38, :scale => 0
-    t.integer  "synthetic_experiment_id", :precision => 38, :scale => 0
+    t.integer  "sample_id",       :precision => 38, :scale => 0
+    t.integer  "combo_sample_id", :precision => 38, :scale => 0
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -327,28 +328,6 @@ ActiveRecord::Schema.define(:version => 20140211165540) do
 
   add_index "hits", ["blast_iteration_id"], :name => "i_hits_blast_iteration_id"
 
-  create_table "hsps", :force => true do |t|
-    t.integer "hit_id",       :precision => 38, :scale => 0
-    t.decimal "bit_score",    :precision => 9,  :scale => 4
-    t.integer "score",        :precision => 38, :scale => 0
-    t.integer "query_from",   :precision => 38, :scale => 0
-    t.integer "query_to",     :precision => 38, :scale => 0
-    t.integer "hit_from",     :precision => 38, :scale => 0
-    t.integer "hit_to",       :precision => 38, :scale => 0
-    t.integer "query_frame",  :precision => 38, :scale => 0
-    t.integer "hit_frame",    :precision => 38, :scale => 0
-    t.integer "identity",     :precision => 38, :scale => 0
-    t.integer "positive",     :precision => 38, :scale => 0
-    t.integer "gaps",         :precision => 38, :scale => 0
-    t.integer "align_length", :precision => 38, :scale => 0
-    t.string  "evalue"
-    t.text    "query_seq"
-    t.text    "hit_seq"
-    t.text    "midline"
-  end
-
-  add_index "hsps", ["hit_id"], :name => "index_hsps_on_hit_id"
-
   create_table "location", :primary_key => "location_id", :force => true do |t|
     t.integer  "seqfeature_id", :limit => 10, :precision => 10, :scale => 0,                :null => false
     t.integer  "dbxref_id",     :limit => 10, :precision => 10, :scale => 0
@@ -444,7 +423,6 @@ ActiveRecord::Schema.define(:version => 20140211165540) do
     t.string   "a_op"
     t.string   "b_op"
     t.string   "mid_op"
-    t.string   "sequence_name"
     t.string   "state"
     t.string   "show_negative"
     t.datetime "created_at"
@@ -452,6 +430,7 @@ ActiveRecord::Schema.define(:version => 20140211165540) do
     t.integer  "group_id",                           :precision => 38, :scale => 0
     t.integer  "concordance_set_id",                 :precision => 38, :scale => 0
     t.integer  "total_count",                        :precision => 38, :scale => 0
+    t.string   "flip_strand"
   end
 
   create_table "seqfeature", :primary_key => "seqfeature_id", :force => true do |t|
@@ -496,6 +475,7 @@ ActiveRecord::Schema.define(:version => 20140211165540) do
     t.datetime "updated_at"
   end
 
+  add_index "seqfeature_qualifier_value", ["UPPER(\"VALUE\")", "seqfeature_id"], :name => "sqv_index_val"
   add_index "seqfeature_qualifier_value", ["seqfeature_id", "term_id", "rank"], :name => "sqv_idx_2", :unique => true
   add_index "seqfeature_qualifier_value", ["seqfeature_id"], :name => "sqv_idx"
   add_index "seqfeature_qualifier_value", ["term_id"], :name => "sqv_idx_1"
@@ -638,6 +618,15 @@ ActiveRecord::Schema.define(:version => 20140211165540) do
   create_table "term_synonym", :id => false, :force => true do |t|
     t.string   "ora_synonym",                                              :null => false
     t.integer  "term_id",     :limit => 10, :precision => 10, :scale => 0, :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "tooltips", :force => true do |t|
+    t.string   "title"
+    t.text     "content"
+    t.string   "markup",     :default => "markdown"
+    t.string   "locale"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

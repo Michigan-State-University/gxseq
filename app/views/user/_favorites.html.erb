@@ -26,7 +26,7 @@
               <%= link_to fav.item.label, seqfeature_path(fav.item) %>
             </td>
             <td><%= fav.item.class.name.demodulize %> </td>
-            <td><%= sliced_toggle ("#{fav.item.indexed_description} #{fav.item.blast_reports.collect(&:hit_def).join(';')}"), nil, "favorite_#{fav.id}_full_def" %></td>
+            <td><%= sliced_toggle ("#{fav.item.indexed_description} #{fav.item.blast_iterations.collect{|i|i.best_hit.definition}.join(';')}"), nil, "favorite_#{fav.id}_full_def" %></td>
             <td><%= link_to fav.item.bioentry.display_name, bioentry_path(fav.item.bioentry, :pos => fav.item.min_start)%></td>
           </tr>
         <% end %>

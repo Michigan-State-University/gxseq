@@ -33,7 +33,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   has_many :locations, :dependent  => :delete_all
   #extensions
   has_many :feature_counts
-  has_many :blast_reports, :dependent => :destroy
+  has_many :blast_reports, :dependent => :destroy ##Deprecated
   has_many :blast_iterations, :dependent => :destroy
   has_many :blast_reports_without_report, :class_name => "BlastReport", :select => [:id,:hit_acc,:hit_def,:seqfeature_id,:blast_run_id]
   has_many :favorite_seqfeatures, :foreign_key => :favorite_item_id
@@ -144,6 +144,10 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   end
   
   ## INSTANCE METHODS
+  
+  def related_versions
+    (self.versions + locations.map(&:versions) + qualifiers.map(&:versions)).flatten.compact.sort{|a,b|b.created_at<=>a.created_at}
+  end
   
   # index methods, should overriden to include associated items
   def indexed_description

@@ -1,33 +1,41 @@
+<%# content_for :head do -%>
+  <%= javascript_include_tag 'd3.v3.min' %>
+  <%= javascript_include_tag 'd3.gene_models_chart' %>
+<%# end %>
 
-<div id="gene_canvas"></div>
-	
-	<script type="text/javascript">
-	window.onload = function(){
-		draw_canvas()
+<style>
+	.x.axis line, .x.axis path {
+	  fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
 	}
-	var draw_canvas = function(){
-		var ext = Ext.get('gene_canvas')
-	
-		var container = new Ext.Element(document.createElement('DIV'));	
-		container.setStyle('position', 'relative');
-		container.setStyle('height', '100%');
-		container.setHeight(<%= @canvas_height %>)
-		container.setWidth(<%= @canvas_width %>)
-		container.appendTo(ext);
-	
-		var canvas = new Sv.painters.ModelsCanvas({
-			strand : "<%= feature.locations.first.strand == 1 ? '+' : '-' %>",
-			boxHeight : <%= @model_height %>,
-			selectable : false
-		});
-	
-		canvas.setContainer(container.dom);
-		canvas.setPixelBaseRatio(<%= @bases/@pixels.to_f %>);
-		canvas.setCheckBoundaries(false);
-		
-		var subset = Ext.JSON.decode('<%= @graphic_data.html_safe %>');
-		canvas.setData(subset);
-		canvas.paint();
-	};
+	div.tooltip {
+    position: absolute;
+    padding: 8px;
+    background: #ddd;
+    border: solid 2px #aaa;
+    border-radius: 8px;
+    pointer-events: none;
+    box-shadow:3px 3px 9px 1px #777;
+  }
+</style>
+<%= link_to "Toggle Stacking", '#',:id => 'stacking' %>
+<div id="gene_models_graphic" ></div>
+<script type="text/javascript">
 
-	</script>
+  // Setup chart with handler
+  var gene_chart = d3.gene_models_chart({
+    container:'#gene_models_graphic',
+    min: <%= min %>,
+    max: <%= max %>,
+    lMargin: <%= defined?(lmargin) ? lmargin : 0%>,
+    rMargin: <%= defined?(rmargin) ? rmargin : 0%>,
+    featureIds: '<%= feature.gene_models.map(&:id).to_json %>',
+    geneImg: '<%= image_path "models/bar.gif" %>',
+    cdsImg: '<%= image_path "models/green.gif" %>',
+    mrnaImg: '<%= image_path "models/red.gif" %>'
+  });
+  gene_chart.load('<%= datapath %>')
+
+
+</script>

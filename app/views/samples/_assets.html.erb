@@ -9,43 +9,41 @@
 <% if sample.respond_to? :peaks %>
 <div class="asset_orange">
   <div style="font-size:133%;padding-bottom:1em"><b>Total Peaks</b>: <%= sample.peaks.count %></div>
-    <div style="padding-left:1em">
-      <% if max_peak = sample.peaks.order("val desc").first %>
-      
-      <b>Maximum:</b> <%= number_to_human(max_peak.val) %><br/>
-      <b>Location:</b> <%= link_to(
-        number_to_human(max_peak.pos), 
-        bioentry_path(
-          max_peak.bioentry, 
-          :tracks => [sample.tracks.first.id], 
-          :pos => max_peak.pos
-        ) ) %><br/>
-      <% end %>
-    </div>
+  <div style="padding-left:1em">
+    <% if max_peak = sample.peaks.order("val desc").first %>
+    
+    <b>Maximum:</b> <%= number_to_human(max_peak.val) %><br/>
+    <b>Location:</b> <%= link_to(
+      number_to_human(max_peak.pos), 
+      bioentry_path(
+        max_peak.bioentry, 
+        :tracks => [sample.tracks.first.id], 
+        :pos => max_peak.pos
+      ) ) %><br/>
+    <% end %>
   </div>
 </div>
 <% end %>
 <% if sample.respond_to? :feature_counts %>
 <div class="asset_green">
-  <div style="font-size:133%;padding-bottom:1em"><b><%=
-    link_to "Expression",
-      expression_results_path(
-        :assembly_id => sample.assembly_id,
-        :type_term_id => sample.feature_counts.first.try(:seqfeature).try(:type_term_id),
-        :samples => [sample.id],
-        :c => "sample_#{sample.id}",
-        :d => "desc"
-      )
-  %></b>
-  </div>
+  <div style="font-size:133%;padding-bottom:1em"><b>Expression</b></div>
     <div style="padding-left:1em">
-      <p>
-        <b>Features:</b> <%= number_with_delimiter(sample.feature_counts.count||0) %><br/>
-      </p>
-      
-      <b>Maximum:</b> <%= number_to_human(sample.feature_counts.maximum(:normalized_count)||0) %><br/>
-      <b>Average:</b> <%= number_to_human(sample.feature_counts.average(:normalized_count)||0) %><br/>
-      <b>Minimum:</b> <%= number_to_human(sample.feature_counts.minimum(:normalized_count)||0) %><br/>
+      <% types = sample.feature_counts.joins(:seqfeature).select("distinct display_name,type_term_id") %>
+      <% types.each do |type| %>
+        <p>
+          <b>
+          <%= link_to type.display_name+': '+number_with_delimiter(sample.feature_counts.joins(:seqfeature).where{seqfeature.display_name == 'Gene'}.count),
+            expression_results_path(
+              :assembly_id => sample.assembly_id,
+              :type_term_id => type.type_term_id,
+              :samples => [sample.id],
+              :c => "sample_#{sample.id}",
+              :d => "desc"
+              )
+          %>
+          </b>
+        </p>
+      <% end %>
     </div>
 </div>
 <% end %>

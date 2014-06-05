@@ -22,9 +22,15 @@ class ReadsTrack < Track
         :sample_type => sample.class.name,
         :single => sample.single,
         :storeLocal => true,
+        :hasPeaks => has_peaks,
+        :style => style
       }
     )
 
+  end
+  
+  def has_peaks
+    "#{sample.respond_to?('peaks') ? (sample.peaks.size > 0) : false}"
   end
   
   def iconCls
@@ -32,7 +38,7 @@ class ReadsTrack < Track
   end
   
   def data_path
-    "#{root_path}/reads/track_data"
+    "#{root_path}/track/reads/"
   end
   
   def folder
@@ -45,5 +51,9 @@ class ReadsTrack < Track
   
   def description_text
     sample.description
+  end
+  
+  def style
+    sample.respond_to?('track_style') ? sample.track_style : 'area'
   end
 end

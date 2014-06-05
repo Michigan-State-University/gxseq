@@ -22,7 +22,7 @@ Ext.define('Sv.tracks.GenericFeatureTrack',{
 			containerA.addCls(self.clsAbove);
 			containerB.addCls(self.clsBelow);
 			
-			self.searchURL = self.data //TODO change the api
+			self.searchURL = self.data+'search'
 			//Force some styles
 			containerA.setStyle('position', 'relative');
 			containerB.setStyle('position', 'relative');
@@ -74,7 +74,6 @@ Ext.define('Sv.tracks.GenericFeatureTrack',{
           			    id : 'id'
           			},
           			extraParams : {
-          			   annoj_action  : 'lookup',
           			   bioentry      : self.bioentry
           			}
       			},
@@ -147,7 +146,7 @@ Ext.define('Sv.tracks.GenericFeatureTrack',{
             }
 
 			//function to handle model clicks
-			this.lookupModel = function(id)
+			this.lookupModel = function(feature_id)
 			{
 				//box = AnnoJ.getGUI().EditBox;
 		    box = AnnoJ.getGUI().InfoBox;
@@ -156,19 +155,12 @@ Ext.define('Sv.tracks.GenericFeatureTrack',{
 				box.echo("<div class='waiting'>Loading...</div>");
 				BaseJS.request(
 				{
-					url         : self.data,
+					url         : self.data+feature_id,
 					method      : 'GET',
 					requestJSON : false,
 					data        :
 					{
-						jrws 		: Ext.encode({
-							method 	: 'describe',
-							id 		: self.id,
-							param  	: {
-								id			: id,
-								bioentry	: self.bioentry
-							}
-						})
+					  bioentry	: self.bioentry
 					},
 					success  : function(response)
 					{

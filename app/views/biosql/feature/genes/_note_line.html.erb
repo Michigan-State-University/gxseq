@@ -4,7 +4,8 @@
   <!-- Last Editor -->
 	<td class="options" >
 	<% unless note.versions.empty? %>
-		<%= " #{note.versions.last.created_at.strftime("%D")}<br/> <b>#{User.find(note.versions.last.whodunnit).login}</b>".html_safe %>
+		<%= " #{note.versions.last.created_at.strftime("%D")}<br/>
+		  <b>#{User.find_by_id(note.versions.last.whodunnit).try(:login) || 'Nobody'}</b>".html_safe %>
 	<% end %>
 	</td>
   <!-- Expand arrow -->
@@ -43,14 +44,14 @@
 				<table>
 				  <tr>
 				    <td style="border:solid 2px rgb(210,210,210);width:5%"><%= note.versions.size %></td>
-						<td style="border:solid 2px rgb(215,215,215);width:15%;font-size:80%;text-align:right"><%= " #{note.versions.last.created_at.strftime("%D")}<br/> <b>#{User.find(note.versions.last.whodunnit).login}</b>".html_safe %>
+						<td style="border:solid 2px rgb(215,215,215);width:15%;font-size:80%;text-align:right"><%= " #{note.versions.last.created_at.strftime("%D")}<br/> <b>#{User.find_by_id(note.versions.last.whodunnit).try(:login) || 'Nobody'}</b>".html_safe %>
 						<td style="border:solid 2px rgb(225,225,225);font-size:90%"><%=h note.value %></td>
 				  </tr>
 					<% note.versions.reverse.each do |version| %>
 					<% next unless version.reify %>
 						<tr>
 							<td style="border:solid 2px rgb(210,210,210);width:5%"><%= version.index %></td>
-							<td style="border:solid 2px rgb(215,215,215);width:15%;font-size:80%;text-align:right"><%= version.previous ? " #{version.previous.created_at.strftime("%D")}<br/> <b>#{User.find(version.previous.whodunnit).login}</b>".html_safe : ''%>
+							<td style="border:solid 2px rgb(215,215,215);width:15%;font-size:80%;text-align:right"><%= version.previous ? " #{version.previous.created_at.strftime("%D")}<br/> <b>#{User.find_by_id(note.versions.previous.whodunnit).try(:login) || 'Nobody'}</b>".html_safe : ''%>
 							<td style="border:solid 2px rgb(225,225,225);font-size:90%"><%=h version.reify.value %></td>
 						</tr>
 					<% end %>

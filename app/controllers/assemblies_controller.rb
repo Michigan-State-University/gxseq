@@ -6,8 +6,12 @@ class AssembliesController < ApplicationController
     respond_to do |wants|
       wants.html {
         order_d = (params[:d]=='up' ? 'asc' : 'desc')
-        @assemblies = Assembly.includes{[species.scientific_name]}.paginate(:page => params[:page])
+        @assemblies = Assembly.accessible_by(current_ability).includes{[species.scientific_name]}.paginate(:page => params[:page])
         .order("taxon_name.name #{order_d}, version #{order_d}")
+      }
+      wants.json {
+        assemblies = Assembly.accessible_by(current_ability).includes{[species.scientific_name]}.order("taxon_name.name asc, version asc")
+        render_for_api :listing, :json => assemblies
       }
     end
   end

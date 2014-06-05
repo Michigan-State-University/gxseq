@@ -37,6 +37,10 @@ class Ability
     user ||= User.new
     # store the user id or nil for cache lookup
     @stored_user_id = user.id || 'guest'
+    # api role enables api post requests
+    if user.has_role?('api')
+      can :api_create, Sample
+    end
     # admin can view and edit everything
     if user.is_admin?
       can :manage, :all
@@ -73,6 +77,7 @@ class Ability
       #Samples
       can :manage, Sample, :user_id => user.id
       can [:read,:track_data,:update], Sample, :group => {:users => {:id => user.id}}
+      can :create, Combo
       #Traits
       can :read, Biosql::Ontology
       can [:read,:create], Biosql::Term
@@ -87,7 +92,7 @@ class Ability
       can :read, FeatureCount, :sample => {:user_id => user.id}
       #Blast Database
       can :read, BlastDatabase, :group => {:users => {:id => user.id}}
-      
+
       # TODO: coordinate user_id,owner_id,owns? methods for consistency (Sample,Group,What Else?)
       # Need explicit create to allow new samples
       #

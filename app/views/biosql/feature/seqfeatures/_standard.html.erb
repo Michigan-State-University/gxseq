@@ -1,18 +1,12 @@
-<% content_for :head do %>
-	<%= render :partial => "shared/extjs_css" %>
-	<%= render :partial => "shared/svjs_css" %>
-	<%= render :partial => "shared/extjs" %>
-	<%= render :partial => "shared/svjs" %>
-<% end %>
+<%# content_for :head do %>
+	<%#= render :partial => "shared/extjs_css" %>
+	<%#= render :partial => "shared/svjs_css" %>
+	<%#= render :partial => "shared/extjs" %>
+	<%#= render :partial => "shared/svjs" %>
+<%# end %>
 
 <div class="clear">
   <%= link_to ' View parent Gene ', seqfeature_path(feature.gene_model.gene) if (feature.respond_to?(:gene_model) && feature.gene_model) %><br/>
-  <!-- Graphic Gene-->
-	<div class="border" style="overflow:hidden">
-	  <%= number_line(@view_start, @canvas_width, {:height => 40,:per_pixel => (@bases/@pixels.to_f)}) %>
-		<%= "#{@bases}:#{@pixels}" %>
-		<%= render :partial => 'graphic' %>
-	</div>
 	
 	<!-- Attributes -->
 	<% @ontologies.each do |ont| %>

@@ -7,8 +7,8 @@
 
 <% content_for :item_bar do %>
     <div style="float:left">
-    <% if can? :create, Sample.new %>
-      <%= link_to "New Sample", send("new_#{sample_type}_path"), :class => "button" %>
+    <% if can? :create, sample_type.camelize.constantize.new %>
+      <%= link_to "New #{sample_type.camelize}", send("new_#{sample_type}_path"), :class => "button" %>
     <% end %>
     <%= link_to "Details", send("details_#{sample_type}s_path"),:class => "button" %>
     <%= link_to_function "Show All", "showAllRows();" %>

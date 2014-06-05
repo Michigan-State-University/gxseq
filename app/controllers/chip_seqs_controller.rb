@@ -11,7 +11,7 @@ class ChipSeqsController < ApplicationController
   
   def compute_peaks
     render :update do |page|
-      peak_count = @chip_seq.compute_peaks
+      peak_count = @chip_seq.compute_peaks(:remove => true)
       page.replace_html 'remote_peak_action', "Found #{peak_count} peaks\nRefresh to view them."
     end
   end
@@ -47,7 +47,7 @@ class ChipSeqsController < ApplicationController
   end
 
   def show
-    @bioentry = Biosql::Bioentry.find(params[:bioentry_id] || @chip_seq.assembly.bioentries.first.id) rescue nil
+    @bioentry = Biosql::Bioentry.find(params[:bioentry_id] || @chip_seq.bioentries.first.id) rescue nil
     respond_to do |format|
       format.html {}
       format.xml { render :layout => false }

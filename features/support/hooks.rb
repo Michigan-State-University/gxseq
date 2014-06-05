@@ -5,10 +5,24 @@ Before do
   #reset sunspot
   Sunspot.remove_all!
   #initialize seed data
-  #Group.find_by_name('public') ||
+  Group.delete_all
   FactoryGirl.create(:group, :name => 'public')
-  #Biosql::Term.find_by_name_and_ontology_id('locus_tag',Biosql::Term.ano_tag_ont_id) ||
   FactoryGirl.create(:locus_term)
-  #Biosql::Term.find_by_name_and_ontology_id('db_xref',Biosql::Term.ano_tag_ont_id) ||
   FactoryGirl.create(:db_xref_term)
+  ##See at_exit
+  BlastDatabase.delete_all
+  BlastDatabase.connection.execute("Insert into blast_databases (id, name) values(1,'SeedBlastDb')")
+  BlastRun.delete_all
+  BlastRun.connection.execute("Insert into blast_runs (id, blast_database_id) values(1,1)")
+end
+
+at_exit do
+  #NOTE used to avoid Seqfeature static index definition issues
+  # Pre creating a basic blast run so the id is baked into the index
+  # this blast run is used in feature steps to assign index blast defs
+  # It must exist PRIOR to loading the rails class framework in cucumber
+  BlastDatabase.delete_all
+  BlastDatabase.connection.execute("Insert into blast_databases (id, name) values(1,'SeedBlastDb')")
+  BlastRun.delete_all
+  BlastRun.connection.execute("Insert into blast_runs (id, blast_database_id) values(1,1)")
 end

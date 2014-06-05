@@ -46,7 +46,7 @@
             |
             <%= link_to 'Graph', seqfeature_path(feature,:fmt => 'expression',:fc_ids => @a_samples.map(&:id)+@b_samples.map(&:id)) %>
             |
-            <%= link_to 'Browser', bioentry_path(feature.bioentry_id,{:pos => Array(hit.stored(:start_pos)).first,:tracks => [ :models_track, :generic_feature_track, (@a_samples+@b_samples).collect{|e| e.tracks.first.id} ].flatten.uniq,}) %>
+            <%= link_to 'Browser', bioentry_path(feature.bioentry_id,{:pos => Array(hit.stored(:start_pos)).first,:tracks => [ :models_track, :generic_feature_track, (@a_samples+@b_samples).collect{|e| e.tracks.first.try(:id)} ].flatten.uniq,}) %>
           </td>
         </tr>
       <% end %>

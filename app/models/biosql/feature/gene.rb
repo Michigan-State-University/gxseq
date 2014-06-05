@@ -38,6 +38,10 @@ class Biosql::Feature::Gene < Biosql::Feature::Seqfeature
     self.gene.try(:value) || locus_tag.try(:value) || 'Unknown'
   end
   
+  def related_versions
+    (super + gene_models.map(&:related_versions)).flatten.compact.sort{|a,b|b.created_at<=>a.created_at}
+  end
+  
   ## Override text index methods to return a combination of attributes from gene, cds and mrna
   ## We want to include 'product' and 'function' from any mrna or cds that belong to this gene
   ##

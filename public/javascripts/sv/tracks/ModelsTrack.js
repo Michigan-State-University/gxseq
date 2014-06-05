@@ -22,7 +22,7 @@ Ext.define('Sv.tracks.ModelsTrack',{
 
       this.callParent(arguments);
       var self = this;
-      self.searchURL = self.data
+      self.searchURL = self.data+'/search'
 
 			
 			///////////////////////////
@@ -86,7 +86,6 @@ Ext.define('Sv.tracks.ModelsTrack',{
     			      id : 'id'
     			    },
     			    extraParams : {
-    			      annoj_action  : 'lookup',
     			      bioentry      : self.bioentry
     			    }
 			},
@@ -360,35 +359,22 @@ Ext.define('Sv.tracks.ModelsTrack',{
 		// Public Methods
 		///////////////////////////
 		//function to handle model clicks
-    lookupModel: function(id){
+    lookupModel: function(model_id){
       box = AnnoJ.getGUI().InfoBox;
       box.show();
       box.expand();
       box.echo("<div class='waiting'>Loading...</div>");
       BaseJS.request(
       {
-         url         : this.data,
+         url         : this.data+model_id,
          method      : 'GET',
          requestJSON : false,
-         data        :
-         {
-             jrws        : Ext.encode({
-                 method  : 'describe',
-                 id      : this.id,
-                 param   : {
-                     id          : id,
-                     bioentry    : this.bioentry
-                 }
-             })
-         },
          success  : function(response)
          {
              if (response.success)
              {
-                var response_data = response.data;
-                box.echo(response_data.text);
-                box.setTitle(response_data.title);
-
+                box.echo(response.data.text);
+                box.setTitle(response.data.title);
              }
              else
              {

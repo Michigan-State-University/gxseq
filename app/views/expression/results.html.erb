@@ -1,3 +1,9 @@
+<% content_for :head do -%>
+  <%= javascript_include_tag "jquery-latest.min.js" %>
+  <%= javascript_include_tag 'simple_tooltip.js' %>
+  <%= stylesheet_link_tag 'simple_tooltip' %>
+<% end -%>
+
 <% content_for :pagetitle do -%>
   Expression Matrix: <%= @assembly.name_with_version %>
 <% end -%>
@@ -49,7 +55,7 @@
             |
             <%= link_to 'Graph', seqfeature_path(feature,:fmt => 'expression',:fc_ids => @samples.map(&:id) ) %>
             |
-            <%= link_to 'Browser', bioentry_path(feature.bioentry_id,{:pos => Array(hit.stored(:start_pos)).first,:tracks => [ :models_track, :generic_feature_track, @samples.collect{|e| e.tracks.first.id} ].flatten,}) %>
+            <%= link_to 'Browser', bioentry_path(feature.bioentry_id,{:pos => Array(hit.stored(:start_pos)).first,:tracks => [ :models_track, :generic_feature_track, @samples.collect{|e| e.tracks.first.try(:id)} ].flatten,}) %>
           </td>
         </tr>
       <% end %>
