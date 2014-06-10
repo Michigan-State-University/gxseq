@@ -11,6 +11,8 @@
   <% content_for :item_bar do -%>
     <%= link_to "Open Sequence Viewer", @bioentry, :class => 'button'%>
     <%= link_to "Search Annotations", biosql_feature_seqfeatures_path(:bioentry_id => @bioentry.id, :assembly_id => @bioentry.assembly_id), :class => 'button'%>
+    <%= link_to "Download #{params[:fmt].capitalize}", bioentry_path(@bioentry, :format => params[:fmt]),
+			:class => "button", :confirm => "Depending on the volume of data available, it may take several minutes to complete your request. The File will be streamed to you as it is generated. Click OK to continue." %>
     
     <% if @bioentry.biosequence_without_seq.length < 10000 %>
       <div style="float:left">

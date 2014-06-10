@@ -101,7 +101,14 @@ class Biosql::BioentriesController < ApplicationController
   end
   
   def show
-    @bioentry = Biosql::Bioentry.find(params[:id])
+    @bioentry = Biosql::Bioentry.where{(accession == my{params[:id]}) | (bioentry_id == my{params[:id]})}.first
+    
+    if @bioentry.nil?
+      flash[:warning] = "Sequence #{params[:id]} not found!"
+      redirect_to bioentries_path
+      return
+    end
+    
     authorize! :read, @bioentry
     assembly = @bioentry.assembly
     # the feature_id will be used to lookup the given feature on load. It will NOT set the position.
@@ -155,7 +162,46 @@ class Biosql::BioentriesController < ApplicationController
       :pixels => params[:p]||params[:pixels]||@layout.try(:pixels)||1
     }
 
-    render :layout => 'sequence_viewer'
+    respond_to do |wants|
+      wants.html {
+        render :layout => 'sequence_viewer'
+      }
+      wants.genbank {
+        headers["Content-disposition"] = 'attachment;'
+        # use custom proc for response body
+        self.response_body = proc {|resp, out|
+          # write the entry header
+          out.write @bioentry.genbank_header
+          # process the features in batches (for manageable includes)
+          Biosql::Feature::Seqfeature.where(:bioentry_id => @bioentry.id).includes{[type_term,qualifiers.term,locations]}.find_in_batches(:batch_size => 500) do |feature_batch|
+            # write the feature and qualifiers
+            feature_batch.each do |feature|
+              out.write feature.to_genbank(false)
+            end
+          end
+          # write each line of sequence
+          @bioentry.biosequence.yield_genbank do |output_part|
+            out.write output_part
+          end
+          # end the entry
+          out.write "//\n"
+        }
+      }
+      wants.fasta {
+        # set disposition to attachment
+        headers["Content-disposition"] = 'attachment;'
+        # use custom proc for response body
+        # NOTE: change to streaming Enumerator for rails 3.2
+        self.response_body = proc {|resp, out|
+          # write the entry header
+          out.write @bioentry.fasta_header
+          # write each line of sequence
+          @bioentry.biosequence.yield_fasta do |output_part|
+            out.write output_part
+          end
+        }
+      }
+    end
   end
   
   def edit
