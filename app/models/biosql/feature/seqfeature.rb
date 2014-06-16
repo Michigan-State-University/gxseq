@@ -281,6 +281,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   # default na_sequence; override for custom behavior (i.e. cds)
   def na_sequence
     seq = ""
+    return seq if locations.empty?
     locations.each do |l|
       seq += bioentry.biosequence_without_seq.get_seq(l.start_pos-1, (l.end_pos-l.start_pos)+1)||''
     end
