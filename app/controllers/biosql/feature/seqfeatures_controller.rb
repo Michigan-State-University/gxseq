@@ -300,7 +300,7 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
       @skip_locations=@extjs=true
       @blast_reports = @seqfeature.blast_iterations
       @changelogs = @seqfeature.related_versions
-      @changelogs = @changelogs.where{item_type != 'Biosql::Location'}
+      @changelogs = @changelogs.where{item_type != 'Biosql::Location'} unless @changelogs.empty?
     end
     
     def check_and_set_trait_id_param(assembly)
