@@ -310,8 +310,10 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     text = ""
     if(locations.size > 1)
       text = "join(#{locations.collect(&:to_s).join(",")})"
+    elsif(!locations.empty?)
+      text = locations.first.to_s
     else
-      text = locations.first.to_s unless locations.empty?
+      text = "0..0"
     end
     if(locations.first.try(:strand).try(:to_i) == -1)
       text = "complement(#{text})"
