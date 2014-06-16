@@ -313,7 +313,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     else
       text = locations.first.to_s
     end
-    if(locations.first.strand.to_i == -1)
+    if(locations.first.try(:strand).try(:to_i) == -1)
       text = "complement(#{text})"
     end
     return text
