@@ -1,27 +1,54 @@
-<%= link_to 'Select All','#', :onclick => 'jQuery(".sample_check").attr("checked", true );' %>
-|<%= link_to 'Select None','#', :onclick => 'jQuery(".sample_check").attr("checked", false );' %>
-
+<%= link_to 'Select All','#', :onclick => 'jQuery(".sample_check").not(":hidden").attr("checked", true );' %>
+| <%= link_to 'Select None','#', :onclick => 'jQuery(".sample_check").not(":hidden").attr("checked", false );' %>
+| Filter: <%= text_field_tag('sample_filter') %>
 <%= form_tag expression_results_path, :method => :get do %>
 <%= hidden_field_tag :assembly_id, assembly.try(:id) %>
 <%= hidden_field_tag :type_term_id, type_term_id %>
-<div style="width:25em">
-  <dl style="font-weight:bold;">
-    <span style="float:left">Sample</span>
-    <span style="float:right">Mapped Fragments</span>
-  </dl>
-  <% sample_options.each do |sample| %>
-    <div style="clear:both;">
-    	<span style="float:left">
-    		<%= check_box_tag "samples[]", sample.id, (params[:samples] && params[:samples].include?(sample.id.to_s)), :class => 'sample_check'  %> 
-    		<%= sample.name %>
-    	</span>
-    	
-    	<span style="float:right">
-    	<%= number_to_human(sample.total_count,precision: 2) %></span>
-    </div>
-  <% end %>
-  <hr/ style="clear:both">
+<div class="table">
+  <table class='listing-solid-grey'>
+    <thead>
+      <th>Sample</th>
+      <th>Description</th>
+      <th>Traits</th>
+      <th style="width:10em">Mapped Reads</th>
+    </thead>
+    <% sample_options.each do |sample| %>
+      <tr class='sample' style='cursor:pointer' onclick='jQuery("#samples_<%= sample.id %>").attr("checked",!jQuery("#samples_<%= sample.id %>").attr("checked"))'>
+        <td nowrap>
+          <%= check_box_tag "samples[]", sample.id, (params[:samples] && params[:samples].include?(sample.id.to_s)),
+          :id => "samples_#{sample.id}",
+          :class => 'sample_check',
+          :onclick => 'this.checked = !this.checked'  %>
+          <b><%= sample.name %></b>
+        </td>
+        <td>
+          <%= sample.description %>
+        </td>
+        <td style='text-align:left'>
+          <% sample.traits.each do |trait| %>
+            <b><%= trait.term.name %></b>: <%= trait.value %><br/>
+          <% end %>
+        </td>
+        <td>
+          <%= sample.bam.nil? ? '' : number_to_human(sample.total_count,precision: 2) %>
+        </td>
+      </tr>
+    <% end %>
+  </table>
   <br/>
-  <%= submit_tag 'Submit', :style => "float:right"%>
+  <%= submit_tag 'Submit', :class => 'button'%>
 </div>
 <% end -%>
+
+<script type='text/javascript'>
+  jQuery('#sample_filter').keyup(function(){
+    jQuery('tr.sample').each(function(){
+      jQuery(this).hide();
+    });
+     var valThis = jQuery(this).val().toLowerCase();
+      jQuery('td').each(function(){
+       var text = jQuery(this).text().toLowerCase();
+          if(text.indexOf(valThis) >= 0) jQuery(this).parent().show();
+     });
+  });
+</script>

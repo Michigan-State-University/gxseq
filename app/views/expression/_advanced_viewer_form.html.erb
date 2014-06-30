@@ -3,28 +3,66 @@
 <%= hidden_field_tag :type_term_id, type_term_id %>
 Minimum for at least one Set A sample:
 <%= select_tag :min_sample_value, options_for_select([0,10,50,100,500,1000,5000],(params[:min_sample_value]||50)) %>
+| Filter: <%= text_field_tag('adv_sample_filter') %>
 
-<div style="width:25em">
-  <dl style="font-weight:bold;">
-    <span style="float:left">Sample</span>
-    <span style="float:right">Set B</span>
-    <span style="float:right;margin-right:2em">Set A</span>
-  </dl>
-  <% sample_options.each do |sample| %>
-    <div style="clear:both;">
-    	<span style="float:left">
-    	  <%= sample.name %>
-    	</span>
-    	<span style="float:right">
-    	  <%= check_box_tag "b_samples[]", sample.id, (params[:b_samples] && params[:b_samples].include?(sample.id.to_s)) %>
-    	</span>
-    	<span style="float:right;margin-right:3em">
-    	  <%= check_box_tag "a_samples[]", sample.id, (params[:a_samples] && params[:a_samples].include?(sample.id.to_s)) %>
-    	</span>
-    </div>
-  <% end %>
-  <hr/ style="clear:both">
-  <br/>
+<div class='table'>
+  <table class='listing-solid-grey'>
+    <thead>
+      <th>Sample</th>
+      <th>Set A</th>
+      <th>Set B</th>
+      <th>Description</th>
+      <th>Traits</th>
+      <th>Mapped Reads</th>
+    </thead>
+    <% sample_options.each do |sample| %>
+      <tr class='sample'>
+        <td nowrap>
+          <b><%= sample.name %></b>
+        </td>
+        <td style='cursor:pointer' onclick='jQuery("#a_samples_<%= sample.id %>").attr("checked",!jQuery("#a_samples_<%= sample.id %>").attr("checked"))'>
+          <%= check_box_tag "a_samples[]", sample.id,
+            (params[:a_samples] && params[:a_samples].include?(sample.id.to_s)),
+            :id => "a_samples_#{sample.id}",
+            :onclick => 'this.checked = !this.checked',
+            :style => 'cursor:pointer'
+          %>
+        </td>
+        <td style='cursor:pointer' onclick='jQuery("#b_samples_<%= sample.id %>").attr("checked",!jQuery("#b_samples_<%= sample.id %>").attr("checked"))'>
+          <%= check_box_tag "b_samples[]", sample.id,
+            (params[:b_samples] && params[:b_samples].include?(sample.id.to_s)),
+            :id => "b_samples_#{sample.id}",
+            :onclick => 'this.checked = !this.checked',
+            :style => 'cursor:pointer'
+          %>
+        </td>
+        <td>
+          <%= sample.description %>
+        </td>
+        <td style='text-align:left'>
+          <% sample.traits.each do |trait| %>
+            <b><%= trait.term.name %></b>: <%= trait.value %><br/>
+          <% end %>
+        </td>
+        <td>
+          <%= sample.bam.nil? ? '' : number_to_human(sample.total_count,precision: 2) %>
+        </td>
+      </tr>
+    <% end %>
+  </table>
   <%= submit_tag 'Submit', :style => "float:right"%>
 </div>
 <% end -%>
+
+<script type='text/javascript'>
+  jQuery('#adv_sample_filter').keyup(function(){
+    jQuery('tr.sample').each(function(){
+      jQuery(this).hide();
+    });
+     var valThis = jQuery(this).val().toLowerCase();
+      jQuery('td').each(function(){
+       var text = jQuery(this).text().toLowerCase();
+          if(text.indexOf(valThis) >= 0) jQuery(this).parent().show();
+     });
+  });
+</script>
