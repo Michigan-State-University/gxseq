@@ -76,8 +76,8 @@ class RnaSeq < Sample
   end
   
   # searches for a read by id and returns alignment data. See bam#find_read for details
-  def find_read(read_id, chrom, pos)
-    bam.find_read(read_id, chrom, pos)
+  def find_read(read_id, bioentry, pos)
+    bam.find_read(read_id, sequence_name(bioentry), pos)
   end
   # returns histogram data see big_wig#summary_data for details
   def summary_data(start,stop,num,bioentry,opts={})
