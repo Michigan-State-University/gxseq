@@ -10,7 +10,7 @@ class AssembliesController < ApplicationController
         .order("taxon_name.name #{order_d}, version #{order_d}")
       }
       wants.json {
-        assemblies = Assembly.accessible_by(current_ability).includes{[species.scientific_name]}.order("taxon_name.name asc, version asc")
+        assemblies = Assembly.accessible_by(current_ability).includes{bioentries[species.scientific_name]}.order("taxon_name.name asc, version asc")
         render_for_api :listing, :json => assemblies
       }
     end
