@@ -168,7 +168,9 @@ Ext.define('Sv.painters.ReadsCanvas',{
       //tie the img to the map
       mapImage.setAttribute("usemap","#"+container.id+"map");
       container.appendChild(mapImage);
-      
+      //Fix color (string to hex)
+  		if(self.forwardColor.match(/^\w+$/)){self.forwardColor = "#"+self.forwardColor;}
+  		if(self.reverseColor.match(/^\w+$/)){self.reverseColor = "#"+self.reverseColor;}
       //Loop over every read
       Ext.each(data, function(read)
       {
