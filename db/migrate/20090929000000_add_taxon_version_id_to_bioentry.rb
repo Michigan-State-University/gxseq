@@ -1,6 +1,6 @@
 class AddTaxonVersionIdToBioentry < ActiveRecord::Migration
   def self.up
-    add_column :bioentry, :taxon_version_id, :integer, :null => false
+    add_column :bioentry, :taxon_version_id, :integer
   end
 
   def self.down
