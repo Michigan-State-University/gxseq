@@ -12,18 +12,15 @@ class Sample < Thor
     if(options[:type])
       samples = samples.where("type = '#{options[:type]}'")
     end
-    sample_length = samples.max{|e1,e2| e1.name.length <=> e2.name.length}.name.length
-    longest_seq = samples.max{|e1,e2| "#{e1.assembly.name} > #{e1.assembly.version}".length <=> "#{e2.assembly.name} > #{e2.assembly.version}".length}
-    seq_length = "#{longest_seq.assembly.name} > #{longest_seq.assembly.version}".length
-    printf "%10s %10s %15s %#{sample_length}s %#{seq_length}s\n", '','ID','Type','Name','Sequence'
-    (11+11+16+sample_length+seq_length).times do 
-      printf "-"
+    table = Terminal::Table.new :headings => ['#','ID','Type','Name','Owner','Assembly', 'Concordance'] do |t|
+      samples.each_with_index do |s,idx|
+        t << [idx, s.id, s.type, s.name, s.user.try(:login)||'-',
+          "#{s.assembly.try(:id)||'nil'}::#{s.assembly.try(:name_with_version)}",
+          "#{s.concordance_set.try(:id)||'nil'}::#{s.concordance_set.try(:name)}"
+        ] 
+      end
     end
-    printf"\n"
-    samples.each_with_index do |e,idx|
-      #puts "\t#{idx})\t#{e.id}\t#{e.type}\t#{e.name}\t#{e.assembly.name} > #{e.assembly.version}\t"
-      printf "%10s %10s %15s %#{sample_length}s %#{seq_length}s\n", idx,e.id,e.type,e.name,"#{e.assembly.name} > #{e.assembly.version}"
-    end
+    puts table
   end
   
   desc 'create',"Create a new sample"

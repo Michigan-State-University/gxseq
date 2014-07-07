@@ -224,7 +224,6 @@ class Taxonomy < Thor
   def find(query)
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     require 'terminal-table'
-    #puts "-\t-\tTaxonID\tRank\tName\tName Class"
     taxon_names = Biosql::TaxonName.includes(:taxon).limit(100)
       .where{upper(name) =~ my{"%#{query.upcase}%"}}
       .where{taxon.taxon_id > 0}
@@ -234,7 +233,6 @@ class Taxonomy < Thor
     table = Terminal::Table.new :headings => ['#','NCBI Taxon ID', 'Rank', 'Name', 'Name Class'] do |t|
       taxon_names.each_with_index do |taxon_name,idx|
         t << [idx,taxon_name.taxon.ncbi_taxon_id,taxon_name.taxon.node_rank,taxon_name.name,taxon_name.name_class]
-        #puts "\t#{idx})\t#{taxon_name.taxon.id}\t#{taxon_name.taxon.node_rank}\t#{taxon_name.name}\t#{taxon_name.name_class}"
       end
     end
     puts table

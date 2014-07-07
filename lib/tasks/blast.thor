@@ -249,28 +249,35 @@ class Blast < Thor
   desc 'list_db','Print information about blast databases'
   def list_db
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
-    dbs = BlastDatabase.scoped
-    puts "-\tID\tName\tPath\tTaxonID\tTaxonName\tDescription"
-    dbs.each do |db|
-      puts "\t#{db.id}\t#{db.name}\t#{db.filepath}\t#{db.taxon.try(:id)||'?'}\t#{db.taxon.try(:name)||'?'}\t#{db.description}"
+    dbs = BlastDatabase.order(:name)
+    table = Terminal::Table.new :headings => ['#','ID', 'Name', 'Path', 'Group', 'Taxon', 'Description'] do |t|
+      dbs.each_with_index do |b,idx|
+        t << [idx, b.id, b.name, b.filepath, b.group.try(:name),
+          "#{b.taxon.try(:ncbi_taxon_id)}::#{b.taxon.try(:name)}", b.description]
+      end
     end
+    puts table
   end
   
   desc 'list_run','Print information about blast databases'
   method_option :include_user, :aliases => '-u', :default => false, :desc => "Include user initiated runs"
   def list_run
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
-    runs = BlastRun.scoped
-    puts "-\tID\tDbName\tAssembly\tProgram\tVersion\tSystemFile\tParameters"
-    runs.where{assembly_id != nil}.each do |run|
-      puts "\t#{run.id}\t#{run.blast_database.name}\t#{run.assembly.name_with_version}\t#{run.program}\t#{run.version}\t#{run.db}\t#{run.parameters}"
+    runs = BlastRun.includes(:blast_database).order("blast_databases.name ASC")
+    table = Terminal::Table.new :headings => ['#','ID', 'DB Name', 'Assembly', 'Program'] do |t|
+      runs.where{assembly_id != nil}.each_with_index do |r,idx|
+        t << [idx, r.id, r.blast_database.name, "#{r.assembly.id}::#{r.assembly.name_with_version}", r.program]
+      end
     end
+    puts table
     if(options[:include_user])
       puts "\nUser Runs"
-      puts "-\tID\tUser\tDbName\tProgram\tVersion\tSystemFile\tParameters"
-      runs.where{assembly_id == nil}.each do |run|
-        puts "\t#{run.id}\t#{run.user.try(:login)||'Guest'}\t#{run.blast_database.name}\t#{run.program}\t#{run.version}\t#{run.db}\t#{run.parameters}"
+      table = Terminal::Table.new :headings => ['#','ID', 'DB Name', 'User', 'Program'] do |t|
+        runs.where{assembly_id == nil}.each_with_index do |r,idx|
+          t << [idx, r.id, r.blast_database.name, r.user.try(:login), r.program]
+        end
       end
+      puts table
     end
   end
   
