@@ -223,15 +223,19 @@ class Taxonomy < Thor
   method_option :rank, :desc => 'supply a rank name to limit results'
   def find(query)
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
-    puts "-\t-\tTaxonID\tRank\tName\tName Class"
+    require 'terminal-table'
     taxon_names = Biosql::TaxonName.includes(:taxon).limit(100)
       .where{upper(name) =~ my{"%#{query.upcase}%"}}
       .where{taxon.taxon_id > 0}
       .order('taxon.node_rank asc, name asc')
     taxon_names = taxon_names.where{taxon.node_rank == my{options[:rank]}} if options[:rank]
-    taxon_names.each_with_index do |taxon_name,idx|
-      puts "\t#{idx})\t#{taxon_name.taxon.id}\t#{taxon_name.taxon.node_rank}\t#{taxon_name.name}\t#{taxon_name.name_class}"
+    
+    table = Terminal::Table.new :headings => ['#','NCBI Taxon ID', 'Rank', 'Name', 'Name Class'] do |t|
+      taxon_names.each_with_index do |taxon_name,idx|
+        t << [idx,taxon_name.taxon.ncbi_taxon_id,taxon_name.taxon.node_rank,taxon_name.name,taxon_name.name_class]
+      end
     end
+    puts table
   end
 
 end

@@ -13,7 +13,7 @@ class RenameTaxonVersionToAssembly < ActiveRecord::Migration
     
     remove_index :experiments, :name => :experiment_idx1
     add_index :experiments, [:assembly_id, :group_id, :user_id], :name => :experiment_idx1
-    
+    add_index :bioentry, [:assembly_id, :accession, :biodatabase_id, :version], :name => :bioentry_idx
   end
 
   def self.down

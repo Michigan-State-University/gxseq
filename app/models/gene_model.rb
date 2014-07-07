@@ -174,7 +174,7 @@ class GeneModel < ActiveRecord::Base
   end
   
   def related_versions
-    (self.versions+mrna.related_versions+cds.related_versions).flatten.compact.sort{|a,b|b.created_at<=>a.created_at}
+    (self.versions+[mrna.try(:related_versions)]+[cds.try(:related_versions)]).flatten.compact.sort{|a,b|b.created_at<=>a.created_at}
   end
   
   def function
@@ -268,14 +268,14 @@ class GeneModel < ActiveRecord::Base
     if(gene_models.size < max)
       mrna_locations = ActiveRecord::Base.connection.select_all("SELECT g.id gene_model_id, g.strand, l.location_id, l.start_pos, l.end_pos 
         FROM gene_models g
-        RIGHT OUTER JOIN location l ON l.seqfeature_id = g.mrna_id
+        JOIN location l ON l.seqfeature_id = g.mrna_id
         WHERE (
         g.start_pos < #{right} 
         AND g.end_pos > #{left}
         AND g.bioentry_id = #{bioentry_id})")
       cds_locations = ActiveRecord::Base.connection.select_all("SELECT g.id gene_model_id, g.strand, l.location_id, l.start_pos, l.end_pos 
         FROM gene_models g
-        RIGHT OUTER JOIN location l ON l.seqfeature_id = g.cds_id
+        JOIN location l ON l.seqfeature_id = g.cds_id
         WHERE (
         g.start_pos < #{right} 
         AND g.end_pos > #{left}
@@ -285,7 +285,7 @@ class GeneModel < ActiveRecord::Base
       #only grab the first CDS location, we reached our max for gene models
       cds_locations = ActiveRecord::Base.connection.select_all("SELECT g.id gene_model_id, g.strand, l.location_id, l.start_pos, l.end_pos 
         FROM gene_models g
-        RIGHT OUTER JOIN location l ON l.seqfeature_id = g.cds_id
+        JOIN location l ON l.seqfeature_id = g.cds_id
         AND l.rank = 1
         WHERE (
         g.start_pos < #{right} 
@@ -444,7 +444,7 @@ class GeneModel < ActiveRecord::Base
   end
   # Runs a generate method to create gene models in the database. Gene Models include:
   # Gene Seqfeature, Cds Seqfeature, Mrna Seqfeature
-  def self.generate
+  def self.generate(opts={})
     # Count the genes needing a model
     puts "There are #{genes_without_model.count} genes without Gene Models"
     return if genes_without_model.count==0
@@ -457,7 +457,7 @@ class GeneModel < ActiveRecord::Base
       generate_models_from_locus
     else
       puts "#{genes_without_model.count - new_genes_with_locus.count} genes do not have a locus_tag!"
-      generate_from_prompt
+      generate_from_prompt unless opts[:no_prompt]==true
     end
   end
   # asks the user for input on how to generate gene models.

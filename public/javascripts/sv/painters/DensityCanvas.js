@@ -38,7 +38,7 @@ Ext.define('Sv.painters.DensityCanvas',{
     		if (scaler == 0) return;
     		if(absMax == 0) return;
     		//Fix color (string to hex)
-    		if(self.color.match(/^\d+$/)){self.color = "#"+self.color;}
+    		if(self.color.match(/^\w+$/)){self.color = "#"+self.color;}
     		//Set colors
     		brush.fillStyle = self.color;
     		brush.strokeStyle = self.color;

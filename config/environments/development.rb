@@ -23,5 +23,9 @@ GenomeSuite::Application.configure do
   # Only use best-standards-support built into browsers
   config.action_dispatch.best_standards_support = :builtin
   config.action_mailer.default_url_options = { :host => 'dev/gs/' }
+  
+  # dev environment does not use background workers
+  # this avoids transaction issues with sqlite
+  Delayed::Worker.delay_jobs = false
 end
 

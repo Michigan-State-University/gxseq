@@ -104,14 +104,33 @@ class Assembly < ActiveRecord::Base
   end
   # Generates all denormalized data and indexes associations
   def sync
+    begin
     puts "Generating GC data:"
     generate_gc_data
+    rescue => e
+      puts e
+    end
+    
+    begin
     puts "Creating Tracks"
     create_tracks
+    rescue => e
+      puts e
+    end
+    
+    begin
     puts "Creating Default Concordance"
     create_default_concordance
+    rescue => e
+      puts e
+    end
+    
+    begin
     puts "Reindexing Associations"
     reindex
+    rescue => e
+      puts e
+    end
   end
   # creates a default concordance set with accessions matching the database
   def create_default_concordance

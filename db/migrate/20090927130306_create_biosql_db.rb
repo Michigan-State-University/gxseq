@@ -218,7 +218,7 @@ class CreateBiosqlDb < ActiveRecord::Migration
     add_index(:seqfeature_qualifier_value, [:seqfeature_id], :name => :sqv_idx)
     add_index(:seqfeature_qualifier_value, [:term_id], :name => :sqv_idx_1)
     add_index(:seqfeature_qualifier_value, [:seqfeature_id, :term_id, :rank], :unique => :true, :name => :sqv_idx_2)
-    add_index(:seqfeature_qualifier_value, :value, :name => :sqv_idx_3)
+    add_index(:seqfeature_qualifier_value, :value, :name => :sqv_idx_3, :length => 255)
     
     
     create_table :seqfeature_relationship, :primary_key => :seqfeature_relationship_id do |t|

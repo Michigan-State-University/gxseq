@@ -4,16 +4,18 @@ class Sequence < Thor
   ENV['RAILS_ENV'] ||= 'development'
   desc 'load FILE','Load genomic sequence into the database'
   method_options :verbose => false, :show_percent => false, :version => "1", :source_name => "EMBL/GenBank/SwissProt"
-  method_options :transcriptome => false
+  method_options :transcriptome => false, :desc => 'Mark this sequence as Transcriptome. Defaults to false for Genome'
   method_option :add_entry_feature, :desc => 'Add a feature of the supplied type to every entry from beginning to end of the sequence. Useful for adding mRNA or CDS to transcriptome fasta data'
-  method_option :strain
-  method_option :strain_id
-  method_option :species_id
+  method_option :strain, :desc => 'Name of strain taxon for lookup creation'
+  method_option :strain_id, :desc => 'NCBI Taxon ID for strain'
+  method_option :species, :desc => 'Name of species taxon for lookup or creation'
+  method_option :species_id, :desc => 'NCBI Taxon ID for species'
   method_option :division
   method_option :molecule_type
   method_option :renumber_contigs, :type => :string, :desc => "Renumber each contig with the supplied prefix. Outputs genome.concordance"
   #method_option :database, :default => 'Public', :desc  => "Name of Biosql::Biodatabase to use. Not used by app"
   method_option :check_species_source, :default => true, :desc => "Inspect source annotation to identify species if no species_id is provided"
+  method_option :no_prompt, :type => :boolean, :default => false, :desc => "Do not prompt for input during load"
   def load(input_file)
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     # setup
@@ -407,7 +409,7 @@ class Sequence < Thor
     # De-normalize GeneModel data
     puts "Syncing Gene Models"
     begin
-      GeneModel.generate
+      GeneModel.generate(:no_prompt => options[:no_prompt])
     rescue => e
       puts "Error Generating Gene Models #{e}"
     end
@@ -553,14 +555,16 @@ class Sequence < Thor
     # setup user supplied species
     species_taxon = nil
     if(opts[:species_id])
-      species_taxon = Biosql::Taxon.find(opts[:species_id])
+      species_taxon = Biosql::Taxon.find_by_ncbi_taxon_id(opts[:species_id])
+    elsif(opts[:species])
+      species_taxon = Biosql::TaxonName.find_by_name(opts[:species]).try(:taxon) || create_taxon(opts[:species],'species',opts[:no_prompt])
     end
     # setup user supplied strain/variety
     strain_taxon = nil
-    if(opts[:strain])
-      strain_taxon = Biosql::TaxonName.find_by_name(opts[:strain]).try(:taxon) || create_taxon(opts[:strain],'varietas')
-    elsif(opts[:strain_id])
-      strain_taxon = Biosql::Taxon.find(opts[:strain_id])
+    if opts[:strain_id]
+      strain_taxon = Biosql::Taxon.find_by_ncbi_taxon_id(opts[:strain_id])
+    elsif opts[:strain]
+      strain_taxon = Biosql::TaxonName.find_by_name(opts[:strain]).try(:taxon) || create_taxon(opts[:strain],'varietas',opts[:no_prompt])
     end
     
     # look at organism
@@ -593,13 +597,15 @@ class Sequence < Thor
     return species_taxon,strain_taxon
   end
   
-  def create_taxon(taxon_name, node_rank='species')
-    printf "No taxon found for #{taxon_name} - Do you want to create a new entry? (This is not advised. Use taxonomy:load and taxonomy:find to get the correct taxon) (Y or N):"
-    unless(STDIN.gets.chomp=='Y')
-      raise 'No Taxon Available - Try taxonomy:load or taxonomy:find'
+  def create_taxon(taxon_name, node_rank='species',no_prompt)
+    unless(no_prompt==true)
+      printf "No taxon found for #{taxon_name} - Do you want to create a new entry? (This is not advised. Use taxonomy:load and taxonomy:find to get the correct taxon) (Y or N):"
+      unless(STDIN.gets.chomp=='Y')
+        raise 'No Taxon Available - Try taxonomy:load or taxonomy:find'
+      end
     end
     begin
-      unless (Biosql::Taxon.count > 0)
+      unless (Biosql::Taxon.count > 0 || no_prompt==true)
         response = ask "*** The taxonomy tree is empty. You should load it before running this script with - 'thor taxonomy:load'  Type 'yes' to continue:"
         unless response == 'yes'
           exit 0

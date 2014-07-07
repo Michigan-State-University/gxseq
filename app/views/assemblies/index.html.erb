@@ -1,6 +1,6 @@
 <% content_for :top_bar do %>
 	<!-- Header here -->
-	<h1 class="pagetitle">Taxonomy Versions</h1>
+	<h1 class="pagetitle">Assemblies</h1>
 <% end %>
 
 <% content_for :item_bar do %>
@@ -11,7 +11,7 @@
 
 <% content_for :sidebar do %>
 	<!-- Sidebar / Links / Notices here -->
-	<%= render :partial => "biosql/bioentries/sidebar", :locals => {:active => 'taxon'} %>
+	<%= render :partial => "biosql/bioentries/sidebar", :locals => {:active => 'assembly'} %>
 <% end %>
 
 <!-- TODO: Update listing, test links and add to sidebar -->
@@ -26,8 +26,8 @@
   <div class="table">
     <table class="listing">
       <thead>
-        <th style="white-space:nowrap"><%= sort_link "Species", 'taxon' %></th>
-        <th>Name</th>
+        <th>Species</th>
+        <th>Taxon</th>
         <th>Version</th>
         <th>Bioentries</th>
         <th>Type</th>
@@ -40,11 +40,13 @@
           <td><%= assembly.version %></td>
           <td><%= link_to assembly.bioentries.count, bioentries_path(:assembly => assembly.id) %></td>
           <td><%= assembly.class.name %></td>
-          <td>
-            <%= link_to "Details", assembly_path(assembly) %>
-          <% if can? :update, assembly %>
-            <%= link_to "Edit", edit_assembly_path(assembly) %>
-          <% end %>
+          <td style='text-align:left'>
+            <% if can? :update, assembly %>
+              <%= link_to "Edit", edit_assembly_path(assembly) %>
+              |
+            <% end %>
+          <% entry =  assembly.bioentries.first%>
+          <%= link_to "View #{entry.accession}", entry%>
           </td>
         </tr>
       <% end %>

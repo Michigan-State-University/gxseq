@@ -5,12 +5,12 @@ class Group < Thor
   def list
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     # Use explicit top-level namspace because of Thor::Group class
-    groups = ::Group.all
-    max_name_count = groups.map{|g|g.name.length}.max + 3
-    puts "There are #{groups.length} groups in the database"
-    puts "-\t-\tID\tName#{' '*(max_name_count-4)}Owner\temail\tAssemblyCount\tSampleCount"
-    groups.each_with_index do |group,idx|
-      puts "\t#{idx})\t#{group.id}\t#{group.name}#{' '*(max_name_count-group.name.length)}#{group.owner.login}\t#{group.owner.email}\t#{group.assemblies.count}\t#{group.samples.count}"
+    groups = ::Group.order(:name)
+    table = Terminal::Table.new :headings => ['#','Group ID', 'Name', 'Owner', 'Assembly #', 'Sample #'] do |t|
+      groups.each_with_index do |g,idx|
+        t << [idx, g.id, g.name, "#{g.owner.try(:login)} - #{g.owner.try(:email)}", g.assemblies.count, g.samples.count]
+      end
     end
+    puts table
   end
 end

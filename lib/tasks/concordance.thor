@@ -41,14 +41,17 @@ class Concordance < Thor
   end
   
   desc 'list','Print information about concordance sets in the database'
-  method_option :assembly_id, :aliases => '-a', :desc => "Only print information for the give assembly id. Use thor taxonomy:list for help"
+  method_option :assembly_id, :aliases => '-a', :desc => "Only print information for the given assembly id. Use thor taxonomy:list for help"
   def list
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
-    concords = ConcordanceSet.scoped
+    concords = ConcordanceSet.includes(:assembly => [:taxon => :scientific_name])
+      .order('taxon_name.name asc, assemblies.version asc, concordance_sets.name asc')
     concords.where(:assembly_id => options[:assembly_id]) if options[:assembly_id]
-    puts "-\tID\tName\tAssemblyID\tAssemblyName"
-    concords.each do |set|
-      puts "\t#{set.id}\t#{set.name}\t#{set.assembly_id}\t#{set.assembly.name_with_version}"
+    table = Terminal::Table.new :headings => ['#','ID', 'Name', 'Assembly'] do |t|
+      concords.each_with_index do |c,idx|
+        t << [idx, c.id, c.name, "#{c.assembly.try(:id)||'nil'}::#{c.assembly.try(:name_with_version)}"]
+      end
     end
+    puts table
   end
 end

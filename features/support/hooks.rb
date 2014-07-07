@@ -6,6 +6,7 @@ Before do
   Sunspot.remove_all!
   #initialize seed data
   Group.delete_all
+  User.delete_all
   FactoryGirl.create(:group, :name => 'public')
   FactoryGirl.create(:locus_term)
   FactoryGirl.create(:db_xref_term)

@@ -227,6 +227,7 @@ module ActiveRecord
     # fast_insert avoiding class instantiation. Skips validation, callbacks and observers
     def self.fast_insert(hsh)
       return false if hsh.empty?
+      hsh.delete_if{|key,val|val.nil?}
       sql = "INSERT INTO #{table_name.upcase} (#{hsh.keys.map(&:to_s).join(", ")})
          VALUES('#{hsh.values.collect{|v|v.to_s.gsub(/\'/,"''")}.join("', '")}')"
       id = nil
