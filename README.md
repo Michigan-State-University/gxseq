@@ -1,10 +1,10 @@
-# GLBRC Genome Suite
+# Genome eXpression and Sequence database
 
 A genomic data management application developed to support the [Great Lakes Bioenergy Research Center](http://www.glbrc.org).
 
-The main instance can be found at: https://gs.glbrc.org
+GxSeq is a web based application written within the [Ruby on Rails](http://rubyonrails.org/) framework.
 
-The Genome Suite is a web based application written within the [Ruby on Rails](http://rubyonrails.org/) framework.
+See the [github wiki](https://github.com/Michigan-State-University/gxseq/wiki) for details
 
 ## Features
 
@@ -16,7 +16,7 @@ The Genome Suite is a web based application written within the [Ruby on Rails](h
 * Genomic data stored in BioSQL format
 * NGS data stored in BigWig, Bam, and VCF format
 * LDAP Authentication and Group based authorization
-* Admin role and management interface
+* Admin management interface
 
 
 ## License
