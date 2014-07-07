@@ -4,12 +4,13 @@ gem 'rails', '3.0.9'
 
 # production specific settings
 group :production do
-  gem 'activerecord-oracle_enhanced-adapter'
-  gem 'ruby-oci8'
+  #gem 'activerecord-oracle_enhanced-adapter', '1.4.2'
+  #gem 'ruby-oci8'
+  #gem 'mysql2', '~> 0.2.0'
 end
 # Development testing and update gems
 group :development do
-  gem 'mysql2', '~> 0.2.0'
+  gem 'sqlite3'
   gem 'annotate', ">=2.5"
   gem 'better_errors'
   gem 'binding_of_caller'
@@ -35,7 +36,7 @@ group :test do
   gem 'shoulda'
   gem 'capybara'
   gem 'aruba'
-  gem 'selenium-webdriver','~> 2.38.0'
+  gem 'selenium-webdriver','~> 2.42.0'
   gem 'launchy'
   gem 'json_spec'
 end
@@ -47,7 +48,7 @@ end
 gem 'acts_as_api', '~>0.3'
 gem 'xmlparser'
 gem 'bio', '~> 1.4.3'
-gem 'bio-samtools', '~>0.5', :git => 'git://github.com/throwern/bioruby-samtools.git'
+gem 'bio-samtools', '0.5.2', :git => 'git://github.com/throwern/bioruby-samtools.git'
 #gem 'bio-samtools', :path => '~/gems/bioruby-samtools'
 gem 'composite_primary_keys', '=3.1.10', :path => 'vendor/gems/composite_primary_keys-3.1.10'
 gem 'daemons', '1.1.4'
