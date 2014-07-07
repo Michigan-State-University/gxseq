@@ -42,10 +42,10 @@ Given(/^the assembly has (\d+) expression samples? with values:$/) do |count,tab
   samples = FactoryGirl.create_list(:expression_sample, count.to_i, :assembly => assembly, :count_array => table.hashes)  
 end
 
-Given(/^the assembly "(.*?)" version "(.*?)" has (\d+) expression samples?$/) do |name, version, count|
+Given(/^the assembly "(.*?)" version "(.*?)" has (\d+) expression samples?$/) do |name, ver, count|
   assembly = Assembly.includes(:taxon => :scientific_name)
     .where{taxon.scientific_name.name==name}
-    .where{version==version}.first
+    .where{version==my{ver}}.first
   assembly.should_not == nil
   FactoryGirl.create_list(:expression_sample, count.to_i, :assembly => assembly)
 end
