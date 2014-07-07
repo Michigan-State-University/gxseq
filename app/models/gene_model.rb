@@ -174,7 +174,7 @@ class GeneModel < ActiveRecord::Base
   end
   
   def related_versions
-    (self.versions+mrna.related_versions+cds.related_versions).flatten.compact.sort{|a,b|b.created_at<=>a.created_at}
+    (self.versions+[mrna.try(:related_versions)]+[cds.try(:related_versions)]).flatten.compact.sort{|a,b|b.created_at<=>a.created_at}
   end
   
   def function
