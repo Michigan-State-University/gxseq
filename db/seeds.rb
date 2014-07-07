@@ -6,11 +6,28 @@
 #   cities = City.create([{ :name => 'Chicago' }, { :name => 'Copenhagen' }])
 #   Mayor.create(:name => 'Daley', :city => cities.first)
 
+
+admin = (
+  User.find_by_login(
+    (APP_CONFIG[:admin_user] || "admin")
+  ) || User.create(
+    :login => (APP_CONFIG[:admin_user] || "admin"),
+    :email => (APP_CONFIG[:admin_email] || "admin@admin.com"),
+    :password => (APP_CONFIG[:admin_pass] || "secret")
+  )
+)
+
 # Roles
-Role.find_or_create_by_name('admin')
+admin_role = Role.find_or_create_by_name('admin')
 Role.find_or_create_by_name('member')
 Role.find_or_create_by_name('guest')
 Role.find_or_create_by_name('api')
+
+admin.roles << admin_role
+
+public_grp = Group.public_group
+public_grp.owner = admin
+public_grp.save
 
 ## Find or create Tooltips
 unless Tooltip.find_by_title('keyword_search')
