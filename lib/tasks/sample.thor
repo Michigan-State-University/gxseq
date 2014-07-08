@@ -32,6 +32,7 @@ class Sample < Thor
   method_option :data, :aliases => ['-f','--files'], :default => {}, :type => :hash, :desc => 'Hash of Assets to load for this sample; AssetType:path/to/file'
   method_option :username, :default => 'admin', :aliases => '-u', :desc => 'Login name for the sample owner'
   method_option :group, :aliases => '-g', :desc => "Group name for this sample"
+  method_option :local, :default => false, :desc => "Use local path for asset(s) instead of copying data"
   def create
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     # Validate options
@@ -82,11 +83,19 @@ class Sample < Thor
       # Add the assets
       options[:data].each do |key,filename|
         puts "#{key}:#{filename}"
-        Asset.create(
-          :type => key,
-          :data => File.open(filename,'r'),
-          :sample_id => sample.id
-        )
+        if options[:local]==true
+          Asset.create(
+            :type => key,
+            :local_path => filename,
+            :sample_id => sample.id
+          )
+        else
+          Asset.create(
+            :type => key,
+            :data => File.open(filename,'r'),
+            :sample_id => sample.id
+          )
+        end
       end
     end
     puts "..Done"
