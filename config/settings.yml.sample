@@ -1,36 +1,37 @@
 allenv: &ALLENV
   # Site name is used for the text in the upper left corner of the interface
-  site_name: Genome Suite
+  site_name: GxSeq Database
   # Site link is used as the base link for the site name. Usually this should point at the
   # application root url
-  site_link: http://gs.glbrc.org
+  site_link: http://michigan-state-university.github.io/gxseq/
+  
   # Initial user email
   admin_email: admin@gs.glbrc.org
   # Initial user login
   admin_user: admin
   # Initial user password
   admin_pass: secret
+  
   # location of the bedtools installation directory
   # See https://github.com/arq5x/bedtools2
   bedtools_path: path/to/bedtools/bin/
+  
   # location of the blast installation.
   # This is the LEGACY blast NOT blast+
   # See  ftp://ftp.ncbi.nlm.nih.gov/blast/executables/release/LATEST/
   blast_path: path/to/blast/bin/
+  
   # If a user is remote this group should be added by default
   default_remote_user_group: Trusted
   # The default source term used when creating new features
-  default_source_term: GLBRC
+  default_source_term: User
   timeout: 600
   
 production:
   <<: *ALLENV
-  site_name: Genome Suite
        
 development:
   <<: *ALLENV
-  site_name: Genome Suite Dev
   
 test:
   <<: *ALLENV
-  site_name: Genome Suite Test
