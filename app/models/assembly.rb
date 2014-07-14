@@ -208,18 +208,12 @@ class Assembly < ActiveRecord::Base
   # Reindexes all associated data. Convienence method
   def reindex
     index_bioentries
-    index_gene_models
     index_features
   end
   # indexes associated bioentries
   def index_bioentries
     bio_ids = bioentries.collect(&:id)
     Biosql::Bioentry.reindex_all_by_id(bio_ids)
-  end
-  # indexes associated genemodels
-  def index_gene_models
-    model_ids = GeneModel.where{bioentry_id.in my{bioentry_ids}}.select("id")
-    GeneModel.reindex_all_by_id(model_ids)
   end
   # indexes seqfeatures for all bioentries
   # optionally accepts {:type => 'feature_type'} to scope indexing

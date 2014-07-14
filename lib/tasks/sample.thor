@@ -74,7 +74,7 @@ class Sample < Thor
         :concordance_set_id => options[:concordance_set_id],
         :user => owner,
         :group => group,
-        :traits_attributes => options[:traits].collect{|key,val| {:key=>key,:val=>val} }
+        :traits_attributes => options[:traits].collect{|key,val| {:key=>key,:value=>val} }
       )
       # Validate sample
       unless sample.valid?
