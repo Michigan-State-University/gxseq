@@ -14,7 +14,7 @@
   <div style="float:right;margin-right:2em">
     Definition Source<br/>
     <%= select_tag :definition_type, grouped_options_for_select(@group_select_options, params[:definition_type]),
-    {:id => 'def_type', :onchange => '$("def_builder").value = this.value'} %>
+    {:id => 'def_type', :include_blank => 'Select ...', :onchange => '$("def_builder").value = this.value'} %>
   </div>
   <div style="float:right;margin-right:2em">
     Filter Favorites<br/>

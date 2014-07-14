@@ -132,11 +132,72 @@ class Annotation < Thor
     end
   end
   
+  desc 'bubble', "Copy annotations from CDS and mRNA to Gene parent. Configure bubble terms in settings.yml"
+  method_option :assembly, :aliases => '-a', :desc => 'ID of Assembly to annotate'
+  method_option :test_only, :aliases => '-t', :desc => 'Test run with no database changes'
+  def bubble
+    require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
+    unless APP_CONFIG[:bubble_up_terms]
+      puts "No bubble up terms defined."
+      exit 0
+    end
+    if(options[:assembly])
+      assembly = ::Assembly.find_by_id(options[:assembly])
+      unless assembly
+        puts "Assembly '#{options[:assembly]}' not found. Try thor assembly:list"
+        exit 0
+      end
+      b_ids = assembly.bioentries.select("bioentry_id").except(:order)
+    end
+    if options[:assembly]
+      genes = Biosql::Feature::Gene.includes(:bioentry, :gene_models=>[:cds, :mrna])
+      genes = genes.where{bioentry.assembly_id == my{assembly.id}}
+    else
+      genes = Biosql::Feature::Gene.includes(:gene_models=>[:cds, :mrna])
+    end
+    progress_bar = ProgressBar.new(genes.count)
+    bubble_terms = Biosql::Term.where{lower(name).in my{APP_CONFIG[:bubble_up_terms]}}
+    if bubble_terms.empty?
+      puts "No bubble terms found for: #{APP_CONFIG[:bubble_up_terms].join(',')}"
+      exit 0
+    end
+    Biosql::Feature::Gene.transaction do
+      genes.find_in_batches(:batch_size => 500) do |batch|
+        batch.each do |gene|
+          bubble_terms.each do |bterm|
+            cur_vals = gene.bubble_qualifiers.select{|q| q.term_id==bterm.term_id}.map(&:value)
+            rank = cur_vals.length+1
+            cds_vals, mrna_vals = [],[]
+            gene.gene_models.each do |gm|
+              if(gm.cds)
+                cds_vals << gm.cds.bubble_qualifiers.select{|q| q.term_id==bterm.term_id}.map(&:value)
+              end
+              if(gm.mrna)
+                mrna_vals << gm.mrna.bubble_qualifiers.select{|q| q.term_id==bterm.term_id}.map(&:value)
+              end
+            end
+            new_vals = (cds_vals.flatten+mrna_vals.flatten).uniq - cur_vals
+            new_vals.each do |new_val|
+              if options[:test_only]
+                puts "Gene: #{gene.id} - #{bterm.name}: #{rank}-#{new_val}"
+              else
+                ActiveRecord::Base.connection.execute("INSERT INTO SEQFEATURE_QUALIFIER_VALUE (seqfeature_id,term_id,value,rank)
+                VALUES(#{gene.id},#{bterm.id},'#{new_val.gsub(/\'/,"''")}',#{rank})")
+              end
+              rank +=1
+            end
+          end
+        end
+        progress_bar.increment!(batch.length)
+      end
+    end
+  end
+  
   desc 'load FILE', "Add new annotations from a file with id's matching the chosen feature/qualifier"
   method_options %w(id_column -i) => 1, %w(anno_column -c) => 2, :no_index => false
   method_option :name, :aliases => '-n', :required => true, :desc => 'Name of new or existing annotation'
-  method_option :ontology, :aliases => '-o', :required => true, :desc => 'Name or Id of ontology for new terms'
-  method_option :assembly, :aliases => '-a', :required => true, :desc => 'Id of Assembly to annotate'
+  method_option :ontology, :aliases => '-o', :required => true, :desc => 'Name or ID of ontology for new terms'
+  method_option :assembly, :aliases => '-a', :required => true, :desc => 'ID of Assembly to annotate'
   method_option :header, :aliases => '-h', :desc => 'Supply flag if a header is present'
   method_option :qualifier, :aliases => '-q', :default => 'locus_tag', :desc  => 'Name of qualifier to use for lookup'
   method_option :feature_type, :aliases => '-f', :desc => 'Only annotate given type if supplied'

@@ -44,16 +44,10 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     :dependent  => :delete_all,
     :inverse_of => :seqfeature,
     :after_remove => :update_assoc_mem
-  # Define attributes to simplify eager_loading. _assoc suffix avoids name collision with dynamic qualifier methods
-  # Use :qualifiers when including the entire attribute set. Use _assoc when including a subset
-  # NOTE: *_assoc Cannot be used in 'count' queries or with conditions on includes... !!
-  has_one :product_assoc, :class_name => "SeqfeatureQualifierValue", :foreign_key => "seqfeature_id", :include => :term, :conditions => "term.name = 'product'"
-  has_one :function_assoc, :class_name => "SeqfeatureQualifierValue", :foreign_key => "seqfeature_id", :include => :term, :conditions => "term.name = 'function'"
-  has_one :transcript_id_assoc, :class_name => "SeqfeatureQualifierValue", :foreign_key => "seqfeature_id", :include => :term, :conditions => "term.name = 'transcript_id'"
-  has_one :protein_id_assoc, :class_name => "SeqfeatureQualifierValue", :foreign_key => "seqfeature_id", :include => :term, :conditions => "term.name = 'protein_id'"
-  has_one :id_assoc, :class_name => "SeqfeatureQualifierValue", :foreign_key => "seqfeature_id", :include => :term, :conditions => "term.name = 'ID'"
-  has_one :parent_assoc, :class_name => "SeqfeatureQualifierValue", :foreign_key => "seqfeature_id", :include => :term, :conditions => "term.name = 'Parent'"
-  has_one :locus_assoc, :class_name => "SeqfeatureQualifierValue", :foreign_key => "seqfeature_id", :include => :term, :conditions => "term.name = 'locus_tag'"
+  
+  has_many :bubble_qualifiers, :include => :term, :class_name => "SeqfeatureQualifierValue",
+    :conditions => "lower(term.name) in ('#{(APP_CONFIG[:bubble_up_terms]||[]).join("','")}')"
+  
   # Use the scope for counting or conditions on qualifiers
   # DO NOT mix with eager load on SeqfeatureQualifierValue table or results are limited to the supplied qualifier
   scope :with_qualifier, lambda {|term_name| joins{qualifiers.term}.where{lower(qualifiers.term.name)== my{term_name.downcase}}}
@@ -103,13 +97,30 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
       facet(:type_term_id)
     end
   end
+  # Use sunspot search to return a qualifier term_ids facet for all seqfeatures with a given assembly_id
+  def self.facet_qualifier_terms_by_type_and_assembly_id(type_term_id,assembly_id)
+    assembly = Assembly.find_by_id(assembly_id)
+    self.search do
+      with :type_term_id, type_term_id
+      with :assembly_id, assembly.id
+      facet :qualifier_term_ids
+    end
+  end
+  def get_qualifier_idx_term_ids
+    assembly_id = bioentry.assembly_id
+    rows = self.class.facet_qualifier_terms_by_type_and_assembly_id(type_term_id,assembly_id).facet(:qualifier_term_ids).rows
+    rows.collect{|r|"term_#{r.value}"}
+  end
   # Convenience method for Re-indexing a subset of features
-  def self.reindex_all_by_id(seqfeature_ids,batch_size=100)
+  def self.reindex_all_by_id(seqfeature_ids,batch_size=50)
     puts "Re-indexing #{seqfeature_ids.length} features"
     progress_bar = ProgressBar.new(seqfeature_ids.length)
     seqfeature_ids.each_slice(batch_size) do |id_batch|
-      Sunspot.index self.includes(:bioentry,:qualifiers,:feature_counts,:locations,:favorite_users,:product_assoc,:function_assoc,:blast_iterations => [:best_hit => :best_hsp_with_scores],:gene_models => [:cds => [:product_assoc, :protein_id_assoc], :mrna => [:function_assoc, :transcript_id_assoc]])
-        .where{seqfeature_id.in(my{id_batch})}
+      Sunspot.index self.includes(
+        :bioentry, :feature_counts, :locations, :favorite_users,
+        :qualifiers,
+        :blast_iterations => [:best_hit => :best_hsp_with_scores]
+      ).where{seqfeature_id.in(my{id_batch})}
       progress_bar.increment!(id_batch.length)
       if((progress_bar.count%10000)==0)
         Sunspot.commit
@@ -148,31 +159,13 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   end
   
   # returns terms that should not be indexed or displayed in search results
-  def self.excluded_search_terms 
-    ['translation','codon_start','note','locus_tag']
+  def self.excluded_search_terms
+    APP_CONFIG[:excluded_search_terms] || []
   end
   
   ## INSTANCE METHODS
-  
   def related_versions
     (self.versions + locations.map(&:versions) + qualifiers.map(&:versions)).flatten.compact.sort{|a,b|b.created_at<=>a.created_at}
-  end
-  
-  # index methods, should overriden to include associated items
-  def indexed_description
-    description.presence
-  end
-  def indexed_product
-    product_assoc.try(:value)
-  end
-  def indexed_function
-    function_assoc.try(:value)
-  end
-  def indexed_transcript_id
-    transcript_id.try(:value)
-  end
-  def indexed_protein_id
-    protein_id.try(:value)
   end
   # generates a Seqfeature scope with all features having the same locus tag as self.
   # self will be included in the result
@@ -201,45 +194,21 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   def display_data
     "#{display_type}:"
   end
-  # returns common description terms concatenated
-  # gene function product gene_synonyms
-  def description
-  "#{gene.try(:value)} #{function.try(:value)} #{product.try(:value)} #{gene_synonym.try(:value)}"
-  end
-  # All non Genbank terms concatenated
-  def custom_description
-    Biosql::Term.custom_ontologies.collect{|ont| ont.terms.collect{|term| self.qualifiers.select{|q| q.term_id == term.id} }}.flatten.compact.map(&:value).join('; ') 
-  end
-  # All Genbank terms concatenated
-  def genbank_description
-    annotation_qualifiers.map(&:value).join('; ') 
-  end
-  # All best blast hits concatenated
-  def blast_description
-    blast_iterations.collect{|i| i.hits.collect(&:definition)}.flatten.compact.join('; ')
-  end
-  # All descriptions concatenated
-  def full_description
-    [search_qualifiers.map(&:value),blast_description].flatten.compact.join('; ')
-  end
-  # All attributes from the Genbank ontology
-  def annotation_qualifiers
-    qualifiers.select{|q| q.term && q.term.ontology_id == Biosql::Term.ano_tag_ont_id}
-  end
   # All annotation attributes for display / search
   def search_qualifiers
-    qualifiers.select{|q| !Biosql::Feature::Seqfeature.excluded_search_terms.include?(q.term.name) }
+    qualifiers.reject{|q| Biosql::Feature::Seqfeature.excluded_search_terms.include?(q.term.name) }
   end
-  # All attributes from custom ontologies
-  def custom_qualifiers
-    qualifiers.select{|q| q.term.ontology_id != Biosql::Term.ano_tag_ont_id}
-  end
+
+  # # All attributes from custom ontologies
+  # def custom_qualifiers
+  #   qualifiers.select{|q| q.term.ontology_id != Biosql::Term.ano_tag_ont_id}
+  # end
   ### SQV types - allows for quick reference through eager load of :qualifiers
   # NOTE: These could be converted to STI classes but the table has no primary key
   # single sqv
   ['parent','chromosome','organelle','plasmid','mol_type', 'locus_tag','gene','gene_synonym','product','function','codon_start','protein_id','transcript_id','ec_number'].each do |sqv|
   define_method sqv.to_sym do
-    annotation_qualifiers.each do |q|
+    qualifiers.each do |q|
         if q.term&&q.term.name.downcase == sqv
            return q
         end
@@ -787,10 +756,11 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     value_type=opts[:value_type]||'normalized_count'
     results = []
     blast_run_texts = bioentry.assembly.blast_runs.each.map{|blast_run|"blast_#{blast_run.id}_text".to_sym}
+    term_ids = get_qualifier_idx_term_ids
     corr_search.hits.each_with_index do |hit|
       desc = ''
-      desc += Array(hit.stored(:description_text)).first.to_s
-      desc += blast_run_texts.collect{|br| Array(hit.stored(br)).first}.join("; ")
+      desc += term_ids.collect{|t| Array(hit.stored(t+'_text')).first}.compact.join("; ")
+      desc += blast_run_texts.collect{|br| Array(hit.stored(br)).first}.compact.join("; ")
       item = {
         :id => hit.stored(:id),
         :locus => Array(hit.stored(:locus_tag_text)).first,
@@ -813,81 +783,41 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   protected
   ## Sunspot search definition
   ## TODO: Document Search attributes
-  searchable(:include => [:bioentry,:qualifiers,:feature_counts,:locations,:favorite_users,:product_assoc,:function_assoc,:blast_iterations => [:best_hit => :best_hsp_with_scores],:gene_models => [:cds => [:product_assoc, :protein_id_assoc], :mrna => [:function_assoc, :transcript_id_assoc]]]) do |s|
-    # Text Searchable
-    # must be stored for highlighted results
+  searchable(
+    :include => [
+      :bioentry, :feature_counts, :locations, :favorite_users,
+      :qualifiers,
+      :blast_iterations => [:best_hit => :best_hsp_with_scores]
+    ]) do |s|
+    # locus
     s.text :locus_tag_text, :stored => true do
      locus_tag.value if locus_tag
-    end
-    s.text :description_text, :stored => true do
-      indexed_description
-    end
-    s.text :function_text, :stored => true do
-      indexed_function
-    end
-    s.text :product_text, :stored => true do
-      indexed_product
-    end
-    s.text :gene_text, :stored => true do
-      gene
-    end
-    s.text :gene_synonym_text, :stored => true do
-      gene_synonym
-    end
-    s.text :protein_id_text, :stored => true do
-      indexed_protein_id
-    end
-    s.text :transcript_id_text, :stored => true do
-      indexed_transcript_id
-    end
-    s.text :ec_number_text, :stored => true do
-      ec_number
-    end
-    # Sortable string value
-    s.string :display_name
-    s.string :description do
-      indexed_description
-    end
-    s.string :gene do
-      gene.try(:value)
-    end
-    s.string :gene_synonym do
-      gene_synonym.try(:value)
-    end
-    s.string :ec_number do
-      ec_number.try(:value)
-    end
-    s.string :function do
-      indexed_function
-    end
-    s.string :product do
-      indexed_product
-    end
-    s.string :protein_id do
-      indexed_protein_id
-    end
-    s.string :transcript_id do
-      indexed_transcript_id
     end
     s.string :locus_tag, :stored => true do
       locus_tag.try(:value)
     end
-    # IDs
+    # STI type
+    s.string :display_name
+    # ID's
+    s.integer :qualifier_term_ids, :references => Biosql::Term, :multiple => true  do
+      search_qualifiers.map(&:term_id)
+    end
     s.integer :id, :stored => true
     s.integer :bioentry_id, :stored => true
     s.integer :type_term_id, :references => Biosql::Term
     s.integer :source_term_id, :references => Biosql::Term
-    s.integer :strand, :stored => true
+    s.integer :favorite_user_ids, :multiple => true, :stored => true
     s.integer :assembly_id, :stored => true do
       bioentry.assembly_id
     end
+    # Position
+    s.integer :strand, :stored => true
     s.integer :start_pos, :stored => true do
       min_start
     end
     s.integer :end_pos, :stored => true do
       max_end
     end
-    s.integer :favorite_user_ids, :multiple => true, :stored => true
     # field names need to start with non numeric characters. Numbers cause solr query errors
     # dynamic feature expression
     s.dynamic_float :normalized_counts, :stored => true do
@@ -899,7 +829,7 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     s.dynamic_float :unique_counts, :stored => true do
       feature_counts.inject({}){|h,x| h["sample_#{x.sample_id}"]=x.unique_count;h}
     end
-    # TODO: Add acts_as_taggable indexed tags for better search/filtering of [Transcription Factor] tag
+    # TODO: Add acts_as_taggable indexed tags for better search/filtering of e.g. [Transcription Factor] tag
     # # dynamic tags
     # s.dynamic_boolean :tags do
     # end
@@ -913,37 +843,54 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     s.dynamic_string :blast_evalue, :stored => true do
       blast_iterations.inject({}){|hash,report| hash["blast_#{report.blast_run_id}"]=report.best_hit.best_hsp_with_scores.evalue;hash}
     end
-    # Fake dynamic blast text - defined for 'every' blast_run on 'every' seqfeature
-    # These a baked into the class, so it needs to be reloaded when new BlastRuns are created
-    # TODO: find another way to allow scoped blast_def full text search without searching all of the definitions
+    # Fake dynamic blast text - defined for every blast_run on every seqfeature
+    # These are baked into the class, so it needs to be reloaded when new BlastRuns are created
+    # TODO: find alternative for dynamic full text search
     begin
-    BlastRun.all.each do |blast_run|
-      s.string "blast_#{blast_run.id}".to_sym do
-        report = blast_iterations.select{|b| b.blast_run_id == blast_run.id }.first
-        report ? report.best_hit.definition : nil
-      end
-      s.text "blast_#{blast_run.id}_text".to_sym, :stored => true do
-        report = blast_iterations.select{|b| b.blast_run_id == blast_run.id }.first
-        report ? report.best_hit.definition : nil
-      end
-    end
-    # More fake dynamic text ... for custom ontologies and annotation
-    Biosql::Term.custom_ontologies.each do |ont|
-      ont.terms.each do |ont_term|
-        s.string "term_#{ont_term.id}".to_sym do
-          a = self.custom_qualifiers.select{|q| q.term_id == ont_term.id}.collect(&:value).join('; ')
-          a.empty? ? nil : a
+      BlastRun.all.each do |blast_run|
+        s.string "blast_#{blast_run.id}".to_sym do
+          report = blast_iterations.select{|b| b.blast_run_id == blast_run.id }.first
+          report ? report.best_hit.definition : nil
         end
-        s.text "term_#{ont_term.id}_text".to_sym, :stored => true do
-          a = self.custom_qualifiers.select{|q| q.term_id == ont_term.id}.collect(&:value).join('; ')
-          a.empty? ? nil : a
+        s.text "blast_#{blast_run.id}_text".to_sym, :stored => true do
+          report = blast_iterations.select{|b| b.blast_run_id == blast_run.id }.first
+          report ? report.best_hit.definition : nil
         end
       end
-    end
+      # More fake dynamic text for annotations
+      Biosql::Term.annotation_ontologies.each do |ont|
+        ont.terms.each do |ont_term|
+          next if Biosql::Feature::Seqfeature.excluded_search_terms.include?(ont_term.name)
+          s.string "term_#{ont_term.id}".to_sym do
+            a = self.qualifiers.select{|q| q.term_id == ont_term.id}.collect(&:value).join('; ')
+            a.empty? ? nil : a
+          end
+          s.text "term_#{ont_term.id}_text".to_sym, :stored => true do
+            a = self.qualifiers.select{|q| q.term_id == ont_term.id}.collect(&:value).join('; ')
+            a.empty? ? nil : a
+          end
+        end
+      end
     rescue => e
       puts "Could not define dynamic text in Seqfeature searchable definition. BlastRun and/or Term missing\n#{e}\n"
     end
   end
+  
+  @@term_names={}
+  def self.idx_id_to_name(text_id)
+    if @@term_names[text_id]
+      return @@term_names[text_id]
+    else
+      if m = text_id.match(/blast_(\d+)/)
+        @@term_names[text_id]=BlastRun.find_by_id(m[1]).try(:name) || ??
+      elsif m = text_id.match(/term_(\d+)/)
+        @@term_names[text_id]=Biosql::Term.find_by_term_id(m[1]).try(:name) || ??
+      else
+        return "??"
+      end
+    end
+  end
+
 end
 
 Biosql::Feature::Seqfeature.store_full_sti_class = false

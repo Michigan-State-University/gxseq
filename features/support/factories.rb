@@ -101,8 +101,8 @@ FactoryGirl.define do
       hit_setup ["Default Blast Definition"]
     end
     after(:create) do |iteration, evaluator|
-      evaluator.hit_setup.each do |defn|
-        iteration.hits<<create(:hit, :blast_iteration => iteration, :definition => defn)
+      evaluator.hit_setup.each_with_index do |defn,idx|
+        iteration.hits<<create(:hit, :blast_iteration => iteration, :definition => defn, :hit_num => idx+1)
       end
     end
   end
@@ -111,6 +111,7 @@ FactoryGirl.define do
     blast_iteration
     accession "DefaultAcc"
     definition "Default Blast Definition"
+    hit_num 1
     after(:create) do |hit,eval|
       hit.hsps << create(:hsp,:hit => hit)
     end
@@ -299,7 +300,7 @@ FactoryGirl.define do
   
   
   factory :term, :class => "Biosql::Term" do
-    sequence(:term_id)
+    sequence(:term_id){|n|n+3}
     sequence(:name){|i| "generic term #{i}"}
     ontology_id {Biosql::Term.ano_tag_ont_id}
     factory :source_term do
@@ -308,12 +309,19 @@ FactoryGirl.define do
     end
     # term singleton classes
     # must use with find_by_name
+    factory :gene_name_term do
+      ontology_id {Biosql::Term.ano_tag_ont_id}
+      term_id 1
+      name 'gene'
+    end
     factory :function_term do
       ontology_id {Biosql::Term.ano_tag_ont_id}
+      term_id 2
       name 'function'
     end
     factory :product_term do
       ontology_id {Biosql::Term.ano_tag_ont_id}
+      term_id 3
       name 'product'
     end
     factory :locus_term do
@@ -327,10 +335,6 @@ FactoryGirl.define do
     factory :note_term do
       ontology_id {Biosql::Term.ano_tag_ont_id}
       name 'note'
-    end
-    factory :gene_name_term do
-      ontology_id {Biosql::Term.ano_tag_ont_id}
-      name 'gene'
     end
     factory :gene_term do
       ontology_id {Biosql::Term.seq_key_ont_id}

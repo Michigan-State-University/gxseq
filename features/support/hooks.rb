@@ -8,13 +8,16 @@ Before do
   Group.delete_all
   User.delete_all
   FactoryGirl.create(:group, :name => 'public')
-  FactoryGirl.create(:locus_term)
-  FactoryGirl.create(:db_xref_term)
   ##See at_exit
   BlastDatabase.delete_all
   BlastDatabase.connection.execute("Insert into blast_databases (id, name) values(1,'SeedBlastDb')")
   BlastRun.delete_all
   BlastRun.connection.execute("Insert into blast_runs (id, blast_database_id) values(1,1)")
+  Biosql::Term.delete_all
+  Biosql::Ontology.delete_all
+  Biosql::Ontology.connection.execute("Insert into ontology (ontology_id,name) values(1,'Annotation Tags')")
+  FactoryGirl.create(:locus_term)
+  FactoryGirl.create(:db_xref_term)
 end
 
 at_exit do
@@ -26,4 +29,11 @@ at_exit do
   BlastDatabase.connection.execute("Insert into blast_databases (id, name) values(1,'SeedBlastDb')")
   BlastRun.delete_all
   BlastRun.connection.execute("Insert into blast_runs (id, blast_database_id) values(1,1)")
+  Biosql::Term.delete_all
+  Biosql::Ontology.delete_all
+  Biosql::Ontology.connection.execute("Insert into ontology (ontology_id,name) values(1,'Annotation Tags')")
+  Biosql::Term.connection.execute("Insert into term (term_id,name,ontology_id) values(1,'gene',1)")
+  Biosql::Term.connection.execute("Insert into term (term_id,name,ontology_id) values(2,'function',1)")
+  Biosql::Term.connection.execute("Insert into term (term_id,name,ontology_id) values(3,'product',1)")
+  
 end

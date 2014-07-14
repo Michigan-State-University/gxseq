@@ -50,16 +50,17 @@ class Assembly < Thor
   method_option :assembly, :aliases => '-a', :desc => 'Id of the assembly to reindex'
   method_option :all, :default => false, :desc => 'Process all assemblies possibly in parallel'
   method_option :cpu, :default => 1, :aliases => '-c', :desc => 'Number of cpu cores to use in parallel. Ignored without --all'
+  method_option :type, :desc => 'Only index the provided feature type'
   def index_features
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     if(options[:all])
       Parallel.each(::Assembly.all.map(&:id), :in_processes => options[:cpu].to_i) do |assembly_id|
         ::Assembly.connection.reconnect!
-        ::Assembly.find(assembly_id).index_features
+        ::Assembly.find(assembly_id).index_features(:type=>options[:type])
       end
     else
       assembly = assembly_option_or_ask
-      assembly.index_features
+      assembly.index_features(:type=>options[:type])
     end
   end
 end

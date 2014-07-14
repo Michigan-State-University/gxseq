@@ -12,20 +12,38 @@ allenv: &ALLENV
   # Initial user password
   admin_pass: secret
   
+  # If a user is remote (LDAP) they should be added to this group by default
+  default_remote_user_group: Trusted
+  # The default source term used when creating new features
+  default_source_term: User
+  # Time in minutes before requiring user session to authenticate again.
+  # Defaults to (60*24) 1 day if not supplied
+  # timeout: 1440
+  
+  #Excluded terms are not indexed and will not display in search listings
+  excluded_search_terms:
+    - translation
+    - codon_start
+    - note
+  # Bubble up terms are transferred from child to parent for all assemblies
+  # e.g. moving 'product' from CDS / mRNA to parent Genes
+  # This configuration is additive only. It will not revert/remove annotations already bubbled
+  # 'thor annotation:bubble' is run after each sequence:load
+  bubble_up_terms:
+    - function
+    - product
+    #- transcript_id
+    #- protein_id
+    #- ec_number
+    
   # location of the bedtools installation directory
   # See https://github.com/arq5x/bedtools2
   bedtools_path: path/to/bedtools/bin/
   
-  # location of the blast installation.
-  # This is the LEGACY blast NOT blast+
-  # See  ftp://ftp.ncbi.nlm.nih.gov/blast/executables/release/LATEST/
+  # location of the blast installation. This is the LEGACY blast NOT blast+
+  # See ftp://ftp.ncbi.nlm.nih.gov/blast/executables/release/LATEST/
   blast_path: path/to/blast/bin/
   
-  # If a user is remote this group should be added by default
-  default_remote_user_group: Trusted
-  # The default source term used when creating new features
-  default_source_term: User
-  timeout: 600
   
 production:
   <<: *ALLENV

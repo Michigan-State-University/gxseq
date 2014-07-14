@@ -392,13 +392,14 @@ class Sequence < Thor
             progress_bar.increment!
           end
         end#End Bioentry loop
+        assembly.save!
       end#End Transaction
     rescue  => e
       puts "\n***** There was an error loading entry #{entry_count}. *****\n#{$!}#{verbose ? e.backtrace.join("\n") : ""}"
       exit 0
     end
     # report entry count
-      # convert the time taken and output
+    # convert the time taken and output
     fin_time = Time.now
     time_taken = fin_time - curr_time
     days = (time_taken / 86400).floor
@@ -413,11 +414,17 @@ class Sequence < Thor
     rescue => e
       puts "Error Generating Gene Models #{e}"
     end
+    # Bubble annotations from gene models
+    puts "Bubbling annotations"
+    begin
+      Annotation.new([],{:assembly=>assembly.id}).invoke(:bubble)
+    rescue => e
+      puts "Error bubbling annotations #{e}"
+    end
     # Sync the data with indexer and generate track data
     puts "Syncing Assembly"
     begin
-      assembly.try(:save)
-      assembly.try(:sync)
+      assembly.sync
     rescue => e
       puts "Error Syncing Assembly #{e}"
     end

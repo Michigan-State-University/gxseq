@@ -223,10 +223,13 @@ class Assembly < ActiveRecord::Base
   end
   # indexes seqfeatures for all bioentries
   # optionally accepts {:type => 'feature_type'} to scope indexing
-  def index_features(opts={})
-    terms = Biosql::Term.seqfeature_tags.select("term_id as type_term_id")
-    terms = terms.where{name==my{opts[:type]}} if opts[:type]
-    feature_ids = Biosql::Feature::Seqfeature.where{bioentry_id.in(my{self.bioentry_ids})}.where{type_term_id.in(terms)}.select("seqfeature_id").collect(&:id)
+  def index_features(opts={})    
+    features = Biosql::Feature::Seqfeature.where{bioentry_id.in(my{self.bioentry_ids})}
+    if opts[:type]
+      terms = Biosql::Term.seqfeature_tags.select("term_id").where{lower(name).in my{opts[:type].downcase}}
+      features = features.where{type_term_id.in(terms.to_a)}
+    end
+    feature_ids = features.select("seqfeature_id").collect(&:id)
     Biosql::Feature::Seqfeature.reindex_all_by_id(feature_ids)
   end
 

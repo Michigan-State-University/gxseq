@@ -136,9 +136,12 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
       setup_xhr_form
       #@seqfeature.qualifiers.build
       render :partial => 'form'
-    elsif @seqfeature.kind_of?(Biosql::Feature::Gene)
+      return
+    end
+    if @seqfeature.kind_of?(Biosql::Feature::Gene)
       # Gene features have special edit pages
       redirect_to edit_gene_path(@seqfeature)
+      return
     end
     if @seqfeature.locations.empty?
       @seqfeature.locations.build
@@ -300,7 +303,6 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
       @skip_locations=@extjs=true
       @blast_reports = @seqfeature.blast_iterations
       @changelogs = @seqfeature.related_versions
-      @changelogs = @changelogs.where{item_type != 'Biosql::Location'} unless @changelogs.empty?
     end
     
     def check_and_set_trait_id_param(assembly)

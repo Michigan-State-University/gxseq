@@ -29,7 +29,8 @@ class Sample < Thor
   method_option :description, :aliases => '-d', :type => :string, :desc => 'Description can store any extra metadata for the sample'
   method_option :assembly_id, :aliases => '-a', :type => :numeric, :required => true, :desc => 'Supply the ID for sequence taxonomy. Use thor taxonomy:list to lookup'
   method_option :concordance_set_id, :aliases => '-c', :type => :numeric, :required => true, :desc => 'Supply the ID for this samples concordance set. Use thor concordance:list to lookup'
-  method_option :data, :aliases => ['-f','--files'], :default => {}, :type => :hash, :desc => 'Hash of Assets to load for this sample; AssetType:path/to/file'
+  method_option :data, :aliases => ['-f','--files'], :default => {}, :type => :hash, :desc => 'Hash of Assets to load for this sample: AssetType:path/to/file'
+  method_option :traits, :type => :hash, :desc => 'Hash of traits to load for this sample: Key1:Value,Key2:Value'
   method_option :username, :default => 'admin', :aliases => '-u', :desc => 'Login name for the sample owner'
   method_option :group, :aliases => '-g', :desc => "Group name for this sample"
   method_option :local, :default => false, :desc => "Use local path for asset(s) instead of copying data"
@@ -72,7 +73,8 @@ class Sample < Thor
         :assembly_id => options[:assembly_id],
         :concordance_set_id => options[:concordance_set_id],
         :user => owner,
-        :group => group
+        :group => group,
+        :traits_attributes => options[:traits].collect{|key,val| {:key=>key,:val=>val} }
       )
       # Validate sample
       unless sample.valid?
