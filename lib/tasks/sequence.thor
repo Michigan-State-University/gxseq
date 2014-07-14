@@ -107,7 +107,8 @@ class Sequence < Thor
           next if(entry.accession.blank? && entry.definition.blank? && entry.seq.length == 0 && entry.features.size == 0)
           #update the counter
           entry_count +=1
-          #create the accesion for this sequence based on accession, entry_id, and locus          
+          #create the accesion for this sequence based on accession, entry_id, and locus  
+          #TODO: refactor entry_id / accession use in app. Store entry_id as name, store true accession        
           entry_accession = get_entry_accession(entry,file_type)
           # Renumber the accession and store concordance
           if(prefix)
@@ -541,18 +542,14 @@ class Sequence < Thor
   end
   # parse the entry and find an acession based on the file type, raise an error if none can be found. All bioentries need an accession
   def get_entry_accession(entry,file_type)
-    if(entry.accession && !entry.accession.blank?)
-      entry_accession = entry.accession
-    else
-      case file_type
-      when 'fasta'
-        entry_accession = entry.entry_id
-        if(entry.locus)
-          entry_accession << '.' << entry.locus
-        end
-      when 'genbank'
-        entry_accession = entry.locus.entry_id
+    case file_type
+    when 'fasta'
+      entry_accession = entry.entry_id
+      if(entry.locus)
+        entry_accession << '.' << entry.locus
       end
+    when 'genbank'
+      entry_accession = entry.entry_id
     end
     raise "Accession error: Could not infer entry accession:#{entry.get("LOCUS")}" if entry_accession.blank?
     return entry_accession
