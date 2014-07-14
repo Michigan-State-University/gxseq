@@ -139,13 +139,13 @@ class Annotation < Thor
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     unless APP_CONFIG[:bubble_up_terms]
       puts "No bubble up terms defined."
-      exit 0
+      return false
     end
     if(options[:assembly])
       assembly = ::Assembly.find_by_id(options[:assembly])
       unless assembly
         puts "Assembly '#{options[:assembly]}' not found. Try thor assembly:list"
-        exit 0
+        return false
       end
       b_ids = assembly.bioentries.select("bioentry_id").except(:order)
     end
@@ -159,7 +159,7 @@ class Annotation < Thor
     bubble_terms = Biosql::Term.where{lower(name).in my{APP_CONFIG[:bubble_up_terms]}}
     if bubble_terms.empty?
       puts "No bubble terms found for: #{APP_CONFIG[:bubble_up_terms].join(',')}"
-      exit 0
+      return false
     end
     Biosql::Feature::Gene.transaction do
       genes.find_in_batches(:batch_size => 500) do |batch|
