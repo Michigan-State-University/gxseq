@@ -441,8 +441,8 @@ class Sequence < Thor
   method_option :assembly, :aliases => '-a', :desc => 'Id of the assembly to reindex'
   method_option :output, :required => true, :aliases => '-o', :desc => 'Output file name'
   method_option :extra_flanking, :aliases => '-e', :default => 0, :desc => 'Number of extra flanking bases to include before and after annotation'
-  method_option :defline, :aliases => '-d', :type => :array, :default => 'description', :desc => 'Source for defline. Can be any annotation terms space separated'
-  method_option :blast_db, :aliases => '-b', :type => :array, :desc => 'Name or Id of blast database to use as definition source'
+  method_option :defline, :aliases => '-d', :default => [], :type => :array, :default => 'description', :desc => 'Source for defline. Can be any annotation terms space separated'
+  method_option :blast_db, :aliases => '-b', :default => [], :type => :array, :desc => 'Name or Id of blast databases to use as definition source'
   method_option :db_name, :aliases => '-n', :desc => 'Supply a name to create a corresponding blast database for the dumped data'
   method_option :description, :desc => 'Optional description for the new database. Ignored without db_name'
   def dump_features
