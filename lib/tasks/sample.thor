@@ -59,7 +59,7 @@ class Sample < Thor
     end
     # Validate assets and build
     options[:data].each do |key,value|
-      unless key.constantize.superclass == Asset && File.exists?(value)
+      unless File.exists?(value)
         puts "#{key} File Not Found : #{value}"
         return
       end
