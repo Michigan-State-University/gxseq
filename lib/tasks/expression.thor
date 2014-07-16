@@ -167,7 +167,7 @@ class Expression < Thor
           end
           # verify that 1 and only 1 matching feature is found
           seqfeature_ids = search.hits.collect{|hit| hit.stored(:id)}
-          feature_ids = search.hits.collect{|hit| hit.stored(key_terms.first)}
+          feature_ids = search.hits.collect{|hit| hit.stored(key_term_syms.first)}
         else
           features = Biosql::Feature::Seqfeature.find_all_with_qualifier_values(options[:key_term],batch_ids,{:case_sensitive => true})
             .includes(:bioentry,:qualifiers => [:term])
