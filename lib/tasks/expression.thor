@@ -73,7 +73,7 @@ class Expression < Thor
       puts "Could not find key term: #{options[:key_term]}"
       return
     end
-    key_term_texts = key_terms.map{|t| "term_#{t.term_id}_text"}
+    key_term_syms = key_terms.map{|t| "term_#{t.term_id}"}
     # Check and parse concordance
     concordance_hash={}
     if(options[:concordance])
@@ -159,8 +159,8 @@ class Expression < Thor
             with :assembly_id, options[:assembly_id]
             with :type_term_id, type_term_id
             any_of do
-              key_term_texts.each do |term_text|
-                with term_text.to_sym, batch_ids
+              key_term_syms.each do |term_sym|
+                with term_sym, batch_ids
               end
             end
             paginate(:page => 1, :per_page => 999)
