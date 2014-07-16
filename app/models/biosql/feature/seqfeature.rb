@@ -246,9 +246,8 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   def max_end
    locations.map(&:end_pos).max
   end
-
-  # default na_sequence; override for custom behavior (i.e. cds)
-  def na_sequence
+  # Class method passed locations
+  def self.na_sequence(locations=[],bioentry)
     seq = ""
     return seq if locations.empty?
     locations.each do |l|
@@ -256,7 +255,11 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
     end
     return (locations.first.strand.to_i == 1) ? seq : Bio::Sequence::NA.new(seq).complement!.to_s.upcase
   end
-  # default protein sequence, convert na
+  # returns concatenated na_sequence for locations
+  def na_sequence
+    self.class.na_sequence(self.locations,self.bioentry)
+  end
+  # returns protein sequence converted from na
   def protein_sequence
     return Biosql::Biosequence.to_protein(na_sequence,codon_start ? codon_start.value : 1,bioentry.taxon.genetic_code)
   end

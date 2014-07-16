@@ -440,9 +440,9 @@ class Sequence < Thor
   method_options %w(feature_type -f) => 'Gene'
   method_option :assembly, :aliases => '-a', :desc => 'Id of the assembly to reindex'
   method_option :output, :required => true, :aliases => '-o', :desc => 'Output file name'
-  method_option :extra_flanking, :aliases => 'e', :default => 0, :desc => 'Number of extra flanking bases to include before and after annotation'
-  method_option :defline, :aliases => '-d', :default => 'description', :desc => 'Source for defline. Can be any stored index field. Ignored if blast is supplied'
-  method_option :blast_db, :aliases => '-b', :desc => 'Name or Id of blast database to use as definition source'
+  method_option :extra_flanking, :aliases => '-e', :default => 0, :desc => 'Number of extra flanking bases to include before and after annotation'
+  method_option :defline, :aliases => '-d', :type => :array, :default => 'description', :desc => 'Source for defline. Can be any annotation terms space separated'
+  method_option :blast_db, :aliases => '-b', :type => :array, :desc => 'Name or Id of blast database to use as definition source'
   method_option :db_name, :aliases => '-n', :desc => 'Supply a name to create a corresponding blast database for the dumped data'
   method_option :description, :desc => 'Optional description for the new database. Ignored without db_name'
   def dump_features
@@ -450,34 +450,46 @@ class Sequence < Thor
     # lookup assembly
     assembly = assembly_option_or_ask
     # setup defline
-    if(options[:blast_db])
-      blast_db = BlastDatabase.find_by_name(options[:blast_db]) || BlastDatabase.find_by_id(options[:blast_db])
+    def_terms=[]
+    options[:blast_db].each do |db_term|
+      blast_db = BlastDatabase.find_by_name(db_term) || BlastDatabase.find_by_id(db_term)
       unless blast_db
-        puts "Could not find blast database: #{options[:blast_db]}"
-        exit 0
+        puts "Could not find blast database: #{db_term}"
+        puts "Options are: #{assembly.blast_runs.collect(&:name).to_sentence}"
+        return
       end
       unless ( blast_run = assembly.blast_runs.find_by_blast_database_id(blast_db.id) )
         puts "No Blast run for #{blast_db.name} found on #{assembly.name_with_version}"
         puts "Options are: #{assembly.blast_runs.collect(&:name).to_sentence}"
-        exit 0
+        return
       end
-      stored_def = "blast_#{blast_run.id}_text"
-    else
-      stored_def = options[:defline]+'_text'
+      def_terms << "blast_#{blast_run.id}_text"
     end
+    options[:defline].each do |term|
+      terms = Biosql::Term.where{lower(name) == my{term.downcase}}
+        .where{ontology_id.in my{Biosql::Term.annotation_ontologies.map(&:id)}}
+      def_terms += terms.map{|t| "term_#{t.term_id}_text"}
+    end
+    id_term='locus_tag_text'
     # Set output
     out = File.open(options[:output],'w')
     cur_bioentry_id = 0
     cur_seq = nil
     seqh = {}
     assembly.iterate_features({:type => options[:feature_type]}) do |search|
-      # lookup/cache bioseq for gene shortcut
-      if(options[:feature_type].downcase == 'gene')
-        Biosql::Biosequence.where{bioentry_id.in search.hits.collect{|hit| hit.stored(:bioentry_id)}.flatten}.each do |bioseq|
-          seqh[bioseq.bioentry_id]=bioseq.seq
+      hsh={}
+      # build lookup hash for speed
+      search.hits.each_slice(999) do |batch|
+        batch_ids = batch.map{|hit| hit.stored(:id)}
+        Biosql::Feature::Seqfeature.where{seqfeature_id.in my{batch_ids}}.includes(:locations,:bioentry).each do |fea|
+          hsh[fea.id]=[fea.bioentry,fea.locations]
         end
       end
-      write_fasta_from_search(out,search,stored_def,seqh,options)
+      search.hits.each do |hit|
+        na_seq = Biosql::Feature::Seqfeature.na_sequence(hsh[hit.stored(:id)][1],hsh[hit.stored(:id)][0])
+        out << ">#{Array(hit.stored(id_term)).first} #{def_terms.map{|t| Array(hit.stored(t)).first}.compact.join(' | ')}\n"
+        out << "#{na_seq.scan(/.{1,#{100}}/m).join("\n")}\n"
+      end
     end
     out.close
     # Create the blast database
@@ -500,25 +512,6 @@ class Sequence < Thor
     check_feature_types(sti_types)
   end
   protected
-  # Write out a fasta formatted line to the provided IO
-  def write_fasta_from_search(out_io,search,stored_def,seqh,options)
-    # Use features instead of bioseq lookup for mRNA/cds
-    if(options[:feature_type].downcase != 'gene')
-      search.each_hit_with_result do |hit,feature|
-        out_io << ">#{Array(hit.stored(:locus_tag_text)).first} #{Array(hit.stored(stored_def)).first}\n"
-        out_io << "#{feature.na_sequence.scan(/.{1,#{100}}/m).join("\n")}\n"
-      end
-    else
-      search.hits.each do |hit,feature|
-        # write defline
-        out_io << ">#{Array(hit.stored(:locus_tag_text)).first} #{Array(hit.stored(stored_def)).first}\n"
-        # Slice the sequence
-        start_pos = Array(hit.stored(:start_pos)).first
-        end_pos = Array(hit.stored(:end_pos)).first
-        out_io << "#{seqh[hit.stored(:bioentry_id)][start_pos-1,(end_pos-start_pos)+1].scan(/.{1,#{100}}/m).join("\n")}\n"
-      end
-    end
-  end
   # Compare the types we loaded to the Classes that exist in the app
   def check_feature_types(type_names)
     # TODO: convert to file check/create for missing classes
