@@ -29,13 +29,13 @@ class Expression < Thor
     # Check input
     if(options[:normalized_column]<=0)
       puts "Normalized column >= 0 required"
-      exit 0
+      return
     end
     begin
       datafile = File.open(input_file,"r")
     rescue
       puts "*** Error opening input *** \n#{$!}"
-      exit 0
+      return
     end
     unless ::Assembly.find_by_id(options[:assembly_id])
       puts "No taxon with id #{options[:assembly_id]} found. Try: thor taxonomy:list"
@@ -48,7 +48,7 @@ class Expression < Thor
       samples = RnaSeq.where{assembly_id==my{options[:assembly_id]}}.where{description =~ my{"%#{options[:sample_def]}%"} }
       if(samples.count>1)
         puts "--sample_def was not unique: #{samples.count} samples matched"
-        exit 0
+        return
       else
         sample = samples.first
       end
@@ -57,16 +57,23 @@ class Expression < Thor
     end
     unless sample
       puts "sample '#{options[:sample]||options[:sample_def]}' not found"
-      exit 0
+      return
     end
     # verify type if provided
     if(options[:feature_type])
       unless type_term = Biosql::Term.where{(name==my{options[:feature_type]}) & (ontology_id == Biosql::Term.seq_key_ont_id)}.first
         puts "Could not find term: #{options[:feature_type]}"
-        exit 0
+        return
       end
       type_term_id = type_term.id
     end
+    # find key term(s)
+    key_terms = Biosql::Term.where{(name==my{options[:key_term]}) & (ontology_id.in Biosql::Term.annotation_ontologies)}
+    if key_terms.empty?
+      puts "Could not find key term: #{options[:key_term]}"
+      return
+    end
+    key_term_texts = key_terms.map{|t| "term_#{t.term_id}_text"}
     # Check and parse concordance
     concordance_hash={}
     if(options[:concordance])
@@ -78,7 +85,7 @@ class Expression < Thor
         end
       rescue
         puts "*** Error opening concordance *** \n#{$!}"
-        exit 0
+        return
       end
     end
     # Parse the Input
@@ -113,12 +120,12 @@ class Expression < Thor
         FeatureCount.where(:sample_id => sample.id).delete_all
       when 'raise'
         puts "Sample already has #{counts} #{options[:feature_type]}s with expression. You need to supply an :existing option of 'truncate' or 'append' to continue"
-        exit 0
+        return
       when 'append'
         #do nothing
       else
         puts "Invalid :existing option found"
-        exit 0
+        return
       end
     end
     # report progress
@@ -149,9 +156,13 @@ class Expression < Thor
           # Use the sunspot index to save time
           # This is not default in case the index is unavailable
           search = Biosql::Feature::Seqfeature.search do
-            with :locus_tag, batch_ids
             with :assembly_id, options[:assembly_id]
             with :type_term_id, type_term_id
+            any_of do
+              key_term_texts.each do |term_text|
+                with term_text.to_sym, batch_ids
+              end
+            end
             paginate(:page => 1, :per_page => 999)
           end
           # verify that 1 and only 1 matching feature is found
@@ -173,7 +184,7 @@ class Expression < Thor
           if options[:skip_not_found]
             puts "\n-s supplied, ignoring missing features...\n"
           else
-            exit 0
+            return
           end
         end
         # print out a sample insert if test-only
