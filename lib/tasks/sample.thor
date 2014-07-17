@@ -85,7 +85,7 @@ class Sample < Thor
       # Add the assets
       options[:data].each do |key,filename|
         puts "#{key}:#{filename}"
-        if options[:local]==true
+        if options[:local]
           Asset.create(
             :type => key,
             :local_path => filename,
