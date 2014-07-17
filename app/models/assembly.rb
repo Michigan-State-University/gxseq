@@ -124,13 +124,6 @@ class Assembly < ActiveRecord::Base
     rescue => e
       puts e
     end
-    
-    begin
-    puts "Reindexing Associations"
-    reindex
-    rescue => e
-      puts e
-    end
   end
   # creates a default concordance set with accessions matching the database
   def create_default_concordance

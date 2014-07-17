@@ -16,6 +16,7 @@ class Sequence < Thor
   #method_option :database, :default => 'Public', :desc  => "Name of Biosql::Biodatabase to use. Not used by app"
   method_option :check_species_source, :default => true, :desc => "Inspect source annotation to identify species if no species_id is provided"
   method_option :no_prompt, :type => :boolean, :default => false, :desc => "Do not prompt for input during load"
+  method_option :no_index, :type => :boolean, :default => false, :desc => "Do not index after loading"
   def load(input_file)
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     # setup
@@ -428,6 +429,14 @@ class Sequence < Thor
       assembly.sync
     rescue => e
       puts "Error Syncing Assembly #{e}"
+    end
+    unless options[:no_index]
+      begin
+        puts "Index Assembly"
+        assembly.reindex
+      rescue => e
+        puts "Error Re-indexing #{e}"
+      end
     end
     # Done
     task_end_time = Time.now
