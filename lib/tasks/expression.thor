@@ -67,13 +67,13 @@ class Expression < Thor
       end
       type_term_id = type_term.id
     end
-    # find key term(s)
-    key_terms = Biosql::Term.where{(name==my{options[:key_term]}) & (ontology_id.in Biosql::Term.annotation_ontologies)}
+    # find key term
+    key_term = Biosql::Term.where{(name==my{options[:key_term]}) & (ontology_id.in Biosql::Term.annotation_ontologies)}
     if key_terms.empty?
       puts "Could not find key term: #{options[:key_term]}"
       return
     end
-    key_term_syms = key_terms.map{|t| "term_#{t.term_id}"}
+    key_term_s = "term_#{key_term.term_id}"
     # Check and parse concordance
     concordance_hash={}
     if(options[:concordance])
@@ -158,16 +158,12 @@ class Expression < Thor
           search = Biosql::Feature::Seqfeature.search do
             with :assembly_id, options[:assembly_id]
             with :type_term_id, type_term_id
-            any_of do
-              key_term_syms.each do |term_sym|
-                with term_sym, batch_ids
-              end
-            end
+            with key_term_s, batch_ids
             paginate(:page => 1, :per_page => 999)
           end
           # verify that 1 and only 1 matching feature is found
           seqfeature_ids = search.hits.collect{|hit| hit.stored(:id)}
-          feature_ids = search.hits.collect{|hit| hit.stored(key_term_syms.first)}
+          feature_ids = search.hits.collect{|hit| hit.stored(key_term_s+'_text')}
         else
           features = Biosql::Feature::Seqfeature.find_all_with_qualifier_values(options[:key_term],batch_ids,{:case_sensitive => true})
             .includes(:bioentry,:qualifiers => [:term])
@@ -180,7 +176,7 @@ class Expression < Thor
         end
         # check for missing locus
         if feature_ids.size != batch_ids.size
-          puts "#{(batch_ids - feature_ids).size} features were not found in this batch:\n#{[batch_ids - feature_ids][0,5]} ..."
+          puts "#{(batch_ids - feature_ids).size} features were not found in this batch:\n#{(batch_ids - feature_ids)[0,10]} ..."
           if options[:skip_not_found]
             puts "\n-s supplied, ignoring missing features...\n"
           else
