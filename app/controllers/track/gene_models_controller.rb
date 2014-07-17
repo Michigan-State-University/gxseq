@@ -1,5 +1,5 @@
 class Track::GeneModelsController < Track::BaseController
-  before_filter :authorize_sample, :only => [:search]
+  before_filter :authorize_bioentry, :only => [:search]
   def syndicate
     # TODO: Update syndication display for gene models.
     render :json  => {
@@ -58,7 +58,7 @@ class Track::GeneModelsController < Track::BaseController
     #TODO: rewrite gene model search using Sunspot
     bioentry_ids = @bioentry.assembly.bioentries.map(&:id)
     data = []
-
+    
     if(params[:query] && !params[:query].blank?)
       query = params[:query].upcase
       qualifiers = Biosql::SeqfeatureQualifierValue.limit(1000).includes([:term,:seqfeature]).where{seqfeature.bioentry_id.in bioentry_ids}.where{seqfeature.display_name.in GeneModel.seqfeature_types }.where{term.name.not_in(Biosql::Feature::Seqfeature.excluded_search_terms)}.where{upper(value)=~"%#{query}%"}
