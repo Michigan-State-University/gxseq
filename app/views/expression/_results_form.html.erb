@@ -46,11 +46,11 @@
 
     <div style="float:right;margin-right:2em">
       <table>
-      <% @group_select_options.each do |key, vals| %>
         <thead>
           <th style='padding:2px;border-bottom:2px solid #c3c4c7'><b>Definition Builder</b></th>
           <th style='text-align:center;padding:2px;border-bottom:1px solid #c3c4c7'>Order</th>
         </thead>
+      <% @group_select_options.each do |key, vals| %>
         <tr><td><i> - <%= key %></i></td><td></td></tr>
         <% vals.each do |val| %>
         <tr>
