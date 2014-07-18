@@ -94,13 +94,15 @@ GenomeSuite::Application.routes.draw do
         get "search"
       end
     end
-    resources :reads, :only => [:show] do
-      collection do
-        get "syndicate"
-        get "range"
-        get "reads"
-        get "peak_genes"
-        get "peak_locations"
+    constraints(:id => /.*/) do
+      resources :reads, :format => false, :only => [:show] do
+        collection do
+          get "syndicate"
+          get "range"
+          get "reads"
+          get "peak_genes"
+          get "peak_locations"
+        end
       end
     end
     resources :variants, :only => [:show] do
