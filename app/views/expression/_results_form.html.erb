@@ -11,11 +11,7 @@
       <%= hidden_field_tag 'samples[]', e.id %>
     <% end %>
   </div>
-  <div style="float:right;margin-right:2em">
-    Definition Source<br/>
-    <%= select_tag :definition_type, grouped_options_for_select(@group_select_options, params[:definition_type]),
-    {:id => 'def_type', :include_blank => 'Select ...', :onchange => '$("def_builder").value = this.value'} %>
-  </div>
+
   <div style="float:right;margin-right:2em">
     Filter Favorites<br/>
     <%= select_tag :favorites_filter, options_for_select({'None' => 'n', 'My Favorites' => 'user', 'All Favorites' => 'all'}, params[:favorites_filter]) %>
@@ -49,8 +45,28 @@
     </div>
 
     <div style="float:right;margin-right:2em">
-      Definition Builder<br/>
-      <%= select_tag :multi_definition_type, grouped_options_for_select(@group_select_options, (params[:multi_definition_type]||params[:definition_type])), {:multiple => true, :size => 7, :id => 'def_builder', :onchange => '$("def_type").value = this.value'} %>
+      <table>
+      <% @group_select_options.each do |key, vals| %>
+        <thead>
+          <th style='padding:2px;border-bottom:2px solid #c3c4c7'><b>Definition Builder</b></th>
+          <th style='text-align:center;padding:2px;border-bottom:1px solid #c3c4c7'>Order</th>
+        </thead>
+        <tr><td><i> - <%= key %></i></td><td></td></tr>
+        <% vals.each do |val| %>
+        <tr>
+          <td>
+          &nbsp;
+          <%= check_box_tag 'multi_definition_type[]', val[1],
+            params[:multi_definition_type].try(:include?,(val[1])),
+            :id => 'multi_def_'+val[1]
+          %>
+          <%= label_tag 'multi_def_'+val[1], val[0] %><br/>
+          </td>
+          <td><%= number_field_tag val[1]+'_order', params[val[1]+'_order']||1, :min=>1, :max=>99 %></td>
+        </tr>
+        <% end %>
+      <% end %>
+      </table>
     </div>
     
     <div style="clear:both;float:right; margin:1em">

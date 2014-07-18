@@ -160,12 +160,13 @@ class ExpressionController < ApplicationController
     @value_options = {'Normalized Counts' => 'normalized_counts', 'Total Counts' => 'counts', 'Unique Counts' => 'unique_counts'}
     # Setup the definition select list
     terms = []
-    @group_select_options = {
-      "Blast Reports" => @blast_runs.collect{|run|terms<<"blast_#{run.id}";["#{run.blast_iterations.count}: #{run.name}","blast_#{run.id}"]}
-    }
+    @group_select_options = {}
+    unless @blast_runs.empty?
+      @group_select_options["Blast Reports"] = @blast_runs.collect{|run|terms<<"blast_#{run.id}";["#{run.blast_iterations.count}: #{run.name}","blast_#{run.id}"]}
+    end
     # Get all the annotations in use by an assembly feature.
     qual_facet = Biosql::Feature::Seqfeature.facet_qualifier_terms_by_type_and_assembly_id(params[:type_term_id],@assembly.id)
-    top_count = qual_facet.facet(:qualifier_term_ids).rows.first.count
+    
     qual_facet.facet(:qualifier_term_ids).rows.each do |row|
       if (row.count >0 ) && (term = Biosql::Term.find_by_term_id(row.value))
         @group_select_options[term.ontology.name]||=[]
@@ -173,9 +174,16 @@ class ExpressionController < ApplicationController
         terms << "term_#{term.id}"
       end
     end
-    # select all by default
-    if params[:definition_type].blank? and params[:multi_definition_type].blank?
+    # Default Sort
+    APP_CONFIG[:term_id_order].each do |t,val|
+      params[t]||=val
+    end
+    # Sort params
+    terms.sort!{|a,b| (params[a+'_order'].to_i||1) <=> (params[b+'_order'].to_i||1)  }
+    if params[:multi_definition_type].blank?
       params[:multi_definition_type]=terms
+    else
+      params[:multi_definition_type].sort!{|a,b| (params[a+'_order'].to_i||1) <=> (params[b+'_order'].to_i||1)  }
     end
   end
   
@@ -188,7 +196,7 @@ class ExpressionController < ApplicationController
         render :text => '*Does not match search'
       else
         @search.each_hit_with_result do |hit,feature|
-          render :partial => 'hit_definition', :locals => {:hit => hit, :feature => feature, :definition_type => params[:definition_type], :multi_definition_type => params[:multi_definition_type]}
+          render :partial => 'hit_definition', :locals => {:hit => hit, :feature => feature, :multi_definition_type => params[:multi_definition_type]}
           break
         end
       end

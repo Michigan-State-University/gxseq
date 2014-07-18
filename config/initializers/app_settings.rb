@@ -1,6 +1,13 @@
 # Load settings.yml into APP_CONFIG constant
 begin
   APP_CONFIG = YAML.load_file("#{File.expand_path File.dirname(__FILE__)}/../settings.yml")[::Rails.env].symbolize_keys
+  APP_CONFIG[:term_id_order]={}
+  if APP_CONFIG[:default_term_order]
+     APP_CONFIG[:default_term_order].each do |t,val|
+       term = Biosql::Term.where{name==my{t}}.where{ontology_id.in my{Biosql::Term.annotation_ontologies}}.first
+       APP_CONFIG[:term_id_order]["term_#{term.id}_order"]=val
+     end
+  end
 rescue => e
  puts "Error reading settings file.\nCheck config/settings.yml.sample for more information \n\t**#{e}\n\n"
 end

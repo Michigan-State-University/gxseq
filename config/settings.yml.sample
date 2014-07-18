@@ -35,6 +35,11 @@ allenv: &ALLENV
     #- transcript_id
     #- protein_id
     #- ec_number
+  # Default order number for definition terms
+  default_term_order:
+    gene: 1
+    function: 2
+    note: 3
     
   # location of the bedtools installation directory
   # See https://github.com/arq5x/bedtools2
