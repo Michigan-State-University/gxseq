@@ -146,6 +146,11 @@ class Blast < Thor
       puts "**error: #{e}\n#{e.backtrace.join("\n")}"
       exit 0
     end
+    # Clear memory
+    GC.enable
+    blast_file=nil
+    GC.start
+    
     PaperTrail.enabled = true
     # Begin Re-index
     if options[:test]
