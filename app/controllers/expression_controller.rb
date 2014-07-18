@@ -179,7 +179,7 @@ class ExpressionController < ApplicationController
       params[t]||=val
     end
     # Sort params
-    terms.sort!{|a,b| (params[a+'_order'].to_i||1) <=> (params[b+'_order'].to_i||1)  }
+    terms.sort!{|a,b| (params[a+'_order']||1).to_i <=> (params[b+'_order']||1).to_i }
     if params[:multi_definition_type].blank?
       params[:multi_definition_type]=terms
     else
