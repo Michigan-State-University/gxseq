@@ -758,12 +758,14 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   def corr_search_to_matrix(corr_search,f_counts,opts={})
     value_type=opts[:value_type]||'normalized_count'
     results = []
-    blast_run_texts = bioentry.assembly.blast_runs.each.map{|blast_run|"blast_#{blast_run.id}_text".to_sym}
-    term_ids = get_qualifier_idx_term_ids
+    blast_run_terms = bioentry.assembly.blast_runs.each.map{|blast_run|"blast_#{blast_run.id}"}||[]
+    anno_terms = get_qualifier_idx_term_ids||[]
+    terms = blast_run_terms + anno_terms
+    terms.sort!{|a,b| (APP_CONFIG[:term_id_order][a+'_order']||1).to_i <=> (APP_CONFIG[:term_id_order][b+'_order']||1).to_i  }
     corr_search.hits.each_with_index do |hit|
       desc = ''
-      desc += term_ids.collect{|t| Array(hit.stored(t+'_text')).first}.compact.join("; ")
-      desc += blast_run_texts.collect{|br| Array(hit.stored(br)).first}.compact.join("; ")
+      desc += terms.collect{|t| Array(hit.stored(t+'_text')).first}.compact.join(" | ")
+      #desc += blast_run_texts.collect{|br| Array(hit.stored(br)).first}.compact.join("; ")
       item = {
         :id => hit.stored(:id),
         :locus => Array(hit.stored(:locus_tag_text)).first,
