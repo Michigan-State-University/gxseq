@@ -44,13 +44,15 @@ class RnaSeq < Sample
         self.create_big_wig(:data => bam.create_big_wig)
         big_wig.load if big_wig
       end
-      if(bam && !forward_big_wig)
-        self.create_forward_big_wig(:data => bam.create_big_wig(:strand => '+'))
-        forward_big_wig.load if forward_big_wig
-      end
-      if(bam && !reverse_big_wig)
-        self.create_reverse_big_wig(:data => bam.create_big_wig(:strand => '-'))
-        reverse_big_wig.load if reverse_big_wig
+      if show_negative == 'true'
+        if(bam && !forward_big_wig)
+          self.create_forward_big_wig(:data => bam.create_big_wig(:strand => '+'))
+          forward_big_wig.load if forward_big_wig
+        end
+        if(bam && !reverse_big_wig)
+          self.create_reverse_big_wig(:data => bam.create_big_wig(:strand => '-'))
+          reverse_big_wig.load if reverse_big_wig
+        end
       end
       return true
     rescue => e
