@@ -237,16 +237,26 @@ class Blast < Thor
     %w(link -l) => nil,
     %w(filepath -p) => nil,
     %w(taxon_id -t) => nil,
-    %w(description -d) => nil
+    %w(description -d) => nil,
+    %w(group -g) => nil
   def create_db
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     taxon_id = (t = Biosql::Taxon.find_by_taxon_id(options[:taxon_id])) ? t.taxon_id : nil
+    group=nil
+    if(options[:group])
+      group = ::Group.find_by_name(options[:group]) || Group.find_by_id(options[:group]) || nil
+      unless group
+        puts "Could not find group: '#{options[:group]}'"
+        return
+      end
+    end
     b = BlastDatabase.new(
       :name => options[:name],
       :link_ref => options[:link],
       :filepath => options[:filepath],
       :taxon_id => taxon_id,
-      :description => options[:description]
+      :description => options[:description],
+      :group => group
     )
     b.save!
   end
