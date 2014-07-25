@@ -16,12 +16,12 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   # TODO: Refactor some methods in this class, its growing too large. Maybe a Search module
   set_table_name "seqfeature"
   set_primary_key :seqfeature_id
-  has_paper_trail :meta => {
-    :parent_id => Proc.new { |seqfeature| (seqfeature.respond_to?(:gene_model) && seqfeature.gene_model) ? seqfeature.gene_model.gene_id : seqfeature.id },
-    :parent_type => Proc.new { |seqfeature| (seqfeature.respond_to?(:gene_model) && seqfeature.gene_model) ? "Gene" : seqfeature.class.name }
-  }
   set_sequence_name "SEQFEATURE_SEQ"
   set_inheritance_column :display_name
+  has_paper_trail :meta => {
+    :parent_id => Proc.new { |s| s.respond_to?(:gene_model) ? s.try(:gene_model).try(:gene_id) : nil},
+    :parent_type => Proc.new { |s| s.respond_to?(:gene_model) ? s.try(:gene_model).try(:gene).try(:class).try(:name): nil}
+  }
   belongs_to :bioentry, :class_name => "Biosql::Bioentry"
   belongs_to :type_term, :class_name => "Term", :foreign_key => "type_term_id"
   belongs_to :source_term, :class_name => "Term", :foreign_key =>"source_term_id"
@@ -165,7 +165,8 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
   
   ## INSTANCE METHODS
   def related_versions
-    (self.versions + locations.map(&:versions) + qualifiers.map(&:versions)).flatten.compact.sort{|a,b|b.created_at<=>a.created_at}
+    vers = Version.where{parent_id == my{self.seqfeature_id}}.where{parent_type == my{self.class.name}} + self.versions
+    vers.flatten.compact.uniq.sort{|a,b|b.created_at<=>a.created_at}
   end
   # generates a Seqfeature scope with all features having the same locus tag as self.
   # self will be included in the result
@@ -895,7 +896,6 @@ class Biosql::Feature::Seqfeature < ActiveRecord::Base
       end
     end
   end
-
 end
 
 Biosql::Feature::Seqfeature.store_full_sti_class = false

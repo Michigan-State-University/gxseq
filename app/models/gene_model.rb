@@ -32,16 +32,17 @@ class GeneModel < ActiveRecord::Base
   validates_presence_of :bioentry
   validates_uniqueness_of :rank, :scope => [:bioentry_id, :gene_id]
   
-  accepts_nested_attributes_for :mrna
-  accepts_nested_attributes_for :cds
+  accepts_nested_attributes_for :mrna, :allow_destroy => true
+  accepts_nested_attributes_for :cds, :allow_destroy => true
   validates_associated :mrna
   validates_associated :cds
   before_validation :initialize_associations
   
   has_paper_trail :meta => {
-    :parent_id => Proc.new { |gm| gm.gene_id },
-    :parent_type => "Biosql::Feature::Gene"
+    :parent_id => Proc.new { |g| g.try(:gene).try(:seqfeature_id)},
+    :parent_type => Proc.new { |g| g.try(:gene).try(:class).try(:name)}
   }
+  
   acts_as_api
   
   api_accessible :listing do |t|
@@ -95,7 +96,7 @@ class GeneModel < ActiveRecord::Base
   end
   
   def related_versions
-    (self.versions+[mrna.try(:related_versions)]+[cds.try(:related_versions)]).flatten.compact.sort{|a,b|b.created_at<=>a.created_at}
+    ([mrna.try(:related_versions)]+[cds.try(:related_versions)]).flatten.compact.uniq.sort{|a,b|b.created_at<=>a.created_at}
   end
   
   def function

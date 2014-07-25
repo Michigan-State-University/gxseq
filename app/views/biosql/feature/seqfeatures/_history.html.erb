@@ -11,13 +11,13 @@
 	  </thead>
 		<% @changelogs.each do |version| %>
 			<% version_item = version.item ? version.item.versions.last.item : nil %>
-			<tr class="<%#= case version.event; when 'create'; 'highlight_green';when 'destroy'; 'highlight_red';end %>">
+			<tr>
 				<td><%= version.reify ? version.reify.name : (version.item ? version.item.name : version.next.reify.name) rescue version.item_type %></td>
 				<% # odd papertrail handling of (last) version.item compared to version.item.versions.last.item .. one is live and one is previous item  %>
 				<% new_value =  (version.next ? (version.next.reify ? version.next.reify.display_data : '') : (version_item ? version_item.display_data : '')) %>
-				<td><%= sliced_toggle(new_value,new_value,"#{version.id}_new")%></td>
+				<td style='max-width:20em'><%= sliced_toggle(new_value,new_value,"#{version.id}_new")%></td>
 				<% old_value = version.reify ? version.reify.display_data : '' %>
-				<td><%= sliced_toggle(old_value,old_value,"#{version.id}_old")%></td>
+				<td style='max-width:20em'><%= sliced_toggle(old_value,old_value,"#{version.id}_old")%></td>
 				<td><%= User.find(version.terminator).display_name rescue nil %></td>
 				<td><%= version.created_at.strftime("%D %I:%M %p") %></td>
 				<td><%= version.event %></td>

@@ -39,7 +39,7 @@ class Biosql::Feature::Gene < Biosql::Feature::Seqfeature
   end
   
   def related_versions
-    (super + gene_models.map(&:related_versions)).flatten.compact.sort{|a,b|b.created_at<=>a.created_at}
+    (super + gene_models.map(&:related_versions)).flatten.compact.uniq.sort{|a,b|b.created_at<=>a.created_at}
   end
   
   # returns an array of all possible start locations in this gene

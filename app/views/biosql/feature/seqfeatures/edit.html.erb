@@ -44,21 +44,24 @@
 		With the editor you can manipulate all aspects of a feature. Below you will find a graphical representation and a form with several items. Changes will be recorded in the database after you submit the form. For more information please read the Edit section of the <%= link_to "Gene Details", details_seqfeatures_path %> page.
 	</div>
 	<!-- Graphic Gene-->
-  <% unless @view_start&&@canvas_width&&@gui_zoom %>
-	<div class="clear">
-		<div id="standard_format">
-			<div class="border" style="overflow:hidden">
-			  <% begin %>
-				<%= number_line(@view_start, @canvas_width, {:height => 40,:per_pixel => @gui_zoom}) %>
-				<%= @gui_zoom.to_s+ ":1" %>
-				<%= render :partial => 'graphic' %>
-				<% rescue %>
-				  Can't Render Graphic
-				<% end %>
-			</div>
-		</div>
-	</div>
-  <% end %>
+  <div class="clear">
+  	<div class="border" style="overflow:hidden">
+  	  <% offset = ((@seqfeature.max_end - @seqfeature.min_start)/2).ceil %>
+  		<%= render :partial => 'biosql/feature/genes/graphic',
+  		:locals => {
+  		  :feature => @seqfeature,
+  		  min: @seqfeature.min_start-offset,
+  		  max: @seqfeature.max_end+offset,
+  		  :datapath => range_track_gene_models_path(
+  		    {
+  		      bioentry: @seqfeature.bioentry_id,
+  		      left: @seqfeature.min_start-offset,
+  		      right: @seqfeature.max_end+offset
+  		    }
+  		  )
+  		} %>
+  	</div>
+  </div>
 
   <p>
     A Feature can be any interesting region of sequence. Features have a 'Type' that denotes what kind of information you are attaching to the region and a number of attributes, called qualifiers, that are used to describe the feature.
