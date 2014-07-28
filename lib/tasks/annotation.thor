@@ -134,7 +134,7 @@ class Annotation < Thor
   
   desc 'bubble', "Copy annotations from CDS and mRNA to Gene parent. Configure bubble terms in settings.yml"
   method_option :assembly, :aliases => '-a', :desc => 'ID of Assembly to annotate'
-  method_option :test_only, :aliases => '-t', :desc => 'Test run with no database changes'
+  method_option :test_only, :aliases => '-t', :default => false, :desc => 'Test run with no database changes'
   def bubble
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     unless APP_CONFIG[:bubble_up_terms]
