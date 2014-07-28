@@ -45,6 +45,7 @@ group :cucumber do
 end
 
 gem 'reek'
+gem 'terminal-table', '~> 1.4.5'
 # All the rest
 gem 'acts_as_api', '~>0.3'
 gem 'xmlparser'
