@@ -4,7 +4,7 @@ begin
   APP_CONFIG[:term_id_order]={}
   if APP_CONFIG[:default_term_order]
      APP_CONFIG[:default_term_order].each do |t,val|
-       term = Biosql::Term.where{name==my{t}}.where{ontology_id.in my{Biosql::Term.annotation_ontologies}}.first
+       term = Biosql::Term.where{name==my{t}}.where{ontology_id.in my{Biosql::Term.annotation_ontologies.except(:order)}}.first
        APP_CONFIG[:term_id_order]["term_#{term.id}_order"]=val if term
      end
   end
