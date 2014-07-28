@@ -10,6 +10,7 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     order_d = (params[:d]=='down' ? 'desc' : 'asc')
     # Filter setup
     @assemblies = Assembly.accessible_by(current_ability).includes(:taxon => :scientific_name).order('taxon_name.name')
+    params[:assembly_id]||=@assemblies.first.try(:id)
     # Verify Bioentry param
     if params[:assembly_id] && params[:bioentry_id]
       params[:bioentry_id] = nil unless Biosql::Bioentry.find_by_bioentry_id(params[:bioentry_id]).try(:assembly_id) == params[:assembly_id]
@@ -19,12 +20,19 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     terms = []
     @group_select_options = {}
     # Grab blast run ids for description
-    @blast_runs = BlastRun.all
+    @blast_runs = []
+    if params[:assembly_id]
+      @blast_runs = BlastRun.where{assembly_id == my{params[:assembly_id]}}
+    end
     unless @blast_runs.empty?
       @group_select_options["Blast Reports"] = @blast_runs.collect{|run|terms<<"blast_#{run.id}";["#{run.blast_iterations.count}: #{run.name}","blast_#{run.id}"]}
     end
     # Get all the annotations in use.
     qual_facet = Biosql::Feature::Seqfeature.search do
+      with :assembly_id, params[:assembly_id] unless params[:assembly_id].blank?
+      with :strand, params[:strand] unless params[:strand].blank?
+      with :type_term_id, params[:type_term_id] unless params[:type_term_id].blank?
+      with :bioentry_id, params[:bioentry_id] unless params[:bioentry_id].blank?
       facet :qualifier_term_ids
     end
     qual_facet.facet(:qualifier_term_ids).rows.each do |row|
