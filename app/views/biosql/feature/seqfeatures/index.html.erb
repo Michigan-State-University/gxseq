@@ -1,3 +1,9 @@
+<% content_for :head do -%>
+  <%= javascript_include_tag "jquery-latest.min.js" %>
+  <%= javascript_include_tag 'simple_tooltip.js' %>
+  <%= stylesheet_link_tag 'simple_tooltip' %>
+<% end -%>
+
 <%= render :partial => "sidebar", :locals => {:active => 'features'} %>
 <% content_for :top_bar do -%>
   <h1 class="pagetitle">Feature Listing</h1>
@@ -8,7 +14,7 @@
 	<%= form_tag seqfeatures_path(params), :method => :get do %>
 
 	  <div style="float:right;margin-bottom:0.5em">
-	    Search:<br/>
+	    Search: <%= tooltip('keyword_search', :click) %><br/>
       <%= submit_tag 'Go', :class => 'button', :id => 'go_submit', :style => 'float:right;margin-left:-1em' %>
       <%= text_field_tag "keywords",params[:keywords], :style => 'float:right;margin-right:2em' %>
     </div>
@@ -28,24 +34,48 @@
 	  <!-- Advanced Options -->
 	  <div style="display:none;clear:both" id="advanced_search">
   	  <%= hidden_field_tag :bioentry_id, params[:bioentry_id] %>
-  	  
-  	  <div style="clear:both;float:right;margin-top:.5em;margin-right:2em">
-        Location:<br/>
-        <%= text_field_tag "start_pos",params[:start_pos], :size => 10 %>
-        TO
-        <%= text_field_tag "end_pos",params[:end_pos], :size => 10 %><br/>
-      </div>
-      
-  	  <div style="clear:both;float:right;margin-top:.5em;margin-right:2em">
-        Strand:<br/>
-        <%= select_tag 'strand', options_for_select(@search.facet(:strand).rows.collect{|s| ["#{s.value.to_i > 0 ? 'Forward (5\' -> 3\')' : 'Reverse (3\' -> 5\')'} (#{s.count})",s.value]},params[:strand]), {:include_blank => "No Filter"} %><br/>
-      </div>
+      <div style="clear:both;float:right;margin-1em">
+    	  <div style="clear:both;float:right;margin-top:.5em;margin-right:2em">
+          Location:<br/>
+          <%= text_field_tag "start_pos",params[:start_pos], :size => 10 %>
+          TO
+          <%= text_field_tag "end_pos",params[:end_pos], :size => 10 %><br/>
+        </div>
+    
+    	  <div style="clear:both;float:right;margin-top:.5em;margin-right:2em">
+          Strand:<br/>
+          <%= select_tag 'strand', options_for_select(@search.facet(:strand).rows.collect{|s| ["#{s.value.to_i > 0 ? 'Forward (5\' -> 3\')' : 'Reverse (3\' -> 5\')'} (#{s.count})",s.value]},params[:strand]), {:include_blank => "No Filter"} %><br/>
+        </div>
 
-      <div style="clear:both;float:right; margin:2em">
-        <%= submit_tag 'Search', :class => "button" %>
+        <div style="clear:both;float:right; margin:2em">
+          <%= submit_tag 'Search', :class => "button" %>
+        </div>
+      </div>
+      <div style="float:right;margin-right:2em">
+        <table>
+          <thead>
+            <th style='padding:2px;border-bottom:2px solid #c3c4c7'><b>Definition Builder</b></th>
+            <th style='text-align:center;padding:2px;border-bottom:1px solid #c3c4c7'>Order</th>
+          </thead>
+        <% @group_select_options.each do |key, vals| %>
+          <tr><td><i> - <%= key %></i></td><td></td></tr>
+          <% vals.each do |val| %>
+          <tr>
+            <td>
+            &nbsp;
+            <%= check_box_tag 'multi_definition_type[]', val[1],
+              params[:multi_definition_type].try(:include?,(val[1])),
+              :id => 'multi_def_'+val[1]
+            %>
+            <%= label_tag 'multi_def_'+val[1], val[0] %><br/>
+            </td>
+            <td><%= number_field_tag val[1]+'_order', params[val[1]+'_order']||1, :min=>-99, :max=>99 %></td>
+          </tr>
+          <% end %>
+        <% end %>
+        </table>
       </div>
     </div>
-  
   <% end %>
   
 <% end %>
@@ -82,7 +112,9 @@
           <% end %>
         </td>
         <td><%= feature.display_name %></td>
-        <td id='<%= feature.id %>_definition'><%= render :partial => 'hit_definition', :locals => {:hit => hit, :feature => feature, :blast_run_fields => @blast_run_fields} %></td>
+        <td id='<%= feature.id %>_definition'>
+          <%= render :partial => "expression/hit_definition", :locals => {:hit => hit, :multi_definition_type => params[:multi_definition_type]} %>
+        </td>
         <td><%= highlight_result(hit,:start_pos) %></td>
         <td><%= highlight_result(hit,:end_pos) %></td>
         <td><%= (hit.stored(:strand) > 0 ? '<span style="color:green">F</span>' : '<span style="color:darkred">R</span>').html_safe if hit.stored(:strand) %></td>

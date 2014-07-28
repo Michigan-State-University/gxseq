@@ -1,6 +1,6 @@
 <% form_tag expression_advanced_results_path, :method => :get do %>
   <div style="float:right;margin-bottom:0.5em">
-    Search definition and locus<br/>
+    Search definition and locus <%= tooltip('keyword_search', :click) %><br/>
     <%= submit_tag 'Go', :class => 'button', :id => 'go_submit', :style => 'float:right;margin-left:-1em' %>
     <%= text_field_tag "keywords",params[:keywords], :style => 'float:right;margin-right:2em' %>
     <%= hidden_field_tag :assembly_id, params[:assembly_id] %>

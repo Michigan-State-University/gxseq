@@ -14,8 +14,39 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     if params[:assembly_id] && params[:bioentry_id]
       params[:bioentry_id] = nil unless Biosql::Bioentry.find_by_bioentry_id(params[:bioentry_id]).try(:assembly_id) == params[:assembly_id]
     end
+    
+    # Setup the definition select list
+    terms = []
+    @group_select_options = {}
     # Grab blast run ids for description
-    @blast_run_fields = BlastRun.all.collect{|br| "blast_#{br.id}_text"}
+    @blast_runs = BlastRun.all
+    unless @blast_runs.empty?
+      @group_select_options["Blast Reports"] = @blast_runs.collect{|run|terms<<"blast_#{run.id}";["#{run.blast_iterations.count}: #{run.name}","blast_#{run.id}"]}
+    end
+    # Get all the annotations in use.
+    qual_facet = Biosql::Feature::Seqfeature.search do
+      facet :qualifier_term_ids
+    end
+    qual_facet.facet(:qualifier_term_ids).rows.each do |row|
+      if (row.count >0 ) && (term = Biosql::Term.find_by_term_id(row.value))
+        @group_select_options[term.ontology.name]||=[]
+        @group_select_options[term.ontology.name] << ["#{row.count}: #{term.name}", "term_#{term.id}"]
+        terms << "term_#{term.id}"
+      end
+    end
+    
+    # Default Sort
+    APP_CONFIG[:term_id_order].each do |t,val|
+      params[t]||=val
+    end
+    # Sort params
+    terms.sort!{|a,b| (params[a+'_order']||1).to_i <=> (params[b+'_order']||1).to_i }
+    if params[:multi_definition_type].blank?
+      params[:multi_definition_type]=terms
+    else
+      params[:multi_definition_type].sort!{|a,b| (params[a+'_order'].to_i||1) <=> (params[b+'_order'].to_i||1)  }
+    end
+    
     # Find minimum set of id ranges accessible by current user.
     # Set to -1 if no items are found. This will force empty search results
     authorized_assembly_ids = current_ability.authorized_assembly_ids
@@ -26,8 +57,8 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
       # Auth      
       with :assembly_id, authorized_assembly_ids
       # Text Keywords
-      if params[:keywords]
-        keywords params[:keywords], :highlight => true
+      unless params[:keywords].blank?
+        fulltext params[:keywords], :fields => [params[:multi_definition_type].map{|s| s+'_text'},:locus_tag_text].flatten, :highlight => true
       end
       # Filters
       with :assembly_id, params[:assembly_id] unless params[:assembly_id].blank?
