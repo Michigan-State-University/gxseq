@@ -15,7 +15,6 @@ group :development do
   gem 'better_errors'
   gem 'binding_of_caller'
   # Code analyzers and security
-  gem 'reek'
   gem 'rails_best_practices'
   gem 'flay'
   gem 'flog'
@@ -44,6 +43,8 @@ end
 group :cucumber do
   gem 'cucumber-rails'
 end
+
+gem 'reek'
 # All the rest
 gem 'acts_as_api', '~>0.3'
 gem 'xmlparser'
