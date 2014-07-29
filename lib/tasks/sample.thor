@@ -37,6 +37,7 @@ class Sample < Thor
   def create
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     # Validate options
+    options[:traits]||={}
     unless owner = User.find_by_login(options[:username])
       puts "User with login #{options[:username]} not found; supply a valid login for --username/-u"
       return
@@ -46,7 +47,7 @@ class Sample < Thor
       return
     end
     unless ::Assembly.find_by_id(options[:assembly_id])
-      puts "No taxon with id #{options[:assembly_id]} found. Try: thor taxonomy:list"
+      puts "No assembly with id #{options[:assembly_id]} found. Try: thor assembly:list"
       return
     end
     unless group = ::Group.find_by_name(options[:group])
