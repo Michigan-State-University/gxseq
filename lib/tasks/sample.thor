@@ -37,7 +37,6 @@ class Sample < Thor
   def create
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     # Validate options
-    options[:traits]||={}
     unless owner = User.find_by_login(options[:username])
       puts "User with login #{options[:username]} not found; supply a valid login for --username/-u"
       return
@@ -75,7 +74,7 @@ class Sample < Thor
         :concordance_set_id => options[:concordance_set_id],
         :user => owner,
         :group => group,
-        :traits_attributes => options[:traits].collect{|key,val| {:key=>key,:value=>val} }
+        :traits_attributes => (options[:traits]||{}).collect{|key,val| {:key=>key,:value=>val} }
       )
       # Validate sample
       unless sample.valid?
