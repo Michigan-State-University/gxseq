@@ -68,7 +68,7 @@ class Expression < Thor
       type_term_id = type_term.id
     end
     # find key term
-    unless key_term = Biosql::Term.where{(name==my{options[:key_term]}) & (ontology_id.in Biosql::Term.annotation_ontologies)}.first
+    unless key_term = Biosql::Term.where{(name==my{options[:key_term]}) & (ontology_id.in Biosql::Term.annotation_ontologies.except(:order))}.first
       puts "Could not find key term: #{options[:key_term]}"
       return
     end
