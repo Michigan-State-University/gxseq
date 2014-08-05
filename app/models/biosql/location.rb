@@ -18,8 +18,8 @@ class Biosql::Location < ActiveRecord::Base
   set_table_name "location"
   set_primary_key :location_id
   has_paper_trail :meta => {
-    :parent_id => Proc.new { |l| (l.seqfeature.respond_to?(:gene_model) && l.seqfeature.gene_model) ? l.seqfeature.gene_model.gene_id : l.seqfeature.id},
-    :parent_type => Proc.new { |l| (l.seqfeature.respond_to?(:gene_model) && l.seqfeature.gene_model) ? 'Gene' : l.seqfeature.class.name}
+    :parent_id => Proc.new { |l| l.seqfeature.id},
+    :parent_type => Proc.new { |l| l.seqfeature.class.name}
   }
   belongs_to :seqfeature, :class_name => "Biosql::Feature::Seqfeature"
   belongs_to :dbxref, :class_name => "Dbxref"

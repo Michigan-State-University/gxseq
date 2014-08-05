@@ -61,8 +61,8 @@ Find similar genes from expression profile and display an interactive view
   | 20 |
   When I visit the gene coexpression page for "At1g"
   Then I should see "At1g" in slickgrid row 1 col 1
-  And I should see "G1; Prod1; Func1" in slickgrid row 1 col 2
-  And I should see "G2; Prod2; Func2" in slickgrid row 2 col 2
+  And I should see "G1 | Func1 | Prod1" in slickgrid row 1 col 2
+  And I should see "G2 | Func2 | Prod2" in slickgrid row 2 col 2
   And I should see "Seed Storage" in slickgrid row 2 col 2
   And I should see "1" in slickgrid row 1 col 3
   And I should see "22" in slickgrid row 1 col 5

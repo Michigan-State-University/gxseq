@@ -12,7 +12,7 @@
       <%= f.semantic_errors :locus_tag if f.object.term.name=='locus_tag' %>
     <% end %>
     <%= f.hidden_field :id, :value => f.object.id unless f.object.new_record? %>
-    <%= f.input :value, :as => ((f.object.value && f.object.value(false).length > 30) ? :text : :string),:label => f.object.term.try(:name).try(:humanize), :input_html => {:disabled => (f.object.term && f.object.term.name=='locus_tag' && !f.object.new_record?)} %>
+    <%= f.input :value, :as => ((f.object.value && f.object.value(false).length > 35) ? :text : :string),:label => f.object.term.try(:name).try(:humanize), :input_html => {:disabled => (f.object.term && f.object.term.name=='locus_tag' && !f.object.new_record?)} %>
     <%= link_to_remove_fields image_tag("delete.png",:alt => "Remove Field"), f unless (f.object.term && f.object.term.name=='locus_tag1')%>
   <% end %>
 </ul>

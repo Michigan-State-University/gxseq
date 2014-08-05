@@ -239,6 +239,10 @@ module ActiveRecord
       end
       return connection.insert(sql, "#{name} Create",primary_key, id, sequence_name)
     end
+    # open up protected method
+    def self.compute_sti_type(s)
+      compute_type s
+    end
   end
   class Relation
     # overrides select with primary key only and returns results
@@ -339,6 +343,65 @@ class CompositePrimaryKeys::CompositeKeys
   def to_yaml 
     join(",")
   end
+end
+
+# Fix for STI set to full_sti_name : false
+class Version
+  def reify(options = {})
+     without_identity_map do
+       options[:has_one] = 3 if options[:has_one] == true
+       options.reverse_merge! :has_one => false
+
+       unless object.nil?
+         attrs = PaperTrail.serializer.load object
+
+         # Normally a polymorphic belongs_to relationship allows us
+         # to get the object we belong to by calling, in this case,
+         # +item+.  However this returns nil if +item+ has been
+         # destroyed, and we need to be able to retrieve destroyed
+         # objects.
+         #
+         # In this situation we constantize the +item_type+ to get hold of
+         # the class...except when the stored object's attributes
+         # include a +type+ key.  If this is the case, the object
+         # we belong to is using single table inheritance and the
+         # +item_type+ will be the base class, not the actual subclass.
+         # If +type+ is present but empty, the class is the base class.
+       
+         # Overriden NT 2014 - class_name is not always full_sti_name
+         if item
+           model = item
+           # Look for attributes that exist in the model and not in this version. These attributes should be set to nil.
+           (model.attribute_names - attrs.keys).each { |k| attrs[k] = nil }
+         else
+           inheritance_column_name = item_type.constantize.inheritance_column
+           class_name = attrs[inheritance_column_name].blank? ? item_type : attrs[inheritance_column_name]
+           klass = item_type.constantize.compute_sti_type class_name
+           #klass = class_name.constantize
+           model = klass.new
+         end
+
+         model.class.unserialize_attributes_for_paper_trail attrs
+
+         # Set all the attributes in this version on the model
+         attrs.each do |k, v|
+           if model.respond_to?("#{k}=")
+             model[k.to_sym] = v
+           else
+             logger.warn "Attribute #{k} does not exist on #{item_type} (Version id: #{id})."
+           end
+         end
+
+         model.send "#{model.class.version_association_name}=", self
+
+         unless options[:has_one] == false
+           reify_has_ones model, options[:has_one]
+         end
+
+         model
+       end
+     end
+   end
 end
 # Extend devise method this would be easier (not necessary) with base devise_ldap_authenticatable but it doesn't support db_authenticatable
 module Devise::LdapAdapter

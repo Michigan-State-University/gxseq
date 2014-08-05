@@ -1,18 +1,24 @@
+<% if multi_definition_type %>
+<% multi_def_table = '<table class="listing-solid-grey" style="font-size:10px;border-left:2px solid #648FAB"><tbody>' %>
+<% multi_definition_type.each do |definition|
+  multi_def_table += '<tr><td style="width:20%"><b>'
+  multi_def_table += Biosql::Feature::Seqfeature.idx_id_to_name(definition)
+  multi_def_table += ':</b><td style="text-align:left">'
+  multi_def_table += (Array(hit.stored(definition+'_text')).first||'')
+  multi_def_table += '</td></tr>'
+end %>
+<% multi_def_table += '</tbody></table>' -%>
+<% end %>
+
 <%=
 if multi_definition_type
   sliced_toggle(
     multi_definition_type.collect{|definition|
       highlight_result(hit,definition+'_text')
     }.join(' | ').html_safe,
-    multi_definition_type.collect{|definition|
-      Array(hit.stored(definition+'_text')).first
-    }.join(' | '),
+    multi_def_table.html_safe,
     Array(hit.stored(:id)).first
   )
 else
-  hit.stored(definition_type+'_text') ? sliced_toggle(
-      highlight_result(hit,definition_type+'_text'),
-      Array(hit.stored(definition_type+'_text')).first||'',
-      Array(hit.stored(:id)).first
-    ) : ''
+  'No Definition Selected'
 end %>

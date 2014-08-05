@@ -29,9 +29,11 @@ class Sample < Thor
   method_option :description, :aliases => '-d', :type => :string, :desc => 'Description can store any extra metadata for the sample'
   method_option :assembly_id, :aliases => '-a', :type => :numeric, :required => true, :desc => 'Supply the ID for sequence taxonomy. Use thor taxonomy:list to lookup'
   method_option :concordance_set_id, :aliases => '-c', :type => :numeric, :required => true, :desc => 'Supply the ID for this samples concordance set. Use thor concordance:list to lookup'
-  method_option :data, :aliases => ['-f','--files'], :default => {}, :type => :hash, :desc => 'Hash of Assets to load for this sample; AssetType:path/to/file'
+  method_option :data, :aliases => ['-f','--files'], :default => {}, :type => :hash, :desc => 'Hash of Assets to load for this sample: AssetType:path/to/file'
+  method_option :traits, :type => :hash, :desc => 'Hash of traits to load for this sample: Key1:Value,Key2:Value'
   method_option :username, :default => 'admin', :aliases => '-u', :desc => 'Login name for the sample owner'
   method_option :group, :aliases => '-g', :desc => "Group name for this sample"
+  method_option :local, :default => false, :desc => "Use local path for asset(s) instead of copying data"
   def create
     require File.expand_path("#{File.expand_path File.dirname(__FILE__)}/../../config/environment.rb")
     # Validate options
@@ -44,7 +46,7 @@ class Sample < Thor
       return
     end
     unless ::Assembly.find_by_id(options[:assembly_id])
-      puts "No taxon with id #{options[:assembly_id]} found. Try: thor taxonomy:list"
+      puts "No assembly with id #{options[:assembly_id]} found. Try: thor assembly:list"
       return
     end
     unless group = ::Group.find_by_name(options[:group])
@@ -57,7 +59,7 @@ class Sample < Thor
     end
     # Validate assets and build
     options[:data].each do |key,value|
-      unless key.constantize.superclass == Asset && File.exists?(value)
+      unless File.exists?(value)
         puts "#{key} File Not Found : #{value}"
         return
       end
@@ -71,7 +73,8 @@ class Sample < Thor
         :assembly_id => options[:assembly_id],
         :concordance_set_id => options[:concordance_set_id],
         :user => owner,
-        :group => group
+        :group => group,
+        :traits_attributes => (options[:traits]||{}).collect{|key,val| {:key=>key,:value=>val} }
       )
       # Validate sample
       unless sample.valid?
@@ -82,11 +85,19 @@ class Sample < Thor
       # Add the assets
       options[:data].each do |key,filename|
         puts "#{key}:#{filename}"
-        Asset.create(
-          :type => key,
-          :data => File.open(filename,'r'),
-          :sample_id => sample.id
-        )
+        if options[:local]
+          Asset.create(
+            :type => key,
+            :local_path => filename,
+            :sample_id => sample.id
+          )
+        else
+          Asset.create(
+            :type => key,
+            :data => File.open(filename,'r'),
+            :sample_id => sample.id
+          )
+        end
       end
     end
     puts "..Done"

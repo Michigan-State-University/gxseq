@@ -102,7 +102,7 @@ module ApplicationHelper
   def sliced_toggle(small_text,full_text,dom_id)
     full_text = small_text if full_text.nil?
     text = <<-HTML
-      <div id="slice_#{dom_id}_short" style="text-wrap:none;text-align:left;overflow:hidden;height:1.2em">
+      <div id="slice_#{dom_id}_short" style="word-wrap:break-word;text-align:left;overflow:hidden;height:1.2em;">
         <div id="toggle_#{dom_id}_open" style='float:left;cursor:pointer;color:#648FAB;' onclick="$('slice_#{dom_id}_full').toggle();
           $('slice_#{dom_id}_short').toggle();
           $('toggle_#{dom_id}_open').toggle();
@@ -111,7 +111,7 @@ module ApplicationHelper
         </div>
           #{small_text}
       </div>
-      <div id="slice_#{dom_id}_full" style="display:none;text-align:left;">
+      <div id="slice_#{dom_id}_full" style="display:none;text-align:left;word-wrap:break-word;">
         <div id="toggle_#{dom_id}_close" style='float:left;cursor:pointer;display:none;color:#648FAB;' onclick="$('slice_#{dom_id}_full').toggle();
           $('slice_#{dom_id}_short').toggle();
           $('toggle_#{dom_id}_open').toggle();

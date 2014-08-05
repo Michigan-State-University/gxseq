@@ -39,52 +39,7 @@ class Biosql::Feature::Gene < Biosql::Feature::Seqfeature
   end
   
   def related_versions
-    (super + gene_models.map(&:related_versions)).flatten.compact.sort{|a,b|b.created_at<=>a.created_at}
-  end
-  
-  ## Override text index methods to return a combination of attributes from gene, cds and mrna
-  ## We want to include 'product' and 'function' from any mrna or cds that belong to this gene
-  ##
-  # returns uniq 'gene names; products; functions; and synonyms' for all gene models
-  def indexed_description
-    names,prods,funcs,syns = [gene.try(:value)],[product_assoc.try(:value)],[function_assoc.try(:value)],[gene_synonym.try(:value)]
-    gene_models.each do |gm|
-      prods << gm.cds.try(:product_assoc).try(:value)
-      funcs << gm.mrna.try(:function_assoc).try(:value)
-    end
-    [names.compact.uniq,prods.compact.uniq,funcs.compact.uniq,syns.compact.uniq].flatten.join("; ").presence
-  end
-  # returns uniq products for all gene models
-  def indexed_product
-    vals = [product_assoc.try(:value)]
-    gene_models.each do |gm|
-      vals << gm.cds.try(:product_assoc).try(:value)
-    end
-    vals.compact.uniq.join("; ").presence
-  end
-  # returns uniq functions for all gene models
-  def indexed_function
-    vals = [function_assoc.try(:value)]
-    gene_models.each do |gm|
-      vals << gm.mrna.try(:function_assoc).try(:value)
-    end
-    vals.compact.uniq.join("; ").presence
-  end
-  # returns uniq protein_ids for all gene models
-  def indexed_protein_id
-    vals = []
-    gene_models.each do |gm|
-      vals << gm.cds.try(:protein_id_assoc).try(:value)
-    end
-    vals.compact.uniq.join("; ").presence
-  end
-  # returns uniq transcript_ids for all gene models
-  def indexed_transcript_id
-    vals = []
-    gene_models.each do |gm|
-      vals << gm.mrna.try(:transcript_id_assoc).try(:value)
-    end
-    vals.compact.uniq.join("; ").presence
+    (super + gene_models.map(&:related_versions)).flatten.compact.uniq.sort{|a,b|b.created_at<=>a.created_at}
   end
   
   # returns an array of all possible start locations in this gene

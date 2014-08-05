@@ -137,7 +137,7 @@ class ExpressionController < ApplicationController
     # lookup the extra taxon data
     get_assembly_data
     # set default search parameters
-    setup_defaults
+    setup_options
   end
   #returns rna_seq,features with expression,and blast_runs associated with this taxon version
   def get_assembly_data
@@ -154,36 +154,36 @@ class ExpressionController < ApplicationController
     end
   end
   # defaults
-  def setup_defaults
-    # search params
+  def setup_options
     params[:per_page]||=50
-    params[:definition_type]||= @assembly.default_feature_definition
     params[:value_type]||='normalized_counts'
     @value_options = {'Normalized Counts' => 'normalized_counts', 'Total Counts' => 'counts', 'Unique Counts' => 'unique_counts'}
-    # Setup the quick select box
-    @group_select_options = {
-      #'Combined' => [['Description','description'],['Everything','full_description']],
-      "Blast Reports" => @blast_runs.collect{|run|[run.name,"blast_#{run.id}"]},
-      'Annotation' => [['Description','description']]
-    }
-    # Could be replaced with Faceted search for speed and numbered results, would require term and/or ontology index
+    # Setup the definition select list
+    terms = []
+    @group_select_options = {}
+    unless @blast_runs.empty?
+      @group_select_options["Blast Reports"] = @blast_runs.collect{|run|terms<<"blast_#{run.id}";["#{run.blast_iterations.count}: #{run.name}","blast_#{run.id}"]}
+    end
     # Get all the annotations in use by an assembly feature.
-    anno_terms = Biosql::Term.select('distinct term.term_id, term.name')
-      .joins(:ontology,[:qualifiers => [:seqfeature => :bioentry]])
-      .where{ bioentry.assembly_id == my{@assembly.id} }
-      .where{ ontology_id == Biosql::Term.ano_tag_ont_id }
-      .where{lower(term.name).in(['ec_number','function','gene','gene_synonym','product','protein_id','transcript_id','locus_tag'])}
-    # Add to the list
-    @group_select_options['Annotation'].concat anno_terms.map{|term| [term.name.humanize,term.name]}
-    # Get all the custom terms in use
-    custom_terms = Biosql::Term.select('distinct term.term_id, term.name, term.ontology_id')
-      .joins(:ontology,[:qualifiers => [:seqfeature => :bioentry]])
-      .where{ seqfeature.type_term_id == my{@type_term_id} }
-      .where{ bioentry.assembly_id == my{@assembly.id} }
-      .where{ ontology_id.in(Biosql::Term.custom_ontologies) }
-    custom_terms.each do |term|
-      @group_select_options[term.ontology.name] ||= []
-      @group_select_options[term.ontology.name] << [term.name, "term_#{term.id}"]
+    qual_facet = Biosql::Feature::Seqfeature.facet_qualifier_terms_by_type_and_assembly_id(params[:type_term_id],@assembly.id)
+    
+    qual_facet.facet(:qualifier_term_ids).rows.each do |row|
+      if (row.count >0 ) && (term = Biosql::Term.find_by_term_id(row.value))
+        @group_select_options[term.ontology.name]||=[]
+        @group_select_options[term.ontology.name] << ["#{row.count}: #{term.name}", "term_#{term.id}"]
+        terms << "term_#{term.id}"
+      end
+    end
+    # Default Sort
+    APP_CONFIG[:term_id_order].each do |t,val|
+      params[t]||=val
+    end
+    # Sort params
+    terms.sort!{|a,b| (params[a+'_order']||1).to_i <=> (params[b+'_order']||1).to_i }
+    if params[:multi_definition_type].blank?
+      params[:multi_definition_type]=terms
+    else
+      params[:multi_definition_type].sort!{|a,b| (params[a+'_order'].to_i||1) <=> (params[b+'_order'].to_i||1)  }
     end
   end
   
@@ -196,7 +196,7 @@ class ExpressionController < ApplicationController
         render :text => '*Does not match search'
       else
         @search.each_hit_with_result do |hit,feature|
-          render :partial => 'hit_definition', :locals => {:hit => hit, :feature => feature, :definition_type => params[:definition_type], :multi_definition_type => params[:multi_definition_type]}
+          render :partial => 'hit_definition', :locals => {:hit => hit, :feature => feature, :multi_definition_type => params[:multi_definition_type]}
           break
         end
       end

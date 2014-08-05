@@ -15,8 +15,8 @@ class Biosql::SeqfeatureQualifierValue < ActiveRecord::Base
   scope :with_ontology, lambda {|ont_id| includes(:term).where{term.ontology_id==my{ont_id}}}
   scope :with_term, lambda {|term_id| includes(:term).where{term.term_id == my{term_id}}}
   has_paper_trail :meta => {
-    :parent_id => Proc.new { |l| (l.seqfeature.respond_to?(:gene_model) && l.seqfeature.gene_model) ? l.seqfeature.gene_model.gene_id : l.seqfeature.id },
-    :parent_type => Proc.new { |l| (l.seqfeature.respond_to?(:gene_model) && l.seqfeature.gene_model) ? 'Gene' : l.seqfeature.class.name }
+    :parent_id => Proc.new { |l| l.seqfeature.id },
+    :parent_type => Proc.new { |l| l.seqfeature.class.name }
   }
 
   def <=>(o)

@@ -53,10 +53,15 @@ class Biosql::Feature::GenesController < ApplicationController
   def edit
     @format = 'edit'
     authorize! :update, @gene
+    @seqfeature = @gene
+    if request.xhr?
+      setup_xhr_form
+      #@seqfeature.qualifiers.build
+      render :partial => 'form'
+    end
     if @gene.locations.empty?
       @gene.locations.build
     end
-    @seqfeature = @gene
   end
   
   def update
@@ -94,6 +99,12 @@ class Biosql::Feature::GenesController < ApplicationController
       @assembly = Assembly.find_by_id(params[:assembly_id])
       @bioentry = @assembly.bioentries.first if @assembly
     end
+  end
+  
+  def setup_xhr_form
+    @skip_locations=@extjs=true
+    @blast_reports = @seqfeature.blast_iterations
+    @changelogs = @seqfeature.related_versions
   end
   
   def get_gene_data

@@ -124,13 +124,6 @@ class Assembly < ActiveRecord::Base
     rescue => e
       puts e
     end
-    
-    begin
-    puts "Reindexing Associations"
-    reindex
-    rescue => e
-      puts e
-    end
   end
   # creates a default concordance set with accessions matching the database
   def create_default_concordance
@@ -208,7 +201,6 @@ class Assembly < ActiveRecord::Base
   # Reindexes all associated data. Convienence method
   def reindex
     index_bioentries
-    index_gene_models
     index_features
   end
   # indexes associated bioentries
@@ -216,17 +208,15 @@ class Assembly < ActiveRecord::Base
     bio_ids = bioentries.collect(&:id)
     Biosql::Bioentry.reindex_all_by_id(bio_ids)
   end
-  # indexes associated genemodels
-  def index_gene_models
-    model_ids = GeneModel.where{bioentry_id.in my{bioentry_ids}}.select("id")
-    GeneModel.reindex_all_by_id(model_ids)
-  end
   # indexes seqfeatures for all bioentries
   # optionally accepts {:type => 'feature_type'} to scope indexing
-  def index_features(opts={})
-    terms = Biosql::Term.seqfeature_tags.select("term_id as type_term_id")
-    terms = terms.where{name==my{opts[:type]}} if opts[:type]
-    feature_ids = Biosql::Feature::Seqfeature.where{bioentry_id.in(my{self.bioentry_ids})}.where{type_term_id.in(terms)}.select("seqfeature_id").collect(&:id)
+  def index_features(opts={})    
+    features = Biosql::Feature::Seqfeature.where{bioentry_id.in(my{self.bioentry_ids})}
+    if opts[:type]
+      terms = Biosql::Term.seqfeature_tags.select("term_id").where{lower(name).in my{opts[:type].downcase}}
+      features = features.where{type_term_id.in(terms.to_a)}
+    end
+    feature_ids = features.select("seqfeature_id").collect(&:id)
     Biosql::Feature::Seqfeature.reindex_all_by_id(feature_ids)
   end
 

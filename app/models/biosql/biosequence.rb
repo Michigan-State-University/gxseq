@@ -8,9 +8,11 @@ class Biosql::Biosequence < ActiveRecord::Base
   belongs_to :bioentry, :foreign_key => 'bioentry_id'
   
   def get_seq(start_pos, length)
-    if self.class.connection.adapter_name.downcase =~/.*oracle.*/
+    adapter_name = self.class.connection.adapter_name.downcase
+    if adapter_name =~ /oracle|mysql|sqlite/
       seq = ""
       max_chars = 4000
+      conn = self.class.connection
       # Select in batches of 4000
       (start_pos..(start_pos+length)).step(max_chars) do |pos|
         if(pos+max_chars>start_pos+length)
@@ -18,7 +20,14 @@ class Biosql::Biosequence < ActiveRecord::Base
         else
           char_num = max_chars
         end
-        seq += self.class.connection.select_value("select dbms_lob.substr(seq,#{char_num},#{pos+1}) from biosequence where bioentry_id = #{bioentry_id} and version = #{version}")||''
+        case adapter_name
+        when /oracle/
+          seq += conn.select_value("select dbms_lob.substr(seq,#{char_num},#{pos+1}) from biosequence where bioentry_id = #{bioentry_id} and version = #{version}")||''
+        when /mysql/
+          seq += conn.select_value("select SUBSTRING(seq,#{pos+1},#{char_num}) from biosequence where bioentry_id = #{bioentry_id} and version = #{version}")||''
+        when /sqlite/
+          seq += conn.select_value("select SUBSTR(seq,#{pos+1},#{char_num}) from biosequence where bioentry_id = #{bioentry_id} and version = #{version}")||''
+        end
       end
       return seq
     else

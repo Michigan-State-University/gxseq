@@ -10,12 +10,51 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
     order_d = (params[:d]=='down' ? 'desc' : 'asc')
     # Filter setup
     @assemblies = Assembly.accessible_by(current_ability).includes(:taxon => :scientific_name).order('taxon_name.name')
+    params[:assembly_id]||=@assemblies.first.try(:id)
     # Verify Bioentry param
     if params[:assembly_id] && params[:bioentry_id]
       params[:bioentry_id] = nil unless Biosql::Bioentry.find_by_bioentry_id(params[:bioentry_id]).try(:assembly_id) == params[:assembly_id]
     end
+    
+    # Setup the definition select list
+    terms = []
+    @group_select_options = {}
     # Grab blast run ids for description
-    @blast_run_fields = BlastRun.all.collect{|br| "blast_#{br.id}_text"}
+    @blast_runs = []
+    if params[:assembly_id]
+      @blast_runs = BlastRun.where{assembly_id == my{params[:assembly_id]}}
+    end
+    unless @blast_runs.empty?
+      @group_select_options["Blast Reports"] = @blast_runs.collect{|run|terms<<"blast_#{run.id}";["#{run.blast_iterations.count}: #{run.name}","blast_#{run.id}"]}
+    end
+    # Get all the annotations in use.
+    qual_facet = Biosql::Feature::Seqfeature.search do
+      with :assembly_id, params[:assembly_id] unless params[:assembly_id].blank?
+      with :strand, params[:strand] unless params[:strand].blank?
+      with :type_term_id, params[:type_term_id] unless params[:type_term_id].blank?
+      with :bioentry_id, params[:bioentry_id] unless params[:bioentry_id].blank?
+      facet :qualifier_term_ids
+    end
+    qual_facet.facet(:qualifier_term_ids).rows.each do |row|
+      if (row.count >0 ) && (term = Biosql::Term.find_by_term_id(row.value))
+        @group_select_options[term.ontology.name]||=[]
+        @group_select_options[term.ontology.name] << ["#{row.count}: #{term.name}", "term_#{term.id}"]
+        terms << "term_#{term.id}"
+      end
+    end
+    
+    # Default Sort
+    APP_CONFIG[:term_id_order].each do |t,val|
+      params[t]||=val
+    end
+    # Sort params
+    terms.sort!{|a,b| (params[a+'_order']||1).to_i <=> (params[b+'_order']||1).to_i }
+    if params[:multi_definition_type].blank?
+      params[:multi_definition_type]=terms
+    else
+      params[:multi_definition_type].sort!{|a,b| (params[a+'_order'].to_i||1) <=> (params[b+'_order'].to_i||1)  }
+    end
+    
     # Find minimum set of id ranges accessible by current user.
     # Set to -1 if no items are found. This will force empty search results
     authorized_assembly_ids = current_ability.authorized_assembly_ids
@@ -26,8 +65,8 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
       # Auth      
       with :assembly_id, authorized_assembly_ids
       # Text Keywords
-      if params[:keywords]
-        keywords params[:keywords], :highlight => true
+      unless params[:keywords].blank?
+        fulltext params[:keywords], :fields => [params[:multi_definition_type].map{|s| s+'_text'},:locus_tag_text].flatten, :highlight => true
       end
       # Filters
       with :assembly_id, params[:assembly_id] unless params[:assembly_id].blank?
@@ -136,9 +175,12 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
       setup_xhr_form
       #@seqfeature.qualifiers.build
       render :partial => 'form'
-    elsif @seqfeature.kind_of?(Biosql::Feature::Gene)
+      return
+    end
+    if @seqfeature.kind_of?(Biosql::Feature::Gene)
       # Gene features have special edit pages
       redirect_to edit_gene_path(@seqfeature)
+      return
     end
     if @seqfeature.locations.empty?
       @seqfeature.locations.build
@@ -300,7 +342,6 @@ class Biosql::Feature::SeqfeaturesController < ApplicationController
       @skip_locations=@extjs=true
       @blast_reports = @seqfeature.blast_iterations
       @changelogs = @seqfeature.related_versions
-      @changelogs = @changelogs.where{item_type != 'Biosql::Location'} unless @changelogs.empty?
     end
     
     def check_and_set_trait_id_param(assembly)

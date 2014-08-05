@@ -4,9 +4,9 @@
   <% format ||= 'fasta' %>
   <% case format %>
   <% when 'fasta' %>
-  <div style="font-family:'Courier';background:#FEFEFE;padding:1em">
+  <div style="font-family:'Courier';background:#FEFEFE;padding:1em;word-wrap:break-word">
 ><%=  biosequence.bioentry.name%> from <%= start %> to <%= stop %><br/>
-<%= biosequence.get_seq(start-1,(stop-start)+1).gsub("","&#8203").html_safe %>
+<%= biosequence.get_seq(start-1,(stop-start)+1).html_safe %>
   </div>
   <% end %>
 <% end %>

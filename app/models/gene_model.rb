@@ -32,16 +32,17 @@ class GeneModel < ActiveRecord::Base
   validates_presence_of :bioentry
   validates_uniqueness_of :rank, :scope => [:bioentry_id, :gene_id]
   
-  accepts_nested_attributes_for :mrna
-  accepts_nested_attributes_for :cds
+  accepts_nested_attributes_for :mrna, :allow_destroy => true
+  accepts_nested_attributes_for :cds, :allow_destroy => true
   validates_associated :mrna
   validates_associated :cds
   before_validation :initialize_associations
   
   has_paper_trail :meta => {
-    :parent_id => Proc.new { |gm| gm.gene_id },
-    :parent_type => "Biosql::Feature::Gene"
+    :parent_id => Proc.new { |g| g.try(:gene).try(:seqfeature_id)},
+    :parent_type => Proc.new { |g| g.try(:gene).try(:class).try(:name)}
   }
+  
   acts_as_api
   
   api_accessible :listing do |t|
@@ -57,85 +58,6 @@ class GeneModel < ActiveRecord::Base
     t.add 'bioentry.version', :as => :sequence_version
     t.add 'bioentry.taxon.name', :as => :sequence_taxon
     t.add 'bioentry.taxon.species.name', :as => :sequence_species
-  end
-  
-  # Sunspot search definition
-  searchable(:include => [[:bioentry => :assembly], [:cds => :product_assoc], [:mrna => :function_assoc], [:gene => [:product_assoc, :function_assoc]]]) do
-    text :locus_tag_text, :stored => true do
-      locus_tag
-    end
-    text :display_name_text, :stored => true do
-      display_name
-    end
-    text :gene_name_text, :stored => true do 
-      gene_name
-    end
-    text :function_text, :stored => true do
-      function
-    end
-    text :product_text, :stored => true do
-      product
-    end
-    string :protein_id
-    string :transcript_id
-    string :display_name
-    string :gene_name
-    string :locus_tag
-    string :function
-    string :product
-    
-    integer :id, :stored => true
-    integer :start_pos, :stored => true
-    integer :end_pos, :stored => true
-    integer :strand, :stored => true
-    integer :rank, :stored => true
-    integer :assembly_id do
-      bioentry.assembly_id
-    end
-    ## Sequence data
-    # Taxon Version
-    text :assembly_name_with_version_text, :stored => true do
-     bioentry.assembly.name_with_version
-    end
-    # Species/Strain
-    text :species_name_text, :stored => true do
-     bioentry.assembly.species.scientific_name.name rescue 'No Species'
-    end
-    text :taxon_name_text, :stored => true do
-     bioentry.assembly.taxon.scientific_name.name rescue 'No Taxon'
-    end
-    # Sequence
-    text :sequence_name_text, :stored => true do
-      bioentry.display_name
-    end
-    ## Filtering
-    # Taxon Version
-    string :assembly_name_with_version do
-     bioentry.assembly.name_with_version
-    end
-    # Species/Strain
-    string :species_name do
-     bioentry.assembly.species.scientific_name.name rescue 'No Species'
-    end
-    string :taxon_name do
-     bioentry.assembly.taxon.scientific_name.name rescue 'No Taxon'
-    end
-    # Sequence
-    string :sequence_name do
-      bioentry.display_name
-    end
-  end
-  
-  # Convenience method for Re-indexing a subset of features
-  def self.reindex_all_by_id(gene_model_ids,batch_size=100)
-    puts "Re-indexing #{gene_model_ids.length} gene models"
-    progress_bar = ProgressBar.new(gene_model_ids.length)
-    gene_model_ids.each_slice(100) do |id_batch|
-      Sunspot.index GeneModel.includes([:bioentry => :assembly],[:cds => :product_assoc], [:mrna => :function_assoc], [:gene => [:product_assoc, :function_assoc]]).where{id.in(my{id_batch})}
-      Sunspot.commit
-      progress_bar.increment!(id_batch.length)
-    end
-    Sunspot.commit
   end
   
   # For use in limiting query results
@@ -174,7 +96,7 @@ class GeneModel < ActiveRecord::Base
   end
   
   def related_versions
-    (self.versions+[mrna.try(:related_versions)]+[cds.try(:related_versions)]).flatten.compact.sort{|a,b|b.created_at<=>a.created_at}
+    ([mrna.try(:related_versions)]+[cds.try(:related_versions)]).flatten.compact.uniq.sort{|a,b|b.created_at<=>a.created_at}
   end
   
   def function
